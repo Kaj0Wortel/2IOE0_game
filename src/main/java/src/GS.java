@@ -6,7 +6,9 @@ package src;
 
 
 // Java imports
+
 import src.Assets.Instance;
+import src.Controllers.CameraController;
 import src.Renderer.Camera;
 import src.gui.MainPanel;
 import src.tools.event.Key;
@@ -88,6 +90,7 @@ public class GS {
     public static MainPanel mainPanel;
     public static Camera camera;
     public static CameraMode cameraMode;
+    public static CameraController cameraController;
     private static boolean fullScreen = false;
     
     
@@ -112,7 +115,9 @@ public class GS {
         Logger.write("Starting application...", Logger.Type.INFO);
         Logger.setShutDownMessage("Shutting down application...",
                 Logger.Type.INFO);
-        
+
+        CameraController cameraController = new CameraController(camera);
+
         registerImageSheets();
         
         createGUI();
@@ -216,4 +221,7 @@ public class GS {
         return camera;
     }
 
+    public static CameraController getCameraController() {
+        return cameraController;
+    }
 }

@@ -1,8 +1,9 @@
 package src.Controllers;
 
 import src.Renderer.Camera;
+import src.tools.event.Key;
 
-import java.awt.event.KeyEvent;
+import java.util.Set;
 
 public class CameraController {
 
@@ -12,19 +13,14 @@ public class CameraController {
         this.camera = camera;
     }
 
-    public void processKey(KeyEvent e) {
-        switch(e.getKeyChar()){
-            case 'a':
-                camera.YawLeft();
-                break;
-            case 'd':
-                camera.YawRight();
-                break;
-            case 'w':
+    public void processKey(Set<Key> e) {
 
-                break;
-            case 's':
-                break;
+        if(e.contains(Key.A)) {
+            System.out.println("Hi");
+            camera.YawLeft();
+        }
+        if(e.contains(Key.D)) {
+            camera.YawRight();
         }
 
         camera.calculateViewMatrix();

@@ -9,7 +9,6 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
 import org.joml.Vector3f;
-import src.Controllers.CameraController;
 import src.Renderer.Camera;
 import src.Renderer.Renderer;
 import src.tools.update.Updater;
@@ -41,9 +40,6 @@ public class Main {
 
         canvas.addGLEventListener(renderer);
         canvas.setSize(1080, 720);
-
-
-        CameraController cameraController = new CameraController(camera);
 
         GS.mainPanel.add(canvas);
         GS.mainPanel.setSize(1080, 720);
