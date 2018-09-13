@@ -1,6 +1,7 @@
 
-package src.OBJ;
+package game_2IOE0.OBJ;
 
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 
@@ -29,7 +30,6 @@ public class OBJObject {
     List<Float> geomVert = new ArrayList<>();
     List<Float> texVert = new ArrayList<>();
     List<Float> normVert = new ArrayList<>();
-    //List<Vector3f> paramVert = new ArrayList<>();
     List<FaceElement> faceList = new ArrayList<>();
     
     MTLObject mltObject = null;
@@ -201,30 +201,19 @@ public class OBJObject {
         geomVert.clear();
         texVert.clear();
         normVert.clear();
-        //paramVert.clear();
         faceList.clear();
         
         geomVert = null;
         texVert = null;
         normVert = null;
-        //paramVert = null;
         faceList = null;
         mltObject = null;
-        
     }
-
-    public List<Float> getGeomVert() {
-        return geomVert;
+    
+    public void setData(List<Float> vertices, List<Float> normals,
+            List<Float> tex, List<Integer> indices) {
     }
-
-    public List<Float> getTexVert() {
-        return texVert;
-    }
-
-    public List<Float> getNormVert() {
-        return normVert;
-    }
-
+    
     public float[] getAsFloats(List<Float> lst){
         float[] floats = new float[lst.size()];
         for(int i = 0; i < lst.size(); i++){
@@ -234,6 +223,7 @@ public class OBJObject {
         return floats;
     }
 
+    /*
     private void processFaceElements(){
         List<Float> vertices = new ArrayList<>();
         List<Float> normals = new ArrayList<>();
@@ -266,5 +256,5 @@ public class OBJObject {
         tex.add(vertIndex, texVert.get(face.getVert()[vertexNum]));
         tex.add(vertIndex+1, texVert.get(face.getVert()[vertexNum+1]));
         indices.add(vertIndex);
-    }
+    }*/
 }
