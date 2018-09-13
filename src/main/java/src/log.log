@@ -1,47 +1,47 @@
-17:11:44.979 [INFO]    Starting application...
-17:11:45.510 [INFO]    Successfully loaded font: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\Cooper Black\Cooper Black Regular.ttf
-17:11:45.519 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\Cooper Black\readme.html
-17:11:45.521 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\cousine\Apache License.txt
-17:11:45.535 [INFO]    Successfully loaded font: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\cousine\Cousine-Bold.ttf
-17:11:45.555 [INFO]    Successfully loaded font: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\cousine\Cousine-BoldItalic.ttf
-17:11:45.571 [INFO]    Successfully loaded font: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\cousine\Cousine-Italic.ttf
-17:11:45.582 [INFO]    Successfully loaded font: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\cousine\Cousine-Regular.ttf
-17:11:45.584 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\FontLoader.java
-17:11:45.584 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\Lucida_Bright\LBRITE.TTF
-17:11:45.584 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\Lucida_Bright\LBRITED.TTF
-17:11:45.585 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\Lucida_Bright\LBRITEDI.TTF
-17:11:45.585 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\Lucida_Bright\LBRITEI.TTF
-17:11:45.586 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SIL Open Font License.txt
-17:11:45.597 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-Black.ttf
-17:11:45.608 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-BlackIt.ttf
-17:11:45.618 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-Bold.ttf
-17:11:45.632 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-BoldIt.ttf
-17:11:45.645 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-ExtraLight.ttf
-17:11:45.659 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-ExtraLightIt.ttf
-17:11:45.685 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-It.ttf
-17:11:45.698 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-Light.ttf
-17:11:45.711 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-LightIt.ttf
-17:11:45.721 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-Regular.ttf
-17:11:45.733 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-Semibold.ttf
-17:11:45.747 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-SemiboldIt.ttf
-17:11:45.748 [INFO]    ========== FINISHED LOADING FONTS ==========
-17:11:45.748 [INFO]    
-17:11:46.722 [INFO]    Updater started!
-17:11:46.729 [INFO]    
-17:11:46.729 [INFO]    ==== Begin reading OBJ file ====
-17:11:46.729 [INFO]    File = C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\res\obj\test.obj
-17:11:46.732 [INFO]    
-17:11:46.732 [INFO]    ==== Begin reading MTL file ====
-17:11:46.732 [INFO]    File = C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\res\obj\test.mtl
-17:11:46.734 [DEBUG]   Ignored field: Ns, line = 5
-17:11:46.734 [DEBUG]   Ignored field: Ke, line = 9
-17:11:46.735 [DEBUG]   Ignored field: Ns, line = 15
-17:11:46.735 [INFO]    ==== Finished reading MTL file ====
-17:11:46.735 [INFO]    File = C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\res\obj\test.mtl
-17:11:46.735 [INFO]    
-17:11:46.737 [DEBUG]   Ignored field: s, line = 20
-17:11:46.738 [DEBUG]   Ignored field: s, line = 43
-17:11:46.739 [INFO]    ==== Finished reading OBJ file ====
-17:11:46.739 [INFO]    File = C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\res\obj\test.obj
-17:11:46.739 [INFO]    
-17:11:51.575 [INFO]    Shutting down application...
+17:17:42.665 [INFO]    Starting application...
+17:17:43.170 [INFO]    Successfully loaded font: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\Cooper Black\Cooper Black Regular.ttf
+17:17:43.179 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\Cooper Black\readme.html
+17:17:43.181 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\cousine\Apache License.txt
+17:17:43.200 [INFO]    Successfully loaded font: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\cousine\Cousine-Bold.ttf
+17:17:43.217 [INFO]    Successfully loaded font: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\cousine\Cousine-BoldItalic.ttf
+17:17:43.229 [INFO]    Successfully loaded font: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\cousine\Cousine-Italic.ttf
+17:17:43.241 [INFO]    Successfully loaded font: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\cousine\Cousine-Regular.ttf
+17:17:43.242 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\FontLoader.java
+17:17:43.242 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\Lucida_Bright\LBRITE.TTF
+17:17:43.242 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\Lucida_Bright\LBRITED.TTF
+17:17:43.243 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\Lucida_Bright\LBRITEDI.TTF
+17:17:43.243 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\Lucida_Bright\LBRITEI.TTF
+17:17:43.244 [INFO]    Ignored file: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SIL Open Font License.txt
+17:17:43.254 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-Black.ttf
+17:17:43.266 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-BlackIt.ttf
+17:17:43.276 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-Bold.ttf
+17:17:43.288 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-BoldIt.ttf
+17:17:43.301 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-ExtraLight.ttf
+17:17:43.311 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-ExtraLightIt.ttf
+17:17:43.332 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-It.ttf
+17:17:43.343 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-Light.ttf
+17:17:43.355 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-LightIt.ttf
+17:17:43.368 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-Regular.ttf
+17:17:43.381 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-Semibold.ttf
+17:17:43.397 [WARNING] Font was already registered: C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-SemiboldIt.ttf
+17:17:43.397 [INFO]    ========== FINISHED LOADING FONTS ==========
+17:17:43.397 [INFO]    
+17:17:44.424 [INFO]    Updater started!
+17:17:44.437 [INFO]    
+17:17:44.437 [INFO]    ==== Begin reading OBJ file ====
+17:17:44.437 [INFO]    File = C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\res\obj\test.obj
+17:17:44.441 [INFO]    
+17:17:44.441 [INFO]    ==== Begin reading MTL file ====
+17:17:44.441 [INFO]    File = C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\res\obj\test.mtl
+17:17:44.442 [DEBUG]   Ignored field: Ns, line = 5
+17:17:44.443 [DEBUG]   Ignored field: Ke, line = 9
+17:17:44.443 [DEBUG]   Ignored field: Ns, line = 15
+17:17:44.444 [INFO]    ==== Finished reading MTL file ====
+17:17:44.444 [INFO]    File = C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\res\obj\test.mtl
+17:17:44.444 [INFO]    
+17:17:44.445 [DEBUG]   Ignored field: s, line = 20
+17:17:44.447 [DEBUG]   Ignored field: s, line = 43
+17:17:44.447 [INFO]    ==== Finished reading OBJ file ====
+17:17:44.447 [INFO]    File = C:\Users\T. Kafoe\IdeaProjects\game_2IOE0\src\main\java\src\res\obj\test.obj
+17:17:44.447 [INFO]    
+17:17:47.866 [INFO]    Shutting down application...
