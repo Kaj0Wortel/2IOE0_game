@@ -55,6 +55,11 @@ public class Updater {
             List<Updateable> threadUpdates = new ArrayList<>(tasksPerThread);
             List<Thread> threads = new ArrayList<>();
             for (Updateable updateable : updateSet) {
+                try {
+                    updateable.update(timeStamp);
+                } catch (InterruptedException e) {
+
+                }
                 if (++counter <= tasksPerThread) {
                     threadUpdates.add(updateable);
                     

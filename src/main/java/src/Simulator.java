@@ -9,25 +9,24 @@ import src.Assets.Texture;
 import src.OBJ.LoadOBJ;
 import src.Renderer.Camera;
 import src.tools.Binder;
+import src.tools.update.Updateable;
+import src.tools.update.Updater;
 
-public class Simulator {
+import javax.swing.*;
+
+import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
+
+public class Simulator implements Updateable {
 
     private GL2 gl;
 
     private Binder binder;
 
     public Simulator () {
+
         this.binder = new Binder();
-    }
-
-    public void update(){
-        GS.getAssets().get(0).rotx();
-        GS.getAssets().get(0).roty();
-
-        Camera c = GS.getCamera();
-        //c.YawLeft();
-        //c.YawLeft();
-
+        SwingUtilities.invokeLater(() -> {
+            Updater.addTask(this);});
     }
 
     public void setGL(GL2 gl){
@@ -45,5 +44,24 @@ public class Simulator {
 
     public void cleanup(){
         binder.clean(gl);
+    }
+
+
+    @Override
+    public void performUpdate(long timeStamp) throws InterruptedException {
+        if(GS.getAssets().size() > 0) {
+            GS.getAssets().get(0).rotx();
+            GS.getAssets().get(0).roty();
+        }
+
+        Camera c = GS.getCamera();
+        //GS.getCameraController().processKey(GS.keyDet.getKeysPressed());
+        //c.YawLeft();
+        //c.YawLeft();
+    }
+
+    @Override
+    public Priority getPriority() {
+        return UPDATE_ALWAYS;
     }
 }
