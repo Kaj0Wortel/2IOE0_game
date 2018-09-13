@@ -38,5 +38,8 @@
     <orderEntry type="library" name="Maven: org.jogamp.gluegen:gluegen-rt:natives-solaris-i586:2.3.2" level="project" />
     <orderEntry type="library" name="Maven: org.jogamp.gluegen:gluegen-rt:natives-windows-amd64:2.3.2" level="project" />
     <orderEntry type="library" name="Maven: org.jogamp.gluegen:gluegen-rt:natives-windows-i586:2.3.2" level="project" />
+    <orderEntry type="library" name="Maven: org.tensorflow:libtensorflow:1.10.0" level="project" />
+    <orderEntry type="library" name="Maven: org.tensorflow:tensorflow:1.10.0" level="project" />
+    <orderEntry type="library" name="Maven: org.tensorflow:libtensorflow_jni:1.10.0" level="project" />
   </component>
 </module>
