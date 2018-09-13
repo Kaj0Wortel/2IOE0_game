@@ -1,17 +1,18 @@
 
-package game_2IOE0.OBJ;
+package src.OBJ;
 
 // Jogamp imports
-import game_2IOE0.GS;
-import game_2IOE0.tools.MultiTool;
-import game_2IOE0.tools.io.BufferedReaderPlus;
-import game_2IOE0.tools.log.Logger;
+import src.GS;
+import src.OBJ.OBJObject;
+import src.tools.MultiTool;
+import src.tools.io.BufferedReaderPlus;
+import src.tools.log.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static game_2IOE0.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
-import static game_2IOE0.tools.io.BufferedReaderPlus.TYPE_CONFIG;
+import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
+import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;

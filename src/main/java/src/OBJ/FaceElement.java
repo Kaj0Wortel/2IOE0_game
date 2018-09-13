@@ -1,9 +1,7 @@
 
-package game_2IOE0.OBJ;
+package src.OBJ;
 
-import game2.tools.MultiTool;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
+import src.tools.MultiTool;
 
 
 // Own imports

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import src.tools.event.ControllerKeyDetector;
 
 
 /**
@@ -86,7 +87,7 @@ public class GS {
      */
     private static GameState gameState = GameState.PLAYING;
     
-    public static KeyPressedDetector keyDet;
+    public static ControllerKeyDetector keyDet;
     public static MainPanel mainPanel;
     public static Camera camera;
     public static CameraMode cameraMode;
@@ -116,7 +117,7 @@ public class GS {
         Logger.setShutDownMessage("Shutting down application...",
                 Logger.Type.INFO);
 
-        CameraController cameraController = new CameraController(camera);
+        cameraController = new CameraController(camera);
 
         registerImageSheets();
         
@@ -136,7 +137,7 @@ public class GS {
      */
     private static void createGUI() {
         GS.mainPanel = new MainPanel();
-        GS.keyDet = new KeyPressedDetector(GS.mainPanel);
+        GS.keyDet = new ControllerKeyDetector(GS.mainPanel);
     }
     
     

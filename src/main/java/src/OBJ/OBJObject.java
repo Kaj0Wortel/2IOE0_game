@@ -1,5 +1,5 @@
 
-package game_2IOE0.OBJ;
+package src.OBJ;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
