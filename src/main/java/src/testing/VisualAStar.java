@@ -101,6 +101,54 @@ public class VisualAStar
             addPoint(point, g2d);
         }
     }
+     
+    /**
+     * @param point1 and point2 the points of the line to be added.
+     * @param g2d the graphics to paint on.
+     */
+    private void addLine(Point2D.Double point1, Point2D.Double point2, Graphics2D g2d) {
+        double x1 = (point1.x - SIZE.x) * (IMG_SIZE / SIZE.width);
+        double y1 = (point1.y - SIZE.y) * (IMG_SIZE / SIZE.height);
+        double x2 = (point2.x - SIZE.x) * (IMG_SIZE / SIZE.width);
+        double y2 = (point2.y - SIZE.y) * (IMG_SIZE / SIZE.height);
+        g2d.drawLine((int) x1,(int) y1,(int) x2,(int) y2);
+    }
+    
+    /**
+     * Adds a single line to the screen.
+     * 
+     * @param point1 and point2 the points of the line to be added.
+     */
+    public void addLine(Point2D.Double point1, Point2D.Double point2) {
+        Graphics2D g2d = (Graphics2D) img.getGraphics();
+        g2d.setPaint(getForeground());
+        g2d.setStroke(new BasicStroke(10));
+        addLine(point1, point2, g2d);
+    }
+        
+    /**
+     * @param point1 and point2 the points of the line to be added.
+     * @param g2d the graphics to paint on.
+     */
+    private void addRec(Point2D.Double point1, Point2D.Double point2, Graphics2D g2d) {
+        double x1 = (Math.min(point1.x, point2.x) - SIZE.x) * (IMG_SIZE / SIZE.width);
+        double y1 = (Math.min(point1.y, point2.y) - SIZE.y) * (IMG_SIZE / SIZE.height);
+        double x2 = (Math.max(point1.x, point2.x) - SIZE.x) * (IMG_SIZE / SIZE.width);
+        double y2 = (Math.max(point1.y, point2.y) - SIZE.y) * (IMG_SIZE / SIZE.height);
+        g2d.fillRect((int) x1,(int) y1,(int) (x2 -x1),(int) (y2 - y1));
+    }
+    
+    /**
+     * Adds a single line to the screen.
+     * 
+     * @param point1 and point2 the points of the line to be added.
+     */
+    public void addRec(Point2D.Double point1, Point2D.Double point2) {
+        Graphics2D g2d = (Graphics2D) img.getGraphics();
+        g2d.setPaint(getForeground());
+        g2d.setStroke(new BasicStroke(10));
+        addRec(point1, point2, g2d);
+    }
     
     /**
      * Adds all nodes in the list to the screen.

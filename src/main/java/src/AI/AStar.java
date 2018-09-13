@@ -359,15 +359,24 @@ public class AStar {
                     -pathList.get(0).pos.y));
             
             visual.setForeground(Color.ORANGE);
-            for (Point2D.Double point : checkPoints) {
-                visual.addPoint(new Point2D.Double(point.x, -point.y));
+            for(int i = 0; i<checkPoints.size(); i+= 2){
+                Point2D.Double point1 = checkPoints.get(i);
+                Point2D.Double point2 = checkPoints.get(i+1);
+                point1.y = -point1.y;
+                point2.y = -point2.y;
+                visual.addLine(point1, point2);
             }
             // Visuals for obstacle/void location
             visual.setForeground(Color.BLUE);
-            visual.addPoint(new Point2D.Double(0.5,-0));
-            visual.addPoint(new Point2D.Double(0.5,-2));
-            visual.addPoint(new Point2D.Double(1,-2));
-            visual.addPoint(new Point2D.Double(1,-0));
+            Point2D.Double point1 = new Point2D.Double(0.5,-0);
+            Point2D.Double point2 = new Point2D.Double(0.5,-2);
+            Point2D.Double point3 = new Point2D.Double(1,-2);
+            Point2D.Double point4 = new Point2D.Double(1,-0);
+            visual.addRec(point1, point3);
+//            visual.addLine(point1, point2);
+//            visual.addLine(point2, point3);
+//            visual.addLine(point3, point4);
+//            visual.addLine(point4, point1);
             visual.repaint();
             
             
