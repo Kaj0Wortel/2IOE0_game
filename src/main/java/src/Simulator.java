@@ -56,6 +56,7 @@ public class Simulator implements Updateable {
 
 
         Camera c = GS.getCamera();
+
         //GS.getCameraController().processKey(GS.keyDet.getKeysPressed());
 
         //c.YawLeft();
