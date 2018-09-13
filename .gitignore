@@ -47,3 +47,4 @@ out/
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
 /**/game_2IOE0/build/
+/**/target/

@@ -4,23 +4,21 @@ package src.tools.event;
 
 // Own imports
 import src.tools.log.Logger;
-import java.awt.Component;
 
 
 // Java imports
 
 
 // XInput imports
-import com.ivan.xinput.XInputAxes;
 import com.ivan.xinput.XInputDevice;
 import com.ivan.xinput.XInputDevice14;
-import com.ivan.xinput.enums.XInputAxis;
-import com.ivan.xinput.enums.XInputButton;
 import com.ivan.xinput.exceptions.XInputNotLoadedException;
-import com.ivan.xinput.listener.XInputDeviceListener;
-import static com.ivan.xinput.natives.XInputConstants.MAX_PLAYERS;
+import net.java.games.input.Component;
+import net.java.games.input.Component.Identifier.Axis;
 import net.java.games.input.Controller;
+import net.java.games.input.Controller.Type;
 import net.java.games.input.ControllerEnvironment;
+import net.java.games.input.Event;
 import net.java.games.input.EventQueue;
 
 
@@ -34,15 +32,12 @@ import net.java.games.input.EventQueue;
 public class ControllerKeyDetector
         extends KeyPressedDetector {
     
-    final protected boolean[] connected = new boolean[MAX_PLAYERS];
-    
-    
     public ControllerKeyDetector() {
         super();
         init();
     }
     
-    public ControllerKeyDetector(Component comp) {
+    public ControllerKeyDetector(java.awt.Component comp) {
         super(comp);
         init();
     }
@@ -63,7 +58,23 @@ public class ControllerKeyDetector
         // Get the DLL version.
         System.out.println("Native library version: "
                 + XInputDevice.getLibraryVersion());
-        
+        System.out.println("-----------------");
+        for (Controller controller : ControllerEnvironment
+                .getDefaultEnvironment()
+                .getControllers()) {
+            System.out.println(controller);
+            if (controller.getType() == Type.STICK) {
+                if (!controller.poll()) continue;
+                for (Component comp
+                        : controller.getComponents()) {
+                    System.out.println("    " + comp.toString());
+                }
+            }
+            if (controller.toString().equals("Twin USB Joystick")) {
+                System.out.println("    " + controller.getType());
+            }
+        }
+        System.out.println("-----------------");
         /*
         try {
             Controller[] controllers = ControllerEnvironment
@@ -114,14 +125,6 @@ public class ControllerKeyDetector
     }
     
     /**
-     * @param deviceID the device to check.
-     * @return {@code true} if the device denoted by the given id is connected.
-     */
-    public boolean isConnected(int deviceID) {
-        return connected[deviceID];
-    }
-    
-    /**
      * Sets the vibration of the controller with the given device id.
      * 
      * @param deviceID the id of the device.
@@ -147,6 +150,28 @@ public class ControllerKeyDetector
     
     @Override
     public void update() {
+        // Create an event object for the underlying plugin to populate.
+        Event event = new Event();
+        for (Controller controller : ControllerEnvironment
+                .getDefaultEnvironment()
+                .getControllers()) {
+            // Poll and ignore disable and/or invallid controllers.
+            if (!controller.poll()) continue;
+            
+            // tmp ignore all other events.
+            if (!"Twin USB Joystick".equals(controller.toString())) continue;
+            
+            // Process the events.
+            EventQueue queue = controller.getEventQueue();
+            while (queue.getNextEvent(event)) {
+                Component comp = event.getComponent();
+                System.out.println(event);
+                System.out.println(comp.getIdentifier().getClass());
+                System.out.println(comp.getIdentifier().getName());
+                System.out.println(comp.getIdentifier() == Axis.RZ);
+                
+            }
+        }
         /*
         try {
             XInputDevice[] devices = XInputDevice.getAllDevices();
