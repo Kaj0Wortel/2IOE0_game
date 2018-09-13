@@ -1,19 +1,23 @@
 
-package src.OBJ;
+package game_2IOE0.OBJ;
 
 // Jogamp imports
+import game_2IOE0.GS;
+import game_2IOE0.tools.MultiTool;
+import game_2IOE0.tools.io.BufferedReaderPlus;
+import game_2IOE0.tools.log.Logger;
 
-import src.GS;
-import src.tools.MultiTool;
-import src.tools.io.BufferedReaderPlus;
-import src.tools.log.Logger;
-
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
-import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
+import static game_2IOE0.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
+import static game_2IOE0.tools.io.BufferedReaderPlus.TYPE_CONFIG;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 // Own imports
 // Java imports
@@ -55,48 +59,88 @@ public class LoadOBJ {
             brp.setConfDataSeparator(" ");
             
             OBJObject obj = null;
+            List<Vector3f> verts = new ArrayList<>();
+            List<Vector2f> texs = new ArrayList<>();
+            List<Vector3f> norms = new ArrayList<>();
+            
+            List<Float> vertsBuf = new ArrayList<>();
+            List<Float> texsBuf = new ArrayList<>();
+            List<Float> normsBuf = new ArrayList<>();
+            List<Integer> facesBuf = new ArrayList<>();
+            
+            int locCounter = 0;
+            
+            Map<FaceElement, Integer> faces = new HashMap<>();
+            
             while (brp.readNextConfLine()) {
                 String[] data = brp.getFieldData();
                 
                 if (brp.fieldEquals("v")) {
-                    obj.geomVert.add(Float.parseFloat(data[0]));
-                    obj.geomVert.add(Float.parseFloat(data[1]));
-                    obj.geomVert.add(Float.parseFloat(data[2]));
-                    
-                } else if (brp.fieldEquals("vt")) {
-                    obj.texVert.add(Float.parseFloat(data[0]));
-                    obj.texVert.add(Float.parseFloat(data[1]));
-                    obj.texVert.add(Float.parseFloat(data[2]));
-
-                    
-                } else if (brp.fieldEquals("vn")) {
-                    obj.normVert.add(Float.parseFloat(data[0]));
-                    obj.normVert.add(Float.parseFloat(data[1]));
-                    obj.normVert.add(Float.parseFloat(data[2]));
-                    /*
-                } else if (brp.fieldEquals("vp")) {
-                    obj.paramVert.add(new Vector3f(
+                    verts.add(new Vector3f(
                             Float.parseFloat(data[0]),
                             Float.parseFloat(data[1]),
                             Float.parseFloat(data[2])
                     ));
-                    */
-                } else if (brp.fieldEquals("f")) {
-                    int[] vert = new int[data.length];
-                    int[] tex = new int[data.length];
-                    int[] norm = new int[data.length];
                     
+                } else if (brp.fieldEquals("vt")) {
+                    texs.add(new Vector2f(
+                            Float.parseFloat(data[0]),
+                            Float.parseFloat(data[1])
+                    ));
+                    
+                } else if (brp.fieldEquals("vn")) {
+                    norms.add(new Vector3f(
+                            Float.parseFloat(data[0]),
+                            Float.parseFloat(data[1]),
+                            Float.parseFloat(data[2])
+                    ));
+                    
+                } else if (brp.fieldEquals("f")) {
                     for (int i = 0; i < data.length; i++) {
                         String[] elems = data[i].split("/");
-                        vert[i] = Integer.parseInt(elems[0]);
-                        tex[i] = ("".equals(elems[1])
-                                ? 0
+                        int vPointer = Integer.parseInt(elems[0]);
+                        int tPointer = ("".equals(elems[1])
+                                ? -1
                                 : Integer.parseInt(elems[1]));
-                        norm[i] = Integer.parseInt(elems[2]);
+                        int nPointer = Integer.parseInt(elems[2]);
+                        
+                        FaceElement face
+                                = new FaceElement(vPointer, tPointer, nPointer);
+                        
+                        Integer loc = faces.get(face);
+                        // The location didn't exist before, so add a new
+                        // location to the buffers.
+                        if (loc == null) {
+                            // Set the current face location to the next
+                            // available slot.
+                            loc = locCounter++;
+                            
+                            Vector3f vert = verts.get(vPointer);
+                            vertsBuf.add(vert.x);
+                            vertsBuf.add(vert.y);
+                            vertsBuf.add(vert.z);
+                            
+                            Vector2f tex = null;
+                            if (tPointer != -1) {
+                                texsBuf.add(tex.x);
+                                texsBuf.add(tex.y);
+                            }
+                            
+                            Vector3f norm = norms.get(nPointer);
+                            normsBuf.add(norm.x);
+                            normsBuf.add(norm.y);
+                            normsBuf.add(norm.z);
+                        }
+                        
+                        // Add the position to the faces buffer.
+                        facesBuf.add(loc);
                     }
-                    obj.faceList.add(new FaceElement(vert, tex, norm));
                     
                 } else if (brp.fieldEquals("o")) {
+                    if (obj != null) {
+                        obj.setData(vertsBuf, texsBuf, normsBuf, facesBuf);
+                    }
+                    
                     collection.add(obj = new OBJObject(data[0]));
                     
                 } else if (brp.fieldEquals("usemtl")) {
