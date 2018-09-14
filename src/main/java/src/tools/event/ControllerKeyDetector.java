@@ -2,17 +2,14 @@
 package src.tools.event;
 
 
-// Own imports
-import src.tools.log.Logger;
-
-
 // Java imports
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-
-// XInput imports
-import com.ivan.xinput.XInputDevice;
-import com.ivan.xinput.XInputDevice14;
-import com.ivan.xinput.exceptions.XInputNotLoadedException;
+// JInput imports
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier.Axis;
 import net.java.games.input.Controller;
@@ -22,15 +19,32 @@ import net.java.games.input.Event;
 import net.java.games.input.EventQueue;
 
 
+// Own imports
+import src.tools.log.Logger;
+import net.java.games.input.ContrlEnv;
+import net.java.games.input.ControllerEvent;
+import net.java.games.input.ControllerListener;
+
+
 /**
  * A controller key detector class that keeps track of the current attached
- * controllers, including the current keypresses of the keyboard.
- * 
- * To download the JXInput lib:
- * <url>https://github.com/StrikerX3/JXInput/releases/tag/v0.8</url>
+ * controllers, including the keyboard and mouse presses.
  */
 public class ControllerKeyDetector
         extends KeyPressedDetector {
+    
+    private boolean initialized = false;
+    
+    /**
+     * The lock and connected map.
+     * Note that {@link src.Locker) cannot be used since the has of 
+     * {@link #connected} changes when items are added.
+     */
+    final public Lock lock = new ReentrantLock();
+    final public Map<String, Controller[]> connected
+            = new HashMap<>();
+    
+    
     
     public ControllerKeyDetector() {
         super();
@@ -42,157 +56,209 @@ public class ControllerKeyDetector
         init();
     }
     
-    
     private void init() {
-        // Check if XInput 1.3 is available.
-        // Currently only using this one.
-        if (XInputDevice.isAvailable()) {
-            System.out.println("XInput 1.3 is available on this platform.");
-        }
-
-        // Check if XInput 1.4 is available.
-        if (XInputDevice14.isAvailable()) {
-            System.out.println("XInput 1.4 is available on this platform.");
+        ContrlEnv ce = new ContrlEnv();
+        
+        // Call this function first to ensure that all events 
+        // for new controllers are gone. Then add the listeners and
+        // add the returned controllers manually. Otherwise some
+        // controllers might be ignored.
+        Controller[] controllers = ce.getControllers();
+        ce.addControllerListener(new ControllerListener() {
+            @Override
+            public void controllerAdded(ControllerEvent e) {
+                addController(e.getController());
+            }
+            
+            @Override
+            public void controllerRemoved(ControllerEvent e) {
+                removeController(e.getController());
+            }
+        });
+        
+        for (Controller c : controllers) {
+            addController(c);
         }
         
-        // Get the DLL version.
-        System.out.println("Native library version: "
-                + XInputDevice.getLibraryVersion());
-        System.out.println("-----------------");
-        for (Controller controller : ControllerEnvironment
-                .getDefaultEnvironment()
-                .getControllers()) {
-            System.out.println(controller);
-            if (controller.getType() == Type.STICK) {
-                if (!controller.poll()) continue;
-                for (Component comp
-                        : controller.getComponents()) {
-                    System.out.println("    " + comp.toString());
-                }
-            }
-            if (controller.toString().equals("Twin USB Joystick")) {
-                System.out.println("    " + controller.getType());
-            }
-        }
-        System.out.println("-----------------");
-        /*
-        try {
-            Controller[] controllers = ControllerEnvironment
-                    .getDefaultEnvironment()
-                    .getControllers();
-            //XInputDevice[] devices = XInputDevice.getAllDevices();
-            
-            for (int i = 0; i < controllers.length; i++) {
-                // Poll devices.
-                controllers[i].poll();
-                
-                // Get the controllers event queue.
-                EventQueue queue = controllers[i].getEventQueue();
-            }
-            
-            /*
-            for (int i = 0; i < MAX_PLAYERS; i++) {
-                final int num = i;
-                devices[i].addListener(new XInputDeviceListener() {
-                    @Override
-                    public void connected() {
-                        connected[num] = true;
-                    }
-                    
-                    @Override
-                    public void disconnected() {
-                        connected[num] = false;
-                    }
-                    
-                    @Override
-                    public void buttonChanged(XInputButton button,
-                            boolean pressed) {
-                        Key key = new ControllerKey(num, button);
-                        if (pressed) {
-                            keysCurPressed.add(key);
-                            keysPressedSinceLastUpdate.add(key);
-                            
-                        } else {
-                            keysCurPressed.remove(key);
-                        }
-                    }
-                });
-            }
-            
-        } catch (XInputNotLoadedException e) {
-            Logger.write(e);
-        }*/
+        // tmp initialization
+        ControllerKey.tmp();
+        initialized = true;
     }
     
     /**
-     * Sets the vibration of the controller with the given device id.
+     * Adds the given controller to the connected array.
      * 
-     * @param deviceID the id of the device.
-     * @param leftMotor the left motor speed. Must be between 0 and 65535.
-     * @param rightMotor the right motor speed. Must be between 0 and 65535.
-     * @return {@code false} if the motor was not connected.
-     * @throws IllegalArgumentException if either motor speed values are
-     *     not between 0 and 65535.
-     * 
-     * @see XInputDevice#setVibration(int, int)
+     * @param controller the controller to add.
      */
-    public boolean setVibration(int deviceID, int leftMotor, int rightMotor)
-            throws IllegalArgumentException {
+    private void addController(Controller controller) {
+        lock.lock();
         try {
-            return XInputDevice.getDeviceFor(deviceID)
-                    .setVibration(leftMotor, rightMotor);
+            String name = controller.toString();
+            Controller[] sameNameArr = connected.get(name);
+            if (sameNameArr == null) {
+                connected.put(name, new Controller[] {controller});
+                return;
+                
+            }
             
-        } catch (XInputNotLoadedException e) {
-            Logger.write(e);
-            return false;
+            // Check if there was an empty position that can be filled in.
+            for (int i = 0; i < sameNameArr.length; i++) {
+                if (sameNameArr[i] == null) {
+                    sameNameArr[i] = controller;
+                    return;
+                }
+            }
+            
+            // If there was no empty position, incease the length of the
+            // array by 1 and put the controller in the last element.
+            Controller[] newArr = Arrays.copyOf(sameNameArr,
+                    sameNameArr.length + 1);
+            newArr[sameNameArr.length] = controller;
+            connected.put(name, newArr);
+            
+        } finally {
+            lock.unlock();
         }
+    }
+    
+    /**
+     * Removes the given controller from the connected array.
+     * Leaves a {@code null} behind at the previous location to prevent
+     * controller swapping after a disconnected controller.
+     * 
+     * @param controller 
+     */
+    private void removeController(Controller controller) {
+        lock.lock();
+        try {
+            String name = controller.toString();
+            Controller[] sameNameArr = connected.get(name);
+            if (sameNameArr == null) {
+                Logger.write(new Object[] {
+                    "Tried to remove controller:",
+                    controller,
+                    "But the controller wasn't registered (1)!"
+                }, Logger.Type.WARNING);
+                return;
+            }
+            
+            for (int i = 0; i < sameNameArr.length; i++) {
+                if (ContrlEnv.compareController(sameNameArr[i], controller)) {
+                    sameNameArr[i] = null;
+                    return;
+                }
+            }
+            
+            Logger.write(new Object[] {
+                "Tried to remove controller:",
+                controller,
+                "But the controller wasn't registered (2)!"
+            }, Logger.Type.WARNING);
+            
+        } finally {
+            lock.unlock();
+        }
+    }
+    
+    /**
+     * @param controller the controller to process.
+     * @return the save string of the given controller.
+     *     {@code null} if the controller was not available.
+     */
+    public String controllerToString(Controller controller) {
+        lock.lock();
+        try {
+            String name = controller.toString();
+            Controller[] sameNameArr = connected.get(name);
+            if (sameNameArr == null) {
+                Logger.write(new Object[] {
+                    "Tried to remove controller:",
+                    controller,
+                    "But the controller wasn't registered!"
+                }, Logger.Type.ERROR);
+                return null;
+            }
+            
+            for (int i = 0; i < sameNameArr.length; i++) {
+                if (sameNameArr[i] == controller) {
+                    return name + "-" + i;
+                }
+            }
+            
+            Logger.write(new Object[] {
+                "Tried to remove controller:",
+                controller,
+                "But the controller wasn't registered!"
+            }, Logger.Type.ERROR);
+            
+        } finally {
+            lock.unlock();
+        }
+        
+        return null;
+    }
+    
+    /**
+     * @param str the save string to parse.
+     * @return a controller denoted by the given save string.
+     *     {@code null} if the denoted controller is disconnected.
+     */
+    public Controller getControllerFromString(String str) {
+        String name = null;
+        int id = -1;
+        for (int i = str.length() - 1; i >= 0; i--) {
+            if (str.charAt(i) == '-') {
+                name = str.substring(0, i);
+                try {
+                    id = Integer.parseInt(str.substring(i + 1));
+                    
+                } catch (NumberFormatException e) {
+                    Logger.write(e);
+                    return null;
+                }
+                
+                break;
+            }
+        }
+        
+        if (name == null || id < 0) return null;
+        
+        Controller[] controllers = connected.get(name);
+        if (controllers.length < id) return null;
+        else return controllers[id];
     }
     
     @Override
     public void update() {
+        if (!initialized) {
+            super.update();
+            return;
+        }
+        
         // Create an event object for the underlying plugin to populate.
         Event event = new Event();
+        
         for (Controller controller : ControllerEnvironment
                 .getDefaultEnvironment()
                 .getControllers()) {
             // Poll and ignore disable and/or invallid controllers.
             if (!controller.poll()) continue;
             
-            // tmp ignore all other events.
+            // TMP ignore all other events.
             if (!"Twin USB Joystick".equals(controller.toString())) continue;
             
             // Process the events.
             EventQueue queue = controller.getEventQueue();
             while (queue.getNextEvent(event)) {
                 Component comp = event.getComponent();
-                System.out.println(event);
-                System.out.println(comp.getIdentifier().getClass());
-                System.out.println(comp.getIdentifier().getName());
-                System.out.println(comp.getIdentifier() == Axis.RZ);
+                //System.out.println(event);
+                //System.out.println(comp.getIdentifier().getClass());
+                //System.out.println(comp.getIdentifier().getName());
+                //System.out.println(comp.getIdentifier() == Axis.RZ);
                 
             }
         }
-        /*
-        try {
-            XInputDevice[] devices = XInputDevice.getAllDevices();
-            for (int i = 0; i < MAX_PLAYERS; i++) {
-                if (connected[i] = devices[i].poll()) {
-                    System.out.println("Device " + i + " is connected!");
-                    XInputAxes axes = devices[i].getComponents().getAxes();
-                    for (XInputAxis axis : XInputAxis.values()) {
-                        Key key = new ControllerKey(i, axis, axes.get(axis));
-                        // Add to this set since this one will be moved
-                        // to the history set after the update.
-                        // Therefore no need to remove old key presses.
-                        keysPressedSinceLastUpdate.add(key);
-                    }
-                }
-            }
-            
-        } catch (XInputNotLoadedException e) {
-            Logger.write(e);
-        }
-        */
+        
         // Update the sets.
         super.update();
     }

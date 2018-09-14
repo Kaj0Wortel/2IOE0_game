@@ -166,15 +166,12 @@ public class FontLoader {
     }
     
     
-    /**-------------------------------------------------------------------------
-     * Static functions.
-     * -------------------------------------------------------------------------
-     */
     /**
      * Registers all fonts in the fonts folder.
-     * See registerFont(Font) for more info about registering a font.
+     * 
+     * @see #registerFont(Font) for more info about registering a font.
      */
-    static {
+    public static void init() {
         Font[] allFonts = null;
         
         Logger.write(new String [] {

@@ -24,6 +24,7 @@ import java.awt.event.InputEvent;
 
 import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
+import src.tools.log.Logger;
 
 
 /**
@@ -368,6 +369,42 @@ public class Key
     @Override
     public Key clone() {
         return new Key(this);
+    }
+    
+    @Override
+    public String toString() {
+        return this.getClass().toString() + "="
+                + immutable + ","
+                + key + ","
+                + mask + ","
+                + onKeyRelease;
+    }
+    
+    /**
+     * Creates a key from the given data.
+     * 
+     * @param name the name of the key.
+     * @param data the data needed to create the key.
+     * @return a fresh key.
+     * @throws IllegalArgumentException if the given data was invallid.
+     */
+    public static Key createFromString(String name, String[] data)
+            throws IllegalArgumentException {
+        if (Key.class.toString().equals(name))
+            throw new IllegalArgumentException("unknown key class!");
+        
+        try {
+            boolean immutable = Boolean.parseBoolean(data[0]);
+            int key = Integer.parseInt(data[1]);
+            int mask = Integer.parseInt(data[2]);
+            boolean onKeyRelease = Boolean.parseBoolean(data[3]);
+            
+            return new Key(immutable, key, mask, onKeyRelease);
+            
+        } catch (NumberFormatException e) {
+            Logger.write(e);
+            throw new IllegalArgumentException(e);
+        }
     }
     
     

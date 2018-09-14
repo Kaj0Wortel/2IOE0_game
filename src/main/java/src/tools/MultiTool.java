@@ -469,7 +469,7 @@ public class MultiTool {
      */
     public static <T> boolean isInArray(T[] array, T value) {
         for (T entry : array) {
-            if (entry.equals(value)) return true;
+            if (value.equals(entry)) return true;
         }
         
         return false;

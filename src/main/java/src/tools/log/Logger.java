@@ -301,7 +301,6 @@ public abstract class Logger {
      * @param log the default logger.
      */
     public static void setDefaultLogger(Logger log) {
-        closeLog();
         defLog = log;
     }
     

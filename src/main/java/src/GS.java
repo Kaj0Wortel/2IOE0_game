@@ -12,7 +12,6 @@ import src.Controllers.CameraController;
 import src.Renderer.Camera;
 import src.gui.MainPanel;
 import src.tools.event.Key;
-import src.tools.event.KeyPressedDetector;
 import src.tools.io.ImageManager;
 import src.tools.log.FileLogger;
 import src.tools.log.Logger;
@@ -24,7 +23,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.LogManager;
 import src.tools.event.ControllerKeyDetector;
+import src.tools.font.FontLoader;
 
 
 /**
@@ -49,15 +50,19 @@ public class GS {
      * Constants.
      * -------------------------------------------------------------------------
      */
+    /** The application name. */
     final public static String APP_NAME = "2IOE0 game";
     
-    // The system independant file separator.
+    /** The system independant file separator. */
     final public static String FS = System.getProperty("file.separator");
     
-    // The system independant line separator.
+    /** The system independant line separator. */
     final public static String LS = System.getProperty("line.separator");
     
-    // Handy file paths.
+    /** Whether to disable the logging by {@link java.util.logging.Logger}. */
+    final private static boolean DISABLE_JAVA_LOGGING = true;
+    
+    /** Handy file paths. */
     final public static String WORKING_DIR = System.getProperty("user.dir")
             + FS + "src"  + FS;
     final public static String FONT_DIR = WORKING_DIR + "tools"
@@ -74,10 +79,10 @@ public class GS {
     final public static String OBJ_DIR = RESOURCE_DIR + "obj" + FS;
     
     
-    // Image constants.
+    /** Image constants. */
     final public static String FRAME_ICON = "FRAME_ICON";
     
-    // Assets and camera.
+    /** Assets and camera. */
     final private static List<Instance> assets = new ArrayList<>();
     
     
@@ -86,7 +91,6 @@ public class GS {
      * -------------------------------------------------------------------------
      */
     private static GameState gameState = GameState.PLAYING;
-    
     public static ControllerKeyDetector keyDet;
     public static MainPanel mainPanel;
     public static Camera camera;
@@ -101,21 +105,33 @@ public class GS {
      */
     public static void init() {
         // Initialize the logger(s).
-        //Logger.setDefaultLogger(new FileLogger(LOG_FILE));
+        // Setup file logger to prevent missing events.
+        Logger fileLogger = new FileLogger(LOG_FILE);
+        Logger.setDefaultLogger(fileLogger);
+        
+        // Initialize the fonts.
+        FontLoader.init();
+        
+        // Setup key map for the screen logger.
         Map<Key, Runnable> keyMap = new HashMap<>();
         keyMap.put(Key.ESC, () -> System.exit(0));
         keyMap.put(Key.N1, () -> printDebug());
         keyMap.put(Key.N2, () -> {
             setFullScreen(!isFullScreen());
-            // Some debug stuff here.
         });
         Logger.setDefaultLogger(new MultiLogger(
                 new ScreenLogger("Test logger", keyMap),
-                new FileLogger(LOG_FILE))
-        );
+                fileLogger // Use the same file logger to keep the logfile.
+        ));
         Logger.write("Starting application...", Logger.Type.INFO);
         Logger.setShutDownMessage("Shutting down application...",
                 Logger.Type.INFO);
+        
+        if (DISABLE_JAVA_LOGGING) {
+            LogManager.getLogManager().reset();
+            Logger.write("Logging via \"java.util.logging.Logger\" has "
+                    + "now been disabled!");
+        }
 
         cameraController = new CameraController(camera);
 
