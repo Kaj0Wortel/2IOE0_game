@@ -28,6 +28,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
+import src.tools.event.ControllerKey;
+import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
+import src.tools.event.keyAction.CarKeyAction;
+import src.tools.event.keyAction.KeyAction;
+import src.tools.io.BufferedReaderPlus;
+import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
+import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 
 
 /**
@@ -75,10 +82,12 @@ public class GS {
     final public static String FONT_DIR = WORKING_DIR + "tools"
             + FS + "font" + FS;
     
-    final public static String DATA_DIR = WORKING_DIR + "data" + FS;
     final public static String LOG_FILE = WORKING_DIR + "log.log";
     final public static String SHADER_DIR = WORKING_DIR
             + "shaderPrograms" + FS;
+    
+    final public static String DATA_DIR = WORKING_DIR + "data" + FS;
+    final public static String KEYS_CONFIG = DATA_DIR + "keys.conf";
     
     final public static String RESOURCE_DIR = WORKING_DIR + "res" + FS;
     final public static String MUSIC_DIR = RESOURCE_DIR + "music" + FS;
@@ -104,6 +113,7 @@ public class GS {
     public static CameraMode cameraMode;
     public static CameraController cameraController;
     private static boolean fullScreen = false;
+    private static Map<KeyAction, List<Key>> keyMap = new HashMap<>();
     
     
     /**-------------------------------------------------------------------------
@@ -126,14 +136,14 @@ public class GS {
         FontLoader.init();
         
         // Setup key map for the screen logger.
-        Map<Key, Runnable> keyMap = new HashMap<>();
-        keyMap.put(Key.ESC, () -> System.exit(0));
-        keyMap.put(Key.N1, () -> printDebug());
-        keyMap.put(Key.N2, () -> {
+        Map<Key, Runnable> debugMap = new HashMap<>();
+        debugMap.put(Key.ESC, () -> System.exit(0));
+        debugMap.put(Key.N1, () -> printDebug());
+        debugMap.put(Key.N2, () -> {
             setFullScreen(!isFullScreen());
         });
         Logger.setDefaultLogger(new ThreadLogger(new MultiLogger(
-                new ScreenLogger("Test logger", keyMap),
+                new ScreenLogger("Test logger", debugMap),
                 fileLogger // Use the same file logger to keep the logfile.
         )));
         Logger.write("Starting application...", Logger.Type.INFO);
@@ -145,19 +155,13 @@ public class GS {
             Logger.write("Logging via \"java.util.logging.Logger\" has "
                     + "now been disabled!");
         }
-
+        
         cameraController = new CameraController(camera);
-
+        
         registerImageSheets();
-        
         createGUI();
-        
-        mainPanel.getFrame().addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent windowEvent) {
-                Updater.cancel();
-            }
-        });
+        Locker.add(ControllerKey.class);
+        reloadKeyMap();
     }
     
     /**
@@ -169,11 +173,120 @@ public class GS {
     
     /**
      * Creates the GUI of the application.
-     * Also creates the global key listener.
+     * Also adds all necessary listeners.
      */
     private static void createGUI() {
         GS.mainPanel = new MainPanel();
-        GS.keyDet = new ControllerKeyDetector(GS.mainPanel);
+        
+        // Add listeners.
+        GS.keyDet = new ControllerKeyDetector(GS.mainPanel.getFrame());
+        
+        mainPanel.getFrame().addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent windowEvent) {
+                Updater.cancel();
+                mainPanel.removeKeyListener(keyDet);
+                Locker.remove(keyDet);
+            }
+        });
+    }
+    
+    /**
+     * Reloads the key map.
+     */
+    private static void reloadKeyMap() {
+        Logger.write(new Object[] {
+            "",
+            "===== BEGIN RELOADING KEY MAP =====",
+             "File = " + KEYS_CONFIG
+        }, Logger.Type.INFO);
+        
+        // Create new key map.
+        Map<KeyAction, List<Key>> newKeyMap = new HashMap<>();
+        
+        try (BufferedReaderPlus brp = new BufferedReaderPlus(KEYS_CONFIG,
+                HASHTAG_COMMENT, TYPE_CONFIG)) {
+            
+            List<Key> keys = new ArrayList<>();
+            while (brp.readNextConfLine()) {
+                try {
+                    if (brp.fieldEquals(Key.class.getName())) {
+                        keys.add(Key
+                                .createFromString(brp.getData()));
+                        System.out.println("Key created: "
+                                + keys.get(keys.size() - 1));
+                        
+                    } else if (brp.fieldEquals(ControllerKey.class.getName())) {
+                        keys.add(ControllerKey
+                                .createFromString(brp.getData()));
+                        System.out.println("ControllerKey created: "
+                                + keys.get(keys.size() - 1));
+                        
+                    } else if (brp.fieldEquals(CarKeyAction.class.getName())) {
+                        KeyAction action = CarKeyAction
+                                .createFromString(brp.getData());
+                        newKeyMap.put(action, keys);
+                        keys = new ArrayList<>();
+                        System.out.println("CarKeyAction created: " + action);
+                        
+                    } else {
+                        Logger.write("Ignored field on line "
+                                + brp.getLineCounter() + ": " + brp.getField(),
+                                Logger.Type.WARNING);
+                    }
+                    
+                } catch (IllegalArgumentException e) {
+                    Logger.write(new Object[] {
+                        "Exception while reading key map on line "
+                                + brp.getLineCounter() + ":",
+                        e
+                    }, Logger.Type.ERROR);
+                }
+            }
+            
+        } catch (IOException e) {
+            Logger.write(e);
+        }
+        
+        // replace the key map.
+        Locker.lock(ControllerKey.class);
+        try {
+            keyMap.clear();
+            keyMap = newKeyMap;
+            System.out.println("key map:" + keyMap);
+            
+        } finally {
+            Locker.unlock(ControllerKey.class);
+            Logger.write(new Object[] {
+                "===== FINISHED RELOADING KEY MAP =====",
+                ""
+            }, Logger.Type.INFO);
+        }
+    }
+    
+    /**
+     * Gets the keys that are defined for the given action.
+     * 
+     * @param action the action
+     * @param compMode the comparison mode. Default is
+     *     {@link ControllerKey#DEFAULT_GET_COMP_MODE}
+     * @return either:
+     *     - A list containing all keys corresponding to this action.
+     *     - {@code null}, meaning that the action is undefined.
+     */
+    public static List<Key> getKeys(KeyAction action) {
+        return getKeys(action, DEFAULT_GET_COMP_MODE);
+    }
+    
+    public static List<Key> getKeys(KeyAction action, int compMode) {
+        Locker.lock(ControllerKey.class);
+        try {
+            ControllerKey.setCompMode(compMode);
+            return keyMap.get(action);
+            
+        } finally {
+            Locker.unlock(ControllerKey.class);
+        }
     }
     
     

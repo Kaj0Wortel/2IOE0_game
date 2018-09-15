@@ -5,16 +5,14 @@ package src.tools.event;
 // Java imports
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 // JInput imports
-import net.java.games.input.Component;
-import net.java.games.input.Component.Identifier.Axis;
 import net.java.games.input.Controller;
-import net.java.games.input.Controller.Type;
 import net.java.games.input.ControllerEnvironment;
+import net.java.games.input.ControllerEvent;
+import net.java.games.input.ControllerListener;
 import net.java.games.input.Event;
 import net.java.games.input.EventQueue;
 
@@ -22,8 +20,10 @@ import net.java.games.input.EventQueue;
 // Own imports
 import src.tools.log.Logger;
 import net.java.games.input.ContrlEnv;
-import net.java.games.input.ControllerEvent;
-import net.java.games.input.ControllerListener;
+import src.Locker;
+import src.tools.MultiTool;
+import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
+import static src.tools.event.ControllerKey.DEFAULT_REPLACE_COMP_MODE;
 
 
 /**
@@ -35,12 +35,6 @@ public class ControllerKeyDetector
     
     private boolean initialized = false;
     
-    /**
-     * The lock and connected map.
-     * Note that {@link src.Locker) cannot be used since the has of 
-     * {@link #connected} changes when items are added.
-     */
-    final public Lock lock = new ReentrantLock();
     final public Map<String, Controller[]> connected
             = new HashMap<>();
     
@@ -64,6 +58,7 @@ public class ControllerKeyDetector
      * Initializes the controller environment.
      */
     private void init() {
+        Locker.add(this);
         ContrlEnv ce = new ContrlEnv();
         
         // Call this function first to ensure that all events 
@@ -101,14 +96,13 @@ public class ControllerKeyDetector
      * @param controller the controller to add.
      */
     private void addController(Controller controller) {
-        lock.lock();
+        Locker.lock(this);
         try {
             String name = controller.toString();
             Controller[] sameNameArr = connected.get(name);
             if (sameNameArr == null) {
                 connected.put(name, new Controller[] {controller});
                 return;
-                
             }
             
             // Check if there was an empty position that can be filled in.
@@ -127,7 +121,7 @@ public class ControllerKeyDetector
             connected.put(name, newArr);
             
         } finally {
-            lock.unlock();
+            Locker.unlock(this);
         }
     }
     
@@ -139,7 +133,7 @@ public class ControllerKeyDetector
      * @param controller 
      */
     private void removeController(Controller controller) {
-        lock.lock();
+        Locker.lock(this);
         try {
             String name = controller.toString();
             Controller[] sameNameArr = connected.get(name);
@@ -166,7 +160,7 @@ public class ControllerKeyDetector
             }, Logger.Type.WARNING);
             
         } finally {
-            lock.unlock();
+            Locker.unlock(this);
         }
     }
     
@@ -176,33 +170,38 @@ public class ControllerKeyDetector
      *     {@code null} if the controller was not available.
      */
     public String controllerToString(Controller controller) {
-        lock.lock();
+        if (controller instanceof GeneratedController) {
+            return ((GeneratedController) controller).getKey();
+        }
+        
+        Locker.lock(this);
         try {
             String name = controller.toString();
             Controller[] sameNameArr = connected.get(name);
             if (sameNameArr == null) {
                 Logger.write(new Object[] {
-                    "Tried to remove controller:",
+                    "Tried to convert controller to string:",
                     controller,
-                    "But the controller wasn't registered!"
-                }, Logger.Type.ERROR);
+                    "but the controller wasn't registered (1)!"
+                }, Logger.Type.WARNING);
                 return null;
             }
             
             for (int i = 0; i < sameNameArr.length; i++) {
-                if (sameNameArr[i] == controller) {
+                if (ContrlEnv.compareController(
+                        sameNameArr[i], controller)) {
                     return name + "-" + i;
                 }
             }
             
             Logger.write(new Object[] {
-                "Tried to remove controller:",
+                "Tried to convert controller to string:",
                 controller,
-                "But the controller wasn't registered!"
-            }, Logger.Type.ERROR);
+                "But the controller wasn't registered (2)!"
+            }, Logger.Type.WARNING);
             
         } finally {
-            lock.unlock();
+            Locker.unlock(this);
         }
         
         return null;
@@ -223,7 +222,6 @@ public class ControllerKeyDetector
                     id = Integer.parseInt(str.substring(i + 1));
                     
                 } catch (NumberFormatException e) {
-                    Logger.write(e);
                     return null;
                 }
                 
@@ -234,12 +232,13 @@ public class ControllerKeyDetector
         if (name == null || id < 0) return null;
         
         Controller[] controllers = connected.get(name);
-        if (controllers.length < id) return null;
+        if (controllers == null || controllers.length < id) return null;
         else return controllers[id];
     }
     
     @Override
     public void update() {
+        // If not yet initialized, simply return.
         if (!initialized) {
             super.update();
             return;
@@ -248,29 +247,87 @@ public class ControllerKeyDetector
         // Create an event object for the underlying plugin to populate.
         Event event = new Event();
         
-        for (Controller controller : ControllerEnvironment
-                .getDefaultEnvironment()
-                .getControllers()) {
-            // Poll and ignore disable and/or invallid controllers.
-            if (!controller.poll()) continue;
+        Locker.lock(ControllerKey.class);
+        try {
+            ControllerKey.setCompMode(DEFAULT_REPLACE_COMP_MODE);
             
-            // TMP ignore all other events.
-            if (!"Twin USB Joystick".equals(controller.toString())) continue;
-            
-            // Process the events.
-            EventQueue queue = controller.getEventQueue();
-            while (queue.getNextEvent(event)) {
-                Component comp = event.getComponent();
-                //System.out.println(event);
-                //System.out.println(comp.getIdentifier().getClass());
-                //System.out.println(comp.getIdentifier().getName());
-                //System.out.println(comp.getIdentifier() == Axis.RZ);
+            for (Controller controller : ControllerEnvironment
+                    .getDefaultEnvironment()
+                    .getControllers()) {
+                // Poll and ignore disable and/or invallid controllers.
+                if (!controller.poll()) continue;
+
+                // TMP ignore all other events.
+                //if (!"Twin USB Joystick".equals(controller.toString())) continue;
                 
+                // Process the events.
+                EventQueue queue = controller.getEventQueue();
+                while (queue.getNextEvent(event)) {
+                    ControllerKey key = new ControllerKey(controller,
+                            event.getComponent(), event.getValue());
+                    // Remove earlier added keys that are now invallid.
+                    keysCurPressed.remove(key);
+                    keysPressedSinceLastUpdate.remove(key);
+                    keysCurPressed.add(key);
+                    keysPressedSinceLastUpdate.add(key);
+                }
             }
+            
+        } finally {
+            Locker.unlock(ControllerKey.class);
         }
         
         // Update the sets.
         super.update();
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     * @param compMode the comparison mode (for {@link ControllerKey}'s only).
+     */
+    @Override
+    public boolean wasPressed(Key key) {
+        return wasPressed(key, DEFAULT_GET_COMP_MODE);
+    }
+    
+    public boolean wasPressed(Key key, int compMode) {
+        Locker.lock(ControllerKey.class);
+        try {
+            ControllerKey.setCompMode(compMode);
+            return wasPressed(key);
+            
+        } finally {
+            Locker.unlock(ControllerKey.class);
+        }
+    }
+    
+    /**
+     * Checks if any of the keys in the list were pressed.
+     * 
+     * @param keys the keys to check.
+     * @param compMode the comparison mode (for {@link ControllerKey}'s only).
+     * @return {@code true} if at least one key in the list were pressed.
+     */
+    public boolean werePressed(List<Key> keys) {
+        return werePressed(keys, DEFAULT_GET_COMP_MODE);
+    }
+    
+    public boolean werePressed(List<Key> keys, int compMode) {
+        Locker.lock(ControllerKey.class);
+        try {
+            ControllerKey.setCompMode(compMode);
+            for (Key key : keys) {
+                if (keysPressedHistory.contains(key)) {
+                    return true;
+                }
+            }
+            
+        } finally {
+            Locker.unlock(ControllerKey.class);
+        }
+        
+        return false;
     }
     
     

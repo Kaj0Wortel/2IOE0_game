@@ -66,10 +66,16 @@ public class ControllerKey
     final public static int COMP_MODE_VALUE_IF_NEEDED = 0b1100;
     
     /**
-     * The default comparison mode. Use this to look up keys in a table
-     * to detect whether to use them as input for a component.
+     * The default comparison mode for adding/replacing/updating keys.
      */
-    final public static int DEFAULT_COMP_MODE = 
+    final public static int DEFAULT_REPLACE_COMP_MODE = 
+            COMP_MODE_CONTROLLER |
+            COMP_MODE_IDENTIFIER;
+    
+    /**
+     * The default comparison mode for matching keys.
+     */
+    final public static int DEFAULT_GET_COMP_MODE = 
             COMP_MODE_CONTROLLER |
             COMP_MODE_IDENTIFIER |
             COMP_MODE_VALUE_IF_NEEDED;
@@ -146,11 +152,12 @@ public class ControllerKey
      * Variables.
      * -------------------------------------------------------------------------
      */
-    public static int compMode = DEFAULT_COMP_MODE;
+    private static int compMode = DEFAULT_REPLACE_COMP_MODE;
+    private int hashedMode = -1;
+    private int prevHash = 0;
     
     final private Controller controller;
     final private Component comp;
-    final private Identifier ident;
     final private float value;
     
     
@@ -163,7 +170,6 @@ public class ControllerKey
         super((Key) key);
         this.controller = key.controller;
         this.comp = key.comp;
-        this.ident = key.ident;
         this.value = key.value;
     }
     
@@ -179,19 +185,19 @@ public class ControllerKey
         super(true, -1, DEFAULT_MASK, value > BUTTON_SENS);
         this.controller = controller;
         this.comp = comp;
-        this.ident = comp.getIdentifier();
         this.value = value;
     }
     
-    private ControllerKey(Controller controller, Identifier ident,
-            float value) {
-        super(true, -1, DEFAULT_MASK, value > BUTTON_SENS);
-        this.controller = controller;
-        this.comp = null;
-        this.ident = ident;
-        this.value = value;
-    }
     
+    /**
+     * Use this function to update the comparison mode of all
+     * controller key objects.
+     * 
+     * @param newMode the new comparison mode.
+     */
+    public static void setCompMode(int newMode) {
+        compMode = newMode;
+    }
     
     /**
      * @return the controller this event was fired from.
@@ -208,10 +214,10 @@ public class ControllerKey
     }
     
     /**
-     * @return the identifier of the button.
+     * @return the identifier this key represents.
      */
     public Identifier getIdentifier() {
-        return ident;
+        return comp.getIdentifier();
     }
     
     /**
@@ -221,19 +227,30 @@ public class ControllerKey
         return value;
     }
     
+    /**
+     * {@inheritDoc}
+     * 
+     * It is advised to use the class lock before using this method:
+     * {@code Locker.lock(ControllerKey.class)}
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
+        Identifier ident = comp.getIdentifier();
         if (obj instanceof ControllerKey) {
             ControllerKey key = (ControllerKey) obj;
             
             if ((compMode & COMP_MODE_CONTROLLER) == COMP_MODE_CONTROLLER) {
-                if (this.controller != key.controller)
+                String str1 = GS.keyDet.controllerToString(this.controller);
+                String str2 = GS.keyDet.controllerToString(key.controller);
+                if (str1 == null || str2 == null || !str1.equals(str2)) {
                     return false;
+                }
             }
             
             if ((compMode & COMP_MODE_IDENTIFIER) == COMP_MODE_IDENTIFIER) {
-                if (this.comp.getIdentifier() != key.comp.getIdentifier())
+                if (!this.comp.getIdentifier().getName()
+                        .equals(key.comp.getIdentifier().getName()))
                     return false;
             }
             
@@ -303,10 +320,9 @@ public class ControllerKey
      * 
      * @return {@code true} if the joystick is pushed to the left or upwards.
      */
-    public boolean isLeftOrUp() {
+    public boolean isJoyUpOrLeft() {
         return value < -JOYSTICK_SENS;
     }
-    
     
     /**
      * Checks if the joystick is pushed to the right or downwards.
@@ -314,13 +330,57 @@ public class ControllerKey
      * 
      * @return {@code true} if the joystick is pushed to the right or downwards.
      */
-    public boolean isDownOrRight() {
+    public boolean isJoyDownOrRight() {
         return value > JOYSTICK_SENS;
     }
     
     /**
+     * Checks if the D-pad is pushed somewhere upwards.
+     * Function for {@link Axis#POV only, excluding the other {@link Axis}'.
+     * 
+     * @return {@code true} if the joystick is pushed somewhere upwards.
+     */
+    public boolean isDPADUp() {
+        return POV.UP_LEFT <= value && value <= POV.UP_RIGHT;
+    }
+    
+    /**
+     * Checks if the D-pad is pushed somewhere to the right.
+     * Function for {@link Axis#POV only, excluding the other {@link Axis}'.
+     * 
+     * @return {@code true} if the joystick is pushed somewhere to the right.
+     */
+    public boolean isDPADRight() {
+        return POV.UP_RIGHT <= value && value <= POV.DOWN_RIGHT;
+    }
+    
+    /**
+     * Checks if the D-pad is pushed somewhere downwards
+     * Function for {@link Axis#POV only, excluding the other {@link Axis}'.
+     * 
+     * @return {@code true} if the joystick is pushed somewhere downwards.
+     */
+    public boolean isDPADDown() {
+        return POV.DOWN_RIGHT <= value && value <= POV.DOWN_LEFT;
+    }
+    
+    /**
+     * Checks if the D-pad is pushed somewhere to the left
+     * Function for {@link Axis#POV only, excluding the other {@link Axis}'.
+     * 
+     * @return {@code true} if the joystick is pushed somewhere to the left.
+     */
+    public boolean isDPADLeft() {
+         // Note that this one is different compared to the others since
+         // {@code DOWN_LEFT == 0.875f} and {@code UP_LEFT == 0.125f}.
+        return value == POV.DOWN_LEFT ||
+                value == POV.LEFT ||
+                value == POV.UP_LEFT;
+    }
+    
+    /**
      * Checks if the joystick is in the center.
-     * Function for {@link Axis} only, excluding {@link Axis#POV}.
+     * Function for all {@link Axis}.
      * 
      * @return {@code true} if the joystick is in the center.
      */
@@ -328,11 +388,52 @@ public class ControllerKey
         return -JOYSTICK_SENS <= value && value <= JOYSTICK_SENS;
     }
     
-    
+    /**
+     * {@inheritDoc}
+     * 
+     * It is stronly advised to use the class lock before using this method:
+     * {@code Locker.lock(ControllerKey.class)}
+     */
     @Override
     public int hashCode() {
-        return MultiTool.calcHashCode(super.hashCode(),
-                comp.getIdentifier().hashCode());
+        // To speed up the consecutive hashing speed.
+        if (hashedMode == compMode) return prevHash;
+        prevHash = compMode;
+        
+        Identifier ident = comp.getIdentifier();
+        Object[] data = new Object[7];
+        if ((compMode & COMP_MODE_CONTROLLER) == COMP_MODE_CONTROLLER) {
+            data[0] = GS.keyDet.controllerToString(controller);
+        }
+        
+        if ((compMode & COMP_MODE_IDENTIFIER) == COMP_MODE_IDENTIFIER) {
+            data[1] = ident.getName();
+        }
+        
+        if ((compMode & COMP_MODE_VALUE_IF_NEEDED) ==
+                COMP_MODE_VALUE_IF_NEEDED) {
+            if (ident == Axis.POV) {
+                data[2] = isDPADUp();
+                data[3] = isDPADRight();
+                data[4] = isDPADDown();
+                data[5] = isDPADLeft();
+                data[6] = isCenter();
+                
+            } else if (ident instanceof Axis) {
+                data[2] = isJoyUpOrLeft();
+                data[3] = isJoyDownOrRight();
+                data[4] = isCenter();
+                
+            } else if (ident instanceof Button ||
+                    ident instanceof Identifier.Key) {
+                data[2] = isPressed();
+            }
+            
+        } else if ((compMode & COMP_MODE_VALUE) == COMP_MODE_VALUE) {
+            data[2] = value;
+        }
+        
+        return MultiTool.calcHashCode(data);
     }
     
     @Override
@@ -342,40 +443,32 @@ public class ControllerKey
     
     @Override
     public String toString() {
-        return getClass().toString() + "="
+        Identifier ident = comp.getIdentifier();
+        String contrToStr = GS.keyDet.controllerToString(controller);
+        return getClass().getName() + "="
                 + controller.getName() + ","
-                + GS.keyDet.controllerToString(controller) + ","
-                + (ident == null ? "null" : ident.toString()) + ","
+                + (contrToStr == null ? "Unknown" : contrToStr) + ","
+                + (ident == null ? "Unknown" : ident.getName()) + ","
                 + value;
     }
     
     /**
      * Creates a key from the given data.
      * 
-     * @param name the name of the key.
      * @param data the data needed to create the key.
-     * @return a fresh key.
+     * @return a fresh key described by the data.
      * @throws IllegalArgumentException if the given data was invallid.
      */
-    public static Key createFromString(String name, String[] data)
+    public static Key createFromString(String[] data)
             throws IllegalArgumentException {
-        if (ControllerKey.class.toString().equals(name)) {
-            try {
-                Controller cont = new GeneratedController(data[0], data[1]);
-                Identifier ident = IDENTIFIERS.get(data[3]);
-                float value = Float.parseFloat(data[4]);
-                
-                return new ControllerKey(cont, ident, value);
-                
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException(e);
-            }
-            
-        } else {
-            Key.createFromString(name, data);
-        }
+        Controller cont = new GeneratedController(data[0], data[1]);
+        Identifier ident = IDENTIFIERS.get(data[2]);
+        if (ident == null) ident = Axis.UNKNOWN;
+        float value = Float.parseFloat(data[3]);
         
-        return null;
+        return new ControllerKey(cont, new GeneratedComponent(ident, value),
+                value);
     }
+    
     
 }

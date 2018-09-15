@@ -8,9 +8,16 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
+import java.util.List;
 import org.joml.Vector3f;
 import src.Renderer.Camera;
 import src.Renderer.Renderer;
+import src.tools.event.Key;
+import src.tools.event.keyAction.CarKeyAction;
+import src.tools.event.keyAction.CarKeyAction.MovementAction;
+import src.tools.event.keyAction.KeyAction;
+import src.tools.update.Updateable;
+import src.tools.update.Updateable.Priority;
 import src.tools.update.Updater;
 
 // Java imports
@@ -31,10 +38,9 @@ public class Main {
 
         FPSAnimator animator = new FPSAnimator(canvas, 60);
 
-        Camera camera = new Camera(new Vector3f(0,0,0),0,0,0);
+        Camera camera = new Camera(new Vector3f(0, 0, 0), 0, 0, 0);
         GS.camera = camera;
-
-
+        
         Simulator simulator = new Simulator();
         Renderer renderer = new Renderer(simulator, 1080, 720);
 
@@ -48,6 +54,43 @@ public class Main {
         renderer.cleanup();
         
         Updater.start();
+        Updateable up = new TmpUpdateable(1);
+        Updater.addTask(up);
     }
+    
+    // BEGIN TMP
+    private static class TmpUpdateable
+            implements Updateable {
+        
+        final private CarKeyAction[] actions;
+        
+        public TmpUpdateable(int id) {
+            actions = new CarKeyAction[] {
+                new CarKeyAction(id, MovementAction.LEFT),
+                new CarKeyAction(id, MovementAction.RIGHT)
+            };
+        }
+        
+        @Override
+        public void performUpdate(long timeStamp)
+                throws InterruptedException {
+            for (CarKeyAction action : actions) {
+                List<Key> keys = GS.getKeys(action);
+                if (keys == null) return;
+                if (GS.keyDet.werePressed(keys)) {
+                    System.out.println(action.getAction());
+                }
+            }
+        }
+        
+        @Override
+        public Priority getPriority() {
+            return Priority.UPDATE_ALWAYS;
+        }
+        
+        
+    }
+    
+    // END TMP
     
 }

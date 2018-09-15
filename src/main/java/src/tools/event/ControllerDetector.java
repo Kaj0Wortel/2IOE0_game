@@ -14,7 +14,6 @@ import src.tools.log.Logger;
 // JXInput imports
 import static com.ivan.xinput.natives.XInputConstants.MAX_PLAYERS;
 import com.ivan.xinput.XInputDevice;
-import com.ivan.xinput.XInputDevice14;
 import com.ivan.xinput.enums.XInputButton;
 import com.ivan.xinput.exceptions.XInputNotLoadedException;
 
@@ -26,6 +25,7 @@ import com.ivan.xinput.exceptions.XInputNotLoadedException;
  * To download the jxinput lib:
  * <url>https://github.com/StrikerX3/JXInput/releases/tag/v0.8</url>
  */
+@Deprecated
 public class ControllerDetector {
     private static XInputComponents[] prev
             = new XInputComponents[MAX_PLAYERS];

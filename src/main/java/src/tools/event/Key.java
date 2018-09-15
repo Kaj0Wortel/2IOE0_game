@@ -24,7 +24,6 @@ import java.awt.event.InputEvent;
 
 import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
-import src.tools.log.Logger;
 
 
 /**
@@ -363,7 +362,7 @@ public class Key
     
     @Override
     public int hashCode() {
-        return MultiTool.calcHashCode(key, mask, onKeyRelease);
+        return MultiTool.calcHashCode(immutable, key, mask, onKeyRelease);
     }
     
     @Override
@@ -373,7 +372,7 @@ public class Key
     
     @Override
     public String toString() {
-        return this.getClass().toString() + "="
+        return this.getClass().getName() + "="
                 + immutable + ","
                 + key + ","
                 + mask + ","
@@ -383,28 +382,18 @@ public class Key
     /**
      * Creates a key from the given data.
      * 
-     * @param name the name of the key.
      * @param data the data needed to create the key.
-     * @return a fresh key.
+     * @return a fresh key described by the data.
      * @throws IllegalArgumentException if the given data was invallid.
      */
-    public static Key createFromString(String name, String[] data)
+    public static Key createFromString(String[] data)
             throws IllegalArgumentException {
-        if (Key.class.toString().equals(name))
-            throw new IllegalArgumentException("unknown key class!");
+        boolean immutable = Boolean.parseBoolean(data[0]);
+        int key = Integer.parseInt(data[1]);
+        int mask = Integer.parseInt(data[2]);
+        boolean onKeyRelease = Boolean.parseBoolean(data[3]);
         
-        try {
-            boolean immutable = Boolean.parseBoolean(data[0]);
-            int key = Integer.parseInt(data[1]);
-            int mask = Integer.parseInt(data[2]);
-            boolean onKeyRelease = Boolean.parseBoolean(data[3]);
-            
-            return new Key(immutable, key, mask, onKeyRelease);
-            
-        } catch (NumberFormatException e) {
-            Logger.write(e);
-            throw new IllegalArgumentException(e);
-        }
+        return new Key(immutable, key, mask, onKeyRelease);
     }
     
     

@@ -74,7 +74,7 @@ public class LoadOBJ {
             Map<FaceElement, Integer> faces = new HashMap<>();
             
             while (brp.readNextConfLine()) {
-                String[] data = brp.getFieldData();
+                String[] data = brp.getData();
                 
                 if (brp.fieldEquals("v")) {
                     verts.add(new Vector3f(
@@ -151,7 +151,7 @@ public class LoadOBJ {
                     mtlCol = LoadMTL.load(GS.OBJ_DIR + data[0]);
                     
                 } else {
-                    Logger.write("Ignored field: " + brp.getFieldName()
+                    Logger.write("Ignored field: " + brp.getField()
                             + ", line = " + brp.getLineCounter());
                 }
             }

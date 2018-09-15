@@ -10,6 +10,7 @@ import src.tools.log.Logger;
 
 
 // Java imports
+import java.awt.EventQueue;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,18 +22,22 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.swing.SwingUtilities;
 
+
 /**
  * 
  */
 public class ContrlEnv
         extends DefaultControllerEnvironment {
     
-    final private static long UPDATE_TIME = 5000L;
+    private long updateInterval = 5000L;
+    private boolean autoUpdateEnabled = true;
+    private boolean manualUpdate = false;
     
     private Controller[] cachedContr = new Controller[0];
+    
     private Lock lock = new ReentrantLock(true);
-    private Condition cachedControllersChanged = lock.newCondition();
-    private Condition updateEnvironment = lock.newCondition();
+    private Condition requestUpdate = lock.newCondition();
+    private Condition environmentUpdated = lock.newCondition();
     
     private List<Controller> added = new ArrayList<>();
     private List<Controller> removed = new ArrayList<>();
@@ -40,7 +45,6 @@ public class ContrlEnv
     
     @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
     public ContrlEnv() {
-        
         new Thread("Controll-environment-updater-thread") {
             @Override
             public void run() {
@@ -49,7 +53,7 @@ public class ContrlEnv
                 
                 while (true) {
                     // tmp
-                    Logger.write("Check controllers");
+                    Logger.write("Update controller list");
                     
                     // Load controllers.
                     Controller[] c = ContrlEnv.super.getControllers();
@@ -66,26 +70,43 @@ public class ContrlEnv
                         setDiff(cachedContr, c);
                     }
                     
-                    // Update cached controllers.
-                    cachedContr = c;
                     
-                    // Signal that the controllers have changed.
+                    // Update cached controllers and signal that they have
+                    // been changed. Notify the listeners afterwards.
                     lock.lock();
                     try {
-                        cachedControllersChanged.signalAll();
+                        if (!autoUpdateEnabled) {
+                            while (!autoUpdateEnabled) {
+                                requestUpdate.await();
+                            }
+                            
+                        } else {
+                            cachedContr = c;
+                            environmentUpdated.signalAll();
+                            EventQueue.invokeLater(() -> {
+                                notifyListener();
+                            });
+                        }
+                        
+                    } catch (InterruptedException e) {
+                        Logger.write(e);
                         
                     } finally {
                         lock.unlock();
                     }
                     
-                    // Notifies the listeners of the possible changes.
-                    notifyListener();
-                    
                     // Wait for the next update cycle.
                     lock.lock();
                     try {
-                        updateEnvironment.await(UPDATE_TIME,
-                                TimeUnit.MILLISECONDS);
+                        if (autoUpdateEnabled) {
+                            requestUpdate.await(updateInterval,
+                                    TimeUnit.MILLISECONDS);
+                            
+                        } else {
+                            while (!autoUpdateEnabled) {
+                                requestUpdate.await();
+                            }
+                        }
                         
                     } catch (InterruptedException e) {
                         Logger.write(e);
@@ -188,10 +209,15 @@ public class ContrlEnv
         if (c1 == null || c2 == null) return c1 == c2;
         
         // Simple comparisons.
+        //Logger.write("  00");
         if (c1.getType() != c2.getType()) return false;
+        //Logger.write("  01");
         if (c1.getPortType() != c2.getPortType()) return false;
+        //Logger.write("  02");
         if (c1.getPortNumber() != c2.getPortNumber()) return false;
+        //Logger.write("  03");
         if (!c1.getName().equals(c2.getName())) return false;
+        //Logger.write("  04");
         
         // Compare sub-controllers.
         Controller[] c1Ctrls = c1.getControllers();
@@ -200,6 +226,7 @@ public class ContrlEnv
         for (int i = 0; i < c1Ctrls.length; i++) {
             if (!compareController(c1Ctrls[i], c2Ctrls[i])) return false;
         }
+        //Logger.write("  05");
         
         // Compare components.
         Component[] c1Comps = c1.getComponents();
@@ -209,6 +236,7 @@ public class ContrlEnv
             if (!c1Comps[i].toString().equals(c2Comps[i].toString()))
                 return false;
         }
+        //Logger.write("  06");
         
         return true;
     }
@@ -218,7 +246,7 @@ public class ContrlEnv
         lock.lock();
         try {
             if (cachedContr == null) {
-                updateEnvironment.signal();
+                requestUpdate.signal();
             }
 
         } finally {
@@ -238,8 +266,8 @@ public class ContrlEnv
         lock.lock();
         try {
             if (cachedContr == null) {
-                updateEnvironment.signal();
-                cachedControllersChanged.await();
+                requestUpdate.signal();
+                environmentUpdated.await();
             }
 
         } finally {
@@ -274,11 +302,67 @@ public class ContrlEnv
     public void forceUpdate() {
         lock.lock();
         try {
-            updateEnvironment.signal();
+            if (!manualUpdate) requestUpdate.signal();
             
         } finally {
             lock.unlock();
         }
+    }
+    
+    /**
+     * @return {@code true} if auto updates are enabled.
+     */
+    public boolean isAutoUpdateEnabled() {
+        return autoUpdateEnabled;
+    }
+    
+    /**
+     * @param enable whether the update should occur automatically.
+     * 
+     * Might not return immediately.
+     */
+    public void setAutoUpdate(boolean enable) {
+        if (enable != autoUpdateEnabled) {
+            lock.lock();
+            try {
+                if (autoUpdateEnabled = enable) {
+                    requestUpdate.signal();
+                }
+                
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+    
+    /**
+     * @return the update interval in milliseconds.
+     */
+    public long getUpdateInterval() {
+        return updateInterval;
+    }
+    
+    /**
+     * @param interval the new update interval in milliseconds.
+     */
+    public void setUpdateInterval(long interval) {
+        updateInterval = interval;
+    }
+    
+    /**
+     * @return {@code false} if the manual updates are enabled.
+     */
+    public boolean isManualUpdateEnabled() {
+        return manualUpdate;
+    }
+    
+    /**
+     * @param enable whether to ignore all directly called updates.
+     * 
+     * Note that auto updates will still occur.
+     */
+    public void setManualUpdate(boolean enable) {
+        manualUpdate = enable;
     }
     
     
