@@ -118,7 +118,7 @@ public abstract class DefaultLogger
      * @param useDate whether the time should be used in this logging.
      */
     protected void processText(String text, Type type, Date timeStamp,
-                                  boolean useDate) {
+            boolean useDate) {
         try {
             String dateLine;
             String infoLine;

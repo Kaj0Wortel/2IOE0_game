@@ -35,6 +35,9 @@ public class FileLogger
     // The writer used to write the log data to the file.
     private PrintWriter writer;
     
+    // Whether to append to the given file.
+    private boolean append;
+    
     
     /**-------------------------------------------------------------------------
      * Constructor
@@ -43,18 +46,38 @@ public class FileLogger
     /**
      * @param fileName name of the file to log to.
      * @param file file to log to.
+     * @param append whether to append to the log file after the stream
+     *     has been closed and then re-opened.
+     * @param appendBeginOnly whether to append to the logfile
+     *     at initialization.
+     * @throws IOException if the file could not be initialized.
      */
-    public FileLogger() {
+    public FileLogger()
+            throws IOException {
         this(DEFAULT_LOG_FILE);
     }
     
-    public FileLogger(String fileName) {
+    public FileLogger(String fileName)
+            throws IOException {
         this(new File(fileName));
     }
     
-    public FileLogger(File file) {
-        super();
-        logFile = file;
+    public FileLogger(File file)
+            throws IOException {
+        this(file, true, false);
+    }
+    
+    public FileLogger(String fileName, boolean append, boolean appendBeginOnly)
+            throws IOException {
+        this(new File(fileName), append, appendBeginOnly);
+    }
+    
+    public FileLogger(File file, boolean append, boolean appendBeginOnly)
+            throws IOException {
+        this.logFile = file;
+        this.append = append;
+        createWriter(appendBeginOnly);
+        if (appendBeginOnly) writeHeader();
     }
     
     
@@ -79,8 +102,7 @@ public class FileLogger
     protected void checkWriter()
             throws IOException {
         if (writer != null || !isClosed()) return;
-        
-        createWriter(writer != null);
+        createWriter(writer != null || append);
     }
     
     /**
@@ -171,5 +193,24 @@ public class FileLogger
     protected void flush() {
         if (writer != null) writer.flush();
     }
+    
+    /**
+     * Sets whether to append to the log file after the stream
+     *     has been closed and then re-opened.
+     * 
+     * @param append whether to append.
+     */
+    public void setAppend(boolean append) {
+        this.append = append;
+    }
+    
+    /**
+     * @return whether to append to the log file after the stream
+     *     has been closed and then re-opened.
+     */
+    public boolean usesAppend() {
+        return append;
+    }
+    
     
 }

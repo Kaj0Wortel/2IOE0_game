@@ -77,7 +77,7 @@ public class Locker {
             return true;
             
         } else {
-            return !lock.tryLock();
+            return lock.tryLock();
         }
     }
     

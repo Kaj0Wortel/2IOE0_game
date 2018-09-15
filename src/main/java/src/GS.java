@@ -3,30 +3,31 @@ package src;
 
 
 // Own imports
-
-
-// Java imports
-
 import src.Assets.Instance;
 import src.Controllers.CameraController;
 import src.Renderer.Camera;
 import src.gui.MainPanel;
+import src.tools.event.ControllerKeyDetector;
 import src.tools.event.Key;
+import src.tools.font.FontLoader;
 import src.tools.io.ImageManager;
 import src.tools.log.FileLogger;
 import src.tools.log.Logger;
 import src.tools.log.MultiLogger;
 import src.tools.log.ScreenLogger;
+import src.tools.log.ThreadLogger;
 import src.tools.update.Updater;
 
+
+// Java imports
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
-import src.tools.event.ControllerKeyDetector;
-import src.tools.font.FontLoader;
-import src.tools.log.ThreadLogger;
 
 
 /**
@@ -37,11 +38,16 @@ public class GS {
      * Enums.
      * -------------------------------------------------------------------------
      */
-    // Enum class for the game state.
+    /**
+     * Enum class for the game state.
+     */
     public static enum GameState {
         PLAYING, PAUSED, STOPPED;
     }
     
+    /**
+     * TODO
+     */
     public static enum CameraMode {
         SOME_MODE;
     }
@@ -107,7 +113,13 @@ public class GS {
     public static void init() {
         // Initialize the logger(s).
         // Setup file logger to prevent missing events.
-        Logger fileLogger = new FileLogger(LOG_FILE);
+        Logger fileLogger = null;
+        try {
+            fileLogger = new FileLogger(LOG_FILE);
+            
+        } catch (IOException e) {
+            System.err.println(e);
+        }
         Logger.setDefaultLogger(fileLogger);
         
         // Initialize the fonts.
@@ -139,6 +151,13 @@ public class GS {
         registerImageSheets();
         
         createGUI();
+        
+        mainPanel.getFrame().addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent windowEvent) {
+                Updater.cancel();
+            }
+        });
     }
     
     /**

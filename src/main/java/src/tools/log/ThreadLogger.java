@@ -1,11 +1,13 @@
 
 package src.tools.log;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import src.tools.MultiTool;
 
 
 // Own imports
@@ -25,88 +27,98 @@ public class ThreadLogger
     
     
     /**
+     * Logger thread.
+     */
+    private Thread loggerThread = new Thread("Logging-thread") {
+        @Override
+        @SuppressWarnings("UseSpecificCatch")
+        public void run() {
+            // The update thread should have minimal priority.
+            Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+            
+            while (true) {
+                try {
+                    while (!requestQueue.isEmpty()) {
+                        requestQueue.pollFirst().run();
+                    }
+                    
+                    lock.lock();
+                    try {
+                        if (requestQueue.isEmpty()) {
+                            addedRequest.await();
+                        }
+                        
+                    } finally {
+                        lock.unlock();
+                    }
+                    
+                } catch (Exception e) {
+                    System.err.println(e);
+                }
+            }
+        }
+    };
+    
+    
+    /**
      * Creates a new thread logger for the given logger.
      * 
      * @param logger the logger to execute on a different thread.
      */
+    @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
     public ThreadLogger(Logger logger) {
         lock = new ReentrantLock(true);
          addedRequest = lock.newCondition();
         this.logger = logger;
-        createAndStartThread();
+        loggerThread.start();
     }
+    
     
     @Override
     protected void writeE(Exception e, Type type, Date timeStamp) {
-        requestQueue.addLast(() -> {
+        checkAndExe(() -> {
             logger.writeE(e, type, timeStamp);
         });
-        notifyThread();
     }
     
     @Override
     protected void writeO(Object obj, Type type, Date timeStamp) {
-        requestQueue.addLast(() -> {
+        checkAndExe(() -> {
             logger.writeO(obj, type, timeStamp);
         });
-        notifyThread();
     }
     
     @Override
     protected void close() {
-        requestQueue.addLast(() -> {
+        checkAndExe(() -> {
             logger.close();
         });
-        notifyThread();
     }
     
     @Override
     protected void flush() {
-        requestQueue.addLast(() -> {
+        checkAndExe(() -> {
             logger.flush();
         });
-        notifyThread();
     }
     
-    private void notifyThread() {
+    private void checkAndExe(Runnable r) {
         lock.lock();
         try {
-            addedRequest.signal();
+            if (Thread.currentThread().equals(loggerThread)) {
+                r.run();
+
+            } else {
+                requestQueue.addLast(() -> {
+                    r.run();
+                });
+                
+                addedRequest.signal();
+            }
             
         } finally {
             lock.unlock();
         }
-    }
-    
-    /**
-     * Creates and starts the logger thread.
-     */
-    private void createAndStartThread() {
-        new Thread() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        while (!requestQueue.isEmpty()) {
-                            requestQueue.pollFirst().run();
-                        }
-                        
-                        lock.lock();
-                        try {
-                            if (requestQueue.isEmpty()) {
-                                addedRequest.await();
-                            }
-                            
-                        } finally {
-                            lock.unlock();
-                        }
-                        
-                    } catch (InterruptedException e) {
-                        System.err.println(e);
-                    }
-                }
-            }
-        }.start();
     }
     
     

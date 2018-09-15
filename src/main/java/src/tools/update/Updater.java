@@ -22,8 +22,10 @@ import src.tools.log.Logger;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import src.tools.MultiTool.RandomIterator;
 
 // Java imports
 
@@ -35,7 +37,8 @@ import java.util.Set;
  */
 public class Updater {
     // The number of available threads. The {@code -1} is because the
-    // graphics part also needs one thread.
+    // graphics part also needs one thread. Other (mainly sleeping or waiting)
+    // update threads from other classes are ignored.
     final private static int NUM_THREADS = Runtime.getRuntime()
             .availableProcessors() - 1;
     final private static Set<Updateable> updateSet = new HashSet<>();
@@ -50,22 +53,23 @@ public class Updater {
         synchronized(updateSet) {
             // Distribute the tasks evenly and randomly over the
             // available threads.
-            int tasksPerThread = updateSet.size() / NUM_THREADS;
+            int tasksPerThread = updateSet.size() / NUM_THREADS + 1;
             int counter = 0;
             List<Updateable> threadUpdates = new ArrayList<>(tasksPerThread);
             List<Thread> threads = new ArrayList<>();
-            for (Updateable updateable : updateSet) {
-                try {
-                    updateable.update(timeStamp);
-                } catch (InterruptedException e) {
-
-                }
+            int num = 0;
+            
+            Iterator<Updateable> it = new RandomIterator(updateSet);
+            while (it.hasNext()) {
+                Updateable updateable = it.next();
+                
                 if (++counter <= tasksPerThread) {
                     threadUpdates.add(updateable);
                     
                 } else {
+                    // Create a new update thread.
                     Thread thread = createUpdateThread(threadUpdates,
-                            timeStamp);
+                            timeStamp, num++);
                     // Start and store the thread.
                     thread.start();
                     threads.add(thread);
@@ -74,6 +78,14 @@ public class Updater {
                     threadUpdates = new ArrayList<>();
                     counter = 0;
                 }
+            }
+            if (!threadUpdates.isEmpty()) {
+                // Create a new update thread.
+                Thread thread = createUpdateThread(threadUpdates,
+                        timeStamp, num++);
+                // Start and store the thread.
+                thread.start();
+                threads.add(thread);
             }
             
             // Wait for the other threads to terminate.
@@ -97,8 +109,8 @@ public class Updater {
      * @return a fresh update thread.
      */
     private static Thread createUpdateThread(List<Updateable> threadUpdates,
-            long timeStamp) {
-        return new Thread() {
+            long timeStamp, int num) {
+        return new Thread("Update-thread-" + num) {
             @Override
             @SuppressWarnings("UseSpecificCatch")
             public void run() {
@@ -134,6 +146,7 @@ public class Updater {
      * @return {@code false} if the updateable was locked.
      *     {@code true} otherwise.
      */
+    @SuppressWarnings("UseSpecificCatch")
     private static boolean updateUpdateable(Updateable up, long timeStamp) {
         try {
             if (Locker.tryLock(up)) {
@@ -143,13 +156,13 @@ public class Updater {
                 } finally {
                     Locker.unlock(up);
                 }
-            } else  return false;
+            } else return false;
 
         } catch (Exception e) { // Play it safe to catch all types.
             Logger.write(new Object[] {
                 "Exception occured in updateable:",
                 e,
-                "Updateable: ",
+                "Updateable:",
                 up.toString()
             }, Logger.Type.ERROR);
         }

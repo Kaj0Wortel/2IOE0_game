@@ -29,8 +29,8 @@ public class ContrlEnv
     
     final private static long UPDATE_TIME = 5000L;
     
-    private Controller[] cachedContr = null;
-    private Lock lock = new ReentrantLock();
+    private Controller[] cachedContr = new Controller[0];
+    private Lock lock = new ReentrantLock(true);
     private Condition cachedControllersChanged = lock.newCondition();
     private Condition updateEnvironment = lock.newCondition();
     
@@ -44,23 +44,16 @@ public class ContrlEnv
         new Thread("Controll-environment-updater-thread") {
             @Override
             public void run() {
-                long t1 = System.currentTimeMillis();
-                long t2 = System.currentTimeMillis();
-                long t3 = System.currentTimeMillis();
-                long t4 = System.currentTimeMillis();
-                long t5 = System.currentTimeMillis();
-                long t6 = System.currentTimeMillis();
-                long t7 = System.currentTimeMillis();
-                long t8 = System.currentTimeMillis();
-                long t9 = System.currentTimeMillis();
+                // The update thread should have minimal priority.
+                Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+                
                 while (true) {
-                    Logger.write("UPDATE!");
-                    t5 = System.currentTimeMillis();
+                    // tmp
+                    Logger.write("Check controllers");
+                    
                     // Load controllers.
                     Controller[] c = ContrlEnv.super.getControllers();
-                    t6 = System.currentTimeMillis();
                     
-                    t7 = System.currentTimeMillis();
                     // Notify listeners for added devices.
                     if (cachedContr == null) {
                         added = new ArrayList<>(Arrays.asList(c));
@@ -75,7 +68,6 @@ public class ContrlEnv
                     
                     // Update cached controllers.
                     cachedContr = c;
-                    t8 = System.currentTimeMillis();
                     
                     // Signal that the controllers have changed.
                     lock.lock();
@@ -92,15 +84,8 @@ public class ContrlEnv
                     // Wait for the next update cycle.
                     lock.lock();
                     try {
-                        t2 = System.currentTimeMillis();
-                        Logger.write("Retr contr time taken  : " + (t6 - t5));
-                        Logger.write("Update list time taken : " + (t8 - t7));
-                        Logger.write("Total time taken       : " + (t2 - t1));
-                        Logger.write("Reset var time taken   : " + (t4 - t3));
-                        
                         updateEnvironment.await(UPDATE_TIME,
                                 TimeUnit.MILLISECONDS);
-                        t1 = System.currentTimeMillis();
                         
                     } catch (InterruptedException e) {
                         Logger.write(e);
@@ -109,7 +94,6 @@ public class ContrlEnv
                         lock.unlock();
                     }
                     
-                    t3 = System.currentTimeMillis();
                     // Remove loaded controllers to initiate a reload.
                     try {
                         Field field = DefaultControllerEnvironment.class
@@ -126,7 +110,6 @@ public class ContrlEnv
                             IllegalAccessException e) {
                         Logger.write(e);
                     }
-                    t4 = System.currentTimeMillis();
                 }
             }
         }.start();
@@ -235,7 +218,27 @@ public class ContrlEnv
         lock.lock();
         try {
             if (cachedContr == null) {
-                updateEnvironment.signalAll();
+                updateEnvironment.signal();
+            }
+
+        } finally {
+            lock.unlock();
+            return cachedContr;
+        }
+    }
+    
+    /**
+     * Does the same as {@link #getControllers()}, but now waits for the
+     * update thread to generate at least the initial controllers.
+     * This ensures that the returned value will never be an empty array.
+     * 
+     * @return the controllers that are currently connected.
+     */
+    public Controller[] waitForController() {
+        lock.lock();
+        try {
+            if (cachedContr == null) {
+                updateEnvironment.signal();
                 cachedControllersChanged.await();
             }
 
@@ -271,7 +274,7 @@ public class ContrlEnv
     public void forceUpdate() {
         lock.lock();
         try {
-            updateEnvironment.signalAll();
+            updateEnvironment.signal();
             
         } finally {
             lock.unlock();

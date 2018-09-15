@@ -44,18 +44,25 @@ public class ControllerKeyDetector
     final public Map<String, Controller[]> connected
             = new HashMap<>();
     
-    
-    
+    /**
+     * @see KeyPressedDetector#KeyPressedDetector()
+     */
     public ControllerKeyDetector() {
         super();
         init();
     }
     
+    /**
+     * @see KeyPressedDetector#KeyPressedDetector(java.awt.Component)
+     */
     public ControllerKeyDetector(java.awt.Component comp) {
         super(comp);
         init();
     }
     
+    /**
+     * Initializes the controller environment.
+     */
     private void init() {
         ContrlEnv ce = new ContrlEnv();
         
@@ -76,12 +83,15 @@ public class ControllerKeyDetector
             }
         });
         
+        // Add all controllers that were here initially.
         for (Controller c : controllers) {
             addController(c);
         }
         
-        // tmp initialization
+        // tmp initialization (static method generation.
         ControllerKey.tmp();
+        
+        // Set to true if fully initialized.
         initialized = true;
     }
     

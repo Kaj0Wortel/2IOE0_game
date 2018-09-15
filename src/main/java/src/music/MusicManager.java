@@ -78,23 +78,15 @@ public class MusicManager {
      * Music fade thread.
      * -------------------------------------------------------------------------
      */
-    final private static Thread fadeThread = new Thread("Music-fade-thread") {
+    final private static Thread musicThread = new Thread("Music-thread") {
         @Override
         public void run() {
+            // The update thread should have minimal priority.
+            Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+            
             while (true) {
                 try {
                     lock.lock();
-                    
-                    /*
-                    
-                    public static void setSFXVolume(float gain) {
-                        sfxVolume = sfxVolumeTarget = transformGain(gain);
-
-                        for (Clip clip : sfxClips) {
-                            setClipVolume(sfxVolume, clip);
-                        }
-                    }
-                    */
                     boolean done;
                     try {
                         boolean bgDone;
@@ -173,8 +165,9 @@ public class MusicManager {
             }
         }
     };
+    // Start the thread.
     static {
-        fadeThread.start();
+        musicThread.start();
     }
     
     

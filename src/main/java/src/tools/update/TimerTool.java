@@ -162,7 +162,7 @@ public class TimerTool {
                 }
                 
                 // Run the function(s) on a new thread.
-                new Thread() {
+                new Thread("Timer-update") {
                     @Override
                     public void run() {
                         if (rs != null) {

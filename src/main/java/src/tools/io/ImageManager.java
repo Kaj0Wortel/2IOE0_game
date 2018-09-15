@@ -586,6 +586,9 @@ public class ImageManager {
         new Thread(ImageManager.class.getName() + " Thread") {
             @Override
             public void run() {
+                // The update thread should have minimal priority.
+                Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+                
                 while (true) {
                     try {
                         Delay delay = queue.poll(1, TimeUnit.DAYS);
