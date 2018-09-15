@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.logging.LogManager;
 import src.tools.event.ControllerKeyDetector;
 import src.tools.font.FontLoader;
+import src.tools.log.ThreadLogger;
 
 
 /**
@@ -119,10 +120,10 @@ public class GS {
         keyMap.put(Key.N2, () -> {
             setFullScreen(!isFullScreen());
         });
-        Logger.setDefaultLogger(new MultiLogger(
+        Logger.setDefaultLogger(new ThreadLogger(new MultiLogger(
                 new ScreenLogger("Test logger", keyMap),
                 fileLogger // Use the same file logger to keep the logfile.
-        ));
+        )));
         Logger.write("Starting application...", Logger.Type.INFO);
         Logger.setShutDownMessage("Shutting down application...",
                 Logger.Type.INFO);

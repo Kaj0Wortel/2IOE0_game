@@ -45,12 +45,22 @@ public class ContrlEnv
             @Override
             public void run() {
                 long t1 = System.currentTimeMillis();
-                long t2;
+                long t2 = System.currentTimeMillis();
+                long t3 = System.currentTimeMillis();
+                long t4 = System.currentTimeMillis();
+                long t5 = System.currentTimeMillis();
+                long t6 = System.currentTimeMillis();
+                long t7 = System.currentTimeMillis();
+                long t8 = System.currentTimeMillis();
+                long t9 = System.currentTimeMillis();
                 while (true) {
                     Logger.write("UPDATE!");
+                    t5 = System.currentTimeMillis();
                     // Load controllers.
                     Controller[] c = ContrlEnv.super.getControllers();
+                    t6 = System.currentTimeMillis();
                     
+                    t7 = System.currentTimeMillis();
                     // Notify listeners for added devices.
                     if (cachedContr == null) {
                         added = new ArrayList<>(Arrays.asList(c));
@@ -65,6 +75,7 @@ public class ContrlEnv
                     
                     // Update cached controllers.
                     cachedContr = c;
+                    t8 = System.currentTimeMillis();
                     
                     // Signal that the controllers have changed.
                     lock.lock();
@@ -82,7 +93,11 @@ public class ContrlEnv
                     lock.lock();
                     try {
                         t2 = System.currentTimeMillis();
-                        Logger.write("Time taken: " + (t2 - t1));
+                        Logger.write("Retr contr time taken  : " + (t6 - t5));
+                        Logger.write("Update list time taken : " + (t8 - t7));
+                        Logger.write("Total time taken       : " + (t2 - t1));
+                        Logger.write("Reset var time taken   : " + (t4 - t3));
+                        
                         updateEnvironment.await(UPDATE_TIME,
                                 TimeUnit.MILLISECONDS);
                         t1 = System.currentTimeMillis();
@@ -94,6 +109,7 @@ public class ContrlEnv
                         lock.unlock();
                     }
                     
+                    t3 = System.currentTimeMillis();
                     // Remove loaded controllers to initiate a reload.
                     try {
                         Field field = DefaultControllerEnvironment.class
@@ -110,6 +126,7 @@ public class ContrlEnv
                             IllegalAccessException e) {
                         Logger.write(e);
                     }
+                    t4 = System.currentTimeMillis();
                 }
             }
         }.start();

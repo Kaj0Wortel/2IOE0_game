@@ -172,7 +172,7 @@ public abstract class Logger {
     }
     
     /**
-     * Closees the log file and releases system resources.
+     * Closes the log file and releases system resources.
      */
     protected abstract void close();
     
