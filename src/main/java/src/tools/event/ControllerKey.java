@@ -80,6 +80,11 @@ public class ControllerKey
             COMP_MODE_IDENTIFIER |
             COMP_MODE_VALUE_IF_NEEDED;
     
+    /**
+     * The default hash mode.
+     */
+    final private static int HASH_MODE = DEFAULT_REPLACE_COMP_MODE;
+    
     
     /** Identifier constants. */
     // Main buttons.
@@ -153,12 +158,12 @@ public class ControllerKey
      * -------------------------------------------------------------------------
      */
     private static int compMode = DEFAULT_REPLACE_COMP_MODE;
-    private int hashedMode = -1;
-    private int prevHash = 0;
     
     final private Controller controller;
     final private Component comp;
     final private float value;
+    
+    final private int hashValue;
     
     
     /**
@@ -171,6 +176,7 @@ public class ControllerKey
         this.controller = key.controller;
         this.comp = key.comp;
         this.value = key.value;
+        this.hashValue = calcHashCode();
     }
     
     /**
@@ -186,6 +192,7 @@ public class ControllerKey
         this.controller = controller;
         this.comp = comp;
         this.value = value;
+        this.hashValue = calcHashCode();
     }
     
     
@@ -396,21 +403,27 @@ public class ControllerKey
      */
     @Override
     public int hashCode() {
-        // To speed up the consecutive hashing speed.
-        if (hashedMode == compMode) return prevHash;
-        prevHash = compMode;
-        
+        return hashValue;
+    }
+    
+    /**
+     * Calculates the hash code when creating the object.
+     * 
+     * @return the hash code.
+     */
+    @SuppressWarnings("IncompatibleBitwiseMaskOperation")
+    public int calcHashCode() {
         Identifier ident = comp.getIdentifier();
         Object[] data = new Object[7];
-        if ((compMode & COMP_MODE_CONTROLLER) == COMP_MODE_CONTROLLER) {
+        if ((HASH_MODE & COMP_MODE_CONTROLLER) == COMP_MODE_CONTROLLER) {
             data[0] = GS.keyDet.controllerToString(controller);
         }
         
-        if ((compMode & COMP_MODE_IDENTIFIER) == COMP_MODE_IDENTIFIER) {
+        if ((HASH_MODE & COMP_MODE_IDENTIFIER) == COMP_MODE_IDENTIFIER) {
             data[1] = ident.getName();
         }
         
-        if ((compMode & COMP_MODE_VALUE_IF_NEEDED) ==
+        if ((HASH_MODE & COMP_MODE_VALUE_IF_NEEDED) ==
                 COMP_MODE_VALUE_IF_NEEDED) {
             if (ident == Axis.POV) {
                 data[2] = isDPADUp();
@@ -429,7 +442,7 @@ public class ControllerKey
                 data[2] = isPressed();
             }
             
-        } else if ((compMode & COMP_MODE_VALUE) == COMP_MODE_VALUE) {
+        } else if ((HASH_MODE & COMP_MODE_VALUE) == COMP_MODE_VALUE) {
             data[2] = value;
         }
         
