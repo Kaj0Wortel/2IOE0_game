@@ -222,7 +222,7 @@ public class AStar {
                         sRotV = i*rotvMax;
                         // g
                         sg = curNode.v*tInt + 0.5*(j*a)*tInt*tInt 
-                                + curNode.v*0.003;
+                                + curNode.v*0.004;
                         // Position
                         double sX = 0;
                         double sY = 0;
@@ -278,13 +278,23 @@ public class AStar {
                         double difError = Math.sqrt(Math.pow(CP1.x - CP2.x, 2)
                                 + Math.pow(CP1.y - CP2.y, 2));
                         if (d1 > difError && d1 > d2) {
-                            sh = sh + Math.sqrt(Math.pow(curHPos.x - CP2.x, 2)
+                            //if (j == sNextCP) {
+                                sh = sh + Math.sqrt(Math.pow(curHPos.x - CP2.x, 2)
                                     + Math.pow(curHPos.y - CP2.y, 2));
+                            /*} else {
+                                sh = sh + 0.1*Math.sqrt(Math.pow(curHPos.x - CP2.x, 2)
+                                    + Math.pow(curHPos.y - CP2.y, 2));
+                            }*/
                             curHPos = CP2;
 
                         } else if (d2 > difError && d1 < d2){
-                            sh = sh + Math.sqrt(Math.pow(curHPos.x - CP1.x, 2)
-                                    + Math.pow(curHPos.y - CP1.y, 2));
+                            //if (j == sNextCP) {
+                                sh = sh + Math.sqrt(Math.pow(curHPos.x - CP1.x, 2)
+                                        + Math.pow(curHPos.y - CP1.y, 2));
+                            /*} else {
+                                sh = sh + 0.1*Math.sqrt(Math.pow(curHPos.x - CP1.x, 2)
+                                        + Math.pow(curHPos.y - CP1.y, 2));
+                            }*/
                             curHPos = CP1;
 
                         } else {
@@ -292,7 +302,11 @@ public class AStar {
                             double c2 = -curHPos.x*nA + curHPos.y;
                             double dist = Math.abs((-1 / nA) * curHPos.x - curHPos.y + c1)
                                     / Math.sqrt(1 / (nA*nA) + 1);
-                            sh = sh + dist;
+                            //if (j == sNextCP) {
+                                sh = sh + dist;
+                            /*} else {
+                                sh = sh + 0.1*dist;
+                            }*/
                             double hx = (c2 - c1) / (-nA + (-1/nA));
                             double hy = (-1/nA)*hx + c1;
                             curHPos = new Point.Double(hx, hy);
@@ -360,6 +374,7 @@ public class AStar {
                     +", parent: ("+curNode.parentNode.pos.x+","+curNode.parentNode.pos.y+")");
             */
             }
+            if (iter%1000 == 0)
             System.out.println(iter);
         }
         // </editor-fold>
@@ -444,6 +459,7 @@ A* improvement and debugging                                            5 hr
 adding support for multiple checkpoints                                 5 hr
 Improvement of physics                                                  4 hr
 Improve action costs (turning vs straight)                              4 hr
+17: meeting 4 h
 --------------------------------------------------------------------------------
 total                                                                   34.5 hr
 */
