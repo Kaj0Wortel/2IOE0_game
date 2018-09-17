@@ -44,10 +44,10 @@ public class Simulator implements Updateable {
         this.gl = gl;
     }
 
-    public void initAssets(){
-        OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "test.obj");
+    public void initAssets() {
+        //OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "test.obj");
+        OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "sphere.obj");
         
-        //Cube cube = new Cube(gl);
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj, new Texture());
             Instance cubeInstance = new Instance(new Vector3f(0f, 0f, -5f),
