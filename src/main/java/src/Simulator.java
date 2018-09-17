@@ -7,12 +7,14 @@ import src.Assets.Cube;
 import src.Assets.Instance;
 import src.Assets.Texture;
 import src.OBJ.LoadOBJ;
-import src.Renderer.Camera;
 import src.tools.Binder;
+import src.tools.event.Key;
+import src.tools.event.keyAction.CameraKeyAction;
 import src.tools.update.Updateable;
 import src.tools.update.Updater;
 
 import javax.swing.*;
+import java.util.List;
 
 import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
@@ -21,10 +23,17 @@ public class Simulator implements Updateable {
     private GL2 gl;
 
     private Binder binder;
+    CameraKeyAction[] cameraActions;
 
     public Simulator () {
 
         this.binder = new Binder();
+
+        cameraActions = new CameraKeyAction[] {
+                new CameraKeyAction(1, CameraKeyAction.MovementAction.LEFT),
+                new CameraKeyAction(1, CameraKeyAction.MovementAction.RIGHT),
+        };
+
         SwingUtilities.invokeLater(() -> {
             Updater.addTask(this);});
     }
@@ -55,12 +64,13 @@ public class Simulator implements Updateable {
         }
 
 
-        Camera c = GS.getCamera();
-
-        //GS.getCameraController().processKey(GS.keyDet.getKeysPressed());
-
-        //c.YawLeft();
-        //c.YawLeft();
+        for (CameraKeyAction action : cameraActions) {
+            List<Key> keys = GS.getKeys(action);
+            if (keys == null) return;
+            if (GS.keyDet.werePressed(keys)) {
+                GS.getCameraController().processKey(action.getAction());
+            }
+        }
     }
 
     @Override

@@ -88,7 +88,10 @@ public class Renderer implements GLEventListener {
             currentShader.loadModelMatrix(gl, asset.getTransformationMatrix());
             drawAsset(asset);
         }
-        
+
+
+
+
         // tmp
         //LoadOBJ.load(GS.OBJ_DIR + "test.obj").draw(gl, glu);
     }

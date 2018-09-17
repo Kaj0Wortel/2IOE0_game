@@ -3,23 +3,23 @@ package src;
 
 
 // Own imports
+
 import src.Assets.Instance;
 import src.Controllers.CameraController;
 import src.Renderer.Camera;
 import src.gui.MainPanel;
+import src.tools.event.ControllerKey;
 import src.tools.event.ControllerKeyDetector;
 import src.tools.event.Key;
+import src.tools.event.keyAction.CameraKeyAction;
+import src.tools.event.keyAction.CarKeyAction;
+import src.tools.event.keyAction.KeyAction;
 import src.tools.font.FontLoader;
+import src.tools.io.BufferedReaderPlus;
 import src.tools.io.ImageManager;
-import src.tools.log.FileLogger;
-import src.tools.log.Logger;
-import src.tools.log.MultiLogger;
-import src.tools.log.ScreenLogger;
-import src.tools.log.ThreadLogger;
+import src.tools.log.*;
 import src.tools.update.Updater;
 
-
-// Java imports
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -28,13 +28,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
-import src.tools.event.ControllerKey;
+
 import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
-import src.tools.event.keyAction.CarKeyAction;
-import src.tools.event.keyAction.KeyAction;
-import src.tools.io.BufferedReaderPlus;
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
+
+// Java imports
 
 
 /**
@@ -156,8 +155,6 @@ public class GS {
                     + "now been disabled!");
         }
         
-        cameraController = new CameraController(camera);
-        
         registerImageSheets();
         createGUI();
         Locker.add(ControllerKey.class);
@@ -228,7 +225,14 @@ public class GS {
                         newKeyMap.put(action, keys);
                         keys = new ArrayList<>();
                         System.out.println("CarKeyAction created: " + action);
-                        
+
+                    } else if (brp.fieldEquals(CameraKeyAction.class.getName())) {
+                        KeyAction action = CameraKeyAction
+                                .createFromString(brp.getData());
+                        newKeyMap.put(action, keys);
+                        keys = new ArrayList<>();
+                        System.out.println("CameraKeyAction created: " + action);
+
                     } else {
                         Logger.write("Ignored field on line "
                                 + brp.getLineCounter() + ": " + brp.getField(),

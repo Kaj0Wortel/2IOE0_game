@@ -1,9 +1,7 @@
 package src.Controllers;
 
 import src.Renderer.Camera;
-import src.tools.event.Key;
-
-import java.util.Set;
+import src.tools.event.keyAction.CameraKeyAction;
 
 public class CameraController {
 
@@ -13,13 +11,14 @@ public class CameraController {
         this.camera = camera;
     }
 
-    public void processKey(Set<Key> e) {
+    public void processKey(CameraKeyAction.MovementAction e) {
 
-        if(e.contains(Key.A)) {
-            System.out.println("Hi");
+        System.out.println(e);
+
+        if(e == CameraKeyAction.MovementAction.LEFT) {
             camera.YawLeft();
         }
-        if(e.contains(Key.D)) {
+        if(e == CameraKeyAction.MovementAction.RIGHT) {
             camera.YawRight();
         }
 

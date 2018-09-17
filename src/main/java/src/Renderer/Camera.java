@@ -35,13 +35,12 @@ public class Camera {
     }
 
     public void YawLeft(){
-        yaw += 1f;
+        yaw += 3f;
         yaw %= 360;
-        //System.out.println(yaw);
     }
 
     public void YawRight(){
-        yaw -= 0.1f;
+        yaw -= 3f;
         yaw %= 360;
     }
 
