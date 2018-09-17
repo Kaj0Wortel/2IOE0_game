@@ -14,6 +14,7 @@ import src.tools.log.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,11 @@ public class LoadOBJ {
             
             while (brp.readNextConfLine()) {
                 String[] data = brp.getData();
+                Logger.write(new Object[] {
+                    "field: " + brp.getField(),
+                    "data : " + Arrays.toString(data)
+                    
+                }, Logger.Type.ERROR);
                 
                 if (brp.fieldEquals("v")) {
                     verts.add(new Vector3f(
@@ -101,16 +107,20 @@ public class LoadOBJ {
                 } else if (brp.fieldEquals("f")) {
                     for (int i = 0; i < data.length; i++) {
                         String[] elems = data[i].split("/");
-                        int vPointer = Integer.parseInt(elems[0]);
+                        int vPointer = Integer.parseInt(elems[0]) - 1;
                         int tPointer = ("".equals(elems[1])
                                 ? -1
-                                : Integer.parseInt(elems[1]));
-                        int nPointer = Integer.parseInt(elems[2]);
+                                : Integer.parseInt(elems[1]) - 1);
+                        int nPointer = Integer.parseInt(elems[2]) - 1;
                         
                         FaceElement face
                                 = new FaceElement(vPointer, tPointer, nPointer);
                         
                         Integer loc = faces.get(face);
+                        // tmp hot-fix
+                        loc = null;
+                        
+                        
                         // The location didn't exist before, so add a new
                         // location to the buffers.
                         if (loc == null) {
@@ -118,13 +128,17 @@ public class LoadOBJ {
                             // available slot.
                             loc = locCounter++;
                             
+                            // Since this face element doesn't not yet exist,
+                            // add it to the map.
+                            faces.put(face, loc);
+                            
                             Vector3f vert = verts.get(vPointer);
                             vertsBuf.add(vert.x);
                             vertsBuf.add(vert.y);
                             vertsBuf.add(vert.z);
                             
-                            Vector2f tex = null;
                             if (tPointer != -1) {
+                                Vector2f tex = texs.get(tPointer);
                                 texsBuf.add(tex.x);
                                 texsBuf.add(tex.y);
                             }
@@ -141,6 +155,7 @@ public class LoadOBJ {
                     
                 } else if (brp.fieldEquals("o")) {
                     if (obj != null) {
+                        Logger.write("Set object");
                         obj.setData(gl, vertsBuf, texsBuf, normsBuf, facesBuf);
                     }
                     
@@ -157,13 +172,18 @@ public class LoadOBJ {
                             + ", line = " + brp.getLineCounter());
                 }
             }
+            if (obj != null) {
+                Logger.write("Set object");
+                obj.setData(gl, vertsBuf, texsBuf, normsBuf, facesBuf);
+            }
             
         } catch (IOException e) {
-            Logger.write("Could not open file: " + fileName);
+            Logger.write("Could not open file: " + fileName,
+                    Logger.Type.ERROR);
             
         } catch (IndexOutOfBoundsException e) {
             Logger.write("The file \"" + fileName + "\" is corrupt! [line = "
-                    + debug.getLineCounter() + "]");
+                    + debug.getLineCounter() + "]", Logger.Type.ERROR);
             
         } finally {
             Logger.write(new String[] {

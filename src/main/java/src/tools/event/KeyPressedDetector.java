@@ -121,7 +121,7 @@ public class KeyPressedDetector
      */
     public void update() {
         keysPressedHistory = keysPressedSinceLastUpdate;
-        keysPressedSinceLastUpdate = new HashSet<Key>(keysCurPressed);
+        keysPressedSinceLastUpdate = new HashSet<Key>(keysCurPressed); // TODO concurrent mod exception here!
     }
     
     

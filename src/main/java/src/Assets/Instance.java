@@ -50,7 +50,7 @@ public class Instance {
 
     public void draw(GL2 gl, ShaderProgram shader){
         shader.loadModelMatrix(gl, getTransformationMatrix());
-
+        
         gl.glBindVertexArray(model.getAsset().getVao().get(0));
         gl.glEnableVertexAttribArray(0);
         gl.glEnableVertexAttribArray(1);

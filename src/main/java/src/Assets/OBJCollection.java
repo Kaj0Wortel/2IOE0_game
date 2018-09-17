@@ -29,6 +29,10 @@ public class OBJCollection
         objObjects.add(obj);
     }
     
+    public OBJObject get(int i) {
+        return objObjects.get(i);
+    }
+    
     /**
      * Clears all obj objects and makes them available for GC.
      */

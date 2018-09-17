@@ -2,7 +2,6 @@ package src;
 
 import com.jogamp.opengl.GL2;
 import org.joml.Vector3f;
-import src.Assets.Cube;
 import src.Assets.Instance;
 import src.Assets.OBJTexture;
 import src.Assets.Texture;
@@ -15,6 +14,9 @@ import src.tools.update.Updater;
 import javax.swing.*;
 import java.util.List;
 
+import src.Assets.OBJCollection;
+import src.Assets.OBJObject;
+import src.OBJ.LoadOBJ;
 import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
 public class Simulator implements Updateable {
@@ -34,7 +36,8 @@ public class Simulator implements Updateable {
         };
 
         SwingUtilities.invokeLater(() -> {
-            Updater.addTask(this);});
+            Updater.addTask(this);
+        });
     }
 
     public void setGL(GL2 gl){
@@ -42,12 +45,15 @@ public class Simulator implements Updateable {
     }
 
     public void initAssets(){
-        //OBJCollection col = LoadOBJ.load(gl,GS.OBJ_DIR + "test.obj");
-
-        Cube cube = new Cube(gl);
-        OBJTexture texturedCube = new OBJTexture(cube, new Texture());
-        Instance cubeInstance = new Instance(new Vector3f(0f,0f,-5f), 1, 0,0,0,texturedCube);
-        GS.addAsset(cubeInstance);
+        OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "test.obj");
+        
+        //Cube cube = new Cube(gl);
+        for (OBJObject obj : col) {
+            OBJTexture texturedCube = new OBJTexture(obj, new Texture());
+            Instance cubeInstance = new Instance(new Vector3f(0f, 0f, -5f),
+                    1, 0, 0, 0, texturedCube);
+            GS.addAsset(cubeInstance);
+        }
     }
 
     public void cleanup(){

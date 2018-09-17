@@ -3,23 +3,23 @@ package src.Renderer;
 
 
 // Jogamp imports
-
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 import org.joml.Matrix4f;
-import src.Assets.Instance;
-import src.GS;
-import src.Shaders.DefaultShader;
-import src.Simulator;
 
 import static com.jogamp.opengl.GL.*;
 import static com.jogamp.opengl.GL2ES2.GL_SHADING_LANGUAGE_VERSION;
 import static com.jogamp.opengl.GL2GL3.GL_FILL;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_NORMALIZE;
 
+
 // Own imports
+import src.Assets.Instance;
+import src.GS;
+import src.Shaders.DefaultShader;
+import src.Simulator;
 
 
 public class Renderer implements GLEventListener {
@@ -41,7 +41,6 @@ public class Renderer implements GLEventListener {
         this.simulator = simulator;
         this.width = width;
         this.height = height;
-
     }
 
     @Override
@@ -62,9 +61,6 @@ public class Renderer implements GLEventListener {
         simulator.setGL(gl);
         simulator.initAssets();
         currentShader = new DefaultShader(gl);
-        
-        // tmp
-        //LoadOBJ.load(GS.OBJ_DIR + "test.obj").bind(gl);
     }
 
     @Override
@@ -86,12 +82,6 @@ public class Renderer implements GLEventListener {
         for(Instance asset : GS.getAssets()){
             asset.draw(gl, currentShader);
         }
-
-
-
-
-        // tmp
-        //LoadOBJ.load(GS.OBJ_DIR + "test.obj").draw(gl, glu);
     }
 
     @Override

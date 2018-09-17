@@ -3,7 +3,8 @@ package src.Assets;
 import com.jogamp.opengl.GL2;
 import src.tools.Binder;
 
-public class Cube extends OBJObject{
+public class Cube
+        extends OBJObject {
     public Cube(GL2 gl) {
         super("cube");
         float[] vertices = {

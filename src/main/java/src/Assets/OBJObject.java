@@ -17,15 +17,10 @@ import java.util.List;
 
 /**
  * 
- * 
- * @author Kaj Wortel (0991586)
+ * <url>http://paulbourke.net/dataformats/obj/</url>
  */
 public class OBJObject {
     final private String name;
-    
-    /**
-     * <url>http://paulbourke.net/dataformats/obj/</url>
-     */
     
     private MTLObject mltObject = null;
     private IntBuffer vao;
@@ -35,14 +30,12 @@ public class OBJObject {
         this.name = name;
     }
     
-    /**
-     * Clears this obj object and makes it available for GC.
-     */
-    
     public void setData(GL2 gl, List<Float> vertices, List<Float> normals,
                         List<Float> tex, List<Integer> indices) {
 
-        vao = Binder.loadVAO(gl, toFloatArray(vertices), toFloatArray(normals), toFloatArray(tex), toIntegerArray(indices));
+        vao = Binder.loadVAO(gl,
+                toFloatArray(vertices), toFloatArray(normals),
+                toFloatArray(tex), toIntegerArray(indices));
         nrV = vertices.size()/3;
 
     }
