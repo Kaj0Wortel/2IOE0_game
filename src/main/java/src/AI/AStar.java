@@ -1,18 +1,13 @@
-
 package src.AI;
 
-
 // Own imports
-
-import src.testing.VisualAStar;
-
-import java.awt.*;
-import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import src.testing.VisualAStar; // Debug visualization
 // Java imports
+import java.awt.*;
+import java.awt.geom.Point2D; // Point2D.Doubles
+import java.util.ArrayList; // Arralylists
+import java.util.Collections; // Reverse Arraylist
+import java.util.List; // ArrayLists
 
 public class AStar {
     // <editor-fold defaultstate="collapsed" desc="NOTES"> 
@@ -74,13 +69,18 @@ public class AStar {
     - implement friendly input for the A* (info comes from other files)
     - shorten debug doubles to 4 decimals: https://docs.oracle.com/javase/tutorial/java/data/numberformat.html
     */ // </editor-fold>
-
     public static void runAlgorithm () {
         // <editor-fold defaultstate="collapsed" desc="VARIABLES">
         // TODO: add the following input variables:
         List<Point2D.Double> checkPoints = new ArrayList<Point2D.Double>();
-        checkPoints.add(new Point2D.Double(0, 0));
-        checkPoints.add(new Point2D.Double(0.1, 0.1));
+        checkPoints.add(new Point2D.Double(2.4, 1));
+        checkPoints.add(new Point2D.Double(1.6, 1.1));
+        //checkPoints.add(new Point2D.Double(0.6, 2));
+        //checkPoints.add(new Point2D.Double(0.7, 3));
+        //checkPoints.add(new Point2D.Double(-0.1, 0));
+        //checkPoints.add(new Point2D.Double(0.4, -0.1));
+        checkPoints.add(new Point2D.Double(-0.3, 1));
+        checkPoints.add(new Point2D.Double(0.4, 0.9));
         Point2D.Double startPos = new Point2D.Double(2, 0);
         
         // Maximum velocity (can be something else than +/-max or 0
@@ -92,7 +92,7 @@ public class AStar {
         // Time interval between actions/itterations
         double tInt = 0.1; // TODO REMARK: make constant.
         // Amount of itterations/time allowed per pathfind
-        int iterAllowed = 500000; // TODO REMARK: make constant.
+        int iterAllowed = 50000; // TODO REMARK: make constant.
         
         // succesor node variables
         //Point2D.Double s_Pos; // Used in Node
@@ -119,41 +119,51 @@ public class AStar {
         // The target can change often (see notes for H above). 
         // Therefore, target is decided on each itteration inside the loop
         // <editor-fold defaultstate="collapsed" desc="TARGET DISTANCE CALCULATION">
-        // Define checkpoints and normal lines
-        Point2D.Double CP1 = checkPoints.get(0);
-        Point2D.Double CP2 = checkPoints.get(1);
-        // Normal lines: aX + bY + c = 0, [0] = X1 or X2, [1] = Y1 or Y2
-        double nA = -(CP1.x - CP2.x) / (CP1.y - CP2.y); // nB is always -1
-        double nC1 = -CP1.x*nA + CP1.y;
-        double nC2 = -CP2.x*nA + CP2.y;
-        // Distance from start point to both normal lines:
-        // d = |a*sX + b*sY + c| / sqrt(a^2 + b^2).
-        double d1 = Math.abs(nA*startPos.x - startPos.y + nC1)
-                / Math.sqrt(nA*nA + 1);
-        double d2 = Math.abs(nA*startPos.x - startPos.y + nC2)
-                / Math.sqrt(nA*nA + 1);
-        
-        // Decide on target
-        double difError = Math.sqrt(
-                Math.pow(CP1.x - CP2.x, 2)
-                + Math.pow(CP1.y - CP2.y, 2));
-        double h;
-        if (d1 > difError && d1 > d2) {
-            h = Math.sqrt(Math.pow(startPos.x - CP2.x, 2)
-                    + Math.pow(startPos.y - CP2.y, 2));
-            
-        } else if (d2 > difError && d1 < d2) {
-            h = Math.sqrt(Math.pow(startPos.x - CP1.x, 2
-                    + Math.pow(startPos.y - CP1.y, 2)));
-            
-        } else {
-            double c = -CP1.x*(-1 / nA) + CP1.y;
-            h = Math.abs((-1 / nA)*startPos.x - startPos.y + c)
-                    / Math.sqrt(1 / (nA*nA) + 1);
+        double h = 0;
+        Point2D.Double curHPos = startPos;
+        for (int i = 0; i < checkPoints.size()/2; i++) {
+            // Define checkpoints and normal lines
+            Point2D.Double CP1 = checkPoints.get(i*2);
+            Point2D.Double CP2 = checkPoints.get(i*2 + 1);
+            // Normal lines: aX + bY + c = 0, [0] = X1 or X2, [1] = Y1 or Y2
+            double nA = -(CP1.x - CP2.x) / (CP1.y - CP2.y); // nB is always -1
+            double nC1 = -CP1.x*nA + CP1.y;
+            double nC2 = -CP2.x*nA + CP2.y;
+            // Distance from start point to both normal lines:
+            // d = |a*sX + b*sY + c| / sqrt(a^2 + b^2).
+            double d1 = Math.abs(nA*curHPos.x - curHPos.y + nC1)
+                    / Math.sqrt(nA*nA + 1);
+            double d2 = Math.abs(nA*curHPos.x - curHPos.y + nC2)
+                    / Math.sqrt(nA*nA + 1);
+
+            // Decide on target
+            double difError = Math.sqrt(
+                    Math.pow(CP1.x - CP2.x, 2)
+                    + Math.pow(CP1.y - CP2.y, 2));
+            if (d1 > difError && d1 > d2) {
+                h = h + Math.sqrt(Math.pow(curHPos.x - CP2.x, 2)
+                        + Math.pow(curHPos.y - CP2.y, 2));
+                curHPos = CP2;
+
+            } else if (d2 > difError && d1 < d2) {
+                h = h + Math.sqrt(Math.pow(curHPos.x - CP1.x, 2
+                        + Math.pow(curHPos.y - CP1.y, 2)));
+                curHPos = CP1;
+
+            } else {
+                double c1 = -CP1.x*(-1 / nA) + CP1.y;
+                double c2 = -curHPos.x*nA + curHPos.y;
+                double dist = Math.abs((-1 / nA)*curHPos.x - curHPos.y + c1)
+                        / Math.sqrt(1 / (nA*nA) + 1);
+                h = h + dist;
+                double hx = (c2 - c1) / (-nA + (-1/nA));
+                double hy = (-1/nA)*hx + c1;
+                curHPos = new Point2D.Double(hx, hy);
+            }           
         }
         // </editor-fold>
 
-        Node start = new Node(startPos, 1, 0, Math.PI, 0, 0, h, null);
+        Node start = new Node(startPos, 1, 0, Math.PI/2, 0, 0, h, 0, null);
         openlist.add(start);
         
         // LOOP: until openlist is empty left OR when the goal is reached.
@@ -210,68 +220,89 @@ public class AStar {
                         sA = j*a;
                         sRot = curNode.rot + deltaRot;
                         sRotV = i*rotvMax;
+                        // g
+                        sg = curNode.v*tInt + 0.5*(j*a)*tInt*tInt 
+                                + curNode.v*0.003;
+                        // Position
+                        double sX = 0;
+                        double sY = 0;
+                        sPos = new Point2D.Double(
+                                curNode.pos.x + sX,
+                                curNode.pos.y + sY);
+                        
+                        // OLD: ONLY WORKS IF a = 0
                         r = (sV/Math.abs(sV))*Math.abs(curNode.v/(i*rotvMax));
                         sr = (sV/Math.abs(sV))*Math.abs(sV/(i*rotvMax));
-                        
-                        // Position
-                        /*s_deltaX = ((sV*sV-curNode.v*curNode.v)/(2*sRotV*sRotV))
-                                *(Math.sin(tInt*sRotV) - Math.sin(curNode.rot));
-                        s_deltaY = -((sV*sV-curNode.v*curNode.v)/(2*sRotV*sRotV))
-                                *(Math.cos(tInt*sRotV) - Math.cos(curNode.rot));
-                        sPos = new Point2D.Double(
-                                curNode.pos.x + s_deltaX,
-                                curNode.pos.y + s_deltaY*/
                         s_deltaX = r * Math.cos(curNode.rot + i*Math.PI/2)
                                 + sr * Math.cos(sRot - i*Math.PI/2);
                         s_deltaY = r * Math.sin(curNode.rot + i*Math.PI/2)
                                 + sr * Math.sin(sRot - i*Math.PI/2);
                         sPos = new Point2D.Double(
                                 curNode.pos.x + s_deltaX,
-                                curNode.pos.y + s_deltaY
-                        );
+                                curNode.pos.y + s_deltaY);
+                        
                     }
-                    // Determine g.
-                    // spatial displacement != distance between
-                    //     curNode and succesor
-                    sg = curNode.v*tInt + 0.5*(j*a)*tInt*tInt;
+
+                    // g: spatial displacement != distance between
+                    // curNode and succesor
                     //Extra costs if new position is off track
                     if (sPos.x > 0.5 && sPos.x < 1 && sPos.y > 0 && sPos.y < 2) {
                         sg = sg + 10;
                     }
-                    
-                    
-                    // Determine h
-                    // Define checkpoints and normal lines
-                    CP1 = checkPoints.get(0);
-                    CP2 = checkPoints.get(1);
-                    
-                    // Normal lines: aX + bY + c = 0, [0] = X1 or
-                    // X2, [1] = Y1 or Y2
-                    nA = -(CP1.x - CP2.x) / (CP1.y - CP2.y);// nB is always -1
-                    nC1 = -CP1.x * nA + CP1.y;
-                    nC2 = -CP2.x * nA + CP2.y;
-                    
-                    // Distance from start point to both normal lines:
-                    // d = abs(a*sX + b*sY + c) / sqrt(a^2 + b^2)
-                    d1 = Math.abs(nA*sPos.x - sPos.y + nC1)
-                            / Math.sqrt(nA*nA + 1);
-                    d2 = Math.abs(nA*sPos.x - sPos.y + nC2) 
-                            / Math.sqrt(nA*nA + 1);
-                    // Decide on target
-                    difError = Math.sqrt(Math.pow(CP1.x - CP2.x, 2)
-                            + Math.pow(CP1.y - CP2.y, 2));
-                    if (d1 > difError && d1 > d2) {
-                        sh = Math.sqrt(Math.pow(sPos.x - CP2.x, 2)
-                                + Math.pow(sPos.y - CP2.y, 2));
-                        
-                    } else if (d2 > difError && d1 < d2){
-                        sh = Math.sqrt(Math.pow(sPos.x - CP1.x, 2)
-                                + Math.pow(sPos.y - CP1.y, 2));
-                    } else {
-                        double C = -CP1.x * (-1/nA) + CP1.y;
-                        sh = Math.abs((-1 / nA) * sPos.x - sPos.y + C)
-                                / Math.sqrt(1 / (nA*nA) + 1);
+                    if (sPos.x > -1 && sPos.x < -0.4 && sPos.y > 0 && sPos.y < 2) {
+                        sg = sg + 10;
                     }
+                    
+                    // Determine h  
+                    // <editor-fold defaultstate="collapsed" desc="TARGET DIST CALCULATION">
+                    sh = 0;
+                    curHPos = sPos;
+                    int sNextCP = curNode.nextCP;
+                    for (j = sNextCP; j < checkPoints.size()/2; j++) {
+                        // Define checkpoints and normal lines
+                        Point2D.Double CP1 = checkPoints.get(j*2);
+                        Point2D.Double CP2 = checkPoints.get(j*2 + 1);
+                        // Normal lines: aX + bY + c = 0, [0] = X1 or
+                        // X2, [1] = Y1 or Y2
+                        double nA = -(CP1.x - CP2.x) / (CP1.y - CP2.y);// nB is always -1
+                        double nC1 = -CP1.x * nA + CP1.y;
+                        double nC2 = -CP2.x * nA + CP2.y;
+                        // Distance from start point to both normal lines:
+                        // d = abs(a*sX + b*sY + c) / sqrt(a^2 + b^2)
+                        double d1 = Math.abs(nA*curHPos.x - curHPos.y + nC1)
+                                / Math.sqrt(nA*nA + 1);
+                        double d2 = Math.abs(nA*curHPos.x - curHPos.y + nC2) 
+                                / Math.sqrt(nA*nA + 1);
+
+                        // Decide on target
+                        double difError = Math.sqrt(Math.pow(CP1.x - CP2.x, 2)
+                                + Math.pow(CP1.y - CP2.y, 2));
+                        if (d1 > difError && d1 > d2) {
+                            sh = sh + Math.sqrt(Math.pow(curHPos.x - CP2.x, 2)
+                                    + Math.pow(curHPos.y - CP2.y, 2));
+                            curHPos = CP2;
+
+                        } else if (d2 > difError && d1 < d2){
+                            sh = sh + Math.sqrt(Math.pow(curHPos.x - CP1.x, 2)
+                                    + Math.pow(curHPos.y - CP1.y, 2));
+                            curHPos = CP1;
+
+                        } else {
+                            double c1 = -CP1.x * (-1/nA) + CP1.y;
+                            double c2 = -curHPos.x*nA + curHPos.y;
+                            double dist = Math.abs((-1 / nA) * curHPos.x - curHPos.y + c1)
+                                    / Math.sqrt(1 / (nA*nA) + 1);
+                            sh = sh + dist;
+                            double hx = (c2 - c1) / (-nA + (-1/nA));
+                            double hy = (-1/nA)*hx + c1;
+                            curHPos = new Point.Double(hx, hy);
+                        }
+                        // Check if close to currently closest checkpoint
+                        if (sh < 0.05) {
+                            sNextCP++;
+                        }
+                    }
+                    // </editor-fold>
                     
                     // TODO REMARK: code smell over here.
                     //CASE I: already in closed
@@ -301,9 +332,9 @@ public class AStar {
                     //CASE III: not in any list
                     if (!alreadyInList) {
                         openlist.add(new Node(sPos, sV, sA, sRot, sRotV,
-                                sg, sh, curNode));
+                                sg, sh, sNextCP, curNode));
                         //TODO: remove after debug
-                        if(iter == 0) {
+                        if(iter == 0 && false) {
                             System.out.println("-"+(iter+1)+"->a: " + sA + ", rotV: " 
                                     + sRotV + ", h: " + sh+", X: "+sPos.x+", Y: "+sPos.y+
                                     ", Rot: "+sRot);
@@ -329,6 +360,7 @@ public class AStar {
                     +", parent: ("+curNode.parentNode.pos.x+","+curNode.parentNode.pos.y+")");
             */
             }
+            System.out.println(iter);
         }
         // </editor-fold>
         
@@ -373,10 +405,11 @@ public class AStar {
             Point2D.Double point3 = new Point2D.Double(1,-2);
             Point2D.Double point4 = new Point2D.Double(1,-0);
             visual.addRec(point1, point3);
-//            visual.addLine(point1, point2);
-//            visual.addLine(point2, point3);
-//            visual.addLine(point3, point4);
-//            visual.addLine(point4, point1);
+            point1 = new Point2D.Double(-1,-0);
+            point2 = new Point2D.Double(-1,-2);
+            point3 = new Point2D.Double(-0.4,-2);
+            point4 = new Point2D.Double(-0.4,-0);
+            visual.addRec(point1, point3);
             visual.repaint();
             
             
@@ -407,4 +440,10 @@ working with the group:
     11, 12 and 13 september
 driving physics improvement                                             2 hr
 A* improvement and debugging                                            5 hr
+    15 and 16 september
+adding support for multiple checkpoints                                 5 hr
+Improvement of physics                                                  4 hr
+Improve action costs (turning vs straight)                              4 hr
+--------------------------------------------------------------------------------
+total                                                                   34.5 hr
 */

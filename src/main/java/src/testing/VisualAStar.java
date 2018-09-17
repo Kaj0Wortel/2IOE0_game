@@ -1,14 +1,7 @@
-
 package src.testing;
 
-
-// Own imports
-
-
 // Java imports
-
 import src.AI.Node;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -17,11 +10,6 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-
-/**
- * 
- * 
- */
 public class VisualAStar
         extends JPanel {
     
@@ -198,6 +186,4 @@ public class VisualAStar
             System.err.println(e);
         }
     }
-    
-    
 }
