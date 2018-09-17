@@ -78,11 +78,6 @@ public class LoadOBJ {
             
             while (brp.readNextConfLine()) {
                 String[] data = brp.getData();
-                Logger.write(new Object[] {
-                    "field: " + brp.getField(),
-                    "data : " + Arrays.toString(data)
-                    
-                }, Logger.Type.ERROR);
                 
                 if (brp.fieldEquals("v")) {
                     verts.add(new Vector3f(
@@ -155,7 +150,6 @@ public class LoadOBJ {
                     
                 } else if (brp.fieldEquals("o")) {
                     if (obj != null) {
-                        Logger.write("Set object");
                         obj.setData(gl, vertsBuf, texsBuf, normsBuf, facesBuf);
                     }
                     
@@ -173,7 +167,6 @@ public class LoadOBJ {
                 }
             }
             if (obj != null) {
-                Logger.write("Set object");
                 obj.setData(gl, vertsBuf, texsBuf, normsBuf, facesBuf);
             }
             

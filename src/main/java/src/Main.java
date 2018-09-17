@@ -19,6 +19,9 @@ import src.tools.update.Updateable;
 import src.tools.update.Updater;
 
 import java.util.List;
+import net.java.games.input.Controller;
+import net.java.games.input.Rumbler;
+import src.tools.event.ControllerKey;
 
 // Java imports
 
@@ -56,6 +59,8 @@ public class Main {
         renderer.cleanup();
         
         Updater.start();
+        
+        // TMP
         Updateable up = new TmpUpdateable(1);
         Updater.addTask(up);
     }
@@ -76,6 +81,8 @@ public class Main {
         @Override
         public void performUpdate(long timeStamp)
                 throws InterruptedException {
+            // Checking keys (1)
+            /*
             for (CarKeyAction action : actions) {
                 List<Key> keys = GS.getKeys(action);
                 if (keys == null) return;
@@ -83,6 +90,32 @@ public class Main {
                     System.out.println(action.getAction());
                 }
             }
+            */
+            // Checking keys with key data.
+            for (CarKeyAction action : actions) {
+                List<Key> keys = GS.getKeys(action);
+                if (keys == null) return;
+                for (ControllerKey key : GS.keyDet.getPressedFrom(keys)) {
+                    // Data that was retrieved:
+                    System.out.println(key);
+                    System.out.println(key.getIdentifier());
+                    System.out.println(key.getValue());
+                    // etc.
+                    
+                    // Using rumblers:
+                    Controller c = key.getController();
+                    if (c != null) {
+                        for (Rumbler rumbler : c.getRumblers()) {
+                            if (rumbler != null) {
+                                rumbler.rumble(1.0f); // max
+                                //rumbler.rumble(0.0f); // min
+                            }
+                        }
+                        
+                    }
+                }
+            }
+            
         }
         
         @Override

@@ -13,7 +13,6 @@ package src.tools.event;
 // JInput imports
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
-import net.java.games.input.ContrlEnv;
 import net.java.games.input.Controller;
 import net.java.games.input.EventQueue;
 import net.java.games.input.Rumbler;
@@ -30,7 +29,6 @@ public class GeneratedController
     
     final private String key;
     private String name;
-    
     
     public GeneratedController(String name, String key) {
         this.name = name;

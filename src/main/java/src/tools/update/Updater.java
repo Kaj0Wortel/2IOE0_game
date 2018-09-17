@@ -43,12 +43,11 @@ public class Updater {
             .availableProcessors() - 1;
     final private static Set<Updateable> updateSet = new HashSet<>();
     
-    
     final private static TimerTool tt = new TimerTool(() -> {
         // Obtain the time stamp.
         long timeStamp = System.currentTimeMillis();
-        // Update the keys.
-        if (GS.keyDet != null) GS.keyDet.update();
+        // Update the keys. -> replace by separate timer/thread.
+        //if (GS.keyDet != null) GS.keyDet.update();
         
         synchronized(updateSet) {
             // Distribute the tasks evenly and randomly over the
@@ -217,7 +216,15 @@ public class Updater {
     public static void start() {
         tt.start();
         Logger.write("Updater started!", Logger.Type.INFO);
+        
+        // tmp
+        fpsTracker.start();
     }
+    
+    // tmp
+    private static TimerTool fpsTracker = new TimerTool(1000, 1000, () -> {
+        Logger.write("Fps = " + getFPS());
+    });
     
     /**
      * @see TimerTool#pause()

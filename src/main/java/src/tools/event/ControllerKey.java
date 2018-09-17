@@ -39,20 +39,20 @@ public class ControllerKey
      * Add this value to {@link #compMode} to include controller comparisons
      * when calling the {@link #equals(Object)} function.
      */
-    final public static int COMP_MODE_CONTROLLER      = 0b0001;
+    final public static int COMP_MODE_CONTROLLER      = 0b0000_0001;
     
     /**
      * Add this value to {@link #compMode} to include indentifier comparisons
      * when calling the {@link #equals(Object)} function.
      */
-    final public static int COMP_MODE_IDENTIFIER      = 0b0010;
+    final public static int COMP_MODE_IDENTIFIER      = 0b0000_0010;
     
     /**
      * Add this value to {@link #compMode} to include value comparisons
      * when calling the {@link #equals(Object)} function.
      * Is ignored when used together with {@link #COMP_MODE_VALUE_IF_NEEDED}.
      */
-    final public static int COMP_MODE_VALUE           = 0b0100;
+    final public static int COMP_MODE_VALUE           = 0b0000_0100;
     
     /**
      * Add this value to {@link #compMode} to include value comparisons
@@ -63,7 +63,14 @@ public class ControllerKey
      * Moreover, checks if the values are equal for a D-pad, and checks
      * whether the axis is pushed in the right direction, ignoring the amount
      */
-    final public static int COMP_MODE_VALUE_IF_NEEDED = 0b1100;
+    final public static int COMP_MODE_VALUE_IF_NEEDED = 0b0000_1100;
+    
+    /**
+     * Add this value to {@link #compMode} to store the last
+     * controller key of which the {@code #equals(Object)} function
+     * returned true.
+     */
+    final public static int COMP_MODE_COPY_EQUALS     = 0b0001_0000;
     
     /**
      * The default comparison mode for adding/replacing/updating keys.
@@ -165,6 +172,8 @@ public class ControllerKey
     
     final private int hashValue;
     
+    private ControllerKey lastTrueCompare;
+    
     
     /**
      * Clone constructor.
@@ -197,6 +206,17 @@ public class ControllerKey
     
     
     /**
+     * @return the key that was equal to this key when the flag
+     *     {@link #COMP_MODE_COPY_EQUALS} is set. More specifically,
+     *     the last key {@code key} which was used in {@code this.equals(key)}
+     *     and where the expression was {@code true}. If the expression was
+     *     {@code false}, then return {@code null}.
+     */
+    public ControllerKey getLastEqualCompareKey() {
+        return lastTrueCompare;
+    }
+    
+    /**
      * Use this function to update the comparison mode of all
      * controller key objects.
      * 
@@ -204,6 +224,13 @@ public class ControllerKey
      */
     public static void setCompMode(int newMode) {
         compMode = newMode;
+    }
+    
+    /**
+     * @return the current comparison mode.
+     */
+    public static int getCompMode() {
+        return compMode;
     }
     
     /**
@@ -245,6 +272,10 @@ public class ControllerKey
         if (obj == this) return true;
         Identifier ident = comp.getIdentifier();
         if (obj instanceof ControllerKey) {
+            boolean copyIfTrue = (compMode & COMP_MODE_COPY_EQUALS) ==
+                    COMP_MODE_COPY_EQUALS;
+            if (copyIfTrue) lastTrueCompare = null;
+            
             ControllerKey key = (ControllerKey) obj;
             
             if ((compMode & COMP_MODE_CONTROLLER) == COMP_MODE_CONTROLLER) {
@@ -306,6 +337,7 @@ public class ControllerKey
                     return false;
             }
             
+            lastTrueCompare = key;
             return true;
             
         } else if (obj instanceof Identifier) {

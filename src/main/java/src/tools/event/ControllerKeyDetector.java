@@ -3,6 +3,7 @@ package src.tools.event;
 
 
 // Java imports
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -21,9 +22,10 @@ import net.java.games.input.EventQueue;
 import src.tools.log.Logger;
 import net.java.games.input.ContrlEnv;
 import src.Locker;
-import src.tools.MultiTool;
+import static src.tools.event.ControllerKey.COMP_MODE_COPY_EQUALS;
 import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
 import static src.tools.event.ControllerKey.DEFAULT_REPLACE_COMP_MODE;
+import src.tools.update.TimerTool;
 
 
 /**
@@ -33,7 +35,11 @@ import static src.tools.event.ControllerKey.DEFAULT_REPLACE_COMP_MODE;
 public class ControllerKeyDetector
         extends KeyPressedDetector {
     
+    // Update interval (in ms);
+    final private static long INTERVAL = 100L;
+    
     private boolean initialized = false;
+    private TimerTool updater;
     
     final public Map<String, Controller[]> connected
             = new HashMap<>();
@@ -83,8 +89,14 @@ public class ControllerKeyDetector
             addController(c);
         }
         
-        // tmp initialization (static method generation.
+        // tmp initialization (static generation).
         ControllerKey.tmp();
+        
+        // Create timer.
+        updater = new TimerTool(INTERVAL, INTERVAL, () -> {
+            update();
+        });
+        updater.start();
         
         // Set to true if fully initialized.
         initialized = true;
@@ -328,6 +340,38 @@ public class ControllerKeyDetector
         }
         
         return false;
+    }
+    
+    /**
+     * Gets the pressed keys from the given list.
+     * 
+     * @param keys
+     * @return a list containing all controller keys that were pressed.
+     *     Note that the value from {@link ControllerKey#getLastEqualCompareKey()}
+     *     will be used instead of the given key.
+     */
+    public List<ControllerKey> getPressedFrom(List<Key> keys) {
+        return getPressedFrom(keys, DEFAULT_GET_COMP_MODE | COMP_MODE_COPY_EQUALS);
+    }
+    
+    public List<ControllerKey> getPressedFrom(List<Key> keys, int compMode) {
+        List<ControllerKey> list = new ArrayList<>();
+        Locker.lock(ControllerKey.class);
+        try {
+            ControllerKey.setCompMode(compMode);
+            for (Key key : keys) {
+                if (!(key instanceof ControllerKey)) continue;
+                ControllerKey ck = (ControllerKey) key;
+                if (keysPressedHistory.contains(ck)) {
+                    list.add(ck.getLastEqualCompareKey());
+                }
+            }
+            
+        } finally {
+            Locker.unlock(ControllerKey.class);
+        }
+        
+        return list;
     }
     
     

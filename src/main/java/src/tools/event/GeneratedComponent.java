@@ -25,6 +25,7 @@ public class GeneratedComponent
         this.value = value;
     }
     
+    
     @Override
     public Identifier getIdentifier() {
         return ident;
