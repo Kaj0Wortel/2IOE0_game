@@ -285,12 +285,12 @@ public class ControllerKeyDetector
                 }
             }
             
+            // Update the sets.
+            super.update();
+            
         } finally {
             Locker.unlock(ControllerKey.class);
         }
-        
-        // Update the sets.
-        super.update();
     }
     
     /**
