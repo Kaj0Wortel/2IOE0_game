@@ -3,8 +3,9 @@ package src.Assets;
 import com.jogamp.opengl.GL2;
 import src.tools.Binder;
 
-public class Cube extends Asset{
-    public Cube(GL2 gl, Binder binder) {
+public class Cube extends OBJObject{
+    public Cube(GL2 gl) {
+        super("cube");
         float[] vertices = {
                 -0.5f, 0.5f, 0f,
                 -0.5f, -0.5f, 0f,
@@ -30,7 +31,7 @@ public class Cube extends Asset{
                 0,0,1
         };
 
-        super.setVao(binder.LoadToVAO(gl,vertices,uv,normals,indices));
+        super.setVao(Binder.loadVAO(gl,vertices,uv,normals,indices));
         super.setNrV(indices.length);
     }
 }

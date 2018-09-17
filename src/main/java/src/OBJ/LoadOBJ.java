@@ -2,23 +2,25 @@
 package src.OBJ;
 
 // Jogamp imports
+
+import com.jogamp.opengl.GL2;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import src.Assets.OBJCollection;
+import src.Assets.OBJObject;
 import src.GS;
-import src.OBJ.OBJObject;
-import src.tools.MultiTool;
 import src.tools.io.BufferedReaderPlus;
 import src.tools.log.Logger;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
 
 // Own imports
 // Java imports
@@ -38,7 +40,7 @@ public class LoadOBJ {
     private LoadOBJ() { }
     
     @SuppressWarnings({"null", "UnusedAssignment"})
-    public static OBJCollection load(String fileName) {
+    public static OBJCollection load(GL2 gl, String fileName) {
         
         OBJCollection collection = map.get(fileName);
         if (collection != null) return collection;
@@ -139,13 +141,13 @@ public class LoadOBJ {
                     
                 } else if (brp.fieldEquals("o")) {
                     if (obj != null) {
-                        obj.setData(vertsBuf, texsBuf, normsBuf, facesBuf);
+                        obj.setData(gl, vertsBuf, texsBuf, normsBuf, facesBuf);
                     }
                     
                     collection.add(obj = new OBJObject(data[0]));
                     
                 } else if (brp.fieldEquals("usemtl")) {
-                    obj.mltObject = mtlCol.get(data[0]);
+                    obj.setMltObject(mtlCol.get(data[0]));
                     
                 } else if (brp.fieldEquals("mtllib")) {
                     mtlCol = LoadMTL.load(GS.OBJ_DIR + data[0]);
@@ -183,12 +185,6 @@ public class LoadOBJ {
             col.clear();
         }
         LoadMTL.clear();
-    }
-    
-    public static void main(String[] args) {
-        GS.init();
-        MultiTool.sleepThread(100);
-        LoadOBJ.load(GS.OBJ_DIR + "test.obj");
     }
     
 }

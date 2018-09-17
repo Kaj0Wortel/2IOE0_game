@@ -1,9 +1,9 @@
 package src.Assets;
 
+import com.jogamp.opengl.GL2;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-
-import java.util.Vector;
+import src.Shaders.ShaderProgram;
 
 public class Instance {
 
@@ -13,9 +13,9 @@ public class Instance {
     private float roty;
     private float rotz;
 
-    private AssetTexture model;
+    private OBJTexture model;
 
-    public Instance(Vector3f position, float size, float rotx, float roty, float rotz, AssetTexture model) {
+    public Instance(Vector3f position, float size, float rotx, float roty, float rotz, OBJTexture model) {
         this.position = position;
         this.size = size;
         this.rotx = rotx;
@@ -36,7 +36,7 @@ public class Instance {
         return transformationMatrix;
     }
 
-    public AssetTexture getModel() {
+    public OBJTexture getModel() {
         return model;
     }
 
@@ -46,5 +46,20 @@ public class Instance {
 
     public void roty(){
         roty += 3f;
+    }
+
+    public void draw(GL2 gl, ShaderProgram shader){
+        shader.loadModelMatrix(gl, getTransformationMatrix());
+
+        gl.glBindVertexArray(model.getAsset().getVao().get(0));
+        gl.glEnableVertexAttribArray(0);
+        gl.glEnableVertexAttribArray(1);
+        gl.glEnableVertexAttribArray(2);
+        gl.glDrawElements(GL2.GL_TRIANGLES, model.getAsset().getNrV(), gl.GL_UNSIGNED_INT,0);
+        gl.glDisableVertexAttribArray(0);
+        gl.glDisableVertexAttribArray(1);
+        gl.glDisableVertexAttribArray(2);
+
+        gl.glBindVertexArray(0);
     }
 }

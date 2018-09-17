@@ -40,14 +40,17 @@ public class DefaultShader extends ShaderProgram {
         System.out.println(modelMatrixLocation);
     }
 
+    @Override
     public void loadProjectionMatrix(GL2 gl, Matrix4f matrix){
         loadUniformMatrix(gl, projectionMatrixLocation, matrix);
     }
 
+    @Override
     public void loadViewMatrix(GL2 gl, Matrix4f matrix){
         loadUniformMatrix(gl, viewMatrixLocation, matrix);
     }
 
+    @Override
     public void loadModelMatrix(GL2 gl, Matrix4f matrix){
         loadUniformMatrix(gl, modelMatrixLocation, matrix);
     }

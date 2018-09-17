@@ -3,7 +3,6 @@ package src.Shaders;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
-import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 
 import java.io.BufferedReader;
@@ -13,7 +12,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 
 public abstract class ShaderProgram {
 
@@ -28,6 +26,12 @@ public abstract class ShaderProgram {
     protected abstract void bindAttributes(GL2 gl);
 
     protected abstract void getAllUniformLocations(GL2 gl);
+
+    public abstract void loadModelMatrix(GL2 gl, Matrix4f matrix);
+
+    public abstract void loadViewMatrix(GL2 gl, Matrix4f matrix);
+
+    public abstract void loadProjectionMatrix(GL2 gl, Matrix4f matrix4f);
 
     public int getUniformLocation(GL2 gl, String uni){
         return gl.glGetUniformLocation(ID,uni);

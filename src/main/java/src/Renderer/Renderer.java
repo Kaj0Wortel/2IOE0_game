@@ -9,7 +9,6 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 import org.joml.Matrix4f;
-import src.Assets.AssetTexture;
 import src.Assets.Instance;
 import src.GS;
 import src.Shaders.DefaultShader;
@@ -85,8 +84,7 @@ public class Renderer implements GLEventListener {
         currentShader.loadViewMatrix(gl,GS.getCamera().getViewMatrix());
 
         for(Instance asset : GS.getAssets()){
-            currentShader.loadModelMatrix(gl, asset.getTransformationMatrix());
-            drawAsset(asset);
+            asset.draw(gl, currentShader);
         }
 
 
@@ -99,20 +97,6 @@ public class Renderer implements GLEventListener {
     @Override
     public void reshape(GLAutoDrawable glAutoDrawable, int i, int i1, int i2, int i3) {
 
-    }
-
-    private void drawAsset(Instance instance){
-        AssetTexture asset = instance.getModel();
-        gl.glBindVertexArray(asset.getAsset().getVao().get(0));
-        gl.glEnableVertexAttribArray(0);
-        gl.glEnableVertexAttribArray(1);
-        gl.glEnableVertexAttribArray(2);
-        gl.glDrawElements(GL2.GL_TRIANGLES, asset.getAsset().getNrV(), gl.GL_UNSIGNED_INT,0);
-        gl.glDisableVertexAttribArray(0);
-        gl.glDisableVertexAttribArray(1);
-        gl.glDisableVertexAttribArray(2);
-
-        gl.glBindVertexArray(0);
     }
 
     private Matrix4f getProjectionMatrix(){

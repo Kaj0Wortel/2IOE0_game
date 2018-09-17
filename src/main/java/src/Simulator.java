@@ -2,11 +2,10 @@ package src;
 
 import com.jogamp.opengl.GL2;
 import org.joml.Vector3f;
-import src.Assets.AssetTexture;
 import src.Assets.Cube;
 import src.Assets.Instance;
+import src.Assets.OBJTexture;
 import src.Assets.Texture;
-import src.OBJ.LoadOBJ;
 import src.tools.Binder;
 import src.tools.event.Key;
 import src.tools.event.keyAction.CameraKeyAction;
@@ -43,10 +42,10 @@ public class Simulator implements Updateable {
     }
 
     public void initAssets(){
-        LoadOBJ.load(GS.OBJ_DIR + "test.obj");
+        //OBJCollection col = LoadOBJ.load(gl,GS.OBJ_DIR + "test.obj");
 
-        Cube cube = new Cube(gl,binder);
-        AssetTexture texturedCube = new AssetTexture(cube, new Texture());
+        Cube cube = new Cube(gl);
+        OBJTexture texturedCube = new OBJTexture(cube, new Texture());
         Instance cubeInstance = new Instance(new Vector3f(0f,0f,-5f), 1, 0,0,0,texturedCube);
         GS.addAsset(cubeInstance);
     }
