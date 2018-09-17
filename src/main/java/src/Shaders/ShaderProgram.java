@@ -4,6 +4,7 @@ import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -154,6 +155,10 @@ public abstract class ShaderProgram {
         matrix.get(m);
 
         gl.glUniformMatrix4fv(location,1,false,m);
+    }
+
+    public void loadUniformVector(GL2 gl, int location, Vector3f vector){
+        gl.glUniform3f(location, vector.x,vector.y,vector.z);
     }
 
     public void stop(GL2 gl){

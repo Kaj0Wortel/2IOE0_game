@@ -42,6 +42,8 @@ public class Instance {
 
     public void rotx(){
         rotx += 3f;
+        rotx %= 360;
+        System.out.println(rotx);
     }
 
     public void roty(){

@@ -3,23 +3,25 @@ package src.Renderer;
 
 
 // Jogamp imports
+
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import src.Assets.Instance;
+import src.Assets.Light;
+import src.GS;
+import src.Shaders.DefaultShader;
+import src.Simulator;
 
 import static com.jogamp.opengl.GL.*;
 import static com.jogamp.opengl.GL2ES2.GL_SHADING_LANGUAGE_VERSION;
 import static com.jogamp.opengl.GL2GL3.GL_FILL;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_NORMALIZE;
 
-
 // Own imports
-import src.Assets.Instance;
-import src.GS;
-import src.Shaders.DefaultShader;
-import src.Simulator;
 
 
 public class Renderer implements GLEventListener {
@@ -36,6 +38,7 @@ public class Renderer implements GLEventListener {
 
 
     private DefaultShader currentShader;
+    private Light light;
 
     public Renderer(Simulator simulator, float width, float height){
         this.simulator = simulator;
@@ -47,6 +50,8 @@ public class Renderer implements GLEventListener {
     public void init(GLAutoDrawable glAutoDrawable) {
         this.gl = glAutoDrawable.getGL().getGL2();
         this.glu = new GLU();
+
+        light = new Light(new Vector3f(0f,0f,20f), new Vector3f(1f,1f,1f));
 
         gl.glEnable(GL_BLEND);
         gl.glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -61,6 +66,7 @@ public class Renderer implements GLEventListener {
         simulator.setGL(gl);
         simulator.initAssets();
         currentShader = new DefaultShader(gl);
+        currentShader.start(gl);
     }
 
     @Override
@@ -70,14 +76,13 @@ public class Renderer implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
-        gl.glClearColor(1f, 1f, 1f, 1f);
         gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         gl.glClearColor(1f, 1f, 1f, 1f);
 
-        currentShader.start(gl);
         currentShader.loadProjectionMatrix(gl,getProjectionMatrix());
         currentShader.loadViewMatrix(gl,GS.getCamera().getViewMatrix());
+        currentShader.loadLight(gl,light);
 
         for(Instance asset : GS.getAssets()){
             asset.draw(gl, currentShader);

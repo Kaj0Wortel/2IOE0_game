@@ -14,7 +14,6 @@ import src.tools.log.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,7 +112,6 @@ public class LoadOBJ {
                         
                         Integer loc = faces.get(face);
                         // tmp hot-fix
-                        loc = null;
                         
                         
                         // The location didn't exist before, so add a new
@@ -143,16 +141,18 @@ public class LoadOBJ {
                             normsBuf.add(norm.y);
                             normsBuf.add(norm.z);
                         }
-                        
+
                         // Add the position to the faces buffer.
                         facesBuf.add(loc);
+
                     }
-                    
+
                 } else if (brp.fieldEquals("o")) {
+                    System.out.println(obj);
                     if (obj != null) {
                         obj.setData(gl, vertsBuf, texsBuf, normsBuf, facesBuf);
+
                     }
-                    
                     collection.add(obj = new OBJObject(data[0]));
                     
                 } else if (brp.fieldEquals("usemtl")) {
@@ -173,11 +173,11 @@ public class LoadOBJ {
         } catch (IOException e) {
             Logger.write("Could not open file: " + fileName,
                     Logger.Type.ERROR);
-            
+
         } catch (IndexOutOfBoundsException e) {
             Logger.write("The file \"" + fileName + "\" is corrupt! [line = "
                     + debug.getLineCounter() + "]", Logger.Type.ERROR);
-            
+
         } finally {
             Logger.write(new String[] {
                 "==== Finished reading OBJ file ====",

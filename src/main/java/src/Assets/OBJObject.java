@@ -30,8 +30,15 @@ public class OBJObject {
         this.name = name;
     }
     
-    public void setData(GL2 gl, List<Float> vertices, List<Float> normals,
-                        List<Float> tex, List<Integer> indices) {
+    public void setData(GL2 gl, List<Float> vertices, List<Float> tex,
+                        List<Float> normals, List<Integer> indices) {
+
+        System.out.println("Created new object");
+        System.out.println("Number of vertices: " + vertices.size()/3);
+        System.out.println("Number of normals: " + normals.size()/3);
+        System.out.println("Number of texCoordinates: " + tex.size()/2);
+        System.out.println("Number of indices: " + indices.size());
+        System.out.println();
 
         vao = Binder.loadVAO(gl,
                 toFloatArray(vertices), toFloatArray(normals),

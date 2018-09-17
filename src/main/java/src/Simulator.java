@@ -2,9 +2,8 @@ package src;
 
 import com.jogamp.opengl.GL2;
 import org.joml.Vector3f;
-import src.Assets.Instance;
-import src.Assets.OBJTexture;
-import src.Assets.Texture;
+import src.Assets.*;
+import src.OBJ.LoadOBJ;
 import src.tools.Binder;
 import src.tools.event.Key;
 import src.tools.event.keyAction.CameraKeyAction;
@@ -14,9 +13,6 @@ import src.tools.update.Updater;
 import javax.swing.*;
 import java.util.List;
 
-import src.Assets.OBJCollection;
-import src.Assets.OBJObject;
-import src.OBJ.LoadOBJ;
 import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
 public class Simulator implements Updateable {
@@ -46,14 +42,19 @@ public class Simulator implements Updateable {
 
     public void initAssets() {
         //OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "test.obj");
-        OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "sphere.obj");
-        
+        OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "test.obj");
+        Cube cube = new Cube(gl);
+        OBJTexture t = new OBJTexture(cube,new Texture());
+        Instance c = new Instance(new Vector3f(0,0,-15), 5, -45, 0,0,t);
+        GS.addAsset(c);
+        /*
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj, new Texture());
-            Instance cubeInstance = new Instance(new Vector3f(0f, 0f, -5f),
+            Instance cubeInstance = new Instance(new Vector3f(0f, -3f, -5f),
                     1, 0, 0, 0, texturedCube);
             GS.addAsset(cubeInstance);
         }
+        */
     }
 
     public void cleanup(){
@@ -63,11 +64,9 @@ public class Simulator implements Updateable {
 
     @Override
     public void performUpdate(long timeStamp) throws InterruptedException {
-        if(GS.getAssets().size() > 0) {
+        if(GS.getAssets().size() > 0){
             GS.getAssets().get(0).rotx();
-            GS.getAssets().get(0).roty();
         }
-
 
         for (CameraKeyAction action : cameraActions) {
             List<Key> keys = GS.getKeys(action);
