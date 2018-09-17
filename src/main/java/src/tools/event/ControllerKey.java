@@ -23,13 +23,17 @@ import java.util.Map;
 import net.java.games.input.Component.Identifier;
 import net.java.games.input.ContrlEnv;
 import src.GS;
+import src.Locker;
 
 
 /**
  * 
  */
-public class ControllerKey
-        extends Key {
+public class ControllerKey {
+    static {
+        Locker.add(ControllerKey.class);
+    }
+    
     /**-------------------------------------------------------------------------
      * Constants.
      * -------------------------------------------------------------------------
@@ -181,7 +185,6 @@ public class ControllerKey
      * @param key the controller key to copy.
      */
     public ControllerKey(ControllerKey key) {
-        super((Key) key);
         this.controller = key.controller;
         this.comp = key.comp;
         this.value = key.value;
@@ -197,7 +200,6 @@ public class ControllerKey
      */
     public ControllerKey(Controller controller, Component comp,
              float value) {
-        super(true, -1, DEFAULT_MASK, value > BUTTON_SENS);
         this.controller = controller;
         this.comp = comp;
         this.value = value;
@@ -427,6 +429,10 @@ public class ControllerKey
         return -JOYSTICK_SENS <= value && value <= JOYSTICK_SENS;
     }
     
+    public boolean isPressed() {
+        return value > BUTTON_SENS;
+    }
+    
     /**
      * {@inheritDoc}
      * 
@@ -504,7 +510,7 @@ public class ControllerKey
      * @return a fresh key described by the data.
      * @throws IllegalArgumentException if the given data was invallid.
      */
-    public static Key createFromString(String[] data)
+    public static ControllerKey createFromString(String[] data)
             throws IllegalArgumentException {
         Controller cont = new GeneratedController(data[0], data[1]);
         Identifier ident = IDENTIFIERS.get(data[2]);

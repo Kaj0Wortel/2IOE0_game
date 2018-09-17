@@ -15,7 +15,6 @@ package src.tools.update;
 
 
 // Own imports
-import src.GS;
 import src.Locker;
 import src.tools.log.Logger;
 

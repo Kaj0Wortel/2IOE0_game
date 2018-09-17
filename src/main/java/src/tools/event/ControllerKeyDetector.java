@@ -6,16 +6,17 @@ package src.tools.event;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 // JInput imports
+import java.util.Set;
+import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 import net.java.games.input.ControllerEvent;
 import net.java.games.input.ControllerListener;
-import net.java.games.input.Event;
-import net.java.games.input.EventQueue;
 
 
 // Own imports
@@ -32,11 +33,13 @@ import src.tools.update.TimerTool;
  * A controller key detector class that keeps track of the current attached
  * controllers, including the keyboard and mouse presses.
  */
-public class ControllerKeyDetector
-        extends KeyPressedDetector {
+public class ControllerKeyDetector {
     
     // Update interval (in ms);
-    final private static long INTERVAL = 100L;
+    final private static long INTERVAL = 50L;
+    
+    protected Set<ControllerKey> prevState = new HashSet<>();
+    
     
     private boolean initialized = false;
     private TimerTool updater;
@@ -45,18 +48,12 @@ public class ControllerKeyDetector
             = new HashMap<>();
     
     /**
-     * @see KeyPressedDetector#KeyPressedDetector()
+     * Constructor.
+     * Also starts the device refresh thread in {@link ContrlEnv} and the
+     * device polling thread.
      */
     public ControllerKeyDetector() {
         super();
-        init();
-    }
-    
-    /**
-     * @see KeyPressedDetector#KeyPressedDetector(java.awt.Component)
-     */
-    public ControllerKeyDetector(java.awt.Component comp) {
-        super(comp);
         init();
     }
     
@@ -94,12 +91,35 @@ public class ControllerKeyDetector
         
         // Create timer.
         updater = new TimerTool(INTERVAL, INTERVAL, () -> {
+            // The update thread should have minimal priority.
+            Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
             update();
         });
         updater.start();
         
         // Set to true if fully initialized.
         initialized = true;
+    }
+    
+    /**
+     * Startes the update timer.
+     */
+    public void start() {
+        updater.start();
+    }
+    
+    /**
+     * Pauses the update timer.
+     */
+    public void pause() {
+        updater.pause();
+    }
+    
+    /**
+     * Cancels the update timer.
+     */
+    public void cancel() {
+        updater.cancel();
     }
     
     /**
@@ -248,14 +268,34 @@ public class ControllerKeyDetector
         else return controllers[id];
     }
     
-    @Override
+    /**
+     * The update function.
+     */
     public void update() {
         // If not yet initialized, simply return.
-        if (!initialized) {
-            super.update();
-            return;
+        if (!initialized) return;
+        Set<ControllerKey> newState = new HashSet<>();
+        
+        ContrlEnv contrlEnv = (ContrlEnv) ControllerEnvironment
+                .getDefaultEnvironment();
+        for (Controller controller : contrlEnv.getControllers()) {
+            if (!controller.poll()) continue;
+            
+            ControllerKey.setCompMode(DEFAULT_REPLACE_COMP_MODE);
+            for (Component comp : controller.getComponents()) {
+                newState.add(new ControllerKey(controller, comp,
+                        comp.getPollData()));
+            }
         }
         
+        Locker.lock(ControllerKey.class);
+        try {
+            prevState = newState;
+        } finally {
+            Locker.unlock(ControllerKey.class);
+        }
+        
+        /*
         // Create an event object for the underlying plugin to populate.
         Event event = new Event();
         
@@ -290,20 +330,32 @@ public class ControllerKeyDetector
             
         } finally {
             Locker.unlock(ControllerKey.class);
-        }
+        }/**/
     }
     
     /**
-     * {@inheritDoc}
+     * @return all keys that were pressed at least once between the two
+     *     last updates. Returned set should not be modified externally.
      * 
-     * @param compMode the comparison mode (for {@link ControllerKey}'s only).
+     * Note:
+     * Unsafe return on purpose for speedup.
+     * Do not modify the returned set!
      */
-    @Override
-    public boolean wasPressed(Key key) {
+    public Set<ControllerKey> getKeysPressed() {
+        return prevState;
+    }
+    
+    /**
+     * Checks if the key was pressed.
+     * 
+     * @param key key-value to check for.
+     * @return true iff the given key was pressed between the two last updates.
+     */
+    public boolean wasPressed(ControllerKey key) {
         return wasPressed(key, DEFAULT_GET_COMP_MODE);
     }
     
-    public boolean wasPressed(Key key, int compMode) {
+    public boolean wasPressed(ControllerKey key, int compMode) {
         Locker.lock(ControllerKey.class);
         try {
             ControllerKey.setCompMode(compMode);
@@ -318,19 +370,19 @@ public class ControllerKeyDetector
      * Checks if any of the keys in the list were pressed.
      * 
      * @param keys the keys to check.
-     * @param compMode the comparison mode (for {@link ControllerKey}'s only).
+     * @param compMode the comparison mode.
      * @return {@code true} if at least one key in the list were pressed.
      */
-    public boolean werePressed(List<Key> keys) {
+    public boolean werePressed(List<ControllerKey> keys) {
         return werePressed(keys, DEFAULT_GET_COMP_MODE);
     }
     
-    public boolean werePressed(List<Key> keys, int compMode) {
+    private boolean werePressed(List<ControllerKey> keys, int compMode) {
         Locker.lock(ControllerKey.class);
         try {
             ControllerKey.setCompMode(compMode);
-            for (Key key : keys) {
-                if (keysPressedHistory.contains(key)) {
+            for (ControllerKey key : keys) {
+                if (prevState.contains(key)) {
                     return true;
                 }
             }
@@ -350,20 +402,19 @@ public class ControllerKeyDetector
      *     Note that the value from {@link ControllerKey#getLastEqualCompareKey()}
      *     will be used instead of the given key.
      */
-    public List<ControllerKey> getPressedFrom(List<Key> keys) {
+    public List<ControllerKey> getPressedFrom(List<ControllerKey> keys) {
         return getPressedFrom(keys, DEFAULT_GET_COMP_MODE | COMP_MODE_COPY_EQUALS);
     }
     
-    public List<ControllerKey> getPressedFrom(List<Key> keys, int compMode) {
+    private List<ControllerKey> getPressedFrom(List<ControllerKey> keys,
+            int compMode) {
         List<ControllerKey> list = new ArrayList<>();
         Locker.lock(ControllerKey.class);
         try {
             ControllerKey.setCompMode(compMode);
-            for (Key key : keys) {
-                if (!(key instanceof ControllerKey)) continue;
-                ControllerKey ck = (ControllerKey) key;
-                if (keysPressedHistory.contains(ck)) {
-                    list.add(ck.getLastEqualCompareKey());
+            for (ControllerKey key : keys) {
+                if (prevState.contains(key)) {
+                    list.add(key.getLastEqualCompareKey());
                 }
             }
             

@@ -12,7 +12,6 @@ import org.joml.Vector3f;
 import src.Controllers.CameraController;
 import src.Renderer.Camera;
 import src.Renderer.Renderer;
-import src.tools.event.Key;
 import src.tools.event.keyAction.CarKeyAction;
 import src.tools.event.keyAction.CarKeyAction.MovementAction;
 import src.tools.update.Updateable;
@@ -93,7 +92,7 @@ public class Main {
             */
             // Checking keys with key data.
             for (CarKeyAction action : actions) {
-                List<Key> keys = GS.getKeys(action);
+                List<ControllerKey> keys = GS.getKeys(action);
                 if (keys == null) return;
                 for (ControllerKey key : GS.keyDet.getPressedFrom(keys)) {
                     // Data that was retrieved:

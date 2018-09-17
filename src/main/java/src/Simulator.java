@@ -17,6 +17,7 @@ import java.util.List;
 import src.Assets.OBJCollection;
 import src.Assets.OBJObject;
 import src.OBJ.LoadOBJ;
+import src.tools.event.ControllerKey;
 import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
 public class Simulator implements Updateable {
@@ -70,7 +71,7 @@ public class Simulator implements Updateable {
 
 
         for (CameraKeyAction action : cameraActions) {
-            List<Key> keys = GS.getKeys(action);
+            List<ControllerKey> keys = GS.getKeys(action);
             if (keys == null) return;
             if (GS.keyDet.werePressed(keys)) {
                 GS.getCameraController().processKey(action.getAction());

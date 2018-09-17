@@ -112,7 +112,7 @@ public class GS {
     public static CameraMode cameraMode;
     public static CameraController cameraController;
     private static boolean fullScreen = false;
-    private static Map<KeyAction, List<Key>> keyMap = new HashMap<>();
+    private static Map<KeyAction, List<ControllerKey>> keyMap = new HashMap<>();
     
     
     /**-------------------------------------------------------------------------
@@ -157,7 +157,8 @@ public class GS {
         
         registerImageSheets();
         createGUI();
-        Locker.add(ControllerKey.class);
+        GS.keyDet = new ControllerKeyDetector();
+        
         reloadKeyMap();
     }
     
@@ -176,13 +177,11 @@ public class GS {
         GS.mainPanel = new MainPanel();
         
         // Add listeners.
-        GS.keyDet = new ControllerKeyDetector(GS.mainPanel.getFrame());
-        
         mainPanel.getFrame().addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
                 Updater.cancel();
-                mainPanel.removeKeyListener(keyDet);
+                keyDet.cancel();
                 Locker.remove(keyDet);
             }
         });
@@ -199,21 +198,22 @@ public class GS {
         }, Logger.Type.INFO);
         
         // Create new key map.
-        Map<KeyAction, List<Key>> newKeyMap = new HashMap<>();
+        Map<KeyAction, List<ControllerKey>> newKeyMap = new HashMap<>();
         
         try (BufferedReaderPlus brp = new BufferedReaderPlus(KEYS_CONFIG,
                 HASHTAG_COMMENT, TYPE_CONFIG)) {
             
-            List<Key> keys = new ArrayList<>();
+            List<ControllerKey> keys = new ArrayList<>();
             while (brp.readNextConfLine()) {
-                try {
+                try {/*
                     if (brp.fieldEquals(Key.class.getName())) {
                         keys.add(Key
                                 .createFromString(brp.getData()));
                         System.out.println("Key created: "
                                 + keys.get(keys.size() - 1));
                         
-                    } else if (brp.fieldEquals(ControllerKey.class.getName())) {
+                    } else */
+                    if (brp.fieldEquals(ControllerKey.class.getName())) {
                         keys.add(ControllerKey
                                 .createFromString(brp.getData()));
                         System.out.println("ControllerKey created: "
@@ -278,11 +278,11 @@ public class GS {
      *     - A list containing all keys corresponding to this action.
      *     - {@code null}, meaning that the action is undefined.
      */
-    public static List<Key> getKeys(KeyAction action) {
+    public static List<ControllerKey> getKeys(KeyAction action) {
         return getKeys(action, DEFAULT_GET_COMP_MODE);
     }
     
-    public static List<Key> getKeys(KeyAction action, int compMode) {
+    public static List<ControllerKey> getKeys(KeyAction action, int compMode) {
         Locker.lock(ControllerKey.class);
         try {
             ControllerKey.setCompMode(compMode);
