@@ -222,7 +222,7 @@ public class AStar {
                         sRotV = i*rotvMax;
                         // g
                         sg = curNode.v*tInt + 0.5*(j*a)*tInt*tInt 
-                                + curNode.v*0.004;
+                                + curNode.v*0.0031;
                         // Position
                         double sX = 0;
                         double sY = 0;
