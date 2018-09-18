@@ -44,14 +44,23 @@ public class Simulator implements Updateable {
 
     public void initAssets() {
         //OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "test.obj");
-        OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "cube.obj");
-        
+        OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "dragon.obj");
+        OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "sphere.obj");
+
         for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj, new Texture());
-            Instance cubeInstance = new Instance(new Vector3f(0f, 0f, 5f),
+            OBJTexture texturedCube = new OBJTexture(obj, new Texture(10,1));
+            Instance cubeInstance = new Instance(new Vector3f(0f, 5f, -5f),
+                    1f, 0, 0, 0, texturedCube);
+            GS.addAsset(cubeInstance);
+        }
+
+        for (OBJObject obj : sp) {
+            OBJTexture texturedCube = new OBJTexture(obj, new Texture(10,1));
+            Instance cubeInstance = new Instance(new Vector3f(0f, 20f, -5f),
                     1, 0, 0, 0, texturedCube);
             GS.addAsset(cubeInstance);
         }
+
     }
 
     public void cleanup(){
@@ -62,7 +71,7 @@ public class Simulator implements Updateable {
     @Override
     public void performUpdate(long timeStamp) throws InterruptedException {
         if(GS.getAssets().size() > 0) {
-            GS.getAssets().get(0).rotx();
+            GS.getAssets().get(0).roty();
         }
 
 

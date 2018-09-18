@@ -22,6 +22,8 @@ public class DefaultShader extends ShaderProgram {
     private int modelMatrixLocation;
     private int lightPositionLocation;
     private int lightColorLocation;
+    private int shininessLocation;
+    private int reflectivityLocation;
 
     public DefaultShader(GL2 gl) {
         super(gl, vertex, fragment);
@@ -41,12 +43,16 @@ public class DefaultShader extends ShaderProgram {
         modelMatrixLocation = getUniformLocation(gl, "modelMatrix");
         lightPositionLocation = getUniformLocation(gl, "lightPosition");
         lightColorLocation = getUniformLocation(gl, "lightColor");
+        shininessLocation = getUniformLocation(gl, "shininess");
+        reflectivityLocation = getUniformLocation(gl, "reflectivity");
 
         System.out.println("Projection location: " + projectionMatrixLocation);
         System.out.println("ViewMatrix Location: " + viewMatrixLocation);
         System.out.println("TransformationMatrix Location: " + modelMatrixLocation);
         System.out.println("Lightpos: " + lightPositionLocation);
         System.out.println("LightColor: " + lightColorLocation);
+        System.out.println("Shininess: " + shininessLocation);
+        System.out.println("Reflectivity: " + reflectivityLocation);
     }
 
     @Override
@@ -67,5 +73,10 @@ public class DefaultShader extends ShaderProgram {
     public void loadLight(GL2 gl, Light light){
         loadUniformVector(gl, lightPositionLocation,light.getPosition());
         loadUniformVector(gl, lightColorLocation, light.getColor());
+    }
+
+    public void loadTextureLightValues(GL2 gl, float shininess, float reflectivity){
+        loadUniformFloat(gl, shininessLocation, shininess);
+        loadUniformFloat(gl, reflectivityLocation, reflectivity);
     }
 }

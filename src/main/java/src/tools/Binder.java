@@ -13,6 +13,7 @@ public class Binder {
     static ArrayList<IntBuffer> vbos = new ArrayList<>();
 
     public static IntBuffer loadVAO(GL2 gl, float[] vertices, float[] uv, float[] normals, int[] indices){
+
         IntBuffer vao = createVAO(gl);
         storeToIndicesList(gl, IntBuffer.wrap(indices));
         storeToAttributeList(gl,0, 3,FloatBuffer.wrap(vertices));

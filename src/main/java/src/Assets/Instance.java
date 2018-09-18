@@ -49,16 +49,21 @@ public class Instance {
         roty += 3f;
     }
 
+    public void moveup(){
+        position.y += 0.1f;
+    }
+
     public void draw(GL2 gl, ShaderProgram shader){
         shader.loadModelMatrix(gl, getTransformationMatrix());
+        shader.loadTextureLightValues(gl, model.getTexture().getShininess(), model.getTexture().getReflectivity());
         
         gl.glBindVertexArray(model.getAsset().getVao().get(0));
         gl.glEnableVertexAttribArray(0);
-        gl.glEnableVertexAttribArray(1);
+        //gl.glEnableVertexAttribArray(1);
         gl.glEnableVertexAttribArray(2);
         gl.glDrawElements(GL2.GL_TRIANGLES, model.getAsset().getNrV(), gl.GL_UNSIGNED_INT,0);
         gl.glDisableVertexAttribArray(0);
-        gl.glDisableVertexAttribArray(1);
+        //gl.glDisableVertexAttribArray(1);
         gl.glDisableVertexAttribArray(2);
 
         gl.glBindVertexArray(0);

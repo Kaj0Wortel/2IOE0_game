@@ -106,7 +106,7 @@ public class LoadOBJ {
                                 ? -1
                                 : Integer.parseInt(elems[1]) - 1);
                         int nPointer = Integer.parseInt(elems[2]) - 1;
-                        
+
                         FaceElement face
                                 = new FaceElement(vPointer, tPointer, nPointer);
                         
@@ -148,7 +148,6 @@ public class LoadOBJ {
                     }
 
                 } else if (brp.fieldEquals("o")) {
-                    System.out.println(obj);
                     if (obj != null) {
                         obj.setData(gl, vertsBuf, texsBuf, normsBuf, facesBuf);
 

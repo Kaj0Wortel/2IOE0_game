@@ -34,6 +34,8 @@ public abstract class ShaderProgram {
 
     public abstract void loadProjectionMatrix(GL2 gl, Matrix4f matrix4f);
 
+    public abstract void loadTextureLightValues(GL2 gl, float shininess, float reflectivity);
+
     public int getUniformLocation(GL2 gl, String uni){
         return gl.glGetUniformLocation(ID,uni);
     }
@@ -159,6 +161,10 @@ public abstract class ShaderProgram {
 
     public void loadUniformVector(GL2 gl, int location, Vector3f vector){
         gl.glUniform3f(location, vector.x,vector.y,vector.z);
+    }
+
+    public void loadUniformFloat(GL2 gl, int location, float fl){
+        gl.glUniform1f(location,fl);
     }
 
     public void stop(GL2 gl){

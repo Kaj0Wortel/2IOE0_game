@@ -34,8 +34,8 @@ public class OBJObject {
                         List<Float> normals, List<Integer> indices) {
 
         vao = Binder.loadVAO(gl,
-                toFloatArray(vertices), toFloatArray(normals),
-                toFloatArray(tex), toIntegerArray(indices));
+                toFloatArray(vertices), toFloatArray(tex),
+                toFloatArray(normals), toIntegerArray(indices));
         nrV = indices.size();
 
     }

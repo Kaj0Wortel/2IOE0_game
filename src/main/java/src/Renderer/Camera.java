@@ -28,7 +28,8 @@ public class Camera {
         viewMatrix.rotate((float)Math.toRadians(pitch), new Vector3f(1,0,0));
         viewMatrix.rotate((float)Math.toRadians(yaw), new Vector3f(0,1,0));
         viewMatrix.rotate((float)Math.toRadians(roll), new Vector3f(0,0,1));
-        viewMatrix.translate(new Vector3f(position).negate());
+        Vector3f negPos = new Vector3f(-position.x,-position.y,-position.z);
+        viewMatrix.translate(negPos);
     }
 
     public Matrix4f getViewMatrix(){

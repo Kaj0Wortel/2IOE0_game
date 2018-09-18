@@ -7,6 +7,7 @@ in vec2 tex;
 
 out vec3 normalVector;
 out vec3 toLight;
+out vec3 toCamera;
 
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
@@ -18,5 +19,7 @@ void main(void) {
     gl_Position = projectionMatrix * viewMatrix * worldPos;
 
     normalVector = (modelMatrix * vec4(normal,0.0)).xyz;
-    toLight = lightPosition - worldPos.xyz/worldPos.w;
+    toLight = lightPosition - worldPos.xyz;
+    toCamera = (inverse(viewMatrix) * vec4(0.0,0.0,0.0,1.0)).xyz - worldPos.xyz;
+
 }
