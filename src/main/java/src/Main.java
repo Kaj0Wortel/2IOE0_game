@@ -93,7 +93,7 @@ public class Main {
             // Checking keys with key data.
             for (CarKeyAction action : actions) {
                 List<ControllerKey> keys = GS.getKeys(action);
-                if (keys == null) return;
+                if (keys == null) continue;
                 for (ControllerKey key : GS.keyDet.getPressedFrom(keys)) {
                     // Data that was retrieved:
                     System.out.println(key);

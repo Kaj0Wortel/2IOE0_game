@@ -10,8 +10,8 @@ import src.tools.log.Logger;
 
 
 // Java imports
-import java.awt.EventQueue;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,6 +21,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.swing.SwingUtilities;
+import src.GS;
+import src.Locker;
 
 
 /**
@@ -56,7 +58,22 @@ public class ContrlEnv
                     Logger.write("Update controller list");
                     
                     // Load controllers.
-                    Controller[] c = ContrlEnv.super.getControllers();
+                    Controller[] c ;
+                    try {
+                        // If the VM is shutting down, an invocation exception
+                        // might occur. Since this is not important, 
+                        // simple exit the updating loop and prevent spamming
+                        // the error in the console and giving you
+                        // a heart attack every single time.
+                        c = ContrlEnv.super.getControllers();
+                        
+                        // Because the compiler is complaining...
+                        if (null != null)
+                            throw new InvocationTargetException(null);
+                        
+                    } catch (InvocationTargetException e) {
+                        break;
+                    }
                     
                     // Notify listeners for added devices.
                     if (cachedContr == null) {
@@ -81,11 +98,15 @@ public class ContrlEnv
                             }
                             
                         } else {
-                            cachedContr = c;
-                            environmentUpdated.signalAll();
-                            EventQueue.invokeLater(() -> {
+                            Locker.lock(GS.keyDet);
+                            try {
+                                cachedContr = c;
+                                environmentUpdated.signalAll();
                                 notifyListener();
-                            });
+                                
+                            } finally {
+                                Locker.unlock(GS.keyDet);
+                            }
                         }
                         
                     } catch (InterruptedException e) {

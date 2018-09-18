@@ -196,11 +196,57 @@ public class ControllerKeyDetector {
         }
     }
     
+    
+    
+    
+    
+    /**
+     * Gets the id of the given controller.
+     * The id's are needed to make a distiction between different
+     * controllers with the same name.
+     * 
+     * @param controller the controller to get the id for.
+     * @return the id of the given controller.
+     */
+    public int getControllerID(Controller controller) {
+        Locker.lock(this);
+        try {
+            String name = controller.toString();
+            Controller[] sameNameArr = connected.get(name);
+            if (sameNameArr == null) {
+                Logger.write(new Object[] {
+                    "Tried to convert controller to string:",
+                    controller,
+                    "but the controller wasn't registered (1)!"
+                }, Logger.Type.WARNING);
+                return -1;
+            }
+            
+            for (int i = 0; i < sameNameArr.length; i++) {
+                if (ContrlEnv.compareController(
+                        sameNameArr[i], controller)) {
+                    return i;
+                }
+            }
+            
+            Logger.write(new Object[] {
+                "Tried to convert controller to string:",
+                controller,
+                "But the controller wasn't registered (2)!"
+            }, Logger.Type.WARNING);
+            
+        } finally {
+            Locker.unlock(this);
+        }
+        
+        return -1;
+    }
+    
     /**
      * @param controller the controller to process.
      * @return the save string of the given controller.
      *     {@code null} if the controller was not available.
-     */
+     *//*
     public String controllerToString(Controller controller) {
         if (controller instanceof GeneratedController) {
             return ((GeneratedController) controller).getKey();
@@ -238,7 +284,7 @@ public class ControllerKeyDetector {
         
         return null;
     }
-    
+    /**/
     /**
      * @param str the save string to parse.
      * @return a controller denoted by the given save string.
@@ -274,23 +320,36 @@ public class ControllerKeyDetector {
     public void update() {
         // If not yet initialized, simply return.
         if (!initialized) return;
-        Set<ControllerKey> newState = new HashSet<>();
+        if (!(ControllerEnvironment.getDefaultEnvironment()
+                instanceof ContrlEnv)) return;
         
         ContrlEnv contrlEnv = (ContrlEnv) ControllerEnvironment
                 .getDefaultEnvironment();
-        for (Controller controller : contrlEnv.getControllers()) {
-            if (!controller.poll()) continue;
-            
-            ControllerKey.setCompMode(DEFAULT_REPLACE_COMP_MODE);
-            for (Component comp : controller.getComponents()) {
-                newState.add(new ControllerKey(controller, comp,
-                        comp.getPollData()));
+        
+        Set<ControllerKey> newState = new HashSet<>();
+        
+        Locker.lock(this);
+        try {
+            for (Controller controller : contrlEnv.getControllers()) {
+                if (!controller.poll()) continue;
+                int id = getControllerID(controller);
+
+                ControllerKey.setCompMode(DEFAULT_REPLACE_COMP_MODE);
+                for (Component comp : controller.getComponents()) {
+                    ControllerKey key = new ControllerKey(controller, id, comp,
+                            comp.getPollData());
+                    newState.add(key);
+                    //if (key.getValue() == 1.0f) System.out.println(key);
+                }
             }
+        } finally {
+            Locker.unlock(this);
         }
         
         Locker.lock(ControllerKey.class);
         try {
             prevState = newState;
+            
         } finally {
             Locker.unlock(ControllerKey.class);
         }
@@ -403,7 +462,8 @@ public class ControllerKeyDetector {
      *     will be used instead of the given key.
      */
     public List<ControllerKey> getPressedFrom(List<ControllerKey> keys) {
-        return getPressedFrom(keys, DEFAULT_GET_COMP_MODE | COMP_MODE_COPY_EQUALS);
+        return getPressedFrom(keys, DEFAULT_GET_COMP_MODE |
+                COMP_MODE_COPY_EQUALS);
     }
     
     private List<ControllerKey> getPressedFrom(List<ControllerKey> keys,

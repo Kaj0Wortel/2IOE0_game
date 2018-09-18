@@ -252,7 +252,7 @@ public class GS {
             Logger.write(e);
         }
         
-        // replace the key map.
+        // Replace the key map.
         Locker.lock(ControllerKey.class);
         try {
             keyMap.clear();
@@ -271,21 +271,14 @@ public class GS {
     /**
      * Gets the keys that are defined for the given action.
      * 
-     * @param action the action
-     * @param compMode the comparison mode. Default is
-     *     {@link ControllerKey#DEFAULT_GET_COMP_MODE}
+     * @param action the action to get the keys from.
      * @return either:
      *     - A list containing all keys corresponding to this action.
      *     - {@code null}, meaning that the action is undefined.
      */
     public static List<ControllerKey> getKeys(KeyAction action) {
-        return getKeys(action, DEFAULT_GET_COMP_MODE);
-    }
-    
-    public static List<ControllerKey> getKeys(KeyAction action, int compMode) {
         Locker.lock(ControllerKey.class);
         try {
-            ControllerKey.setCompMode(compMode);
             return keyMap.get(action);
             
         } finally {

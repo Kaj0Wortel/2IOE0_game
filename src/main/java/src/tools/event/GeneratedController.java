@@ -27,12 +27,20 @@ import net.java.games.input.Rumbler;
 public class GeneratedController
         implements Controller {
     
-    final private String key;
-    private String name;
+    final private String name;
+    final private Type type;
     
-    public GeneratedController(String name, String key) {
+    public GeneratedController(String name) {
+        this(name, Type.UNKNOWN);
+    }
+    
+    public GeneratedController(Type type) {
+        this("", type);
+    }
+    
+    public GeneratedController(String name, Type type) {
         this.name = name;
-        this.key = key;
+        this.type = type;
     }
     
     
@@ -43,7 +51,7 @@ public class GeneratedController
     
     @Override
     public Type getType() {
-        return Type.UNKNOWN;
+        return type;
     }
     
     @Override
@@ -92,13 +100,6 @@ public class GeneratedController
     @Override
     public String toString() {
         return getName();
-    }
-    
-    /**
-     * @return the key string of this controller.
-     */
-    public String getKey() {
-        return key;
     }
     
     
