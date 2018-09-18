@@ -75,29 +75,26 @@ public class AStar {
         List<Point2D.Double> checkPoints = new ArrayList<Point2D.Double>();
         checkPoints.add(new Point2D.Double(2.4, 1));
         checkPoints.add(new Point2D.Double(1.6, 1.1));
+        
         //checkPoints.add(new Point2D.Double(0.6, 2));
         //checkPoints.add(new Point2D.Double(0.7, 3));
         //checkPoints.add(new Point2D.Double(-0.1, 0));
         //checkPoints.add(new Point2D.Double(0.4, -0.1));
+        
         checkPoints.add(new Point2D.Double(-0.3, 1));
         checkPoints.add(new Point2D.Double(0.4, 0.9));
         Point2D.Double startPos = new Point2D.Double(2, 0);
         
         // Maximum velocity (can be something else than +/-max or 0
-        double vMax; // TODO REMARK: not used?
+        double vMax = 5; // TODO REMARK: not used?
         // Maximum acceleration
-        double a = 0; // TODO REMARK: make constant.
+        double a = 0.1; // TODO REMARK: make constant.
         // Maximum angular velocity (rad/sec)
         double rotvMax = Math.PI/2; // TODO REMARK: make constant.
         // Time interval between actions/itterations
         double tInt = 0.1; // TODO REMARK: make constant.
         // Amount of itterations/time allowed per pathfind
         int iterAllowed = 50000; // TODO REMARK: make constant.
-        
-        // succesor node variables
-        //Point2D.Double s_Pos; // Used in Node
-        //double s_V, s_A, s_Rot, s_RotV, s_g, s_h; // Used in Node
-        //double deltaRot, r, s_r, s_deltaX, s_deltaY; // Not used in Node
         
         // Loop variables
         boolean alreadyInList = false;
@@ -185,8 +182,6 @@ public class AStar {
             if (curNode.h < 0.05) { // Should be refined at some point
                 pathList.add(curNode);
                 // Show evaluated position
-                /*System.out.println(iter + ": (" + curNode.pos.x + ", "
-                        + curNode.pos.y + ")->" + curNode.h);*/
                 System.out.println(iter);
                 pathComplete = true;
                 break;
@@ -204,7 +199,7 @@ public class AStar {
                     // Not used in Node
                     double deltaRot, r, sr, s_deltaX, s_deltaY;
                     if (i == 0) { // AI goes straight
-                        sg = curNode.v * tInt + 0.5 * (j*a) * tInt * tInt;
+                        sg = curNode.v * tInt + 0.5*(j*a)*tInt*tInt;
                         sPos = new Point2D.Double(
                                 curNode.pos.x + Math.cos(curNode.rot)*sg,
                                 curNode.pos.y + Math.sin(curNode.rot)*sg
@@ -220,27 +215,29 @@ public class AStar {
                         sA = j*a;
                         sRot = curNode.rot + deltaRot;
                         sRotV = i*rotvMax;
-                        // g
-                        sg = curNode.v*tInt + 0.5*(j*a)*tInt*tInt 
-                                + curNode.v*0.0031;
+                        sg = curNode.v*tInt + 0.5*(j*a)*tInt*tInt; 
                         // Position
-                        double sX = 0;
-                        double sY = 0;
+                        double sY = - (sV / sRotV)
+                                        * Math.cos(curNode.rot + sRotV*tInt)
+                                    + (sA / (sRotV*sRotV))
+                                        * Math.sin(curNode.rot + sRotV*tInt)
+                                    + (curNode.v / sRotV)
+                                        * Math.cos(curNode.rot)
+                                    - (sA / (sRotV*sRotV))
+                                        * Math.sin(curNode.rot);
+                        double sX = + (sV / sRotV)
+                                        * Math.sin(curNode.rot + sRotV*tInt)
+                                    + (sA / (sRotV*sRotV))
+                                        * Math.cos(curNode.rot + sRotV*tInt)
+                                    - (curNode.v / sRotV)
+                                        * Math.sin(curNode.rot)
+                                    - (sA / (sRotV*sRotV))
+                                        * Math.cos(curNode.rot);
                         sPos = new Point2D.Double(
                                 curNode.pos.x + sX,
                                 curNode.pos.y + sY);
-                        
-                        // OLD: ONLY WORKS IF a = 0
-                        r = (sV/Math.abs(sV))*Math.abs(curNode.v/(i*rotvMax));
-                        sr = (sV/Math.abs(sV))*Math.abs(sV/(i*rotvMax));
-                        s_deltaX = r * Math.cos(curNode.rot + i*Math.PI/2)
-                                + sr * Math.cos(sRot - i*Math.PI/2);
-                        s_deltaY = r * Math.sin(curNode.rot + i*Math.PI/2)
-                                + sr * Math.sin(sRot - i*Math.PI/2);
-                        sPos = new Point2D.Double(
-                                curNode.pos.x + s_deltaX,
-                                curNode.pos.y + s_deltaY);
-                        
+                        // g correction?
+                        sg = sg + curNode.v*0.0031;
                     }
 
                     // g: spatial displacement != distance between
@@ -258,10 +255,10 @@ public class AStar {
                     sh = 0;
                     curHPos = sPos;
                     int sNextCP = curNode.nextCP;
-                    for (j = sNextCP; j < checkPoints.size()/2; j++) {
+                    for (int k = sNextCP; k < checkPoints.size()/2; k++) {
                         // Define checkpoints and normal lines
-                        Point2D.Double CP1 = checkPoints.get(j*2);
-                        Point2D.Double CP2 = checkPoints.get(j*2 + 1);
+                        Point2D.Double CP1 = checkPoints.get(k*2);
+                        Point2D.Double CP2 = checkPoints.get(k*2 + 1);
                         // Normal lines: aX + bY + c = 0, [0] = X1 or
                         // X2, [1] = Y1 or Y2
                         double nA = -(CP1.x - CP2.x) / (CP1.y - CP2.y);// nB is always -1
@@ -278,23 +275,13 @@ public class AStar {
                         double difError = Math.sqrt(Math.pow(CP1.x - CP2.x, 2)
                                 + Math.pow(CP1.y - CP2.y, 2));
                         if (d1 > difError && d1 > d2) {
-                            //if (j == sNextCP) {
-                                sh = sh + Math.sqrt(Math.pow(curHPos.x - CP2.x, 2)
+                            sh = sh + Math.sqrt(Math.pow(curHPos.x - CP2.x, 2)
                                     + Math.pow(curHPos.y - CP2.y, 2));
-                            /*} else {
-                                sh = sh + 0.1*Math.sqrt(Math.pow(curHPos.x - CP2.x, 2)
-                                    + Math.pow(curHPos.y - CP2.y, 2));
-                            }*/
                             curHPos = CP2;
 
                         } else if (d2 > difError && d1 < d2){
-                            //if (j == sNextCP) {
-                                sh = sh + Math.sqrt(Math.pow(curHPos.x - CP1.x, 2)
+                            sh = sh + Math.sqrt(Math.pow(curHPos.x - CP1.x, 2)
                                         + Math.pow(curHPos.y - CP1.y, 2));
-                            /*} else {
-                                sh = sh + 0.1*Math.sqrt(Math.pow(curHPos.x - CP1.x, 2)
-                                        + Math.pow(curHPos.y - CP1.y, 2));
-                            }*/
                             curHPos = CP1;
 
                         } else {
@@ -302,11 +289,7 @@ public class AStar {
                             double c2 = -curHPos.x*nA + curHPos.y;
                             double dist = Math.abs((-1 / nA) * curHPos.x - curHPos.y + c1)
                                     / Math.sqrt(1 / (nA*nA) + 1);
-                            //if (j == sNextCP) {
-                                sh = sh + dist;
-                            /*} else {
-                                sh = sh + 0.1*dist;
-                            }*/
+                            sh = sh + dist;
                             double hx = (c2 - c1) / (-nA + (-1/nA));
                             double hy = (-1/nA)*hx + c1;
                             curHPos = new Point.Double(hx, hy);
@@ -315,31 +298,31 @@ public class AStar {
                         if (sh < 0.05) {
                             sNextCP++;
                         }
+                        // Adjust for acceleration?
+                        //double normV = 1 + (sV*0.5)/(vMax);
+                        //sh = sh/normV;
                     }
                     // </editor-fold>
                     
-                    // TODO REMARK: code smell over here.
+                    
                     //CASE I: already in closed
                     for (Node o : openlist) {
                         if (o.pos == sPos) {
                             alreadyInList = true;
                             System.err.println("Unexpected node found in "
                                     + "closed list: " + o);
-                            //System.out.println("already in closed!?!");
                         }
                     }
                     
-                    // TODO REMARK: code smell over here.
                     //CASE II: already in open
                     for (Node o : closedlist) {
                         if (o.pos == sPos) {
                             alreadyInList = true;
-                            //TODO: (not easy): replace node if succ.g&h < o.g&h
+                            //TODO?: (not easy) replace node if succ.g&h < o.g&h
                             // difficult because node after o might not be reachable from
                             // succ: the entire rest of the route has to be recalculated
                             System.err.println("Unexpected node found in "
                                     + "opened list: " + o);
-                            //System.out.println("already in open?!?!");
                         }
                     }
                     
@@ -348,15 +331,19 @@ public class AStar {
                         openlist.add(new Node(sPos, sV, sA, sRot, sRotV,
                                 sg, sh, sNextCP, curNode));
                         //TODO: remove after debug
-                        if(iter == 0 && false) {
-                            System.out.println("-"+(iter+1)+"->a: " + sA + ", rotV: " 
-                                    + sRotV + ", h: " + sh+", X: "+sPos.x+", Y: "+sPos.y+
-                                    ", Rot: "+sRot);
-                            if (sRotV == 0 || true) {
+                        if(iter == 0) {
+                            System.out.println("-"+(iter+1)+"->a: " + sA 
+                                    + ", rotV: " + sRotV 
+                                    + ", h: " + sh
+                                    + ", g: " + sg
+                                    + ", X: " + sPos.x + ", Y: " + sPos.y
+                                    + ", Rot: "+sRot);
+                        }
+                        if (iter < 10000 /*&& false*/) {
                                 visual.setForeground(Color.YELLOW);
                                 visual.addPoint(new Point2D.Double(sPos.x, -sPos.y));
                                 visual.setForeground(Color.WHITE);
-                            }
+                                visual.addPoint(new Point2D.Double(curNode.pos.x, -curNode.pos.y));
                         }
                     }
                     
@@ -367,12 +354,16 @@ public class AStar {
             
             // Show evaluated position
             if (curNode.parentNode != null) {
-                /*System.out.println(iter + ": (" + curNode.pos.x + ", "
-                    + curNode.pos.y + ")->" + curNode.h
-                    + ". a = " + curNode.a + ", rotV = " + curNode.rotV +
-                    ", v = " + curNode.v + ", rot = " + curNode.rot
+                System.out.println(iter + ": (" + curNode.pos.x + ", "
+                    + curNode.pos.y + ")->" 
+                        + curNode.h
+                    + ", a = " + curNode.a 
+                    + ", rotV = " + curNode.rotV
+                    + ", v = " + curNode.v
+                    //+ ", rot = " + curNode.rot
+                    + ", g = " + curNode.g
                     +", parent: ("+curNode.parentNode.pos.x+","+curNode.parentNode.pos.y+")");
-            */
+            
             }
             if (iter%1000 == 0)
             System.out.println(iter);
@@ -393,8 +384,17 @@ public class AStar {
                 + test + " nodes");
                         
             // TODO: remove temporary visualisation.
-            //VisualAStar visual = new VisualAStar();
-            visual.addNodes(pathList);
+            for (Node p : pathList) {
+                if (p.a > 0) {
+                    visual.setForeground(Color.WHITE);
+                } else if (p.a < 0) {
+                    visual.setForeground(Color.DARK_GRAY);
+                } else {
+                    visual.setForeground(Color.GRAY);
+                }
+                visual.addPoint(new Point2D.Double(p.pos.x, -p.pos.y));
+            }
+            
             visual.setForeground(Color.GREEN);
             //visual.addPoint(pathList.get(pathList.size() - 1).pos);
             visual.addPoint(new Point2D.Double(
@@ -459,7 +459,8 @@ A* improvement and debugging                                            5 hr
 adding support for multiple checkpoints                                 5 hr
 Improvement of physics                                                  4 hr
 Improve action costs (turning vs straight)                              4 hr
-17: meeting 4 h
+17: meeting                                                             4 hr
+18: testing for different g and h calculations                          6 hr
 --------------------------------------------------------------------------------
-total                                                                   34.5 hr
+total                                                                   44.5 hr
 */

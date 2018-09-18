@@ -147,8 +147,7 @@ public class VisualAStar
         Graphics2D g2d = (Graphics2D) img.getGraphics();
         g2d.setPaint(getForeground());
         for (Node node : nodes) {
-            //TODO change back if y coordinate should not be reverted
-            //addPoint(node.pos, g2d);
+            System.out.println(node.a);
             addPoint(new Point2D.Double(node.pos.x, -node.pos.y), g2d);
         }
     }
