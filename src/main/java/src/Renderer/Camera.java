@@ -12,6 +12,8 @@ public class Camera {
 
     Matrix4f viewMatrix = new Matrix4f();
 
+    int speed = 2;
+
     public Camera (Vector3f position, float pitch, float yaw, float roll){
         this.position = position;
         this.pitch = pitch;
@@ -35,13 +37,23 @@ public class Camera {
     }
 
     public void YawLeft(){
-        yaw += 3f;
+        yaw -= 5f;
         yaw %= 360;
     }
 
     public void YawRight(){
-        yaw -= 3f;
+        yaw += 5f;
         yaw %= 360;
+    }
+
+    public void MoveForward(){
+        position.x += speed * Math.sin((float) Math.toRadians(yaw));
+        position.z -= speed * Math.cos((float) Math.toRadians(yaw));
+    }
+
+    public void MoveBackwards(){
+        position.x -= speed * Math.sin((float) Math.toRadians(yaw));
+        position.z += speed * Math.cos((float) Math.toRadians(yaw));
     }
 
     public Vector3f getPosition() {

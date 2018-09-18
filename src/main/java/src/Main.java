@@ -8,19 +8,19 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
+import net.java.games.input.Controller;
+import net.java.games.input.Rumbler;
 import org.joml.Vector3f;
 import src.Controllers.CameraController;
 import src.Renderer.Camera;
 import src.Renderer.Renderer;
+import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.CarKeyAction;
 import src.tools.event.keyAction.CarKeyAction.MovementAction;
 import src.tools.update.Updateable;
 import src.tools.update.Updater;
 
 import java.util.List;
-import net.java.games.input.Controller;
-import net.java.games.input.Rumbler;
-import src.tools.event.ControllerKey;
 
 // Java imports
 
@@ -40,7 +40,7 @@ public class Main {
 
         FPSAnimator animator = new FPSAnimator(canvas, 60);
 
-        Camera camera = new Camera(new Vector3f(0, 0, 0), 0, 0, 0);
+        Camera camera = new Camera(new Vector3f(0, 0, -5), 0, 180, 0);
         CameraController cameraController = new CameraController(camera);
         GS.camera = camera;
         GS.cameraController = cameraController;

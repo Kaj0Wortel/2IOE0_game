@@ -2,11 +2,10 @@ package src;
 
 import com.jogamp.opengl.GL2;
 import org.joml.Vector3f;
-import src.Assets.Instance;
-import src.Assets.OBJTexture;
-import src.Assets.Texture;
+import src.Assets.*;
+import src.OBJ.LoadOBJ;
 import src.tools.Binder;
-import src.tools.event.Key;
+import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.CameraKeyAction;
 import src.tools.update.Updateable;
 import src.tools.update.Updater;
@@ -14,10 +13,6 @@ import src.tools.update.Updater;
 import javax.swing.*;
 import java.util.List;
 
-import src.Assets.OBJCollection;
-import src.Assets.OBJObject;
-import src.OBJ.LoadOBJ;
-import src.tools.event.ControllerKey;
 import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
 public class Simulator implements Updateable {
@@ -34,6 +29,8 @@ public class Simulator implements Updateable {
         cameraActions = new CameraKeyAction[] {
                 new CameraKeyAction(1, CameraKeyAction.MovementAction.LEFT),
                 new CameraKeyAction(1, CameraKeyAction.MovementAction.RIGHT),
+                new CameraKeyAction(1, CameraKeyAction.MovementAction.FORWARD),
+                new CameraKeyAction(1, CameraKeyAction.MovementAction.BACKWARD)
         };
 
         SwingUtilities.invokeLater(() -> {
@@ -47,11 +44,11 @@ public class Simulator implements Updateable {
 
     public void initAssets() {
         //OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "test.obj");
-        OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "sphere.obj");
+        OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "cube.obj");
         
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj, new Texture());
-            Instance cubeInstance = new Instance(new Vector3f(0f, 0f, -5f),
+            Instance cubeInstance = new Instance(new Vector3f(0f, 0f, 5f),
                     1, 0, 0, 0, texturedCube);
             GS.addAsset(cubeInstance);
         }
@@ -66,7 +63,6 @@ public class Simulator implements Updateable {
     public void performUpdate(long timeStamp) throws InterruptedException {
         if(GS.getAssets().size() > 0) {
             GS.getAssets().get(0).rotx();
-            GS.getAssets().get(0).roty();
         }
 
 

@@ -45,7 +45,7 @@ public class CameraKeyAction
         int id = Integer.parseInt(data[0]);
         CameraKeyAction.MovementAction action = CameraKeyAction
                 .MovementAction.valueOf(data[1]);
-
+        System.out.println("ACTION:" + action);
         return new CameraKeyAction(id, action);
     }
     

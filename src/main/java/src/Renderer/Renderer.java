@@ -16,10 +16,9 @@ import src.GS;
 import src.Shaders.DefaultShader;
 import src.Simulator;
 
-import static com.jogamp.opengl.GL.*;
+import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
+import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
 import static com.jogamp.opengl.GL2ES2.GL_SHADING_LANGUAGE_VERSION;
-import static com.jogamp.opengl.GL2GL3.GL_FILL;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_NORMALIZE;
 
 // Own imports
 
@@ -51,15 +50,10 @@ public class Renderer implements GLEventListener {
         this.gl = glAutoDrawable.getGL().getGL2();
         this.glu = new GLU();
 
+        gl.glEnable(gl.GL_CULL_FACE);
+        gl.glCullFace(gl.GL_BACK);
+
         light = new Light(new Vector3f(0f,0f,20f), new Vector3f(1f,1f,1f));
-
-        gl.glEnable(GL_BLEND);
-        gl.glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-        gl.glEnable(GL_DEPTH_TEST);
-        gl.glDepthFunc(GL_LESS);
-
-        gl.glEnable(GL_NORMALIZE);
 
         System.out.println(gl.glGetString(GL_SHADING_LANGUAGE_VERSION));
 
@@ -76,8 +70,9 @@ public class Renderer implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
+        gl.glEnable(gl.GL_DEPTH_TEST);
         gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-        gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
         gl.glClearColor(1f, 1f, 1f, 1f);
 
         currentShader.loadProjectionMatrix(gl,getProjectionMatrix());
