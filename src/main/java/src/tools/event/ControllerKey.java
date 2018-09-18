@@ -22,14 +22,18 @@ import java.util.HashMap;
 import java.util.Map;
 import net.java.games.input.Component.Identifier;
 import net.java.games.input.ContrlEnv;
-import src.GS;
+import net.java.games.input.Controller.Type;
+import src.Locker;
 
 
 /**
  * 
  */
-public class ControllerKey
-        extends Key {
+public class ControllerKey {
+    static {
+        Locker.add(ControllerKey.class);
+    }
+    
     /**-------------------------------------------------------------------------
      * Constants.
      * -------------------------------------------------------------------------
@@ -90,7 +94,9 @@ public class ControllerKey
     /**
      * The default hash mode.
      */
-    final private static int HASH_MODE = DEFAULT_REPLACE_COMP_MODE;
+    final private static int HASH_MODE =
+            COMP_MODE_IDENTIFIER |
+            COMP_MODE_VALUE_IF_NEEDED;
     
     
     /** Identifier constants. */
@@ -128,6 +134,7 @@ public class ControllerKey
     
     
     final public static Map<String, Identifier> IDENTIFIERS = new HashMap<>();
+    final public static Map<String, Type> TYPES = new HashMap<>();
     
     
     /**-------------------------------------------------------------------------
@@ -154,6 +161,21 @@ public class ControllerKey
             }
         }
         System.out.println(IDENTIFIERS);
+        
+        for (Field field : Type.class.getDeclaredFields()) {
+            if (Modifier.isStatic(field.getModifiers()) &&
+                    Type.class.isAssignableFrom(field.getDeclaringClass())) {
+                try {
+                    Type type = (Type) field.get(null);
+                    TYPES.put(type.toString(), type);
+                    
+                } catch (IllegalArgumentException |
+                        IllegalAccessException e) {
+                    Logger.write(e);
+                }
+            }
+        }
+        System.out.println(TYPES);
     }
     
     // tmp
@@ -169,7 +191,9 @@ public class ControllerKey
     final private Controller controller;
     final private Component comp;
     final private float value;
+    final private int id;
     
+    final private boolean useTypeOnly;
     final private int hashValue;
     
     private ControllerKey lastTrueCompare;
@@ -181,11 +205,12 @@ public class ControllerKey
      * @param key the controller key to copy.
      */
     public ControllerKey(ControllerKey key) {
-        super((Key) key);
         this.controller = key.controller;
+        this.id = key.id;
         this.comp = key.comp;
         this.value = key.value;
-        this.hashValue = calcHashCode();
+        this.hashValue = key.hashValue;
+        this.useTypeOnly = false;
     }
     
     /**
@@ -194,13 +219,26 @@ public class ControllerKey
      * @param deviceID the id of the device.
      * @param comp the component of the button this key denotes.
      * @param value the value of the component.
+     * @param typeOnly whether to compare the controller only by type
+     *     instead of by key-name.
      */
-    public ControllerKey(Controller controller, Component comp,
-             float value) {
-        super(true, -1, DEFAULT_MASK, value > BUTTON_SENS);
+    public ControllerKey(Controller controller, int id, Component comp,
+            float value) {
         this.controller = controller;
+        this.id = id;;
         this.comp = comp;
         this.value = value;
+        this.useTypeOnly = false;
+        this.hashValue = calcHashCode();
+    }
+    
+    public ControllerKey(Controller controller, Component comp,
+            float value, boolean typeOnly) {
+        this.controller = controller;
+        this.id = -1;
+        this.comp = comp;
+        this.value = value;
+        this.useTypeOnly = typeOnly;
         this.hashValue = calcHashCode();
     }
     
@@ -241,6 +279,16 @@ public class ControllerKey
     }
     
     /**
+     * @return the id of the controller.
+     * 
+     * The id's are needed to make a distiction between different
+     * controllers with the same name.
+     */
+    public int getID() {
+        return id;
+    }
+    
+    /**
      * @return the component this key represents.
      */
     public Component getComponent() {
@@ -262,7 +310,7 @@ public class ControllerKey
     }
     
     /**
-     * {@inheritDoc}
+     * Compares {@code this} with {@code obj}.
      * 
      * It is advised to use the class lock before using this method:
      * {@code Locker.lock(ControllerKey.class)}
@@ -271,6 +319,7 @@ public class ControllerKey
     public boolean equals(Object obj) {
         if (obj == this) return true;
         Identifier ident = comp.getIdentifier();
+        
         if (obj instanceof ControllerKey) {
             boolean copyIfTrue = (compMode & COMP_MODE_COPY_EQUALS) ==
                     COMP_MODE_COPY_EQUALS;
@@ -279,17 +328,32 @@ public class ControllerKey
             ControllerKey key = (ControllerKey) obj;
             
             if ((compMode & COMP_MODE_CONTROLLER) == COMP_MODE_CONTROLLER) {
-                String str1 = GS.keyDet.controllerToString(this.controller);
-                String str2 = GS.keyDet.controllerToString(key.controller);
-                if (str1 == null || str2 == null || !str1.equals(str2)) {
-                    return false;
+                if (useTypeOnly || key.typeOnly()) {
+                    if (!controller.getType().toString()
+                            .equals(key.controller.getType().toString())) {
+                        //System.out.println("not here 01");
+                        return false;
+                    }
+                    
+                } else {
+                    if (id == -1 || key.getID() == -1 || id != key.getID()) {
+                        //System.out.println("not here 02");
+                        return false;
+                    }
+                    
+                    if (!controller.getName().equals(key.controller.getName())) {
+                        //System.out.println("not here 02.1");
+                        return false;
+                    }
                 }
             }
             
             if ((compMode & COMP_MODE_IDENTIFIER) == COMP_MODE_IDENTIFIER) {
                 if (!this.comp.getIdentifier().getName()
-                        .equals(key.comp.getIdentifier().getName()))
+                        .equals(key.comp.getIdentifier().getName())) {
+                    //System.out.println("not here 03");
                     return false;
+                }
             }
             
             if ((compMode & COMP_MODE_VALUE_IF_NEEDED) ==
@@ -301,11 +365,17 @@ public class ControllerKey
                     if (v1 != v2) {
                         // If either of them is in the center,
                         // then certainly false.
-                        if (v1 == POV.CENTER || v2 == POV.CENTER) return false;
+                        if (v1 == POV.CENTER || v2 == POV.CENTER) {
+                            System.out.println("not here 04");
+                            return false;
+                        }
                         
                         // If both are multi-directional (and unequal),
                         // false by default.
-                        if (v1 % 0.25f != 0 && v2 % 0.25f != 0) return false;
+                        if (v1 % 0.25f != 0 && v2 % 0.25f != 0) {
+                            //System.out.println("not here 05");
+                            return false;
+                        }
                         
                         // If the values are more then 0.25f apart (assume
                         // looping around), then certainly false.
@@ -314,6 +384,7 @@ public class ControllerKey
                             // {@code UP_LEFT == 0.125f, and at least one
                             // is not multi-directional.
                             if (v1 != POV.LEFT && v2 != POV.LEFT) {
+                                //System.out.println("not here 06");
                                 return false;
                             }
                         }
@@ -324,33 +395,50 @@ public class ControllerKey
                             (v1 > JOYSTICK_SENS && !(v2 > JOYSTICK_SENS)) ||
                             (-JOYSTICK_SENS <= v1 && v1 <= JOYSTICK_SENS &&
                             !(-JOYSTICK_SENS <= v2 && JOYSTICK_SENS <= v2))) {
+                        //System.out.println("not here 07");
                         return false;
                     }
                     
                 } else if (ident instanceof Button ||
                         ident instanceof Identifier.Key) {
-                    if (v1 != v2) return false;
+                    if (this.isPressed() != key.isPressed()) {
+                        //System.out.println("not here 08");
+                        return false;
+                    }
                 }
                 
             } else if ((compMode & COMP_MODE_VALUE) == COMP_MODE_VALUE) {
-                if (this.value != key.value)
+                if (this.value != key.value) {
+                    //System.out.println("not here 09");
                     return false;
+                }
             }
             
-            lastTrueCompare = key;
+            if (copyIfTrue) lastTrueCompare = key;
             return true;
             
         } else if (obj instanceof Identifier) {
             return obj.equals(ident);
             
         } else if (obj instanceof Controller) {
-            return ContrlEnv.compareController((Controller) obj, controller);
+            if (useTypeOnly) {
+                return ((Controller) obj).getType().toString()
+                        .equals(controller.getType().toString());
+                
+            } else {
+                return ContrlEnv
+                        .compareController((Controller) obj, controller);
+            }
             
         } else if (obj instanceof Component) {
             return obj.equals(comp);
         }
         
         return false;
+    }
+    
+    public boolean typeOnly() {
+        return useTypeOnly;
     }
     
     /**
@@ -427,12 +515,10 @@ public class ControllerKey
         return -JOYSTICK_SENS <= value && value <= JOYSTICK_SENS;
     }
     
-    /**
-     * {@inheritDoc}
-     * 
-     * It is stronly advised to use the class lock before using this method:
-     * {@code Locker.lock(ControllerKey.class)}
-     */
+    public boolean isPressed() {
+        return value > BUTTON_SENS;
+    }
+    
     @Override
     public int hashCode() {
         return hashValue;
@@ -448,7 +534,7 @@ public class ControllerKey
         Identifier ident = comp.getIdentifier();
         Object[] data = new Object[7];
         if ((HASH_MODE & COMP_MODE_CONTROLLER) == COMP_MODE_CONTROLLER) {
-            data[0] = GS.keyDet.controllerToString(controller);
+            data[0] = controller.toString();
         }
         
         if ((HASH_MODE & COMP_MODE_IDENTIFIER) == COMP_MODE_IDENTIFIER) {
@@ -489,12 +575,22 @@ public class ControllerKey
     @Override
     public String toString() {
         Identifier ident = comp.getIdentifier();
-        String contrToStr = GS.keyDet.controllerToString(controller);
-        return getClass().getName() + "="
-                + controller.getName() + ","
-                + (contrToStr == null ? "Unknown" : contrToStr) + ","
-                + (ident == null ? "Unknown" : ident.getName()) + ","
-                + value;
+        System.out.println(controller.getName());
+        if (useTypeOnly) {
+            return getClass().getName() + "="
+                    + "true,"
+                    + controller.getType().toString() + ","
+                    + (ident == null ? "Unknown" : ident.getName()) + ","
+                    + value;
+            
+        } else {
+            return getClass().getName() + "="
+                    + "false,"
+                    + id + ","
+                    + controller.getName() + ","
+                    + (ident == null ? "Unknown" : ident.getName()) + ","
+                    + value;
+        }
     }
     
     /**
@@ -504,15 +600,30 @@ public class ControllerKey
      * @return a fresh key described by the data.
      * @throws IllegalArgumentException if the given data was invallid.
      */
-    public static Key createFromString(String[] data)
+    public static ControllerKey createFromString(String[] data)
             throws IllegalArgumentException {
-        Controller cont = new GeneratedController(data[0], data[1]);
-        Identifier ident = IDENTIFIERS.get(data[2]);
-        if (ident == null) ident = Axis.UNKNOWN;
-        float value = Float.parseFloat(data[3]);
+        boolean typeOnly = Boolean.parseBoolean(data[0]);
         
-        return new ControllerKey(cont, new GeneratedComponent(ident, value),
-                value);
+        if (typeOnly) {
+            Type type = TYPES.get(data[1]);
+            Identifier ident = IDENTIFIERS.get(data[2]);
+            if (ident == null) ident = Axis.UNKNOWN;
+            float value = Float.parseFloat(data[3]);
+            Controller cont = new GeneratedController("", type);
+            Component comp = new GeneratedComponent(ident, value);
+            
+            return new ControllerKey(cont, comp, value, true);
+            
+        } else {
+            int id = Integer.parseInt(data[1]);
+            Controller cont = new GeneratedController(data[2]);
+            Identifier ident = IDENTIFIERS.get(data[3]);
+            if (ident == null) ident = Axis.UNKNOWN;
+            float value = Float.parseFloat(data[4]);
+            Component comp = new GeneratedComponent(ident, value);
+            
+            return new ControllerKey(cont, id, comp, value);
+        }
     }
     
     

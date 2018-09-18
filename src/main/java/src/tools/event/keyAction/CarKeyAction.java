@@ -39,9 +39,8 @@ public class CarKeyAction
     
     @Override
     public String toString() {
-        return getClass().getName() + "="
-                + (action == null ? "null" : action.toString()) + ","
-                + getID();
+        return getClass().getName() + "="+ getID() + ","
+                + (action == null ? "null" : action.toString());
     }
     
     /**
@@ -55,8 +54,6 @@ public class CarKeyAction
             throws IllegalArgumentException {
         int id = Integer.parseInt(data[0]);
         MovementAction action = MovementAction.valueOf(data[1]);
-        if (action == null) throw new IllegalArgumentException(
-                "Could not parse \"" + data[1] + "\" to an action!");
         
         return new CarKeyAction(id, action);   
     }
