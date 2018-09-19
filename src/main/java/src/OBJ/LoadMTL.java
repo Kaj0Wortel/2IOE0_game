@@ -120,13 +120,4 @@ public class LoadMTL {
     }
     
     
-    /**
-     * Clears all mtl objects and collections and makes them available for GC.
-     */
-    static void clear() {
-        for (MTLCollection col : map.values()) {
-            col.clear();
-        }
-    }
-    
 }

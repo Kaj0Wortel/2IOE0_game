@@ -2,9 +2,9 @@
 
 package src.OBJ;
 
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.glu.GLU;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
+import src.Assets.Texture;
 
 
 // Own imports
@@ -60,17 +60,14 @@ public class MTLObject {
         } else return false;
     }
     
-    public void draw(GL2 gl, GLU glu) {
+    public Texture createTexture() {
+        return new Texture(
+                new Vector4f(ambiant.x, ambiant.y, ambiant.z, 1),
+                new Vector4f(diffuse.x, diffuse.y, diffuse.z, 1),
+                new Vector4f(specular.x, specular.y, specular.z, 1),
+                1f
+        );
         
-    }
-    
-    /**
-     * Clears this mtl object and makes it available for GC.
-     */
-    void clear() {
-        ambiant = null;
-        diffuse = null;
-        specular = null;
     }
     
     
