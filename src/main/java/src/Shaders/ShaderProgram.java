@@ -36,6 +36,8 @@ public abstract class ShaderProgram {
 
     public abstract void loadTextureLightValues(GL2 gl, float shininess, float reflectivity);
 
+    public abstract void loadTime(GL2 gl, int time);
+
     public int getUniformLocation(GL2 gl, String uni){
         return gl.glGetUniformLocation(ID,uni);
     }
@@ -165,6 +167,10 @@ public abstract class ShaderProgram {
 
     public void loadUniformFloat(GL2 gl, int location, float fl){
         gl.glUniform1f(location,fl);
+    }
+
+    public void loadUniformInt(GL2 gl, int location, int in){
+        gl.glUniform1i(location,in);
     }
 
     public void stop(GL2 gl){

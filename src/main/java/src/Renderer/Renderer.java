@@ -39,6 +39,8 @@ public class Renderer implements GLEventListener {
     private DefaultShader currentShader;
     private Light light;
 
+    private int counter = 0;
+
     public Renderer(Simulator simulator, float width, float height){
         this.simulator = simulator;
         this.width = width;
@@ -52,6 +54,7 @@ public class Renderer implements GLEventListener {
 
         gl.glEnable(gl.GL_CULL_FACE);
         gl.glCullFace(gl.GL_BACK);
+        gl.glEnable(gl.GL_NORMALIZE);
 
         light = new Light(new Vector3f(0f,40f,-10f), new Vector3f(1f,1f,1f));
 
@@ -70,6 +73,7 @@ public class Renderer implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
+        counter++;
         gl.glEnable(gl.GL_DEPTH_TEST);
         gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
@@ -78,6 +82,8 @@ public class Renderer implements GLEventListener {
         currentShader.loadProjectionMatrix(gl,getProjectionMatrix());
         currentShader.loadViewMatrix(gl,GS.getCamera().getViewMatrix());
         currentShader.loadLight(gl,light);
+        currentShader.loadTime(gl, counter);
+
 
         for(Instance asset : GS.getAssets()){
             asset.draw(gl, currentShader);
