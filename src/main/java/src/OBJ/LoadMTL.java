@@ -1,22 +1,19 @@
 
 package src.OBJ;
 
+// Java imports
 import org.joml.Vector3f;
-import src.tools.io.BufferedReaderPlus;
-import src.tools.log.Logger;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
-import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
-
 
 // Own imports
-
-
-// Java imports
+import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
+import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
+import src.tools.io.BufferedReaderPlus;
+import src.tools.log.Logger;
 
 
 /**

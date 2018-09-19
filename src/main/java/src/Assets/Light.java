@@ -1,22 +1,39 @@
 package src.Assets;
 
-import org.joml.Vector3f;
+
+import org.joml.Vector4f;
+
 
 public class Light {
 
-    private Vector3f position;
-    private Vector3f color;
+    private Vector4f position;
+    private Vector4f ambient;
+    private Vector4f diffuse;
+    private Vector4f specular;
 
-    public Light(Vector3f position, Vector3f color) {
+    public Light(Vector4f position, Vector4f ambient,
+            Vector4f diffuse, Vector4f specular) {
         this.position = position;
-        this.color = color;
+        this.ambient = ambient;
+        this.diffuse = diffuse;
+        this.specular = specular;
     }
 
-    public Vector3f getPosition() {
+    public Vector4f getPosition() {
         return position;
     }
 
-    public Vector3f getColor() {
-        return color;
+    public Vector4f getAmbient() {
+        return ambient;
     }
+
+    public Vector4f getDiffuse() {
+        return diffuse;
+    }
+
+    public Vector4f getSpecular() {
+        return specular;
+    }
+    
+    
 }

@@ -82,8 +82,8 @@ public class GS {
             + FS + "font" + FS;
     
     final public static String LOG_FILE = WORKING_DIR + "log.log";
-    final public static String SHADER_DIR = WORKING_DIR
-            + "shaderPrograms" + FS;
+    final public static String SHADER_DIR = WORKING_DIR + "Shaders" + FS
+            + "ShaderFiles" + FS;
     
     final public static String DATA_DIR = WORKING_DIR + "data" + FS;
     final public static String KEYS_CONFIG = DATA_DIR + "keys.conf";

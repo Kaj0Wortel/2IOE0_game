@@ -13,6 +13,7 @@ import src.tools.update.Updater;
 import javax.swing.*;
 import java.util.List;
 
+import org.joml.Vector4f;
 import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
 public class Simulator implements Updateable {
@@ -46,16 +47,22 @@ public class Simulator implements Updateable {
         //OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "test.obj");
         OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "cube.obj");
         OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "sphere.obj");
+        Texture texture = new Texture(
+                new Vector4f(1, 1, 1, 1),
+                new Vector4f(1, 1, 1, 1),
+                new Vector4f(1, 1, 1, 1),
+                10
+        );
 
         for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj, new Texture(10,1));
+            OBJTexture texturedCube = new OBJTexture(obj, texture);
             Instance cubeInstance = new Instance(new Vector3f(0f, 0f, 0f),
                     1f, 0, 0, 0, texturedCube);
             GS.addAsset(cubeInstance);
         }
 
         for (OBJObject obj : sp) {
-            OBJTexture texturedCube = new OBJTexture(obj, new Texture(10,1));
+            OBJTexture texturedCube = new OBJTexture(obj, texture);
             Instance cubeInstance = new Instance(new Vector3f(0f, 20f, -5f),
                     1, 0, 0, 0, texturedCube);
             GS.addAsset(cubeInstance);
