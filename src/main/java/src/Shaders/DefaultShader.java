@@ -51,10 +51,10 @@ public class DefaultShader
         modelMatrixLocation = getUniformLocation(gl, "modelMatrix");
         //lightPositionLocation = getUniformLocation(gl, "lightPosition");
         //lightColorLocation = getUniformLocation(gl, "lightColor");
-        int matAmbientLoc = getUniformLocation(gl, "material.ambient");
-        int matDiffuseLoc = getUniformLocation(gl, "material.diffuse");
-        int matSpecularLoc = getUniformLocation(gl, "material.specular");
-        int matShininessLoc = getUniformLocation(gl, "material.shininess");
+        matAmbientLoc = getUniformLocation(gl, "material.ambient");
+        matDiffuseLoc = getUniformLocation(gl, "material.diffuse");
+        matSpecularLoc = getUniformLocation(gl, "material.specular");
+        matShininessLoc = getUniformLocation(gl, "material.shininess");
         //shininessLocation = getUniformLocation(gl, "shininess");
         //reflectivityLocation = getUniformLocation(gl, "reflectivity");
         timeLocation = getUniformLocation(gl, "time");
