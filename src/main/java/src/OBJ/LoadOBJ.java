@@ -195,8 +195,8 @@ public class LoadOBJ {
     public static void clear() {
         for (OBJCollection col : map.values()) {
             col.clear();
-        } 
+        }
+        LoadMTL.clear();
     }
-    
     
 }

@@ -41,5 +41,23 @@ public class MTLCollection
         return null;
     }
     
+    public void draw(GL2 gl, GLU glu) {
+        for (MTLObject mtl : mtlObjects) {
+            mtl.draw(gl, glu);
+        }
+    }
+    
+    /**
+     * Clears all mtl objects and makes them available for GC.
+     */
+    void clear() {
+        for (MTLObject mtl : mtlObjects) {
+            mtl.clear();
+        }
+        
+        mtlObjects.clear();
+        mtlObjects = null;
+    }
+    
     
 }
