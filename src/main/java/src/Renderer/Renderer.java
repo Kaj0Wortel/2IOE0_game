@@ -19,7 +19,6 @@ import src.Simulator;
 import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
 import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
 import static com.jogamp.opengl.GL2ES2.GL_SHADING_LANGUAGE_VERSION;
-import org.joml.Vector4f;
 
 // Own imports
 
@@ -38,7 +37,7 @@ public class Renderer implements GLEventListener {
 
 
     private DefaultShader currentShader;
-    private Light[] light;
+    private Light light;
 
     private int counter = 0;
 
@@ -53,18 +52,11 @@ public class Renderer implements GLEventListener {
         this.gl = glAutoDrawable.getGL().getGL2();
         this.glu = new GLU();
 
-        gl.glEnable(GL2.GL_CULL_FACE);
-        gl.glCullFace(GL2.GL_BACK);
-        gl.glEnable(GL2.GL_NORMALIZE);
-        
-        light = new Light[] {
-            new Light(
-                new Vector4f(0f, 40f, -10f, 1f), // pos
-                new Vector4f(1f, 1f, 1f, 1f), // ambient
-                new Vector4f(1f, 1f, 1f, 1f), // diffuse
-                new Vector4f(1f, 1f, 1f, 1f)  // specular
-            )
-        };
+        gl.glEnable(gl.GL_CULL_FACE);
+        gl.glCullFace(gl.GL_BACK);
+        gl.glEnable(gl.GL_NORMALIZE);
+
+        light = new Light(new Vector3f(0f,40f,-10f), new Vector3f(1f,1f,1f));
 
         System.out.println(gl.glGetString(GL_SHADING_LANGUAGE_VERSION));
 
@@ -82,14 +74,14 @@ public class Renderer implements GLEventListener {
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
         counter++;
-        gl.glEnable(GL2.GL_DEPTH_TEST);
+        gl.glEnable(gl.GL_DEPTH_TEST);
         gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
         gl.glClearColor(1f, 1f, 1f, 1f);
 
-        currentShader.loadProjectionMatrix(gl, getProjectionMatrix());
-        currentShader.loadViewMatrix(gl, GS.getCamera().getViewMatrix());
-        currentShader.loadLight(gl, light);
+        currentShader.loadProjectionMatrix(gl,getProjectionMatrix());
+        currentShader.loadViewMatrix(gl,GS.getCamera().getViewMatrix());
+        currentShader.loadLight(gl,light);
         currentShader.loadTime(gl, counter);
 
 

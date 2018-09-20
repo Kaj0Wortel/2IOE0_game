@@ -7,20 +7,20 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import org.joml.Vector4f;
-import src.Assets.Texture;
 
 public abstract class ShaderProgram {
 
-    private int id;
+    private int ID;
 
     public ShaderProgram(GL2 gl, String vertex, String fragment){
-        id = CreateShader(gl, loadShaderFile(vertex), loadShaderFile(fragment));
+        ID = CreateShader(gl,LoadShaderFile(vertex),LoadShaderFile(fragment));
+
         getAllUniformLocations(gl);
     }
 
@@ -34,23 +34,23 @@ public abstract class ShaderProgram {
 
     public abstract void loadProjectionMatrix(GL2 gl, Matrix4f matrix4f);
 
-    public abstract void loadTexture(GL2 gl, Texture texture);
+    public abstract void loadTextureLightValues(GL2 gl, float shininess, float reflectivity);
 
     public abstract void loadTime(GL2 gl, int time);
 
     public int getUniformLocation(GL2 gl, String uni){
-        return gl.glGetUniformLocation(id, uni);
+        return gl.glGetUniformLocation(ID,uni);
     }
 
     public void bindAttr(GL2 gl, int attr, String name){
-        gl.glBindAttribLocation(id, attr, name);
+        gl.glBindAttribLocation(ID,attr,name);
     }
 
 
-    public int CreateShader(GL2 gl, String[] vertex, String[] fragment) {
+    public int CreateShader(GL2 gl, String[] vertex, String[] fragment){
         int program = gl.glCreateProgram();
-        int vertexShader = compileShader(gl, vertex, GL2.GL_VERTEX_SHADER);
-        int fragmentShader = compileShader(gl, fragment, GL2.GL_FRAGMENT_SHADER);
+        int vertexShader = CompileShader(gl, vertex, GL2.GL_VERTEX_SHADER);
+        int fragmentShader = CompileShader(gl, fragment, GL2.GL_FRAGMENT_SHADER);
 
         gl.glAttachShader(program, vertexShader);
         gl.glAttachShader(program, fragmentShader);
@@ -60,22 +60,21 @@ public abstract class ShaderProgram {
         gl.glLinkProgram(program);
         System.out.println("Link status:");
         IntBuffer b = Buffers.newDirectIntBuffer(1);
-        gl.glGetProgramiv(program, GL2.GL_LINK_STATUS,b);
+        gl.glGetProgramiv(program,gl.GL_LINK_STATUS,b);
         //Error handling
-        if(b.get(0) == GL2.GL_FALSE) {
-            logHandling(gl,program);
+        if(b.get(0) == gl.GL_FALSE){
+            LogHandling(gl,program);
             System.out.println("Unsuccesful.");
-        } else {
+        }else{
             System.out.println("Successful.");
         }
-        
         gl.glValidateProgram(program);
-        System.out.println("Validate status:");
+        System.out.println("Validate status");
         b = Buffers.newDirectIntBuffer(1);
-        gl.glGetProgramiv(program, GL2.GL_VALIDATE_STATUS,b);
+        gl.glGetProgramiv(program,gl.GL_VALIDATE_STATUS,b);
         //Error handling
-        if(b.get(0) == GL2.GL_FALSE){
-            logHandling(gl,program);
+        if(b.get(0) == gl.GL_FALSE){
+            LogHandling(gl,program);
             System.out.println("Unsuccessful.");
         }else{
             System.out.println("Successful.");
@@ -87,80 +86,65 @@ public abstract class ShaderProgram {
         return program;
     }
 
-    private int compileShader(GL2 gl, String[] shaderInput, int type) {
+    private int CompileShader(GL2 gl, String[] shaderInput, int type){
         int shaderID = gl.glCreateShader(type);
 
-        gl.glShaderSource(shaderID, 1, shaderInput,null);
+        gl.glShaderSource(shaderID,1,shaderInput,null);
         gl.glCompileShader(shaderID);
 
-        errorHandling(gl, shaderID, type);
+        ErrorHandling(gl,shaderID,type);
 
         return shaderID;
     }
-    
-    /**
-     * Reads a shader program from a file.
-     * 
-     * @param fileName the name of the file to get the shader from.
-     * @return a string array where the first element
-     *     contains the shader program.
-     */
-    private static String[] loadShaderFile(String fileName) {
-        // Use string builder insteaad of string to reduce runtime.
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader reader
-                = new BufferedReader(new FileReader(fileName))) {
-            String line;
-            while((line = reader.readLine()) != null){
-                sb.append(line);
-                sb.append("\n");
+
+    private String[] LoadShaderFile(String location){
+        String s = "";
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(location));
+            String line = reader.readLine();
+            while(line != null){
+                line += "\n";
+                s += line + "\n";
+                line = reader.readLine();
             }
-            
+            reader.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.exit(-1);
         } catch (IOException e) {
-            System.err.println(e);
-            System.exit(1);
+            e.printStackTrace();
         }
 
-        return new String[] {sb.toString()};
+        return new String[] {s};
     }
 
-    /**
-     * @return the id of this shader program.
-     */
     public int getProgramID(){
-        return this.id;
+        return this.ID;
     }
 
-    private void errorHandling(GL2 gl,int shaderID,int type) {
+    private void ErrorHandling(GL2 gl,int shaderID,int type){
         //Error handling
         IntBuffer status = Buffers.newDirectIntBuffer(1);
         gl.glGetShaderiv(shaderID, GL2ES2.GL_COMPILE_STATUS, status);
-        if (status.get(0) == GL2.GL_FALSE) {
+        if(status.get(0) == gl.GL_FALSE){
             IntBuffer length_of_error = Buffers.newDirectIntBuffer(1);
-            gl.glGetShaderiv(shaderID, GL2.GL_INFO_LOG_LENGTH, length_of_error);
+            gl.glGetShaderiv(shaderID, gl.GL_INFO_LOG_LENGTH, length_of_error);
 
             ByteBuffer error = Buffers.newDirectByteBuffer(length_of_error.get(0));
             gl.glGetShaderInfoLog(shaderID, length_of_error.get(),null, error);
 
-            System.out.println("Failed to compile "
-                    + (type == GL2.GL_VERTEX_SHADER
-                            ? "Vertex Shader"
-                            : "Fragment Shader"));
+            System.out.println("Failed to compile " + (type == gl.GL_VERTEX_SHADER ? "Vertex Shader" : "Fragment Shader"));
             String result = "";
             for(int i = 0; i < length_of_error.get(0); i++){
                 result += (char)error.get(i);
             }
             System.out.println(result);
-            
-        } else {
-            System.out.println("Succesfully compiled the "
-                    + (type == GL2.GL_VERTEX_SHADER
-                            ? "Vertex Shader"
-                            : "Fragment Shader"));
+        }else{
+            System.out.println("Succesfully compiled the " + (type == gl.GL_VERTEX_SHADER ? "Vertex Shader" : "Fragment Shader"));
         }
     }
 
-    private void logHandling(GL2 gl, int program){
+    private void LogHandling(GL2 gl, int program){
         ByteBuffer str = Buffers.newDirectByteBuffer(100);
         gl.glGetProgramInfoLog(program,str.capacity(),null,str);
         String s = "";
@@ -169,90 +153,36 @@ public abstract class ShaderProgram {
         }
         System.out.println(s);
     }
-    
-    /**
-     * Loads a matrix at the given location in {@code this} shader program.
-     * 
-     * @param gl
-     * @param location
-     * @param vector 
-     */
+
     public void loadUniformMatrix(GL2 gl, int location, Matrix4f matrix){
         FloatBuffer m = Buffers.newDirectFloatBuffer(16);
         matrix.get(m);
 
         gl.glUniformMatrix4fv(location,1,false,m);
     }
-    
-    /**
-     * Loads a vector at the given location in {@code this} shader program.
-     * 
-     * @param gl
-     * @param location
-     * @param vector 
-     */
-    public void loadUniformVector3f(GL2 gl, int location, Vector3f vector){
+
+    public void loadUniformVector(GL2 gl, int location, Vector3f vector){
         gl.glUniform3f(location, vector.x,vector.y,vector.z);
     }
-    
-    /**
-     * Loads a vector at the given location in {@code this} shader program.
-     * 
-     * @param gl
-     * @param location
-     * @param vector 
-     */
-    public void loadUniformVector4f(GL2 gl, int location, Vector4f vector){
-        gl.glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
-    }
-    
-    /**
-     * Loads a float at the given location in {@code this} shader program.
-     * 
-     * @param gl
-     * @param location
-     * @param vector 
-     */
+
     public void loadUniformFloat(GL2 gl, int location, float fl){
         gl.glUniform1f(location,fl);
     }
-    
-    /**
-     * Loads an integer at the given location in {@code this} shader program.
-     * 
-     * @param gl
-     * @param location
-     * @param vector 
-     */
+
     public void loadUniformInt(GL2 gl, int location, int in){
         gl.glUniform1i(location,in);
     }
 
-    /**
-     * Stops {@code this} shader program.
-     * @param gl 
-     */
     public void stop(GL2 gl){
         gl.glUseProgram(0);
     }
-    
-    /**
-     * Starts {@code this }shader program.
-     * @param gl 
-     */
+
     public void start(GL2 gl){
-        gl.glUseProgram(id);
+        gl.glUseProgram(ID);
     }
-    
-    /**
-     * Stops and deletes {@code this} program.
-     * 
-     * @param gl 
-     */
+
     public void cleanUp(GL2 gl){
         stop(gl);
-        gl.glDeleteProgram(id);
+        gl.glDeleteProgram(ID);
     }
-    
-    
 }

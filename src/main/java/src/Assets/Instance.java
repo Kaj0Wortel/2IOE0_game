@@ -55,7 +55,7 @@ public class Instance {
 
     public void draw(GL2 gl, ShaderProgram shader){
         shader.loadModelMatrix(gl, getTransformationMatrix());
-        shader.loadTexture(gl, model.getTexture());
+        shader.loadTextureLightValues(gl, model.getTexture().getShininess(), model.getTexture().getReflectivity());
         
         gl.glBindVertexArray(model.getAsset().getVao().get(0));
         gl.glEnableVertexAttribArray(0);
