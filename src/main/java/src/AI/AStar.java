@@ -106,19 +106,23 @@ public class AStar {
     public static void runAlgorithm () {
         // <editor-fold defaultstate="collapsed" desc="VARIABLES">
         // TODO: add the following input variables:
-        List<Point2D.Double> checkPoints = new ArrayList<Point2D.Double>();
-        //checkPoints.add(new Point2D.Double(2.4, 1));
-        //checkPoints.add(new Point2D.Double(1.6, 1.1));        
-        //checkPoints.add(new Point2D.Double(-0.3, 1));
-        //checkPoints.add(new Point2D.Double(0.4, 0.9));
-        
+        List<Point2D.Double> checkPoints = new ArrayList<Point2D.Double>();        
         //checkPoints.add(new Point2D.Double(2, 1.5));
         //checkPoints.add(new Point2D.Double(2.5, 1.501)); 
-        checkPoints.add(new Point2D.Double(1.7501, 2));
-        checkPoints.add(new Point2D.Double(1.75, 2.5)); 
+        //checkPoints.add(new Point2D.Double(1.901, 2));
+        //checkPoints.add(new Point2D.Double(1.9, 2.5)); 
         //checkPoints.add(new Point2D.Double(1, 1.5));
         //checkPoints.add(new Point2D.Double(1.5, 1.501)); 
-        Point2D.Double startPos = new Point2D.Double(2.5, 0.5);
+        //Point2D.Double startPos = new Point2D.Double(2.5, 0.5);
+        
+        checkPoints.add(new Point2D.Double(3.5, 4.5));
+        checkPoints.add(new Point2D.Double(3.5001, 4)); 
+        
+        checkPoints.add(new Point2D.Double(2.5, 4));
+        checkPoints.add(new Point2D.Double(2.5001, 3.5)); 
+        checkPoints.add(new Point2D.Double(1.5, 4.25));
+        checkPoints.add(new Point2D.Double(1.5001, 3.75)); 
+        Point2D.Double startPos = new Point2D.Double(4, 3);
         
         // Maximum velocity (can be something else than +/-max or 0
         double vMax = 5; // TODO REMARK: not used?
@@ -129,7 +133,7 @@ public class AStar {
         // Time interval between actions/itterations
         double tInt = 0.1; // TODO REMARK: make constant.
         // Amount of itterations/time allowed per pathfind
-        int iterAllowed = 10000; // TODO REMARK: make constant.
+        int iterAllowed = 50000; // TODO REMARK: make constant.
         
         // Loop variables
         boolean alreadyInList = false;
@@ -144,10 +148,26 @@ public class AStar {
         VisualAStar visual = new VisualAStar();
         // Visuals for obstacle/void location
             visual.setForeground(Color.DARK_GRAY);
-            Point2D.Double point1 = new Point2D.Double(1.5,-0);
+            /*Point2D.Double point1 = new Point2D.Double(1.5,-0);
             Point2D.Double point2 = new Point2D.Double(1.5,-2);
             Point2D.Double point3 = new Point2D.Double(2,-2);
             Point2D.Double point4 = new Point2D.Double(2,-0);
+            visual.addRec(point1, point3);*/
+            Point2D.Double point1 = new Point2D.Double(3,-2);
+            Point2D.Double point2 = new Point2D.Double(3,-4);
+            Point2D.Double point3 = new Point2D.Double(3.5,-4);
+            Point2D.Double point4 = new Point2D.Double(3.5,-2);
+            visual.addRec(point1, point3);
+            
+            point1 = new Point2D.Double(2,-4);
+            point2 = new Point2D.Double(2,-5);
+            point3 = new Point2D.Double(2.5,-5);
+            point4 = new Point2D.Double(2.5,-4);
+            visual.addRec(point1, point3);
+            point1 = new Point2D.Double(1,-2);
+            point2 = new Point2D.Double(1,-3.75);
+            point3 = new Point2D.Double(1.5,-3.75);
+            point4 = new Point2D.Double(1.5,-2);
             visual.addRec(point1, point3);
 
             
@@ -235,7 +255,7 @@ public class AStar {
             if (reachedCP) {
                 openlist.clear();
                 startPos = curNode.pos;
-                reachedCP = false;
+                //reachedCP = false;
             }
             
             // i > turning: right, straight or left
@@ -250,7 +270,11 @@ public class AStar {
                     // Not used in Node
                     double deltaRot, r, sr, s_deltaX, s_deltaY;
                     double distTravelled = curNode.v * tInt + 0.5*(j*a)*tInt*tInt;
-                    sg = curNode.g + distTravelled;
+                    if (reachedCP) {
+                        sg = distTravelled;
+                    } else {
+                        sg = curNode.g + distTravelled;
+                    }
                     if (i == 0) { // AI goes straight
                         sPos = new Point2D.Double(
                                 curNode.pos.x + Math.cos(curNode.rot)*distTravelled,
@@ -297,7 +321,10 @@ public class AStar {
                     //        Math.pow(startPos.y - curNode.pos.y, 2));
                     
                     //Extra costs if new position is off track
-                    if (sPos.x > 1.5 && sPos.x < 2 && sPos.y > 0 && sPos.y < 2) {
+                    /*if (sPos.x > 1.5 && sPos.x < 2 && sPos.y > 0 && sPos.y < 2) {
+                        sg = sg + 10;
+                    }*/
+                    if (sPos.x > 3 && sPos.x < 3.5 && sPos.y > 2 && sPos.y < 4) {
                         sg = sg + 10;
                     }
                     
@@ -306,6 +333,7 @@ public class AStar {
                     sh = 0;
                     curHPos = sPos;
                     int sNextCP = curNode.nextCP;
+                    reachedCP = false;
                     for (int k = sNextCP; k < checkPoints.size()/2; k++) {
                         // Define checkpoints and normal lines
                         Point2D.Double CP1 = checkPoints.get(k*2);

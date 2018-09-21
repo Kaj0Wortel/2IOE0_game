@@ -13,7 +13,7 @@ import java.util.List;
 public class VisualAStar
         extends JPanel {
     
-    final private Rectangle SIZE = new Rectangle(0,-4,4,4);//0, -5, 5, 5
+    final private Rectangle SIZE = new Rectangle(0,-5,5,5);//0, -5, 5, 5
     final private int IMG_SIZE = 5000;
     final private int CIRCLE_SIZE = 50;
     final private Color BACK = Color.BLACK;
