@@ -32,9 +32,9 @@ public class DefaultShader extends ShaderProgram {
 
     @Override
     public void bindAttributes(GL2 gl) {
-        super.bindAttr(gl, 0,"position");
-        super.bindAttr(gl, 1, "tex");
-        super.bindAttr(gl, 2, "normal");
+        bindAttr(gl, 0,"position");
+        bindAttr(gl, 1, "tex");
+        bindAttr(gl, 2, "normal");
     }
 
     @Override

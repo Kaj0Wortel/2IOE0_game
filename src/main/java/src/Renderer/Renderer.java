@@ -56,7 +56,7 @@ public class Renderer implements GLEventListener {
         gl.glCullFace(gl.GL_BACK);
         gl.glEnable(gl.GL_NORMALIZE);
 
-        light = new Light(new Vector3f(0f,40f,-10f), new Vector3f(1f,1f,1f));
+        light = new Light(new Vector3f(0f,20f,10f), new Vector3f(1f,1f,1f));
 
         System.out.println(gl.glGetString(GL_SHADING_LANGUAGE_VERSION));
 

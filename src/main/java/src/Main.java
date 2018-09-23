@@ -40,7 +40,7 @@ public class Main {
 
         FPSAnimator animator = new FPSAnimator(canvas, 60);
 
-        Camera camera = new Camera(new Vector3f(0, 5, 10), 0, 0, 0);
+        Camera camera = new Camera(new Vector3f(0, 5, 20), 0, 0, 0);
         CameraController cameraController = new CameraController(camera);
         GS.camera = camera;
         GS.cameraController = cameraController;
