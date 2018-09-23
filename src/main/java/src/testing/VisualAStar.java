@@ -13,7 +13,7 @@ import java.util.List;
 public class VisualAStar
         extends JPanel {
     
-    final private Rectangle SIZE = new Rectangle(0,-5,5,5);//0, -5, 5, 5
+    final private Rectangle SIZE = new Rectangle(0,-10,10,10);//0, -5, 5, 5
     final private int IMG_SIZE = 5000;
     final private int CIRCLE_SIZE = 50;
     final private Color BACK = Color.BLACK;
@@ -59,11 +59,11 @@ public class VisualAStar
      * @param point the point to add.
      * @param g2d the graphics to paint on.
      */
-    private void addPoint(Point2D.Double point, Graphics2D g2d) {
+    private void addPoint(Point2D.Double point, Graphics2D g2d, int size) {
         double x = (point.x - SIZE.x) * (IMG_SIZE / SIZE.width);
         double y = (point.y - SIZE.y) * (IMG_SIZE / SIZE.height);
-        g2d.fillOval((int) (x - CIRCLE_SIZE/2.0), (int) (y - CIRCLE_SIZE/2.0),
-                CIRCLE_SIZE, CIRCLE_SIZE);
+        g2d.fillOval((int) (x - size*CIRCLE_SIZE/2.0), (int) (y - size*CIRCLE_SIZE/2.0),
+                size*CIRCLE_SIZE, size*CIRCLE_SIZE);
     }
     
     /**
@@ -74,7 +74,13 @@ public class VisualAStar
     public void addPoint(Point2D.Double point) {
         Graphics2D g2d = (Graphics2D) img.getGraphics();
         g2d.setPaint(getForeground());
-        addPoint(point, g2d);
+        addPoint(point, g2d, 1);
+    }
+    
+    public void addPointBig (Point2D.Double point) {
+        Graphics2D g2d = (Graphics2D) img.getGraphics();
+        g2d.setPaint(getForeground());
+        addPoint(point, g2d, 2);
     }
     
     /**
@@ -86,7 +92,7 @@ public class VisualAStar
         Graphics2D g2d = (Graphics2D) img.getGraphics();
         g2d.setPaint(getForeground());
         for (Point2D.Double point : points) {
-            addPoint(point, g2d);
+            addPoint(point, g2d, 1);
         }
     }
      
@@ -148,7 +154,7 @@ public class VisualAStar
         g2d.setPaint(getForeground());
         for (Node node : nodes) {
             System.out.println(node.a);
-            addPoint(new Point2D.Double(node.pos.x, -node.pos.y), g2d);
+            addPoint(new Point2D.Double(node.pos.x, -node.pos.y), g2d, 1);
         }
     }
     

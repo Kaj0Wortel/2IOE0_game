@@ -5,8 +5,6 @@ import src.testing.VisualAStar; // Debug visualization
 // Java imports
 import java.awt.*;
 import java.awt.geom.Point2D; // Point2D.Doubles
-import java.math.RoundingMode; // for less accurate float values
-import java.text.DecimalFormat; // for less accurate float values
 import java.util.ArrayList; // Arralylists
 import java.util.Collections; // Reverse Arraylist
 import java.util.List; // ArrayLists
@@ -49,15 +47,12 @@ public class AStar {
         - above the normals of the edge points of the checkpoint
         - between the normals (shortest line to checkpoint is just a normal from somewhere on the line
         - below the normals (shortest line to lowest checkpoint point)
-        - Possible improvement: https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
-            -explanation: point Q, line between P and P'. Projection of Q on line = Q'
-             if D(Q,Q') is inside segment: D(Q,Q') is the distance
-             else min( D(Q,P), D(Q,P')) is the distance
     
     TODO:
-    - decrease statespace
-    - improve g and h (g is broken)
+    - Iterate from multiple CP reaching points, ipv just 1
     - improve weights
+        - g and h
+        - acc, acc offset bv(w>+2, s>-4)
     (-) road border detection
     (-) if checkpoint perfectly horizontal/vertical: nA or A = infinite: fix h for this situation
     
@@ -98,8 +93,7 @@ public class AStar {
     
     if (sPos.x > 0.5 && sPos.x < 1 && sPos.y > 0 && sPos.y < 2) {
         sg = sg + 10;
-    }
-    if (sPos.x > -1 && sPos.x < -0.4 && sPos.y > 0 && sPos.y < 2) {
+    } else if (sPos.x > -1 && sPos.x < -0.4 && sPos.y > 0 && sPos.y < 2) {
         sg = sg + 10;
     }
     */ // </editor-fold>
@@ -107,27 +101,49 @@ public class AStar {
         // <editor-fold defaultstate="collapsed" desc="VARIABLES">
         // TODO: add the following input variables:
         List<Point2D.Double> checkPoints = new ArrayList<Point2D.Double>();        
-        //checkPoints.add(new Point2D.Double(2, 1.5));
-        //checkPoints.add(new Point2D.Double(2.5, 1.501)); 
-        //checkPoints.add(new Point2D.Double(1.901, 2));
-        //checkPoints.add(new Point2D.Double(1.9, 2.5)); 
-        //checkPoints.add(new Point2D.Double(1, 1.5));
-        //checkPoints.add(new Point2D.Double(1.5, 1.501)); 
-        //Point2D.Double startPos = new Point2D.Double(2.5, 0.5);
+        checkPoints.add(new Point2D.Double(8, 8));
+        checkPoints.add(new Point2D.Double(10, 10));
+        checkPoints.add(new Point2D.Double(4, 10));
+        checkPoints.add(new Point2D.Double(6, 8));
+        checkPoints.add(new Point2D.Double(0, 7));
+        checkPoints.add(new Point2D.Double(2, 5));
+        checkPoints.add(new Point2D.Double(0, 0));
+        checkPoints.add(new Point2D.Double(2, 2));
+        checkPoints.add(new Point2D.Double(8, 2));
+        checkPoints.add(new Point2D.Double(10, 0));
         
-        checkPoints.add(new Point2D.Double(3.5, 4.5));
-        checkPoints.add(new Point2D.Double(3.5001, 4)); 
         
-        checkPoints.add(new Point2D.Double(2.5, 4));
-        checkPoints.add(new Point2D.Double(2.5001, 3.5)); 
-        checkPoints.add(new Point2D.Double(1.5, 4.25));
-        checkPoints.add(new Point2D.Double(1.5001, 3.75)); 
-        Point2D.Double startPos = new Point2D.Double(4, 3);
+        checkPoints.add(new Point2D.Double(8, 8));
+        checkPoints.add(new Point2D.Double(10, 10));
+        checkPoints.add(new Point2D.Double(4, 10));
+        checkPoints.add(new Point2D.Double(6, 8));
+        checkPoints.add(new Point2D.Double(0, 7));
+        checkPoints.add(new Point2D.Double(2, 5));
+        checkPoints.add(new Point2D.Double(0, 0));
+        checkPoints.add(new Point2D.Double(1.95, 1.95));
+        checkPoints.add(new Point2D.Double(8, 2));
+        checkPoints.add(new Point2D.Double(10, 0));
+        
+        
+        checkPoints.add(new Point2D.Double(8, 8));
+        checkPoints.add(new Point2D.Double(10, 10));
+        checkPoints.add(new Point2D.Double(4, 10));
+        checkPoints.add(new Point2D.Double(6, 8));
+        checkPoints.add(new Point2D.Double(0, 7));
+        checkPoints.add(new Point2D.Double(2, 5));
+        checkPoints.add(new Point2D.Double(0, 0));
+        checkPoints.add(new Point2D.Double(1.95, 1.95));
+        checkPoints.add(new Point2D.Double(8, 2));
+        checkPoints.add(new Point2D.Double(10, 0));
+        
+        checkPoints.add(new Point2D.Double(8, 5));
+        checkPoints.add(new Point2D.Double(10, 5.001));
+        Point2D.Double startPos = new Point2D.Double(9, 5);
         
         // Maximum velocity (can be something else than +/-max or 0
-        double vMax = 5; // TODO REMARK: not used?
+        double vMax = 2.01; // TODO REMARK: not used?
         // Maximum acceleration
-        double a = 0.1; // TODO REMARK: make constant.
+        double a = 1; // TODO REMARK: make constant.
         // Maximum angular velocity (rad/sec)
         double rotvMax = Math.PI/2; // TODO REMARK: make constant.
         // Time interval between actions/itterations
@@ -142,34 +158,27 @@ public class AStar {
         Node curNode = null;
         // </editor-fold>
         
-        
         // The algorithm:
         System.out.println("---------------A* Debug---------------");
         VisualAStar visual = new VisualAStar();
         // Visuals for obstacle/void location
             visual.setForeground(Color.DARK_GRAY);
-            /*Point2D.Double point1 = new Point2D.Double(1.5,-0);
-            Point2D.Double point2 = new Point2D.Double(1.5,-2);
-            Point2D.Double point3 = new Point2D.Double(2,-2);
-            Point2D.Double point4 = new Point2D.Double(2,-0);
-            visual.addRec(point1, point3);*/
-            Point2D.Double point1 = new Point2D.Double(3,-2);
-            Point2D.Double point2 = new Point2D.Double(3,-4);
-            Point2D.Double point3 = new Point2D.Double(3.5,-4);
-            Point2D.Double point4 = new Point2D.Double(3.5,-2);
+            Point2D.Double point1 = new Point2D.Double(6,-2);
+            Point2D.Double point2 = new Point2D.Double(6,-8);
+            Point2D.Double point3 = new Point2D.Double(8,-8);
+            Point2D.Double point4 = new Point2D.Double(8,-2);
+            visual.addRec(point1, point3);
+            point1 = new Point2D.Double(2,-2);
+            point2 = new Point2D.Double(2,-5);
+            point3 = new Point2D.Double(6,-5);
+            point4 = new Point2D.Double(6,-2);
+            visual.addRec(point1, point3);
+            point1 = new Point2D.Double(3,-7);
+            point2 = new Point2D.Double(3,-10);
+            point3 = new Point2D.Double(4,-10);
+            point4 = new Point2D.Double(4,-7);
             visual.addRec(point1, point3);
             
-            point1 = new Point2D.Double(2,-4);
-            point2 = new Point2D.Double(2,-5);
-            point3 = new Point2D.Double(2.5,-5);
-            point4 = new Point2D.Double(2.5,-4);
-            visual.addRec(point1, point3);
-            point1 = new Point2D.Double(1,-2);
-            point2 = new Point2D.Double(1,-3.75);
-            point3 = new Point2D.Double(1.5,-3.75);
-            point4 = new Point2D.Double(1.5,-2);
-            visual.addRec(point1, point3);
-
             
         // Initialize open- and closed-list
         ArrayList<Node> openlist = new ArrayList<>();
@@ -223,7 +232,7 @@ public class AStar {
         }
         // </editor-fold>
 
-        Node start = new Node(startPos, 1, 0, Math.PI/2, 0, 0, h, 0, null);
+        Node start = new Node(startPos, 0, 0, Math.PI/2, 0, 0, h, 0, null);
         openlist.add(start);
         
         // LOOP: until openlist is empty left OR when the goal is reached.
@@ -232,12 +241,12 @@ public class AStar {
             // Consider node with smallest {@code f} in openlist.
             curNode = openlist.get(0);
             for (Node o : openlist) {
-                if (o.g + o.h < curNode.g + curNode.h) {
+                if (o.nextCP > curNode.nextCP) {
+                    reachedCP = true;
+                    curNode = o;
+                } else if (o.g + o.h < curNode.g + curNode.h && o.nextCP >= curNode.nextCP) {
                     curNode = o;
                 }
-                /*if (o.pos == curNode.pos && openlist.indexOf(o) != 0) {
-                    openlist.remove(o);
-                }*/
             }
             
             // curNode is added to the closed list.
@@ -245,7 +254,7 @@ public class AStar {
             openlist.remove(curNode);
             
             // Check if the current node is close enough to the target.
-            if (curNode.h < 0.05) { // Should be refined at some point
+            if (curNode.h < 0.2) { // Should be refined at some point
                 pathList.add(curNode);
                 // Show evaluated position
                 System.out.println(iter);
@@ -255,213 +264,203 @@ public class AStar {
             if (reachedCP) {
                 openlist.clear();
                 startPos = curNode.pos;
-                //reachedCP = false;
             }
             
             // i > turning: right, straight or left
             for (int i = -1; i <= 1; i++) {
                 // j > Velocity: decelerate, constant, accelerate
-                //for (int j = -1; j <= 1; j++) {
-                int j = 0;
-                    // Calculate succesor node variables
-                    Point2D.Double sPos;
-                    // Used in Node
-                    double sV, sA, sRot, sRotV, sg, sh;
-                    // Not used in Node
-                    double deltaRot, r, sr, s_deltaX, s_deltaY;
-                    double distTravelled = curNode.v * tInt + 0.5*(j*a)*tInt*tInt;
-                    if (reachedCP) {
-                        sg = distTravelled;
-                    } else {
-                        sg = curNode.g + distTravelled;
-                    }
-                    if (i == 0) { // AI goes straight
-                        sPos = new Point2D.Double(
-                                curNode.pos.x + Math.cos(curNode.rot)*distTravelled,
-                                curNode.pos.y + Math.sin(curNode.rot)*distTravelled
-                        );
-                        sV = curNode.v + (j*a) * tInt;
-                        sA = j * a;
-                        sRot = curNode.rot;
-                        sRotV = 0;
-                        
-                    } else { //AI turns
-                        deltaRot = tInt*(i*rotvMax);
-                        sV = curNode.v + (j*a)*tInt;
-                        sA = j*a;
-                        sRot = curNode.rot + deltaRot;
-                        sRotV = i*rotvMax;
-                        // Position
-                        double sY = - (sV / sRotV)
-                                        * Math.cos(curNode.rot + sRotV*tInt)
-                                    + (sA / (sRotV*sRotV))
-                                        * Math.sin(curNode.rot + sRotV*tInt)
-                                    + (curNode.v / sRotV)
-                                        * Math.cos(curNode.rot)
-                                    - (sA / (sRotV*sRotV))
-                                        * Math.sin(curNode.rot);
-                        double sX = + (sV / sRotV)
-                                        * Math.sin(curNode.rot + sRotV*tInt)
-                                    + (sA / (sRotV*sRotV))
-                                        * Math.cos(curNode.rot + sRotV*tInt)
-                                    - (curNode.v / sRotV)
-                                        * Math.sin(curNode.rot)
-                                    - (sA / (sRotV*sRotV))
-                                        * Math.cos(curNode.rot);
-                        sPos = new Point2D.Double(
-                                curNode.pos.x + sX,
-                                curNode.pos.y + sY);
-                        // g correction?
-                        //sg = sg + curNode.v*0.0031;
-                    }
-
-                    // g: spatial displacement != distance between
-                    // curNode and succesor
-                    //sg = Math.sqrt(Math.pow(startPos.x - curNode.pos.x, 2) + 
-                    //        Math.pow(startPos.y - curNode.pos.y, 2));
-                    
-                    //Extra costs if new position is off track
-                    /*if (sPos.x > 1.5 && sPos.x < 2 && sPos.y > 0 && sPos.y < 2) {
-                        sg = sg + 10;
-                    }*/
-                    if (sPos.x > 3 && sPos.x < 3.5 && sPos.y > 2 && sPos.y < 4) {
-                        sg = sg + 10;
-                    }
-                    
-                    // Determine h  
-                    // <editor-fold defaultstate="collapsed" desc="TARGET DIST CALCULATION">
-                    sh = 0;
-                    curHPos = sPos;
-                    int sNextCP = curNode.nextCP;
-                    reachedCP = false;
-                    for (int k = sNextCP; k < checkPoints.size()/2; k++) {
-                        // Define checkpoints and normal lines
-                        Point2D.Double CP1 = checkPoints.get(k*2);
-                        Point2D.Double CP2 = checkPoints.get(k*2 + 1);
-                        // Normal lines: aX + bY + c = 0, [0] = X1 or
-                        // X2, [1] = Y1 or Y2
-                        double nA = -(CP1.x - CP2.x) / (CP1.y - CP2.y);// nB is always -1
-                        double nC1 = -CP1.x * nA + CP1.y;
-                        double nC2 = -CP2.x * nA + CP2.y;
-                        // Distance from start point to both normal lines:
-                        // d = abs(a*sX + b*sY + c) / sqrt(a^2 + b^2)
-                        double d1 = Math.abs(nA*curHPos.x - curHPos.y + nC1)
-                                / Math.sqrt(nA*nA + 1);
-                        double d2 = Math.abs(nA*curHPos.x - curHPos.y + nC2) 
-                                / Math.sqrt(nA*nA + 1);
-
-                        // Decide on target
-                        double difError = Math.sqrt(Math.pow(CP1.x - CP2.x, 2)
-                                + Math.pow(CP1.y - CP2.y, 2));
-                        if (d1 > difError && d1 > d2) {
-                            if (sNextCP == k) {
-                                sh = sh + 1*Math.sqrt(Math.pow(curHPos.x - CP2.x, 2)
-                                    + Math.pow(curHPos.y - CP2.y, 2));
-                            } else {
-                                sh = sh + 0.1*Math.sqrt(Math.pow(curHPos.x - CP2.x, 2)
-                                    + Math.pow(curHPos.y - CP2.y, 2));
-                            }
-                            curHPos = CP2;
-
-                        } else if (d2 > difError && d1 < d2){
-                            if (sNextCP == k) {
-                                sh = sh + 1*Math.sqrt(Math.pow(curHPos.x - CP1.x, 2)
-                                        + Math.pow(curHPos.y - CP1.y, 2));
-                            } else {
-                                sh = sh + 0.1*Math.sqrt(Math.pow(curHPos.x - CP1.x, 2)
-                                        + Math.pow(curHPos.y - CP1.y, 2));
-                            }
-                            curHPos = CP1;
-
+                for (int j = -1; j <= 1; j++) {
+                    if (!(j == 1 && curNode.v + a*tInt > vMax)) {
+                        // Calculate succesor node variables
+                        Point2D.Double sPos;
+                        // Used in Node
+                        double sV, sA, sRot, sRotV, sg, sh;
+                        // Not used in Node
+                        double deltaRot, r, sr, s_deltaX, s_deltaY;
+                        double distTravelled = curNode.v * tInt + 0.5*(j*a)*tInt*tInt;
+                        if (reachedCP) {
+                            // extra curNode.g should stop it from deaccelerating after cp reached
+                            sg = /*curNode.g +*/ curNode.v * tInt; //+distTravelled
                         } else {
-                            double c1 = -CP1.x * (-1/nA) + CP1.y;
-                            double c2 = -curHPos.x*nA + curHPos.y;
-                            double dist = Math.abs((-1 / nA) * curHPos.x - curHPos.y + c1)
-                                    / Math.sqrt(1 / (nA*nA) + 1);
-                            if (sNextCP == k) {
-                            sh = sh + 1*dist;
+                            sg = curNode.g + curNode.v * tInt;//+ distTravelled;
+                        }
+                        if (i == 0) { // AI goes straight
+                            sPos = new Point2D.Double(
+                                    curNode.pos.x + Math.cos(curNode.rot)*distTravelled,
+                                    curNode.pos.y + Math.sin(curNode.rot)*distTravelled
+                            );
+                            sV = curNode.v + (j*a) * tInt;
+                            sA = j * a;
+                            sRot = curNode.rot;
+                            sRotV = 0;
+
+                        } else { //AI turns
+                            deltaRot = tInt*(i*rotvMax);
+                            sV = curNode.v + (j*a)*tInt;
+                            sA = j*a;
+                            sRot = curNode.rot + deltaRot;
+                            sRotV = i*rotvMax;
+                            // Position
+                            double sY = - (sV / sRotV)
+                                            * Math.cos(curNode.rot + sRotV*tInt)
+                                        + (sA / (sRotV*sRotV))
+                                            * Math.sin(curNode.rot + sRotV*tInt)
+                                        + (curNode.v / sRotV)
+                                            * Math.cos(curNode.rot)
+                                        - (sA / (sRotV*sRotV))
+                                            * Math.sin(curNode.rot);
+                            double sX = + (sV / sRotV)
+                                            * Math.sin(curNode.rot + sRotV*tInt)
+                                        + (sA / (sRotV*sRotV))
+                                            * Math.cos(curNode.rot + sRotV*tInt)
+                                        - (curNode.v / sRotV)
+                                            * Math.sin(curNode.rot)
+                                        - (sA / (sRotV*sRotV))
+                                            * Math.cos(curNode.rot);
+                            sPos = new Point2D.Double(
+                                    curNode.pos.x + sX,
+                                    curNode.pos.y + sY);
+                        }
+
+                        //Extra costs if new position is off track
+                        if (sPos.x > 6 && sPos.x < 8 && sPos.y > 2 && sPos.y < 8) {
+                            sg = sg + 10;
+                        } else if (sPos.x > 2 && sPos.x < 6 && sPos.y > 2 && sPos.y < 5) {
+                            sg = sg + 10;
+                        } else if (sPos.x > 3 && sPos.x < 4 && sPos.y > 7 && sPos.y < 10) {
+                            sg = sg + 10;
+                        }
+
+                        // Determine h  
+                        // <editor-fold defaultstate="collapsed" desc="TARGET DIST CALCULATION">
+                        sh = 0;
+                        curHPos = sPos;
+                        int sNextCP = curNode.nextCP;
+                        reachedCP = false;
+                        for (int k = sNextCP; k < checkPoints.size()/2; k++) {
+                            // Define checkpoints and normal lines
+                            Point2D.Double CP1 = checkPoints.get(k*2);
+                            Point2D.Double CP2 = checkPoints.get(k*2 + 1);
+                            // Normal lines: aX + bY + c = 0, [0] = X1 or
+                            // X2, [1] = Y1 or Y2
+                            double nA = -(CP1.x - CP2.x) / (CP1.y - CP2.y);// nB is always -1
+                            double nC1 = -CP1.x * nA + CP1.y;
+                            double nC2 = -CP2.x * nA + CP2.y;
+                            // Distance from start point to both normal lines:
+                            // d = abs(a*sX + b*sY + c) / sqrt(a^2 + b^2)
+                            double d1 = Math.abs(nA*curHPos.x - curHPos.y + nC1)
+                                    / Math.sqrt(nA*nA + 1);
+                            double d2 = Math.abs(nA*curHPos.x - curHPos.y + nC2) 
+                                    / Math.sqrt(nA*nA + 1);
+
+                            // Decide on target
+                            double difError = Math.sqrt(Math.pow(CP1.x - CP2.x, 2)
+                                    + Math.pow(CP1.y - CP2.y, 2));
+                            if (d1 > difError && d1 > d2) {
+                                if (sNextCP == k) {
+                                    sh = sh + 1.25*Math.sqrt(Math.pow(curHPos.x - CP2.x, 2)
+                                        + Math.pow(curHPos.y - CP2.y, 2));
+                                } else {
+                                    sh = sh + 0.1*Math.sqrt(Math.pow(curHPos.x - CP2.x, 2)
+                                        + Math.pow(curHPos.y - CP2.y, 2));
+                                }
+                                curHPos = CP2;
+
+                            } else if (d2 > difError && d1 < d2){
+                                if (sNextCP == k) {
+                                    sh = sh + 1.25*Math.sqrt(Math.pow(curHPos.x - CP1.x, 2)
+                                            + Math.pow(curHPos.y - CP1.y, 2));
+                                } else {
+                                    sh = sh + 0.1*Math.sqrt(Math.pow(curHPos.x - CP1.x, 2)
+                                            + Math.pow(curHPos.y - CP1.y, 2));
+                                }
+                                curHPos = CP1;
+
                             } else {
-                                sh = sh + 0.1*dist;
+                                double c1 = -CP1.x * (-1/nA) + CP1.y;
+                                double c2 = -curHPos.x*nA + curHPos.y;
+                                double dist = Math.abs((-1 / nA) * curHPos.x - curHPos.y + c1)
+                                        / Math.sqrt(1 / (nA*nA) + 1);
+                                if (sNextCP == k) {
+                                sh = sh + 1.25*dist;
+                                } else {
+                                    sh = sh + 0.1*dist;
+                                }
+                                double hx = (c2 - c1) / (-nA + (-1/nA));
+                                double hy = (-1/nA)*hx + c1;
+                                curHPos = new Point.Double(hx, hy);
                             }
-                            double hx = (c2 - c1) / (-nA + (-1/nA));
-                            double hy = (-1/nA)*hx + c1;
-                            curHPos = new Point.Double(hx, hy);
+                            // Check if close to currently closest checkpoint
+                            if (sh < 0.05) {
+                                sNextCP++;
+                                reachedCP = true;
+                            }
                         }
-                        // Check if close to currently closest checkpoint
-                        if (sh < 0.05) {
-                            sNextCP++;
-                            reachedCP = true;
+                        // </editor-fold>
+
+
+                        //CASE I: already in closed
+                        Point2D.Double compPos = new Point2D.Double
+                            ((int)(10000*sPos.x), (int)(10000*sPos.y));
+                        for (Node o : openlist) {
+                            if ((int)(10000*o.pos.x) == compPos.x && (int)(10000*o.pos.y) == compPos.y) {
+                                alreadyInList = true;
+                                /*System.err.println("Unexpected node found in "
+                                        + "closed list: " + o);*/
+                            }
                         }
-                        // Adjust for acceleration?
-                        //double normV = 1 + (sV*0.5)/(vMax);
-                        //sh = sh/normV;
+
+                        //CASE II: already in open
+                        for (Node c : closedlist) {
+                            if ((int)(10000*c.pos.x) == compPos.x && (int)(10000*c.pos.y) == compPos.y) {
+                                alreadyInList = true;
+                                //TODO?: (not easy) replace node if succ.g&h < o.g&h
+                                // difficult because node after o might not be reachable from
+                                // succ: the entire rest of the route has to be recalculated
+                                System.err.println("Unexpected node found in "
+                                        + "opened list: " + c);
+                            }
+                        }
+
+                        //CASE III: not in any list
+                        if (!alreadyInList) {
+                            openlist.add(new Node(sPos, sV, sA, sRot, sRotV,
+                                    sg, sh, sNextCP, curNode));
+                            //TODO: remove after debug
+                            if(iter == 0) {
+                                System.out.println("-"+(iter+1)+"->a: " + sA 
+                                        + ", rotV: " + sRotV 
+                                        + ", h: " + sh
+                                        + ", g: " + sg
+                                        + ", X: " + sPos.x + ", Y: " + sPos.y
+                                        + ", Rot: "+sRot);
+                            }
+                            if (iter < 50000 && false) {
+                                    visual.setForeground(Color.LIGHT_GRAY);
+                                    visual.addPoint(new Point2D.Double(sPos.x, -sPos.y));
+                                    visual.setForeground(Color.WHITE);
+                                    visual.addPoint(new Point2D.Double(curNode.pos.x, -curNode.pos.y));
+                            }
+                        }
+
+                        // Reset flag.
+                        alreadyInList = false;
                     }
-                    // </editor-fold>
-                    
-                    
-                    //CASE I: already in closed
-                    Point2D.Double compPos = new Point2D.Double
-                        ((int)(10000*sPos.x), (int)(10000*sPos.y));
-                    for (Node o : openlist) {
-                        if ((int)(10000*o.pos.x) == compPos.x && (int)(10000*o.pos.y) == compPos.y) {
-                        //if (o.pos == sPos) {
-                            alreadyInList = true;
-                            System.err.println("Unexpected node found in "
-                                    + "closed list: " + o);
-                        }
-                    }
-                    
-                    //CASE II: already in open
-                    for (Node c : closedlist) {
-                        if ((int)(10000*c.pos.x) == compPos.x && (int)(10000*c.pos.y) == compPos.y) {
-                        //if (c.pos == sPos) {
-                            alreadyInList = true;
-                            //TODO?: (not easy) replace node if succ.g&h < o.g&h
-                            // difficult because node after o might not be reachable from
-                            // succ: the entire rest of the route has to be recalculated
-                            System.err.println("Unexpected node found in "
-                                    + "opened list: " + c);
-                        }
-                    }
-                    
-                    //CASE III: not in any list
-                    if (!alreadyInList) {
-                        openlist.add(new Node(sPos, sV, sA, sRot, sRotV,
-                                sg, sh, sNextCP, curNode));
-                        //TODO: remove after debug
-                        if(iter == 0) {
-                            System.out.println("-"+(iter+1)+"->a: " + sA 
-                                    + ", rotV: " + sRotV 
-                                    + ", h: " + sh
-                                    + ", g: " + sg
-                                    + ", X: " + sPos.x + ", Y: " + sPos.y
-                                    + ", Rot: "+sRot);
-                        }
-                        if (iter < 50000 /*&& false*/) {
-                                visual.setForeground(Color.YELLOW);
-                                visual.addPoint(new Point2D.Double(sPos.x, -sPos.y));
-                                visual.setForeground(Color.WHITE);
-                                visual.addPoint(new Point2D.Double(curNode.pos.x, -curNode.pos.y));
-                        }
-                    }
-                    
-                    // Reset flag.
-                    alreadyInList = false;
-                //}
+                }
             }
             
             // Show evaluated position
             if (curNode.parentNode != null) {
                 System.out.println(iter + ": (" + curNode.pos.x + ", "
                     + curNode.pos.y + ")->" 
-                        + curNode.h
+                    + curNode.h
                     + ", a = " + curNode.a 
                     + ", rotV = " + curNode.rotV
                     + ", v = " + curNode.v
                     //+ ", rot = " + curNode.rot
                     + ", g = " + curNode.g
-                    +", parent: ("+curNode.parentNode.pos.x+","+curNode.parentNode.pos.y+")");
-            
+                    //+", parent: ("+curNode.parentNode.pos.x+","+curNode.parentNode.pos.y+")"
+                );
             }
             if (iter%1000 == 0)
             System.out.println(iter);
@@ -484,23 +483,21 @@ public class AStar {
             // TODO: remove temporary visualisation.
             for (Node p : pathList) {
                 if (p.a > 0) {
-                    visual.setForeground(Color.GRAY);
+                    visual.setForeground(Color.GREEN);
                 } else if (p.a < 0) {
-                    visual.setForeground(Color.DARK_GRAY);
+                    visual.setForeground(Color.RED);
                 } else {
-                    visual.setForeground(Color.WHITE);
+                    visual.setForeground(Color.YELLOW);
                 }
                 visual.addPoint(new Point2D.Double(p.pos.x, -p.pos.y));
             }
             
             visual.setForeground(Color.GREEN);
-            //visual.addPoint(pathList.get(pathList.size() - 1).pos);
-            visual.addPoint(new Point2D.Double(
+            visual.addPointBig(new Point2D.Double(
                     pathList.get(pathList.size() - 1).pos.x, 
                     -pathList.get(pathList.size() - 1).pos.y));
             visual.setForeground(Color.RED);
-            //visual.addPoint(pathList.get(0).pos);
-            visual.addPoint(new Point2D.Double(pathList.get(0).pos.x, 
+            visual.addPointBig(new Point2D.Double(pathList.get(0).pos.x, 
                     -pathList.get(0).pos.y));
             
             visual.setForeground(Color.ORANGE);
@@ -514,7 +511,6 @@ public class AStar {
             
             Collections.reverse(pathList);
             
-            //pathComplete = false; // necessary if looped
         } else {
             System.err.println("NO PATH COULD BE MADE");
         }
@@ -525,8 +521,6 @@ public class AStar {
     public static void main(String[] args) {
         AStar.runAlgorithm();
     }
-    
-    
 }
 /*
     8 and 9 septempber
@@ -549,7 +543,8 @@ Improve action costs (turning vs straight)                              4 hr
 19: creating test track                                                 2.5 hr
 20: presentation                                                        2 hr
 21: state space reduction                                               1.5 hr
-    g improvement                                                       
+    g improvement                                                       1 hr
+22: acceleration done, g done, visual improvements                      3 hr
 --------------------------------------------------------------------------------
 total                                                                   - hr
 */
