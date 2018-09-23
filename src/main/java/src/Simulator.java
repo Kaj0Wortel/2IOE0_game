@@ -9,11 +9,13 @@ import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.CameraKeyAction;
 import src.tools.update.Updateable;
 import src.tools.update.Updater;
+import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
-import javax.swing.*;
 import java.util.List;
 
-import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
+import javax.swing.SwingUtilities;
+import org.joml.Vector4f;
+import src.tools.log.Logger;
 
 public class Simulator implements Updateable {
 
@@ -46,7 +48,7 @@ public class Simulator implements Updateable {
         //OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "test.obj");
         OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "cube.obj");
         OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "sphere.obj");
-
+        
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj, new Texture(10,1));
             Instance cubeInstance = new Instance(new Vector3f(0f, 0f, 0f),
@@ -68,10 +70,15 @@ public class Simulator implements Updateable {
     }
 
 
+    long prevTimeStamp = System.currentTimeMillis();
     @Override
-    public void performUpdate(long timeStamp) throws InterruptedException {
+    public void performUpdate(long timeStamp)
+            throws InterruptedException {
+        long dt = timeStamp - prevTimeStamp;
+        prevTimeStamp = timeStamp;
+        
         if(GS.getAssets().size() > 0) {
-            GS.getAssets().get(0).roty();
+            GS.getAssets().get(0).roty(dt / 10f);
         }
 
 
@@ -82,6 +89,11 @@ public class Simulator implements Updateable {
                 GS.getCameraController().processKey(action.getAction());
             }
         }
+    }
+    
+    @Override
+    public void ignoreUpdate(long timeStamp) {
+        prevTimeStamp = timeStamp;
     }
 
     @Override

@@ -40,28 +40,45 @@ public class Instance {
         return model;
     }
 
-    public void rotx(){
-        rotx += 3f;
+    @Deprecated
+    public void rotx() {
+        rotx(3f);
+    }
+
+    public void rotx(float rot) {
+        rotx += rot;
         rotx %= 360;
     }
 
-    public void roty(){
-        roty += 3f;
+    @Deprecated
+    public void roty() {
+        roty(3f);
+    }
+    
+    public void roty(float rot) {
+        roty += rot;
+        roty %= 360;
     }
 
-    public void moveup(){
-        position.y += 0.1f;
+    @Deprecated
+    public void moveup() {
+        moveup(0.1f);
+    }
+
+    public void moveup(float amt) {
+        position.y += amt;
     }
 
     public void draw(GL2 gl, ShaderProgram shader){
         shader.loadModelMatrix(gl, getTransformationMatrix());
-        shader.loadTextureLightValues(gl, model.getTexture().getShininess(), model.getTexture().getReflectivity());
+        shader.loadTexture(gl, model.getTexture());
         
         gl.glBindVertexArray(model.getAsset().getVao().get(0));
         gl.glEnableVertexAttribArray(0);
         //gl.glEnableVertexAttribArray(1);
         gl.glEnableVertexAttribArray(2);
-        gl.glDrawElements(GL2.GL_TRIANGLES, model.getAsset().getNrV(), gl.GL_UNSIGNED_INT,0);
+        gl.glDrawElements(GL2.GL_TRIANGLES, model.getAsset().getNrV(),
+                GL2.GL_UNSIGNED_INT, 0);
         gl.glDisableVertexAttribArray(0);
         //gl.glDisableVertexAttribArray(1);
         gl.glDisableVertexAttribArray(2);

@@ -98,6 +98,9 @@ public class Updater {
             }
         }
     });
+    static {
+        tt.setPriority(Thread.MAX_PRIORITY);
+    }
     
     /** 
      * Creates an update thread.
@@ -106,6 +109,7 @@ public class Updater {
      * @param timeStamp the timestamp the update occured.
      * @return a fresh update thread.
      */
+    private static long prevTime = System.currentTimeMillis();
     private static Thread createUpdateThread(List<Updateable> threadUpdates,
             long timeStamp, int num) {
         return new Thread("Update-thread-" + num) {
@@ -116,7 +120,12 @@ public class Updater {
                 // try it later again.
                 List<Updateable> doLater = new ArrayList<Updateable>();
                 for (Updateable up : threadUpdates) {
+                    long curTimePre = System.currentTimeMillis();
+                    //Logger.write("update time diff: " + (curTimePre - prevTime));
+                    prevTime = curTimePre;
                     if (!updateUpdateable(up, timeStamp)) doLater.add(up);
+                    long curTimePost = System.currentTimeMillis();
+                    //Logger.write("time taken: " + (curTimePost - curTimePre));
                 }
                 
                 // Re-do all updateables that were locked the first time.
