@@ -49,14 +49,14 @@ public class Simulator implements Updateable {
         OBJCollection dragon = LoadOBJ.load(gl, GS.OBJ_DIR + "dragon.obj");
         
         for (OBJObject obj : dragon) {
-            OBJTexture texturedCube = new OBJTexture(obj, new Texture(10,1));
+            OBJTexture texturedCube = new OBJTexture(obj, new Texture(5,0.5f));
             Instance cubeInstance = new Instance(new Vector3f(0f, 0f, 0f),
                     1f, 0, 0, 0, texturedCube);
             GS.addAsset(cubeInstance);
         }
 
         for (OBJObject obj : sp) {
-            OBJTexture texturedCube = new OBJTexture(obj, new Texture(10,1));
+            OBJTexture texturedCube = new OBJTexture(obj, new Texture(5,0.5f));
             Instance cubeInstance = new Instance(new Vector3f(0f, 20f, -5f),
                     1, 0, 0, 0, texturedCube);
             GS.addAsset(cubeInstance);

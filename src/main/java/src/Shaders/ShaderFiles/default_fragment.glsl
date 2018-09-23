@@ -23,9 +23,9 @@ void main() {
     vec3 ref = reflect(invLight, unitNormal);
     float dotSpec = dot(unitCamera, ref);
     dotSpec = max(d, 0.0);
-    dotSpec = pow(d, 35);
-    vec3 specular = dotSpec * lightColor;
+    dotSpec = pow(d, shininess);
+    vec3 specular = dotSpec * reflectivity * lightColor;
 
 
-	color = (vec4(change,1.0) + vec4(specular,1.0)) * vec4(1.0,0.0,0.0,1.0);
+	color = vec4(change,1.0) * vec4(1.0,0.0,0.0,1.0) + vec4(specular,1.0);
 }
