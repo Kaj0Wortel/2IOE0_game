@@ -7,8 +7,7 @@ layout(location = 2) in vec3 normal;
 
 out vec3 normalVector;
 out vec3 toLight;
-out vec3 toCamera;
-out vec3 bug;
+out vec3 fragPosition;
 
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
@@ -18,7 +17,9 @@ uniform vec3 lightPosition;
 uniform int time;
 
 void main(void) {
+    vec4 pos = modelMatrix * vec4(position,1.0);
+    fragPosition = pos.xyz;
     normalVector = (modelMatrix * vec4(normal,0.0)).xyz;
-    toLight = lightPosition - (modelMatrix * vec4(position,1.0)).xyz;
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position,1.0);
+    toLight = lightPosition - pos.xyz;
+    gl_Position = projectionMatrix * viewMatrix * pos;
 }

@@ -54,7 +54,6 @@ public class Renderer implements GLEventListener {
 
         gl.glEnable(gl.GL_CULL_FACE);
         gl.glCullFace(gl.GL_BACK);
-        gl.glEnable(gl.GL_NORMALIZE);
 
         light = new Light(new Vector3f(0f,20f,10f), new Vector3f(1f,1f,1f));
 
@@ -83,9 +82,10 @@ public class Renderer implements GLEventListener {
         currentShader.loadViewMatrix(gl,GS.getCamera().getViewMatrix());
         currentShader.loadLight(gl,light);
         currentShader.loadTime(gl, counter);
-
+        currentShader.loadCameraPos(gl, GS.getCamera().getPosition());
 
         for(Instance asset : GS.getAssets()){
+            currentShader.loadTextureLightValues(gl, asset.getModel().getTexture().getShininess(), asset.getModel().getTexture().getReflectivity());
             asset.draw(gl, currentShader);
         }
     }

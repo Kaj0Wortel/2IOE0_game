@@ -38,6 +38,8 @@ public abstract class ShaderProgram {
 
     public abstract void loadTime(GL2 gl, int time);
 
+    public abstract void loadCameraPos(GL2 gl, Vector3f cameraPos);
+
     public int getUniformLocation(GL2 gl, String uni){
         return gl.glGetUniformLocation(ID,uni);
     }

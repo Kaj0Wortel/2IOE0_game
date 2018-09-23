@@ -9,13 +9,11 @@ import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.CameraKeyAction;
 import src.tools.update.Updateable;
 import src.tools.update.Updater;
-import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
+import javax.swing.*;
 import java.util.List;
 
-import javax.swing.SwingUtilities;
-import org.joml.Vector4f;
-import src.tools.log.Logger;
+import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
 public class Simulator implements Updateable {
 
@@ -48,8 +46,9 @@ public class Simulator implements Updateable {
         //OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "test.obj");
         OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "cube.obj");
         OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "sphere.obj");
+        OBJCollection dragon = LoadOBJ.load(gl, GS.OBJ_DIR + "dragon.obj");
         
-        for (OBJObject obj : col) {
+        for (OBJObject obj : dragon) {
             OBJTexture texturedCube = new OBJTexture(obj, new Texture(10,1));
             Instance cubeInstance = new Instance(new Vector3f(0f, 0f, 0f),
                     1f, 0, 0, 0, texturedCube);
@@ -99,5 +98,9 @@ public class Simulator implements Updateable {
     @Override
     public Priority getPriority() {
         return UPDATE_ALWAYS;
+    }
+
+    private void addCollection(OBJCollection colletion){
+
     }
 }
