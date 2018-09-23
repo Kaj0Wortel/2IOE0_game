@@ -13,6 +13,9 @@ public class Instance {
     private float roty;
     private float rotz;
 
+    private float speed;
+    private float rotationSpeed;
+
     private OBJTexture model;
 
     public Instance(Vector3f position, float size, float rotx, float roty, float rotz, OBJTexture model) {
@@ -22,6 +25,8 @@ public class Instance {
         this.roty = roty;
         this.rotz = rotz;
         this.model = model;
+        this.speed = 1;
+        this.rotationSpeed = 0.3f;
     }
 
     public Matrix4f getTransformationMatrix(){
@@ -85,5 +90,41 @@ public class Instance {
         gl.glDisableVertexAttribArray(2);
 
         gl.glBindVertexArray(0);
+    }
+
+    public Vector3f getPosition() {
+        return position;
+    }
+
+    public void moveForward(){
+        position.x += speed * Math.sin((float) Math.toRadians(roty));
+        position.z -= speed * Math.cos((float) Math.toRadians(roty));
+    }
+
+    public void moveBackwards(){
+        position.x -= speed * Math.sin((float) Math.toRadians(roty));
+        position.z += speed * Math.cos((float) Math.toRadians(roty));
+    }
+
+    public void turnLeft(){
+        roty += rotationSpeed;
+        roty %= 360;
+    }
+
+    public void turnRight(){
+        roty -= rotationSpeed;
+        roty %= 360;
+    }
+
+    public float getRotx() {
+        return rotx;
+    }
+
+    public float getRoty() {
+        return roty;
+    }
+
+    public float getRotz() {
+        return rotz;
     }
 }

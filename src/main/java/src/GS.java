@@ -6,6 +6,7 @@ package src;
 
 import src.Assets.Instance;
 import src.Controllers.CameraController;
+import src.Controllers.PlayerController;
 import src.Renderer.Camera;
 import src.gui.MainPanel;
 import src.tools.event.ControllerKey;
@@ -29,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
 
-import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 
@@ -111,6 +111,7 @@ public class GS {
     public static Camera camera;
     public static CameraMode cameraMode;
     public static CameraController cameraController;
+    public static PlayerController playerController;
     private static boolean fullScreen = false;
     private static Map<KeyAction, List<ControllerKey>> keyMap = new HashMap<>();
     
@@ -371,4 +372,6 @@ public class GS {
     public static CameraController getCameraController() {
         return cameraController;
     }
+
+    public static PlayerController getPlayerController() { return  playerController;}
 }

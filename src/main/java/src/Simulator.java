@@ -7,10 +7,12 @@ import src.OBJ.LoadOBJ;
 import src.tools.Binder;
 import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.CameraKeyAction;
+import src.tools.event.keyAction.PlayerKeyAction;
 import src.tools.update.Updateable;
 import src.tools.update.Updater;
 
 import javax.swing.*;
+
 import java.util.List;
 
 import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
@@ -21,9 +23,11 @@ public class Simulator implements Updateable {
 
     private Binder binder;
     CameraKeyAction[] cameraActions;
+    PlayerKeyAction[] playerActions;
+
+    Instance player;
 
     public Simulator () {
-
         this.binder = new Binder();
 
         cameraActions = new CameraKeyAction[] {
@@ -31,6 +35,13 @@ public class Simulator implements Updateable {
                 new CameraKeyAction(1, CameraKeyAction.MovementAction.RIGHT),
                 new CameraKeyAction(1, CameraKeyAction.MovementAction.FORWARD),
                 new CameraKeyAction(1, CameraKeyAction.MovementAction.BACKWARD)
+        };
+
+        playerActions = new PlayerKeyAction[] {
+                new PlayerKeyAction(1, PlayerKeyAction.MovementAction.LEFT),
+                new PlayerKeyAction(1, PlayerKeyAction.MovementAction.RIGHT),
+                new PlayerKeyAction(1, PlayerKeyAction.MovementAction.FORWARD),
+                new PlayerKeyAction(1, PlayerKeyAction.MovementAction.BACKWARD)
         };
 
         SwingUtilities.invokeLater(() -> {
@@ -52,6 +63,7 @@ public class Simulator implements Updateable {
             OBJTexture texturedCube = new OBJTexture(obj, new Texture(5,0.5f));
             Instance cubeInstance = new Instance(new Vector3f(0f, 0f, 0f),
                     1f, 0, 0, 0, texturedCube);
+            player = cubeInstance;
             GS.addAsset(cubeInstance);
         }
 
@@ -75,19 +87,13 @@ public class Simulator implements Updateable {
             throws InterruptedException {
         long dt = timeStamp - prevTimeStamp;
         prevTimeStamp = timeStamp;
-        
-        if(GS.getAssets().size() > 0) {
-            GS.getAssets().get(0).roty(dt / 10f);
+
+        if(player != null) {
+            GS.getCamera().setFocus(player);
+            processInput();
         }
 
 
-        for (CameraKeyAction action : cameraActions) {
-            List<ControllerKey> keys = GS.getKeys(action);
-            if (keys == null) return;
-            if (GS.keyDet.werePressed(keys)) {
-                GS.getCameraController().processKey(action.getAction());
-            }
-        }
     }
     
     @Override
@@ -102,5 +108,31 @@ public class Simulator implements Updateable {
 
     private void addCollection(OBJCollection colletion){
 
+    }
+
+    private void processInput(){
+
+        if(GS.getCamera().isOnPlayer()){
+            GS.getCamera().calculateInstanceValues();
+            for (PlayerKeyAction action : playerActions) {
+                List<ControllerKey> keys = GS.getKeys(action);
+                if (keys == null) return;
+                if (GS.keyDet.werePressed(keys)) {
+                    GS.getPlayerController().processKey(action.getAction());
+                }
+            }
+        }else {
+            for (CameraKeyAction action : cameraActions) {
+                List<ControllerKey> keys = GS.getKeys(action);
+                if (keys == null) return;
+                if (GS.keyDet.werePressed(keys)) {
+                    GS.getCameraController().processKey(action.getAction());
+                }
+            }
+        }
+    }
+
+    public Instance getPlayer(){
+        return this.player;
     }
 }

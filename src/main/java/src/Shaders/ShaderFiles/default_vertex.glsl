@@ -12,7 +12,6 @@ out vec3 toCamera;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
-uniform mat3 normalMatrix;
 uniform vec3 lightPosition;
 uniform vec3 cameraPos;
 uniform int time;

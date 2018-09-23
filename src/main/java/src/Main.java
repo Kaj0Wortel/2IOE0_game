@@ -12,6 +12,7 @@ import net.java.games.input.Controller;
 import net.java.games.input.Rumbler;
 import org.joml.Vector3f;
 import src.Controllers.CameraController;
+import src.Controllers.PlayerController;
 import src.Renderer.Camera;
 import src.Renderer.Renderer;
 import src.tools.event.ControllerKey;
@@ -46,6 +47,8 @@ public class Main {
         GS.cameraController = cameraController;
         
         Simulator simulator = new Simulator();
+        PlayerController playerController = new PlayerController(simulator.getPlayer());
+        GS.playerController = playerController;
         Renderer renderer = new Renderer(simulator, 1080, 720);
 
         canvas.addGLEventListener(renderer);

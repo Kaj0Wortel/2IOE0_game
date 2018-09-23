@@ -12,17 +12,19 @@ public class CameraController {
     }
 
     public void processKey(CameraKeyAction.MovementAction e) {
-        if(e == CameraKeyAction.MovementAction.LEFT) {
-            camera.YawLeft();
-        }
-        if(e == CameraKeyAction.MovementAction.RIGHT) {
-            camera.YawRight();
-        }
-        if(e == CameraKeyAction.MovementAction.FORWARD){
-            camera.MoveForward();
-        }
-        if(e == CameraKeyAction.MovementAction.BACKWARD){
-            camera.MoveBackwards();
+        if(!camera.isOnPlayer()) {
+            if (e == CameraKeyAction.MovementAction.LEFT) {
+                camera.YawLeft();
+            }
+            if (e == CameraKeyAction.MovementAction.RIGHT) {
+                camera.YawRight();
+            }
+            if (e == CameraKeyAction.MovementAction.FORWARD) {
+                camera.MoveForward();
+            }
+            if (e == CameraKeyAction.MovementAction.BACKWARD) {
+                camera.MoveBackwards();
+            }
         }
 
         camera.calculateViewMatrix();
