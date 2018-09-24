@@ -22,6 +22,5 @@ void main(void) {
     vec4 pos = modelMatrix * vec4(position,1.0);
     normalVector = (modelMatrix * vec4(normal,0.0)).xyz;
     toLight = lightPosition - pos.xyz;
-    toCamera = cameraPos - pos.xyz;
     gl_Position = projectionMatrix * viewMatrix * pos;
 }

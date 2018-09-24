@@ -21,14 +21,5 @@ void main() {
     d = max(d,0.3);
     vec3 change = d * lightColor;
 
-    vec3 unitCamera = normalize(toCamera);
-    vec3 invLight = -unitLight;
-    vec3 ref = reflect(invLight, unitNormal);
-    float dotSpec = dot(unitCamera, ref);
-    dotSpec = max(d, 0.0);
-    dotSpec = pow(d, shininess);
-    vec3 specular = dotSpec * reflectivity * lightColor;
-
-
 	color = vec4(change,1.0) * texture(sampler,texPass);
 }
