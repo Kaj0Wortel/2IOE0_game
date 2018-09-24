@@ -12,6 +12,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.Instance;
 import src.Assets.Light;
+import src.Controllers.PlayerController;
 import src.GS;
 import src.Shaders.DefaultShader;
 import src.Simulator;
@@ -61,6 +62,7 @@ public class Renderer implements GLEventListener {
 
         simulator.setGL(gl);
         simulator.initAssets();
+        GS.playerController = new PlayerController(simulator.getPlayer());
         currentShader = new DefaultShader(gl);
         currentShader.start(gl);
     }

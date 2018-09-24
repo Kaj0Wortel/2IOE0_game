@@ -28,7 +28,6 @@ import src.tools.io.ImageManager;
 import src.tools.log.*;
 import src.tools.update.Updater;
 
-import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -194,8 +193,6 @@ public class GS {
         canvas.setSize(1080, 720);
 
         animator.start();
-        SwingUtilities.invokeLater(() -> playerController = new PlayerController(simulator.getPlayer()));
-
         renderer.cleanup();
 
         Updater.start();
