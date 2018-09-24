@@ -15,14 +15,15 @@ package src.tools.event;
 
 
 // Own imports
+import src.tools.Cloneable;
 
-import src.tools.MultiTool;
-
-import javax.swing.*;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 
 // Java imports
+import src.tools.MultiTool;
+import java.awt.event.InputEvent;
+
+import java.awt.event.KeyEvent;
+import javax.swing.KeyStroke;
 
 
 /**
@@ -31,6 +32,10 @@ import java.awt.event.KeyEvent;
  */
 public class Key
         implements Cloneable {
+    /**-------------------------------------------------------------------------
+     * Constants.
+     * -------------------------------------------------------------------------
+     */
     // Alphabet
     final public static Key A = new Key(true, KeyEvent.VK_A); // = 65 = 'A'
     final public static Key B = new Key(true, KeyEvent.VK_B); // = 66 = 'B'
@@ -133,6 +138,11 @@ public class Key
     final public static int DEFAULT_MASK = 0;
     final public static boolean DEFAULT_KEY_RELEASE = false;
     
+    
+    /**-------------------------------------------------------------------------
+     * Variables.
+     * -------------------------------------------------------------------------
+     */
     // Whether the key is immutable or not
     final private boolean immutable;
     
@@ -165,8 +175,9 @@ public class Key
     }
     
     /**
-     * Clones the key.
-     * Identical to {@link Key#clone()}.
+     * Clone constructor.
+     * 
+     * @param key the key to clone.
      */
     public Key(Key key) {
         this(key.immutable, key.key, key.mask, key.onKeyRelease);
@@ -206,6 +217,7 @@ public class Key
         this.mask = mask;
         this.onKeyRelease = onKeyRelease;
     }
+    
     
     /**-------------------------------------------------------------------------
      * Functions.
@@ -329,6 +341,7 @@ public class Key
      */
     @Override
     public boolean equals(Object obj) {
+        if (obj == this) return true;
         if (obj instanceof Key) {
             Key cmpKey = (Key) obj;
             return this.key == cmpKey.key &&
@@ -347,23 +360,41 @@ public class Key
         }
     }
     
-    /**
-     * @return the hash code of this object.
-     */
     @Override
     public int hashCode() {
-        return MultiTool.calcHashCode(key, mask, onKeyRelease);
+        return MultiTool.calcHashCode(immutable, key, mask, onKeyRelease);
     }
     
-    /**
-     * Clones the current key.
-     * Uses {@link Key#Key(Key)} for the cloning.
-     * 
-     * @return a clone of {@code this}
-     */
     @Override
     public Key clone() {
         return new Key(this);
     }
+    
+    @Override
+    public String toString() {
+        return this.getClass().getName() + "="
+                + immutable + ","
+                + key + ","
+                + mask + ","
+                + onKeyRelease;
+    }
+    
+    /**
+     * Creates a key from the given data.
+     * 
+     * @param data the data needed to create the key.
+     * @return a fresh key described by the data.
+     * @throws IllegalArgumentException if the given data was invallid.
+     */
+    public static Key createFromString(String[] data)
+            throws IllegalArgumentException {
+        boolean immutable = Boolean.parseBoolean(data[0]);
+        int key = Integer.parseInt(data[1]);
+        int mask = Integer.parseInt(data[2]);
+        boolean onKeyRelease = Boolean.parseBoolean(data[3]);
+        
+        return new Key(immutable, key, mask, onKeyRelease);
+    }
+    
     
 }

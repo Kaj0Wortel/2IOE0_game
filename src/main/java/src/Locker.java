@@ -9,20 +9,21 @@ package src;
 
 import src.tools.log.Logger;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import src.tools.MultiTool;
 
 
 /**
  * Class for providing global locks for all registered objects.
- * 
  */
 public class Locker {
-    final private static long DEFAULT_TIMEOUT = 1;
-    final private static Map<Object, Lock> lockMap = new HashMap<>();
+    final private static long DEFAULT_TIMEOUT = 1L;
+    final private static Map<Object, Lock> lockMap
+            = new ConcurrentHashMap<>();
     
     
     // Private constructor for the static singleton design pattern.
@@ -35,7 +36,8 @@ public class Locker {
      * accessed by another thread.
      * 
      * @param obj the object to lock.
-     * @return 
+     * 
+     * @see Lock#lock()
      */
     public static void lock(Object obj) {
         Lock lock;
@@ -46,24 +48,36 @@ public class Locker {
         if (lock == null) {
             Logger.write("Tried to access lock of object " + obj.toString()
                     + ", but no lock was set!", Logger.Type.WARNING);
+            MultiTool.logStackTrace();
             
         } else lock.lock();
     }
     
     /**
-     * Tries to lock the given object within the default time limit.
+     * Tries to lock the given object.
      * 
      * @param obj the object to lock.
-     * @return {@code false} if the timelimit was exceeded.
-     *     {@code true} otherwise.
-     * @throws InterruptedException if the thread was interrupted.
+     * @return {@code true} if the lock was acquired,
+     *         {@code false} otherwise.
      * 
-     * @see #tryLock(Object, long);
+     * This function will return instantly.
+     * 
+     * @see Lock#tryLock()
      */
-    public static boolean tryLock(Object obj)
-            throws InterruptedException {
+    public static boolean tryLock(Object obj) {
+        Lock lock;
         synchronized(lockMap) {
-            return tryLock(obj, DEFAULT_TIMEOUT);
+            lock = lockMap.get(obj);
+        }
+        
+        if (lock == null) {
+            Logger.write("Tried to access lock of object " + obj.toString()
+                    + ", but no lock was set!", Logger.Type.WARNING);
+            MultiTool.logStackTrace();
+            return true;
+            
+        } else {
+            return lock.tryLock();
         }
     }
     
@@ -76,7 +90,7 @@ public class Locker {
      *     {@code true} otherwise.
      * @throws InterruptedException if the thread was interrupted.
      * 
-     * @see #tryLock(Object)
+     * @see Lock#tryLock(long, TimeUnit)
      */
     public static boolean tryLock(Object obj, long millis)
             throws InterruptedException {
@@ -88,6 +102,7 @@ public class Locker {
         if (lock == null) {
             Logger.write("Tried to access lock of object " + obj.toString()
                     + ", but no lock was set!", Logger.Type.WARNING);
+            MultiTool.logStackTrace();
             return true;
             
         } else {
@@ -99,32 +114,14 @@ public class Locker {
      * Unlocks the lock of the given object.
      * 
      * @param obj the object to unlock.
+     * 
+     * @see Lock#unlock()
      */
     public static void unlock(Object obj) {
        synchronized(lockMap) {
            Lock lock = lockMap.get(obj);
            if (lock != null) lock.unlock();
        }
-    }
-    
-    /**
-     * Removes the given object from the locker.
-     * 
-     * @param obj the object to remove.
-     */
-    public static void remove(Object obj) {
-        Lock lock;
-        synchronized(lockMap) {
-            if ((lock = lockMap.get(obj)) == null) return;
-            
-            lock.lock();
-            try {
-                lockMap.remove(obj);
-
-            } finally {
-                lock.unlock();
-            }
-        }
     }
     
     /**
@@ -136,7 +133,19 @@ public class Locker {
         synchronized(lockMap) {
             if (lockMap.get(obj) == null) {
                 lockMap.put(obj, new ReentrantLock());
+                Logger.write("Added lock for: " + obj);
             }
+        }
+    }
+    
+    /**
+     * Removes the given object from the locker.
+     * 
+     * @param obj the object to remove.
+     */
+    public static void remove(Object obj) {
+        synchronized(lockMap) {
+            if (lockMap.get(obj) != null) lockMap.remove(obj);
         }
     }
     

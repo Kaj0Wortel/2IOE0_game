@@ -15,15 +15,16 @@ package src.tools.update;
 
 
 // Own imports
-import src.GS;
 import src.Locker;
 import src.tools.log.Logger;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import src.tools.MultiTool.RandomIterator;
 
 // Java imports
 
@@ -35,37 +36,38 @@ import java.util.Set;
  */
 public class Updater {
     // The number of available threads. The {@code -1} is because the
-    // graphics part also needs one thread.
+    // graphics part also needs one thread. Other (mainly sleeping or waiting)
+    // update threads from other classes are ignored.
     final private static int NUM_THREADS = Runtime.getRuntime()
             .availableProcessors() - 1;
     final private static Set<Updateable> updateSet = new HashSet<>();
     
-    
     final private static TimerTool tt = new TimerTool(() -> {
         // Obtain the time stamp.
         long timeStamp = System.currentTimeMillis();
-        // Update the keys.
-        if (GS.keyDet != null) GS.keyDet.update();
+        // Update the keys. -> replace by separate timer/thread.
+        //if (GS.keyDet != null) GS.keyDet.update();
         
         synchronized(updateSet) {
             // Distribute the tasks evenly and randomly over the
             // available threads.
-            int tasksPerThread = updateSet.size() / NUM_THREADS;
+            int tasksPerThread = updateSet.size() / NUM_THREADS + 1;
             int counter = 0;
             List<Updateable> threadUpdates = new ArrayList<>(tasksPerThread);
             List<Thread> threads = new ArrayList<>();
-            for (Updateable updateable : updateSet) {
-                try {
-                    updateable.update(timeStamp);
-                } catch (InterruptedException e) {
-
-                }
+            int num = 0;
+            
+            Iterator<Updateable> it = new RandomIterator(updateSet);
+            while (it.hasNext()) {
+                Updateable updateable = it.next();
+                
                 if (++counter <= tasksPerThread) {
                     threadUpdates.add(updateable);
                     
                 } else {
+                    // Create a new update thread.
                     Thread thread = createUpdateThread(threadUpdates,
-                            timeStamp);
+                            timeStamp, num++);
                     // Start and store the thread.
                     thread.start();
                     threads.add(thread);
@@ -74,6 +76,14 @@ public class Updater {
                     threadUpdates = new ArrayList<>();
                     counter = 0;
                 }
+            }
+            if (!threadUpdates.isEmpty()) {
+                // Create a new update thread.
+                Thread thread = createUpdateThread(threadUpdates,
+                        timeStamp, num++);
+                // Start and store the thread.
+                thread.start();
+                threads.add(thread);
             }
             
             // Wait for the other threads to terminate.
@@ -88,6 +98,9 @@ public class Updater {
             }
         }
     });
+    static {
+        tt.setPriority(Thread.MAX_PRIORITY);
+    }
     
     /** 
      * Creates an update thread.
@@ -96,9 +109,10 @@ public class Updater {
      * @param timeStamp the timestamp the update occured.
      * @return a fresh update thread.
      */
+    private static long prevTime = System.currentTimeMillis();
     private static Thread createUpdateThread(List<Updateable> threadUpdates,
-            long timeStamp) {
-        return new Thread() {
+            long timeStamp, int num) {
+        return new Thread("Update-thread-" + num) {
             @Override
             @SuppressWarnings("UseSpecificCatch")
             public void run() {
@@ -106,7 +120,12 @@ public class Updater {
                 // try it later again.
                 List<Updateable> doLater = new ArrayList<Updateable>();
                 for (Updateable up : threadUpdates) {
+                    long curTimePre = System.currentTimeMillis();
+                    //Logger.write("update time diff: " + (curTimePre - prevTime));
+                    prevTime = curTimePre;
                     if (!updateUpdateable(up, timeStamp)) doLater.add(up);
+                    long curTimePost = System.currentTimeMillis();
+                    //Logger.write("time taken: " + (curTimePost - curTimePre));
                 }
                 
                 // Re-do all updateables that were locked the first time.
@@ -134,6 +153,7 @@ public class Updater {
      * @return {@code false} if the updateable was locked.
      *     {@code true} otherwise.
      */
+    @SuppressWarnings("UseSpecificCatch")
     private static boolean updateUpdateable(Updateable up, long timeStamp) {
         try {
             if (Locker.tryLock(up)) {
@@ -143,13 +163,13 @@ public class Updater {
                 } finally {
                     Locker.unlock(up);
                 }
-            } else  return false;
+            } else return false;
 
         } catch (Exception e) { // Play it safe to catch all types.
             Logger.write(new Object[] {
                 "Exception occured in updateable:",
                 e,
-                "Updateable: ",
+                "Updateable:",
                 up.toString()
             }, Logger.Type.ERROR);
         }
@@ -204,7 +224,15 @@ public class Updater {
     public static void start() {
         tt.start();
         Logger.write("Updater started!", Logger.Type.INFO);
+        
+        // tmp
+        fpsTracker.start();
     }
+    
+    // tmp
+    private static TimerTool fpsTracker = new TimerTool(1000, 1000, () -> {
+        Logger.write("Fps = " + getFPS());
+    });
     
     /**
      * @see TimerTool#pause()
