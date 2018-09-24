@@ -2,6 +2,7 @@ package src.AI;
 
 // Own imports
 import src.testing.VisualAStar; // Debug visualization
+import src.Physics.Physics;
 // Java imports
 import java.awt.*; // 2D graphics helper
 import java.awt.geom.Point2D; // Point2D.Doubles
@@ -19,7 +20,7 @@ public class AStarPointers {
     
     decide initial target, create startnode:
         -target = closest checkpoint...point to the current position
-        -start node => (position, g, h to target, null)
+        -start node => initial values
     openlist[0] = start node
     
     loop: (while openlist.count != 0)
@@ -29,10 +30,10 @@ public class AStarPointers {
         -change checkpoints if current node is on checkpoint
             -if current node is on goal: stop loop
         -find possible succesor nodes
-            -node =>(pos,v,a,rot,rotv,g,h,parentNode)
+            -node =>(pos,v,a,rot,rotv,g,h,nextCP,parentNode)
         -possible succesors fit in three cases:
             -already in closedlist -> ignore
-            -already in openlist -> compare new and old route to node and choose cheapest
+            -already in openlist -> ignore and print
             -not in any list -> add to openlist (collision should go here)
     
     if path complete:
@@ -40,21 +41,6 @@ public class AStarPointers {
         -pathlist.add node parents until back at the start
         -reverse pathlist
     profit
-    
-    
-    NOTES:
-    - for H: split possible positions into three (ONLY REQUIRES THE EDGE POINTS OF THE CHECKPOINTS): 
-        - above the normals of the edge points of the checkpoint
-        - between the normals (shortest line to checkpoint is just a normal from somewhere on the line
-        - below the normals (shortest line to lowest checkpoint point)
-    
-    TODO:
-    - Iterate from multiple CP reaching points, ipv just 1
-    - improve weights
-        - g and h
-        - acc, acc offset bv(w>+2, s>-4)
-    (-) road border detection
-    (-) if checkpoint perfectly horizontal/vertical: nA or A = infinite: fix h for this situation
     
     SHOWCASE VERSION:
     checkPoints.add(new Point2D.Double(2, 1.5));
@@ -98,16 +84,13 @@ public class AStarPointers {
     }
     */ // </editor-fold>
     public static void runAlgorithm () {
+        // Project imports
+        VisualAStar visual = new VisualAStar();
+       // Physics physics = new Physics();
+        
         // <editor-fold defaultstate="collapsed" desc="VARIABLES">
-        // TODO: add the following input variables:
+        // Checkpoints and start position
         List<Point2D.Double> checkPoints = new ArrayList<Point2D.Double>();        
-        /*checkPoints.add(new Point2D.Double(9, 9));
-        checkPoints.add(new Point2D.Double(5, 9));
-        checkPoints.add(new Point2D.Double(5, 5.5));
-        checkPoints.add(new Point2D.Double(1, 5.5));
-        checkPoints.add(new Point2D.Double(1, 1));
-        checkPoints.add(new Point2D.Double(9, 1));
-        checkPoints.add(new Point2D.Double(9, 6));*/
         checkPoints.add(new Point2D.Double(8.5, 8.5));
         checkPoints.add(new Point2D.Double(5.5, 8.5));
         checkPoints.add(new Point2D.Double(5, 5.5));
@@ -130,18 +113,19 @@ public class AStarPointers {
         checkPoints.add(new Point2D.Double(8.6, 1.4));
         
         checkPoints.add(new Point2D.Double(9, 6.2));
-        Point2D.Double startPos = new Point2D.Double(9, 5);
+        Point2D.Double firstPos = new Point2D.Double(9, 5);
+        Point2D.Double startPos = firstPos;
         
-        // Maximum velocity (can be something else than +/-max or 0
-        double vMax = 2.01; // TODO REMARK: not used?
+        // Maximum velocity (can be something else than +/-max or 0)
+        double vMax = 2.01;
         // Maximum acceleration
-        double a = 1; // TODO REMARK: make constant.
+        double a = 1;
         // Maximum angular velocity (rad/sec)
-        double rotvMax = Math.PI/2; // TODO REMARK: make constant.
+        double rotvMax = Math.PI/2;
         // Time interval between actions/itterations
-        double tInt = 0.1; // TODO REMARK: make constant.
+        double tInt = 0.1;
         // Amount of itterations/time allowed per pathfind
-        int iterAllowed = 50000; // TODO REMARK: make constant.
+        int iterAllowed = 50000;
         
         // Loop variables
         boolean alreadyInList = false;
@@ -152,8 +136,7 @@ public class AStarPointers {
         
         // The algorithm:
         System.out.println("---------------A* Debug---------------");
-        VisualAStar visual = new VisualAStar();
-        // Visuals for obstacle/void location
+        // Visuals for obstacle/void locations
             visual.setForeground(Color.DARK_GRAY);
             Point2D.Double point1 = new Point2D.Double(6,-2);
             Point2D.Double point2 = new Point2D.Double(6,-8);
@@ -170,15 +153,15 @@ public class AStarPointers {
             point3 = new Point2D.Double(4,-10);
             point4 = new Point2D.Double(4,-6);
             visual.addRec(point1, point3);
-            
+        // Visuals for checkpoint locations
             visual.setForeground(Color.CYAN);
             for (Point2D.Double cp : checkPoints){
                 if (checkPoints.indexOf(cp) < checkPoints.size() - 1)
                     visual.addPointBig (new Point2D.Double(cp.x, -cp.y));
             }
+        // Visuals for finish location
             visual.setForeground(Color.CYAN);
             visual.addLine(new Point2D.Double(8,-5), new Point2D.Double(10,-5));
-            
             
         // Initialize open- and closed-list
         ArrayList<Node> openlist = new ArrayList<>();
@@ -187,7 +170,6 @@ public class AStarPointers {
         
         // The target can change often (see notes for H above). 
         // Therefore, target is decided on each itteration inside the loop
-        // <editor-fold defaultstate="collapsed" desc="TARGET DISTANCE CALCULATION">
         double h = 0;
         Point2D.Double curHPos = startPos;
         for (int i = 0; i < checkPoints.size(); i++) {
@@ -196,7 +178,6 @@ public class AStarPointers {
                         + Math.pow(curHPos.y - CP.y, 2));
             curHPos = CP;
         }
-        // </editor-fold>
 
         Node start = new Node(startPos, 0, 0, Math.PI/2, 0, 0, h, 0, null);
         openlist.add(start);
@@ -204,7 +185,7 @@ public class AStarPointers {
         // LOOP: until openlist is empty left OR when the goal is reached.
         // <editor-fold defaultstate="collapsed" desc="LOOP">
         for (int iter = 0; !openlist.isEmpty() && iter < iterAllowed; iter++) {
-            // Consider node with smallest {@code f} in openlist.
+            // Consider node with smallest f (g+h) in openlist.
             curNode = openlist.get(0);
             for (Node o : openlist) {
                 if (o.nextCP > curNode.nextCP) {
@@ -218,15 +199,17 @@ public class AStarPointers {
             // curNode is added to the closed list.
             closedlist.add(curNode);
             openlist.remove(curNode);
-            
-            // Check if the current node is close enough to the target.
-            if (curNode.h < 0.2) { // Should be refined at some point
+            // Check if the current node has reached the target
+            if (curNode.h < 0.2) { // ? does this number even matter?
                 pathList.add(curNode);
-                // Show evaluated position
-                System.out.println(iter);
                 pathComplete = true;
+                // Goal print statement
+                System.out.println("COMPLETE: (" + firstPos.x + ", " + firstPos.y
+                + ")->(" + curNode.pos.x + ", " + curNode.pos.y + "), with " +
+                iter + "iterations and ");
                 break;
             }
+            // After checkpoint has been reached
             if (reachedCP) {
                 openlist.clear();
                 startPos = curNode.pos;
@@ -251,15 +234,14 @@ public class AStarPointers {
                             sg = curNode.g + curNode.v * tInt;//+ distTravelled;
                         }
                         if (i == 0) { // AI goes straight
-                            sPos = new Point2D.Double(
-                                    curNode.pos.x + Math.cos(curNode.rot)*distTravelled,
-                                    curNode.pos.y + Math.sin(curNode.rot)*distTravelled
-                            );
                             sV = curNode.v + (j*a) * tInt;
                             sA = j * a;
                             sRot = curNode.rot;
                             sRotV = 0;
-
+                            sPos = new Point2D.Double(
+                                curNode.pos.x + Math.cos(curNode.rot)*distTravelled,
+                                curNode.pos.y + Math.sin(curNode.rot)*distTravelled
+                            );
                         } else { //AI turns
                             deltaRot = tInt*(i*rotvMax);
                             sV = curNode.v + (j*a)*tInt;
@@ -298,11 +280,11 @@ public class AStarPointers {
                         }
 
                         // Determine h  
-                        // <editor-fold defaultstate="collapsed" desc="TARGET DIST CALCULATION">
                         sh = 0;
                         curHPos = sPos;
                         int sNextCP = curNode.nextCP;
                         reachedCP = false;
+                        // Iterate through all, but only count the first two checkpoint
                         for (int k = sNextCP; k < checkPoints.size(); k++) {
                             Point2D.Double CP = checkPoints.get(k);
                             if (sNextCP == k) {
@@ -311,17 +293,13 @@ public class AStarPointers {
                             } else if (sNextCP + 1 == k) {
                                 sh = sh + 0.2*Math.sqrt(Math.pow(curHPos.x - CP.x, 2)
                                     + Math.pow(curHPos.y - CP.y, 2));
-                            }
-                            //curHPos = CP;
-                            
+                            }                            
                             // Check if close to currently closest checkpoint
                             if (sh < 1.75) {
                                 sNextCP++;
                                 reachedCP = true;
                             }
                         }
-                        // </editor-fold>
-
 
                         //CASE I: already in closed
                         Point2D.Double compPos = new Point2D.Double
@@ -333,24 +311,19 @@ public class AStarPointers {
                                         + "closed list: " + o);*/
                             }
                         }
-
                         //CASE II: already in open
                         for (Node c : closedlist) {
                             if ((int)(10000*c.pos.x) == compPos.x && (int)(10000*c.pos.y) == compPos.y) {
                                 alreadyInList = true;
-                                //TODO?: (not easy) replace node if succ.g&h < o.g&h
-                                // difficult because node after o might not be reachable from
-                                // succ: the entire rest of the route has to be recalculated
                                 System.err.println("Unexpected node found in "
                                         + "opened list: " + c);
                             }
                         }
-
                         //CASE III: not in any list
                         if (!alreadyInList) {
                             openlist.add(new Node(sPos, sV, sA, sRot, sRotV,
                                     sg, sh, sNextCP, curNode));
-                            //TODO: remove after debug
+                            // Debug succesor logs
                             if(iter == 22) {
                                 System.out.println("-"+(iter+1)+"->a: " + sA 
                                         + ", rotV: " + sRotV 
@@ -359,14 +332,14 @@ public class AStarPointers {
                                         + ", X: " + sPos.x + ", Y: " + sPos.y
                                         + ", Rot: "+sRot);
                             }
+                            // Debug visuals
                             if (iter < 50000 && false) {
-                                    visual.setForeground(Color.LIGHT_GRAY);
-                                    visual.addPoint(new Point2D.Double(sPos.x, -sPos.y));
-                                    visual.setForeground(Color.WHITE);
-                                    visual.addPoint(new Point2D.Double(curNode.pos.x, -curNode.pos.y));
+                                visual.setForeground(Color.LIGHT_GRAY);
+                                visual.addPoint(new Point2D.Double(sPos.x, -sPos.y));
+                                visual.setForeground(Color.WHITE);
+                                visual.addPoint(new Point2D.Double(curNode.pos.x, -curNode.pos.y));
                             }
                         }
-
                         // Reset flag.
                         alreadyInList = false;
                     }
@@ -387,24 +360,22 @@ public class AStarPointers {
                 );
             }
             if (iter%1000 == 0)
-            System.out.println(iter);
+                System.out.println(iter);
         }
         // </editor-fold>
         
         // If goal could be reached, create a path to it.
         if (pathComplete) {
-            
+            // Pathlist is created
             int test = 0;
             while (curNode.parentNode != null) {
                 curNode = curNode.parentNode;
                 pathList.add(curNode);
                 test++;
             }
-            System.out.println("COMPLETE: (" + startPos.x + ", " + startPos.y
-                + ")->(" + curNode.pos.x + ", " + curNode.pos.y + "), with "
-                + test + " nodes");
-                        
-            // TODO: remove temporary visualisation.
+            // Goal print statement
+            System.out.print (test + " nodes");
+            // The path is greener the more it accelerates  
             for (Node p : pathList) {
                 if (p.a > 0) {
                     visual.setForeground(Color.GREEN);
@@ -415,16 +386,13 @@ public class AStarPointers {
                 }
                 visual.addPoint(new Point2D.Double(p.pos.x, -p.pos.y));
             }
-            
+            //Visualize start and end point
             visual.setForeground(Color.GREEN);
-            visual.addPointBig(new Point2D.Double(
-                    pathList.get(pathList.size() - 1).pos.x, 
-                    -pathList.get(pathList.size() - 1).pos.y));
+            visual.addPointBig(new Point2D.Double (firstPos.x, -firstPos.y));
             visual.setForeground(Color.RED);
             visual.addPointBig(new Point2D.Double(pathList.get(0).pos.x, 
                     -pathList.get(0).pos.y));
-
-            
+            // First path element should be start, not end
             Collections.reverse(pathList);
             
         } else {
@@ -438,29 +406,3 @@ public class AStarPointers {
         AStarPointers.runAlgorithm();
     }
 }
-/*
-    8 and 9 septempber
-driving physics                                                         2 hr
-AI input+output analysis                                                0.5 hr
-A* (structure, H calculation, )                                         7 hr
-case-by-case debugging                                                  1 hr
-    10 september
-working with the group:
--brainstorm, pathfind debugging, concrete program-structure setup       4 hr
-    11, 12 and 13 september
-driving physics improvement                                             2 hr
-A* improvement and debugging                                            5 hr
-    15 and 16 september
-adding support for multiple checkpoints                                 5 hr
-Improvement of physics                                                  4 hr
-Improve action costs (turning vs straight)                              4 hr
-17: meeting                                                             4 hr
-18: testing for different g and h calculations                          6 hr
-19: creating test track                                                 2.5 hr
-20: presentation                                                        2 hr
-21: state space reduction                                               1.5 hr
-    g improvement                                                       1 hr
-22: acceleration done, g done, visual improvements                      3 hr
---------------------------------------------------------------------------------
-total                                                                   - hr
-*/
