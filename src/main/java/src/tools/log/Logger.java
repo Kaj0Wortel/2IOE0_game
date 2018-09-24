@@ -142,8 +142,7 @@ public abstract class Logger {
         writeOA(objArr, Type.DEBUG, timeStamp);
     }
     
-    protected void writeOA(Object[] objArr, Type type,
-                                    Date timeStamp) {
+    protected void writeOA(Object[] objArr, Type type, Date timeStamp) {
         if (defLog.lock != null) defLog.lock.lock();
         try {
             if (objArr == null) {
@@ -172,7 +171,7 @@ public abstract class Logger {
     }
     
     /**
-     * Closees the log file and releases system resources.
+     * Closes the log file and releases system resources.
      */
     protected abstract void close();
     
@@ -301,7 +300,6 @@ public abstract class Logger {
      * @param log the default logger.
      */
     public static void setDefaultLogger(Logger log) {
-        closeLog();
         defLog = log;
     }
     
@@ -362,7 +360,7 @@ public abstract class Logger {
      */
     static {
         Runtime.getRuntime().addShutdownHook
-            (new Thread("Shutdown-Log-Thread") {
+        (new Thread("Shutdown-Log-Thread") {
             @Override
             public void run() {
                 if (defLog != null) {

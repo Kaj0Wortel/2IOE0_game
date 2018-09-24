@@ -607,8 +607,8 @@ public class BufferedReaderPlus
     
     /**
      * Reads the next field.
-     * The field name can be retrieved via {@link #getFieldName()} and 
-     * the data can be retrieved via {@link #getFieldData()}.
+     * The field name can be retrieved via {@link #getField()} and 
+     * the data can be retrieved via {@link #getData()}.
      * 
      * @param processed whether to use processed lines as input or not.
      *     Default is {@code true}.
@@ -663,7 +663,7 @@ public class BufferedReaderPlus
      *     {@code null} if no previous field available
      *     (not yet started or EOF).
      */
-    public String getFieldName() {
+    public String getField() {
         return confFieldName;
     }
     
@@ -687,7 +687,7 @@ public class BufferedReaderPlus
      *     and an empty array if no previous data available
      *     (not yet started or EOF).
      */
-    public String[] getFieldData() {
+    public String[] getData() {
         return confData;
     }
     

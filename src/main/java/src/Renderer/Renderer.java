@@ -9,16 +9,13 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 import org.joml.Matrix4f;
-import src.Assets.AssetTexture;
-import src.Assets.Instance;
+import src.Controllers.PlayerController;
 import src.GS;
-import src.Shaders.DefaultShader;
 import src.Simulator;
 
-import static com.jogamp.opengl.GL.*;
+import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
+import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
 import static com.jogamp.opengl.GL2ES2.GL_SHADING_LANGUAGE_VERSION;
-import static com.jogamp.opengl.GL2GL3.GL_FILL;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_NORMALIZE;
 
 // Own imports
 
@@ -35,14 +32,15 @@ public class Renderer implements GLEventListener {
     private float width = 1080;
     private float height = 720;
 
+    private Matrix4f projectionMatrix;
 
-    private DefaultShader currentShader;
+    private ObjectRenderer objectRenderer;
+    private TerrainRenderer terrainRenderer;
 
     public Renderer(Simulator simulator, float width, float height){
         this.simulator = simulator;
         this.width = width;
         this.height = height;
-
     }
 
     @Override
@@ -50,22 +48,18 @@ public class Renderer implements GLEventListener {
         this.gl = glAutoDrawable.getGL().getGL2();
         this.glu = new GLU();
 
-        gl.glEnable(GL_BLEND);
-        gl.glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-        gl.glEnable(GL_DEPTH_TEST);
-        gl.glDepthFunc(GL_LESS);
-
-        gl.glEnable(GL_NORMALIZE);
+        gl.glEnable(gl.GL_CULL_FACE);
+        gl.glCullFace(gl.GL_BACK);
 
         System.out.println(gl.glGetString(GL_SHADING_LANGUAGE_VERSION));
 
         simulator.setGL(gl);
         simulator.initAssets();
-        currentShader = new DefaultShader(gl);
-        
-        // tmp
-        //LoadOBJ.load(GS.OBJ_DIR + "test.obj").bind(gl);
+        GS.playerController = new PlayerController(simulator.getPlayer());
+
+        getProjectionMatrix();
+        objectRenderer = new ObjectRenderer(gl,projectionMatrix);
+        terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
     }
 
     @Override
@@ -75,22 +69,12 @@ public class Renderer implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
-        gl.glClearColor(1f, 1f, 1f, 1f);
+        gl.glEnable(gl.GL_DEPTH_TEST);
         gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-        gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         gl.glClearColor(1f, 1f, 1f, 1f);
 
-        currentShader.start(gl);
-        currentShader.loadProjectionMatrix(gl,getProjectionMatrix());
-        currentShader.loadViewMatrix(gl,GS.getCamera().getViewMatrix());
-
-        for(Instance asset : GS.getAssets()){
-            currentShader.loadModelMatrix(gl, asset.getTransformationMatrix());
-            drawAsset(asset);
-        }
-        
-        // tmp
-        //LoadOBJ.load(GS.OBJ_DIR + "test.obj").draw(gl, glu);
+        objectRenderer.render(gl);
+        terrainRenderer.render(gl);
     }
 
     @Override
@@ -98,21 +82,7 @@ public class Renderer implements GLEventListener {
 
     }
 
-    private void drawAsset(Instance instance){
-        AssetTexture asset = instance.getModel();
-        gl.glBindVertexArray(asset.getAsset().getVao().get(0));
-        gl.glEnableVertexAttribArray(0);
-        gl.glEnableVertexAttribArray(1);
-        gl.glEnableVertexAttribArray(2);
-        gl.glDrawElements(GL2.GL_TRIANGLES, asset.getAsset().getNrV(), gl.GL_UNSIGNED_INT,0);
-        gl.glDisableVertexAttribArray(0);
-        gl.glDisableVertexAttribArray(1);
-        gl.glDisableVertexAttribArray(2);
-
-        gl.glBindVertexArray(0);
-    }
-
-    private Matrix4f getProjectionMatrix(){
+    private void getProjectionMatrix(){
         float ratio = width / height;
         float y = (float) ((1f / Math.tan(Math.toRadians(FOV/2f))) * ratio);
         float x = y / ratio;
@@ -126,7 +96,7 @@ public class Renderer implements GLEventListener {
         pMatrix.m32(-(2*NEAR*FAR)/delta);
         pMatrix.m33(0);
 
-        return pMatrix;
+        projectionMatrix = new Matrix4f((pMatrix));
     }
 
     public void cleanup(){

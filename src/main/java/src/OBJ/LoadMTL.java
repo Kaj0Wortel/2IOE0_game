@@ -48,7 +48,7 @@ public class LoadMTL {
             
             MTLObject mtl = null;
             while (brp.readNextConfLine()) {
-                String[] data = brp.getFieldData();
+                String[] data = brp.getData();
                 
                 if (brp.fieldEquals("newmtl")) {
                     collection.add(mtl = new MTLObject(data[0]));
@@ -84,7 +84,7 @@ public class LoadMTL {
                     mtl.opticalDensity = Float.parseFloat(data[0]);
                     
                 } else {
-                    Logger.write("Ignored field: " + brp.getFieldName()
+                    Logger.write("Ignored field: " + brp.getField()
                             + ", line = " + brp.getLineCounter());
                 }
             }

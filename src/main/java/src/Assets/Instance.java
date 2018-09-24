@@ -1,9 +1,9 @@
 package src.Assets;
 
+import com.jogamp.opengl.GL2;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-
-import java.util.Vector;
+import src.Shaders.ShaderProgram;
 
 public class Instance {
 
@@ -13,15 +13,20 @@ public class Instance {
     private float roty;
     private float rotz;
 
-    private AssetTexture model;
+    private float speed;
+    private float rotationSpeed;
 
-    public Instance(Vector3f position, float size, float rotx, float roty, float rotz, AssetTexture model) {
+    private OBJTexture model;
+
+    public Instance(Vector3f position, float size, float rotx, float roty, float rotz, OBJTexture model) {
         this.position = position;
         this.size = size;
         this.rotx = rotx;
         this.roty = roty;
         this.rotz = rotz;
         this.model = model;
+        this.speed = 2f;
+        this.rotationSpeed = 5f;
     }
 
     public Matrix4f getTransformationMatrix(){
@@ -36,15 +41,90 @@ public class Instance {
         return transformationMatrix;
     }
 
-    public AssetTexture getModel() {
+    public OBJTexture getModel() {
         return model;
     }
 
-    public void rotx(){
-        rotx += 3f;
+    @Deprecated
+    public void rotx() {
+        rotx(3f);
     }
 
-    public void roty(){
-        roty += 3f;
+    public void rotx(float rot) {
+        rotx += rot;
+        rotx %= 360;
+    }
+
+    @Deprecated
+    public void roty() {
+        roty(3f);
+    }
+    
+    public void roty(float rot) {
+        roty += rot;
+        roty %= 360;
+    }
+
+    @Deprecated
+    public void moveup() {
+        moveup(0.1f);
+    }
+
+    public void moveup(float amt) {
+        position.y += amt;
+    }
+
+    public void draw(GL2 gl, ShaderProgram shader){
+        shader.loadModelMatrix(gl, getTransformationMatrix());
+        shader.loadTextureLightValues(gl, model.getTextureImg().getShininess(),
+                model.getTextureImg().getReflectivity());
+        
+        gl.glBindVertexArray(model.getAsset().getVao().get(0));
+        gl.glEnableVertexAttribArray(0);
+        gl.glEnableVertexAttribArray(1);
+        gl.glEnableVertexAttribArray(2);
+        gl.glDrawElements(GL2.GL_TRIANGLES, model.getAsset().getNrV(),
+                GL2.GL_UNSIGNED_INT, 0);
+        gl.glDisableVertexAttribArray(0);
+        gl.glDisableVertexAttribArray(1);
+        gl.glDisableVertexAttribArray(2);
+
+        gl.glBindVertexArray(0);
+    }
+
+    public Vector3f getPosition() {
+        return position;
+    }
+
+    public void moveForward(){
+        position.x -= speed * Math.sin((float) Math.toRadians(roty));
+        position.z -= speed * Math.cos((float) Math.toRadians(roty));
+    }
+
+    public void moveBackwards(){
+        position.x += speed * Math.sin((float) Math.toRadians(roty));
+        position.z += speed * Math.cos((float) Math.toRadians(roty));
+    }
+
+    public void turnLeft(){
+        roty += rotationSpeed;
+        roty %= 360;
+    }
+
+    public void turnRight(){
+        roty -= rotationSpeed;
+        roty %= 360;
+    }
+
+    public float getRotx() {
+        return rotx;
+    }
+
+    public float getRoty() {
+        return roty;
+    }
+
+    public float getRotz() {
+        return rotz;
     }
 }

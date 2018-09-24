@@ -31,34 +31,42 @@ import javax.swing.SwingUtilities;
 public class KeyPressedDetector
         extends KeyAdapter {
     // List containing all keys that are currently pressed.
-    private Set<Key> keysCurPressed = new HashSet<Key>();
+    protected Set<Key> keysCurPressed = new HashSet<Key>();
     
     // List containing all keys that were at least once pressed between the
     // last update and now.
-    private Set<Key> keysPressedSinceLastUpdate = new HashSet<Key>();
+    protected Set<Key> keysPressedSinceLastUpdate = new HashSet<Key>();
     
     // List containing all keys that were pressed between the last two updates.
     // This list is only updated by the update method, and not via events.
-    private Set<Key> keysPressedHistory = new HashSet<Key>();
+    protected Set<Key> keysPressedHistory = new HashSet<Key>();
+    
+    
+    /**
+     * Default constructor.
+     */
+    public KeyPressedDetector() {
+        this(null);
+    }
     
     /**
      * Constructor.
      * 
      * @param comp the component to listen to.
      */
-    public KeyPressedDetector() { }
-    
     public KeyPressedDetector(Component comp) {
-        SwingUtilities.invokeLater(() -> {
-            comp.addKeyListener(this);
-        });
+        if (comp != null) {
+            SwingUtilities.invokeLater(() -> {
+                comp.addKeyListener(this);
+            });
+        }
     }
     
     
     /**
      * This method is called when a key was pressed.
-     * Adds the pressed key to both {@code keysCurPressed} and
-     * {@code keysPressedSinceLastUpdate}.
+     * Adds the pressed key to both {@link #keysCurPressed} and
+     * {@link #keysPressedSinceLastUpdate}.
      */
     @Override
     public void keyPressed(KeyEvent e) {
@@ -113,7 +121,8 @@ public class KeyPressedDetector
      */
     public void update() {
         keysPressedHistory = keysPressedSinceLastUpdate;
-        keysPressedSinceLastUpdate = new HashSet<Key>(keysCurPressed);
+        keysPressedSinceLastUpdate = new HashSet<Key>(keysCurPressed); // TODO concurrent mod exception here!
     }
+    
     
 }
