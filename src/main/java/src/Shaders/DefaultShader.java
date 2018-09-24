@@ -49,7 +49,7 @@ public class DefaultShader extends ShaderProgram {
         shininessLocation = getUniformLocation(gl, "shininess");
         reflectivityLocation = getUniformLocation(gl, "reflectivity");
         timeLocation = getUniformLocation(gl, "time");
-        cameraPosLocation = getUniformLocation(gl, "cameraPos");
+        cameraPosLocation = getUniformLocation(gl, "camera");
 
         System.out.println("Projection location: " + projectionMatrixLocation);
         System.out.println("ViewMatrix Location: " + viewMatrixLocation);
@@ -58,7 +58,6 @@ public class DefaultShader extends ShaderProgram {
         System.out.println("LightColor: " + lightColorLocation);
         System.out.println("Shininess: " + shininessLocation);
         System.out.println("Reflectivity: " + reflectivityLocation);
-        System.out.println("Time: " + timeLocation);
         System.out.println("CameraPos: " + cameraPosLocation);
     }
 

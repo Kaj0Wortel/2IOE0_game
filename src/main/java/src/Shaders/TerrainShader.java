@@ -27,7 +27,6 @@ public class TerrainShader extends ShaderProgram {
     private int reflectivityLocation;
     private int timeLocation;
     private int cameraPosLocation;
-    private int textureLocation;
 
     public TerrainShader(GL2 gl) {
         super(gl, vertex, fragment);
@@ -57,10 +56,6 @@ public class TerrainShader extends ShaderProgram {
         System.out.println("TransformationMatrix Location: " + modelMatrixLocation);
         System.out.println("Lightpos: " + lightPositionLocation);
         System.out.println("LightColor: " + lightColorLocation);
-        System.out.println("Shininess: " + shininessLocation);
-        System.out.println("Reflectivity: " + reflectivityLocation);
-        System.out.println("Time: " + timeLocation);
-        System.out.println("CameraPos: " + cameraPosLocation);
     }
 
     @Override

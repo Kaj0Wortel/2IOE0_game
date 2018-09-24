@@ -56,7 +56,7 @@ public class Simulator implements Updateable {
     public void initAssets() {
         //OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "test.obj");
         OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "cube.obj");
-        OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "sphere.obj");
+        OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "dragon.obj");
         OBJCollection quad = LoadOBJ.load(gl, GS.OBJ_DIR + "quad.obj");
         
         for (OBJObject obj : col) {
@@ -69,7 +69,7 @@ public class Simulator implements Updateable {
 
         for (OBJObject obj : sp) {
             OBJTexture texturedCube = new OBJTexture(obj, new TextureImg(5,0.5f));
-            Instance cubeInstance = new Instance(new Vector3f(0f, 20f, -5f),
+            Instance cubeInstance = new Instance(new Vector3f(0f, 0f, -5f),
                     1, 0, 0, 0, texturedCube);
             GS.addAsset(cubeInstance);
         }
@@ -80,6 +80,9 @@ public class Simulator implements Updateable {
                     10, 0, 0, 0, texturedCube);
             GS.addTerrain(cubeInstance);
         }
+
+        Light light = new Light(new Vector3f(0f,50f,0f), new Vector3f(1f,1f,1f));
+        GS.addLight(light);
 
     }
 
@@ -95,6 +98,9 @@ public class Simulator implements Updateable {
         long dt = timeStamp - prevTimeStamp;
         prevTimeStamp = timeStamp;
 
+        if(GS.getAssets().size() > 0) {
+            GS.getAssets().get(1).roty(1f);
+        }
         if(player != null) {
             GS.getCamera().setFocus(player);
             processInput();

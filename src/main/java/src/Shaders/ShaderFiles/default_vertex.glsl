@@ -13,13 +13,13 @@ uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 uniform vec3 lightPosition;
-uniform vec3 cameraPos;
+uniform vec3 camera;
 uniform int time;
 
 void main(void) {
     vec4 pos = modelMatrix * vec4(position,1.0);
     normalVector = (modelMatrix * vec4(normal,0.0)).xyz;
     toLight = lightPosition - pos.xyz;
-    toCamera = cameraPos - pos.xyz;
+    toCamera = camera - pos.xyz;
     gl_Position = projectionMatrix * viewMatrix * pos;
 }

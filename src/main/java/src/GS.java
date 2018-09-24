@@ -10,6 +10,7 @@ import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
 import org.joml.Vector3f;
 import src.Assets.Instance;
+import src.Assets.Light;
 import src.Controllers.CameraController;
 import src.Controllers.PlayerController;
 import src.Renderer.Camera;
@@ -108,6 +109,7 @@ public class GS {
     /** Assets and camera. */
     final private static List<Instance> assets = new ArrayList<>();
     final private static List<Instance> terrain = new ArrayList<>();
+    final private static List<Light> lights = new ArrayList<>();
     
     
     /**-------------------------------------------------------------------------
@@ -403,6 +405,10 @@ public class GS {
     public static List<Instance> getTerrain(){
         return terrain;
     }
+
+    public static List<Light> getLights(){
+        return lights;
+    }
     
     public static void addAsset(Instance asset){
         assets.add(asset);
@@ -410,6 +416,10 @@ public class GS {
 
     public static void addTerrain(Instance asset){
         terrain.add(asset);
+    }
+
+    public static void addLight(Light light){
+        lights.add(light);
     }
 
     public static CameraMode isCameraMode() {
