@@ -55,9 +55,14 @@ public class Simulator implements Updateable {
 
     public void initAssets() {
         //OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "test.obj");
+
+        Terrain terrain = new Terrain(gl);
+        OBJTexture TexturedTerrain = new OBJTexture(terrain, new TextureImg(gl,"test.jpg",0, 0));
+        Instance TerrainInstance = new Instance(new Vector3f(TexturedTerrain.getAsset().getCenteredPosition()).add(new Vector3f(0,-2,0)),1f,0f,0f,0f,TexturedTerrain);
+        GS.addTerrain(TerrainInstance);
+
         OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "cube.obj");
         OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "dragon.obj");
-        OBJCollection quad = LoadOBJ.load(gl, GS.OBJ_DIR + "quad.obj");
         
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj, new TextureImg(5,0.5f));
@@ -74,15 +79,10 @@ public class Simulator implements Updateable {
             GS.addAsset(cubeInstance);
         }
 
-        for (OBJObject obj : quad) {
-            OBJTexture texturedCube = new OBJTexture(obj, new TextureImg(gl, "test.jpg",5,0.5f));
-            Instance cubeInstance = new Instance(new Vector3f(0f, -3f, 0f),
-                    10, 0, 0, 0, texturedCube);
-            GS.addTerrain(cubeInstance);
-        }
-
         Light light = new Light(new Vector3f(0f,50f,0f), new Vector3f(1f,1f,1f));
         GS.addLight(light);
+
+        System.out.println("Assets initialized");
 
     }
 

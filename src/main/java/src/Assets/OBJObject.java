@@ -2,6 +2,7 @@
 package src.Assets;
 
 import com.jogamp.opengl.GL2;
+import org.joml.Vector3f;
 import src.OBJ.MTLObject;
 import src.tools.Binder;
 
@@ -19,15 +20,10 @@ import java.util.List;
  * 
  * <url>http://paulbourke.net/dataformats/obj/</url>
  */
-public class OBJObject {
-    final private String name;
-    
-    private MTLObject mltObject = null;
-    private IntBuffer vao;
-    private int nrV;
+public class OBJObject extends Object {
     
     public OBJObject(String name) {
-        this.name = name;
+        super(name);
     }
     
     public void setData(GL2 gl, List<Float> vertices, List<Float> tex,
@@ -78,5 +74,10 @@ public class OBJObject {
 
     public void setMltObject(MTLObject mltObject) {
         this.mltObject = mltObject;
+    }
+
+    @Override
+    public Vector3f getCenteredPosition() {
+        return null;
     }
 }
