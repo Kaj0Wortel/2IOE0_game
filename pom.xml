@@ -52,6 +52,7 @@
             <artifactId>gluegen-rt-main</artifactId>
             <version>2.3.2</version>
         </dependency>
+<<<<<<< HEAD
 
         <!-- https://mvnrepository.com/artifact/org.tensorflow/libtensorflow -->
         <dependency>
@@ -66,6 +67,11 @@
             <artifactId>tensorflow</artifactId>
             <version>1.10.0</version>
         </dependency>
+<<<<<<< Updated upstream
+=======
+
+=======
+>>>>>>> Stashed changes
         
         <!-- https://mvnrepository.com/artifact/net.java.jinput/jinput -->
         <dependency>
@@ -86,6 +92,10 @@
             <artifactId>jxinput</artifactId>
             <version>ca55984</version>    <!-- JXInput 0.8 -->
         </dependency>
+<<<<<<< Updated upstream
+=======
+>>>>>>> 9860c3c... Merge from CG
+>>>>>>> Stashed changes
     </dependencies>
     
     <repositories>

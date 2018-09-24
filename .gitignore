@@ -48,6 +48,7 @@ out/
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
 /**/game_2IOE0/build/
+<<<<<<< HEAD
 /game_2IOE0/dist/
 
 # Netbeans ignore
@@ -60,4 +61,11 @@ nbdist/
 
 # Maven
 log/
+<<<<<<< Updated upstream
 target/maven-archiver/pom.properties
+=======
+target/
+=======
+target/maven-archiver/pom.properties
+>>>>>>> 9860c3c... Merge from CG
+>>>>>>> Stashed changes
