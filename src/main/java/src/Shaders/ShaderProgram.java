@@ -5,6 +5,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import src.Assets.Light;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -39,6 +40,8 @@ public abstract class ShaderProgram {
     public abstract void loadTime(GL2 gl, int time);
 
     public abstract void loadCameraPos(GL2 gl, Vector3f cameraPos);
+
+    public abstract void loadLight(GL2 gl, Light light);
 
     public int getUniformLocation(GL2 gl, String uni){
         return gl.glGetUniformLocation(ID,uni);

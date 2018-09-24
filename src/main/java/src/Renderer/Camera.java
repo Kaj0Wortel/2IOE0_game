@@ -128,7 +128,8 @@ public class Camera {
         position.x = focusedOn.getPosition().x + x;
         position.y = focusedOn.getPosition().y + verDistance;
         position.z = focusedOn.getPosition().z + z;
-        //this.yaw = 180 - (focusedOn.getRoty() + angleAroundAsset);
+        this.yaw = - (focusedOn.getRoty() + angleAroundAsset);
+        this.yaw %= 360;
 
     }
 

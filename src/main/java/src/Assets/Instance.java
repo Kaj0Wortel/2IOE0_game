@@ -25,8 +25,8 @@ public class Instance {
         this.roty = roty;
         this.rotz = rotz;
         this.model = model;
-        this.speed = 1;
-        this.rotationSpeed = 1f;
+        this.speed = 2f;
+        this.rotationSpeed = 5f;
     }
 
     public Matrix4f getTransformationMatrix(){
@@ -76,17 +76,17 @@ public class Instance {
 
     public void draw(GL2 gl, ShaderProgram shader){
         shader.loadModelMatrix(gl, getTransformationMatrix());
-        shader.loadTextureLightValues(gl, model.getTexture().getShininess(),
-                model.getTexture().getReflectivity());
+        shader.loadTextureLightValues(gl, model.getTextureImg().getShininess(),
+                model.getTextureImg().getReflectivity());
         
         gl.glBindVertexArray(model.getAsset().getVao().get(0));
         gl.glEnableVertexAttribArray(0);
-        //gl.glEnableVertexAttribArray(1);
+        gl.glEnableVertexAttribArray(1);
         gl.glEnableVertexAttribArray(2);
         gl.glDrawElements(GL2.GL_TRIANGLES, model.getAsset().getNrV(),
                 GL2.GL_UNSIGNED_INT, 0);
         gl.glDisableVertexAttribArray(0);
-        //gl.glDisableVertexAttribArray(1);
+        gl.glDisableVertexAttribArray(1);
         gl.glDisableVertexAttribArray(2);
 
         gl.glBindVertexArray(0);
@@ -97,17 +97,16 @@ public class Instance {
     }
 
     public void moveForward(){
-        position.x += speed * Math.sin((float) Math.toRadians(roty));
+        position.x -= speed * Math.sin((float) Math.toRadians(roty));
         position.z -= speed * Math.cos((float) Math.toRadians(roty));
     }
 
     public void moveBackwards(){
-        position.x -= speed * Math.sin((float) Math.toRadians(roty));
+        position.x += speed * Math.sin((float) Math.toRadians(roty));
         position.z += speed * Math.cos((float) Math.toRadians(roty));
     }
 
     public void turnLeft(){
-        System.out.println("hi");
         roty += rotationSpeed;
         roty %= 360;
     }

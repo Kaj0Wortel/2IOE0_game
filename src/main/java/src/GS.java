@@ -99,6 +99,7 @@ public class GS {
     final public static String MUSIC_DIR = RESOURCE_DIR + "music" + FS;
     final public static String IMG_DIR = RESOURCE_DIR + "img" + FS;
     final public static String OBJ_DIR = RESOURCE_DIR + "obj" + FS;
+    final public static String TEX_DIR = RESOURCE_DIR + "textures" + FS;
     
     
     /** Image constants. */
@@ -106,6 +107,7 @@ public class GS {
     
     /** Assets and camera. */
     final private static List<Instance> assets = new ArrayList<>();
+    final private static List<Instance> terrain = new ArrayList<>();
     
     
     /**-------------------------------------------------------------------------
@@ -397,11 +399,19 @@ public class GS {
     public static List<Instance> getAssets(){
         return assets;
     }
+
+    public static List<Instance> getTerrain(){
+        return terrain;
+    }
     
     public static void addAsset(Instance asset){
         assets.add(asset);
     }
-    
+
+    public static void addTerrain(Instance asset){
+        terrain.add(asset);
+    }
+
     public static CameraMode isCameraMode() {
         return cameraMode;
     }

@@ -3,11 +3,11 @@ package src.Assets;
 public class OBJTexture {
 
     private OBJObject asset;
-    private Texture texture;
+    private TextureImg textureImg;
 
-    public OBJTexture(OBJObject asset, Texture texture) {
+    public OBJTexture(OBJObject asset, TextureImg textureImg) {
         this.asset = asset;
-        this.texture = texture;
+        this.textureImg = textureImg;
     }
 
     public OBJObject getAsset() {
@@ -18,11 +18,11 @@ public class OBJTexture {
         this.asset = asset;
     }
 
-    public Texture getTexture() {
-        return texture;
+    public TextureImg getTextureImg() {
+        return textureImg;
     }
 
-    public void setTexture(Texture texture) {
-        this.texture = texture;
+    public void setTextureImg(TextureImg textureImg) {
+        this.textureImg = textureImg;
     }
 }

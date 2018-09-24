@@ -15,6 +15,8 @@ import src.Assets.Light;
 import src.Controllers.PlayerController;
 import src.GS;
 import src.Shaders.DefaultShader;
+import src.Shaders.ShaderProgram;
+import src.Shaders.TerrainShader;
 import src.Simulator;
 
 import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
@@ -37,7 +39,9 @@ public class Renderer implements GLEventListener {
     private float height = 720;
 
 
-    private DefaultShader currentShader;
+    private ShaderProgram currentShader;
+    private ShaderProgram defaultShader;
+    private ShaderProgram terrainShader;
     private Light light;
 
     private int counter = 0;
@@ -56,14 +60,17 @@ public class Renderer implements GLEventListener {
         gl.glEnable(gl.GL_CULL_FACE);
         gl.glCullFace(gl.GL_BACK);
 
-        light = new Light(new Vector3f(0f,20f,10f), new Vector3f(1f,1f,1f));
+        light = new Light(new Vector3f(0f,50f,0f), new Vector3f(1f,1f,1f));
 
         System.out.println(gl.glGetString(GL_SHADING_LANGUAGE_VERSION));
 
         simulator.setGL(gl);
         simulator.initAssets();
         GS.playerController = new PlayerController(simulator.getPlayer());
-        currentShader = new DefaultShader(gl);
+
+        defaultShader = new DefaultShader(gl);
+        terrainShader = new TerrainShader(gl);
+        currentShader = defaultShader;
         currentShader.start(gl);
     }
 
@@ -80,16 +87,8 @@ public class Renderer implements GLEventListener {
 
         gl.glClearColor(1f, 1f, 1f, 1f);
 
-        currentShader.loadProjectionMatrix(gl,getProjectionMatrix());
-        currentShader.loadViewMatrix(gl,GS.getCamera().getViewMatrix());
-        currentShader.loadLight(gl,light);
-        currentShader.loadTime(gl, counter);
-        currentShader.loadCameraPos(gl, GS.getCamera().getPosition());
-
-        for(Instance asset : GS.getAssets()){
-            currentShader.loadTextureLightValues(gl, asset.getModel().getTexture().getShininess(), asset.getModel().getTexture().getReflectivity());
-            asset.draw(gl, currentShader);
-        }
+        renderObjects();
+        renderTerrain();
     }
 
     @Override
@@ -116,6 +115,43 @@ public class Renderer implements GLEventListener {
 
     public void cleanup(){
         simulator.cleanup();
+    }
+
+    private void renderObjects(){
+        currentShader = defaultShader;
+        currentShader.start(gl);
+
+        currentShader.loadProjectionMatrix(gl,getProjectionMatrix());
+        currentShader.loadViewMatrix(gl,GS.getCamera().getViewMatrix());
+        currentShader.loadLight(gl,light);
+        currentShader.loadTime(gl, counter);
+        currentShader.loadCameraPos(gl, GS.getCamera().getPosition());
+
+        for(Instance asset : GS.getAssets()){
+            currentShader.loadTextureLightValues(gl, asset.getModel().getTextureImg().getShininess(), asset.getModel().getTextureImg().getReflectivity());
+            asset.draw(gl, currentShader);
+        }
+
+        currentShader.stop(gl);
+    }
+
+    private void renderTerrain(){
+        currentShader = terrainShader;
+        currentShader.start(gl);
+
+        currentShader.loadProjectionMatrix(gl,getProjectionMatrix());
+        currentShader.loadViewMatrix(gl,GS.getCamera().getViewMatrix());
+        currentShader.loadLight(gl,light);
+        currentShader.loadTime(gl, counter);
+        currentShader.loadCameraPos(gl, GS.getCamera().getPosition());
+
+        for(Instance asset : GS.getTerrain()){
+            currentShader.loadTextureLightValues(gl, asset.getModel().getTextureImg().getShininess(), asset.getModel().getTextureImg().getReflectivity());
+            asset.getModel().getTextureImg().bindTexture(gl);
+            asset.draw(gl, currentShader);
+        }
+
+        currentShader.stop(gl);
     }
 
 }
