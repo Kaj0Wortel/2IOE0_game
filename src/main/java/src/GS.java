@@ -4,10 +4,16 @@ package src;
 
 // Own imports
 
+import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.awt.GLCanvas;
+import com.jogamp.opengl.util.FPSAnimator;
+import org.joml.Vector3f;
 import src.Assets.Instance;
 import src.Controllers.CameraController;
 import src.Controllers.PlayerController;
 import src.Renderer.Camera;
+import src.Renderer.Renderer;
 import src.gui.MainPanel;
 import src.tools.event.ControllerKey;
 import src.tools.event.ControllerKeyDetector;
@@ -15,12 +21,14 @@ import src.tools.event.Key;
 import src.tools.event.keyAction.CameraKeyAction;
 import src.tools.event.keyAction.CarKeyAction;
 import src.tools.event.keyAction.KeyAction;
+import src.tools.event.keyAction.PlayerKeyAction;
 import src.tools.font.FontLoader;
 import src.tools.io.BufferedReaderPlus;
 import src.tools.io.ImageManager;
 import src.tools.log.*;
 import src.tools.update.Updater;
 
+import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -114,6 +122,12 @@ public class GS {
     public static PlayerController playerController;
     private static boolean fullScreen = false;
     private static Map<KeyAction, List<ControllerKey>> keyMap = new HashMap<>();
+    private static Simulator simulator;
+    private static Renderer renderer;
+    private static GLCanvas canvas;
+    private static FPSAnimator animator;
+
+
     
     
     /**-------------------------------------------------------------------------
@@ -121,6 +135,12 @@ public class GS {
      * -------------------------------------------------------------------------
      */
     public static void init() {
+
+        GLProfile.initSingleton();
+        GLProfile profile = GLProfile.get(GLProfile.GL2);
+        GLCapabilities cap = new GLCapabilities(profile);
+        canvas = new GLCanvas(cap);
+
         // Initialize the logger(s).
         // Setup file logger to prevent missing events.
         Logger fileLogger = null;
@@ -161,6 +181,24 @@ public class GS {
         GS.keyDet = new ControllerKeyDetector();
         
         reloadKeyMap();
+
+        animator = new FPSAnimator(canvas, 60);
+
+        camera = new Camera(new Vector3f(0, 5, 20), 0, 0, 0);
+        cameraController = new CameraController(camera);
+
+        simulator = new Simulator();
+        renderer = new Renderer(simulator, 1080, 720);
+
+        canvas.addGLEventListener(renderer);
+        canvas.setSize(1080, 720);
+
+        animator.start();
+        SwingUtilities.invokeLater(() -> playerController = new PlayerController(simulator.getPlayer()));
+
+        renderer.cleanup();
+
+        Updater.start();
     }
     
     /**
@@ -176,6 +214,9 @@ public class GS {
      */
     private static void createGUI() {
         GS.mainPanel = new MainPanel();
+
+        GS.mainPanel.add(canvas);
+        GS.mainPanel.setSize(1080, 720);
         
         // Add listeners.
         mainPanel.getFrame().addWindowListener(new WindowAdapter() {
@@ -233,6 +274,13 @@ public class GS {
                         newKeyMap.put(action, keys);
                         keys = new ArrayList<>();
                         System.out.println("CameraKeyAction created: " + action);
+
+                    } else if (brp.fieldEquals(PlayerKeyAction.class.getName())) {
+                        KeyAction action = PlayerKeyAction
+                                .createFromString(brp.getData());
+                        newKeyMap.put(action, keys);
+                        keys = new ArrayList<>();
+                        System.out.println("PlayerKeyAction created: " + action);
 
                     } else {
                         Logger.write("Ignored field on line "

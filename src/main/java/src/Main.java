@@ -4,17 +4,8 @@ package src;
 
 // Own imports
 
-import com.jogamp.opengl.GLCapabilities;
-import com.jogamp.opengl.GLProfile;
-import com.jogamp.opengl.awt.GLCanvas;
-import com.jogamp.opengl.util.FPSAnimator;
 import net.java.games.input.Controller;
 import net.java.games.input.Rumbler;
-import org.joml.Vector3f;
-import src.Controllers.CameraController;
-import src.Controllers.PlayerController;
-import src.Renderer.Camera;
-import src.Renderer.Renderer;
 import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.CarKeyAction;
 import src.tools.event.keyAction.CarKeyAction.MovementAction;
@@ -33,34 +24,6 @@ public class Main {
     
     public static void main(String[] args) {
         GS.init();
-
-        GLProfile.initSingleton();
-        GLProfile profile = GLProfile.get(GLProfile.GL2);
-        GLCapabilities cap = new GLCapabilities(profile);
-        GLCanvas canvas = new GLCanvas(cap);
-
-        FPSAnimator animator = new FPSAnimator(canvas, 60);
-
-        Camera camera = new Camera(new Vector3f(0, 5, 20), 0, 0, 0);
-        CameraController cameraController = new CameraController(camera);
-        GS.camera = camera;
-        GS.cameraController = cameraController;
-        
-        Simulator simulator = new Simulator();
-        PlayerController playerController = new PlayerController(simulator.getPlayer());
-        GS.playerController = playerController;
-        Renderer renderer = new Renderer(simulator, 1080, 720);
-
-        canvas.addGLEventListener(renderer);
-        canvas.setSize(1080, 720);
-
-        GS.mainPanel.add(canvas);
-        GS.mainPanel.setSize(1080, 720);
-
-        animator.start();
-        renderer.cleanup();
-        
-        Updater.start();
         
         // TMP
         Updateable up = new TmpUpdateable(1);

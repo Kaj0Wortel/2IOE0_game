@@ -59,7 +59,7 @@ public class Simulator implements Updateable {
         OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "sphere.obj");
         OBJCollection dragon = LoadOBJ.load(gl, GS.OBJ_DIR + "dragon.obj");
         
-        for (OBJObject obj : dragon) {
+        for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj, new Texture(5,0.5f));
             Instance cubeInstance = new Instance(new Vector3f(0f, 0f, 0f),
                     1f, 0, 0, 0, texturedCube);
@@ -90,6 +90,8 @@ public class Simulator implements Updateable {
 
         if(player != null) {
             GS.getCamera().setFocus(player);
+            GS.getCamera().calculateInstanceValues();
+
             processInput();
         }
 
@@ -113,7 +115,6 @@ public class Simulator implements Updateable {
     private void processInput(){
 
         if(GS.getCamera().isOnPlayer()){
-            GS.getCamera().calculateInstanceValues();
             for (PlayerKeyAction action : playerActions) {
                 List<ControllerKey> keys = GS.getKeys(action);
                 if (keys == null) return;

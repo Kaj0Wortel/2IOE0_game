@@ -26,7 +26,7 @@ public class Instance {
         this.rotz = rotz;
         this.model = model;
         this.speed = 1;
-        this.rotationSpeed = 0.3f;
+        this.rotationSpeed = 1f;
     }
 
     public Matrix4f getTransformationMatrix(){
@@ -107,6 +107,7 @@ public class Instance {
     }
 
     public void turnLeft(){
+        System.out.println("hi");
         roty += rotationSpeed;
         roty %= 360;
     }

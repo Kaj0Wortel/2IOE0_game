@@ -79,6 +79,7 @@ public class Camera {
         focusedOn = instance;
         onPlayer = true;
         position = new Vector3f(instance.getPosition());
+        pitch = 20;
     }
 
     public void removeFocus(){
@@ -122,13 +123,13 @@ public class Camera {
         float angle = focusedOn.getRoty() + angleAroundAsset;
         float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
         float verDistance = (float) (distanceToAsset * Math.sin(Math.toRadians(pitch)));
-        System.out.println(verDistance);
         float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
         float z = (float) (horDistance * Math.cos(Math.toRadians(angle)));
         position.x = focusedOn.getPosition().x + x;
         position.y = focusedOn.getPosition().y + verDistance;
         position.z = focusedOn.getPosition().z + z;
-        this.yaw = 180 - (focusedOn.getRoty() + angleAroundAsset);
+        //this.yaw = 180 - (focusedOn.getRoty() + angleAroundAsset);
+
     }
 
 }

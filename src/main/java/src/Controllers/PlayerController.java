@@ -7,7 +7,7 @@ public class PlayerController {
 
     Instance player;
 
-    public PlayerController(Instance camera){
+    public PlayerController(Instance player){
         this.player = player;
     }
 
