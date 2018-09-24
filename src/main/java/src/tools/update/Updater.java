@@ -42,7 +42,8 @@ public class Updater {
             .availableProcessors() - 1;
     final private static Set<Updateable> updateSet = new HashSet<>();
     
-    final private static TimerTool tt = new TimerTool(() -> {
+    final private static AccurateTimerTool tt = new AccurateTimerTool(() -> {
+        //Logger.write("update");
         // Obtain the time stamp.
         long timeStamp = System.currentTimeMillis();
         // Update the keys. -> replace by separate timer/thread.
@@ -116,6 +117,7 @@ public class Updater {
             @Override
             @SuppressWarnings("UseSpecificCatch")
             public void run() {
+                //Logger.write("update thread" + num + " begin");
                 // Update the updateables. If the updateable is locked,
                 // try it later again.
                 List<Updateable> doLater = new ArrayList<Updateable>();
@@ -141,6 +143,7 @@ public class Updater {
                         }, Logger.Type.WARNING);
                     }
                 }
+                //Logger.write("update thread" + num + " end");
             }
         };
     }
@@ -155,6 +158,7 @@ public class Updater {
      */
     @SuppressWarnings("UseSpecificCatch")
     private static boolean updateUpdateable(Updateable up, long timeStamp) {
+        //Logger.write("Started updateable: " + up);
         try {
             if (Locker.tryLock(up)) {
                 try {
@@ -174,12 +178,13 @@ public class Updater {
             }, Logger.Type.ERROR);
         }
         
+        //Logger.write("Ended updateable: " + up);
         return true;
     }
     
     // Setup timer tool.
     static {
-        tt.setFPSState(TimerTool.FPSState.AUTO);
+        tt.setFPSState(AccurateTimerTool.FPSState.AUTO);
         tt.setTargetFPS(60);
     }
     
