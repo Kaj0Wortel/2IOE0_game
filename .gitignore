@@ -27,6 +27,7 @@ hs_err_pid*
 *.iws
 out/
 .idea_modules/
+.idea/
 
 # User-specific stuff
 .idea/**/workspace.xml
@@ -47,4 +48,16 @@ out/
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
 /**/game_2IOE0/build/
+/game_2IOE0/dist/
+
+# Netbeans ignore
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Maven
+log/
 target/maven-archiver/pom.properties

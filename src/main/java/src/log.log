@@ -1,0 +1,47 @@
+12:43:25.062 [INFO]    Starting application...
+12:43:25.471 [WARNING] Font was already registered: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\Cooper Black\Cooper Black Regular.ttf
+12:43:25.479 [INFO]    Ignored file: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\Cooper Black\readme.html
+12:43:25.479 [INFO]    Ignored file: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\cousine\Apache License.txt
+12:43:25.487 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\cousine\Cousine-Bold.ttf
+12:43:25.491 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\cousine\Cousine-BoldItalic.ttf
+12:43:25.495 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\cousine\Cousine-Italic.ttf
+12:43:25.499 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\cousine\Cousine-Regular.ttf
+12:43:25.503 [INFO]    Ignored file: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\FontLoader.java
+12:43:25.503 [INFO]    Ignored file: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\Lucida_Bright\LBRITE.TTF
+12:43:25.503 [INFO]    Ignored file: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\Lucida_Bright\LBRITED.TTF
+12:43:25.503 [INFO]    Ignored file: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\Lucida_Bright\LBRITEDI.TTF
+12:43:25.503 [INFO]    Ignored file: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\Lucida_Bright\LBRITEI.TTF
+12:43:25.503 [INFO]    Ignored file: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\source-sans-pro\SIL Open Font License.txt
+12:43:25.507 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-Black.ttf
+12:43:25.511 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-BlackIt.ttf
+12:43:25.515 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-Bold.ttf
+12:43:25.519 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-BoldIt.ttf
+12:43:25.527 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-ExtraLight.ttf
+12:43:25.531 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-ExtraLightIt.ttf
+12:43:25.535 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-It.ttf
+12:43:25.539 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-Light.ttf
+12:43:25.543 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-LightIt.ttf
+12:43:25.547 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-Regular.ttf
+12:43:25.551 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-Semibold.ttf
+12:43:25.555 [INFO]    Successfully loaded font: C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\tools\font\source-sans-pro\SourceSansPro-SemiboldIt.ttf
+12:43:25.555 [INFO]    ========== FINISHED LOADING FONTS ==========
+12:43:25.555 [INFO]    
+12:43:26.592 [INFO]    Updater started!
+12:43:26.612 [INFO]    
+12:43:26.612 [INFO]    ==== Begin reading OBJ file ====
+12:43:26.612 [INFO]    File = C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\res\obj\test.obj
+12:43:26.620 [INFO]    
+12:43:26.620 [INFO]    ==== Begin reading MTL file ====
+12:43:26.620 [INFO]    File = C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\res\obj\test.mtl
+12:43:26.624 [DEBUG]   Ignored field: Ns, line = 5
+12:43:26.624 [DEBUG]   Ignored field: Ke, line = 9
+12:43:26.624 [DEBUG]   Ignored field: Ns, line = 15
+12:43:26.624 [INFO]    ==== Finished reading MTL file ====
+12:43:26.624 [INFO]    File = C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\res\obj\test.mtl
+12:43:26.624 [INFO]    
+12:43:26.628 [DEBUG]   Ignored field: s, line = 20
+12:43:26.628 [DEBUG]   Ignored field: s, line = 43
+12:43:26.632 [INFO]    ==== Finished reading OBJ file ====
+12:43:26.632 [INFO]    File = C:\Users\s152102\Documents\101_Courses\Y3Q1 DBL interactive intelligent systems\Gitkraken game folder\2IOE0_game\src\main\java\src\res\obj\test.obj
+12:43:26.632 [INFO]    
+12:44:26.140 [INFO]    Shutting down application...

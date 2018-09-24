@@ -52,6 +52,20 @@
             <artifactId>gluegen-rt-main</artifactId>
             <version>2.3.2</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.tensorflow/libtensorflow -->
+        <dependency>
+            <groupId>org.tensorflow</groupId>
+            <artifactId>libtensorflow</artifactId>
+            <version>1.10.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.tensorflow/tensorflow -->
+        <dependency>
+            <groupId>org.tensorflow</groupId>
+            <artifactId>tensorflow</artifactId>
+            <version>1.10.0</version>
+        </dependency>
         
         <!-- https://mvnrepository.com/artifact/net.java.jinput/jinput -->
         <dependency>
