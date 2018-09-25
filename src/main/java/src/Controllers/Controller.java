@@ -1,6 +1,6 @@
 
 
-package game_2IOE0.Controllers;
+package src.Controllers;
 
 
 // Own imports

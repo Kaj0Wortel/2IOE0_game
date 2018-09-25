@@ -73,6 +73,9 @@ public class AccurateTimerTool {
     // Denotes the thread priority for this timer.
     private int priority = Thread.NORM_PRIORITY;
     
+    private Lock lock = new ReentrantLock(true);
+    private Condition stopWaiting = lock.newCondition();
+    
     
     /**--------------------------------------------------------------------------------------------------------
      * Constructor
@@ -290,9 +293,7 @@ public class AccurateTimerTool {
         return timerState;
     }
     
-    private Lock lock = new ReentrantLock(true);
-    private Condition stopWaiting = lock.newCondition();
-    private long prevTime;
+   // private long prevTime;
     
     private Thread createUpdateThread(int threadID) {
         return new Thread("update-thread-" + timerID) {
@@ -369,7 +370,7 @@ public class AccurateTimerTool {
                         }
                     }
                     
-                    /**/
+                    /*
                     long curTime = System.currentTimeMillis();
                     System.out.println(curTime - prevTime);
                     prevTime = curTime;
@@ -397,7 +398,7 @@ public class AccurateTimerTool {
                         }
                     }.start();
                     
-                    // recision: +-0ms
+                    // Precision: +-0ms
                     long sleepTime = interval - (System.currentTimeMillis() - startTime) - 1;
                     if (sleepTime > 0) {
                         MultiTool.sleepThread(sleepTime);
