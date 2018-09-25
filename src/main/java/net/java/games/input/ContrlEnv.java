@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -57,6 +58,20 @@ public class ContrlEnv
                     // tmp
                     Logger.write("Update controller list");
                     
+                    // Kill the thread of the previous controller levent queue.
+                    final Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+                    for (final Thread thread : threadSet) {
+                        final String name = thread.getClass().getName();
+                        if (name.equals("net.java.games.input.RawInputEventQueue$QueueThread")) {
+                            thread.interrupt();
+                            try {
+                                thread.join();
+                            } catch (final InterruptedException e) {
+                                thread.interrupt();
+                            }
+                        }
+                    }
+                    
                     // Load controllers.
                     Controller[] c ;
                     try {
@@ -66,6 +81,7 @@ public class ContrlEnv
                         // the error in the console and giving you
                         // a heart attack every single time.
                         c = ContrlEnv.super.getControllers();
+                        //c = new Controller[0];
                         
                         // Because the compiler is complaining...
                         if (null != null)
