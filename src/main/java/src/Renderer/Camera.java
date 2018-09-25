@@ -19,7 +19,7 @@ public class Camera {
     private Vector3f previousPosition;
     private boolean onPlayer;
 
-    private float distanceToAsset = 40;
+    private float distanceToAsset = 30;
     private float angleAroundAsset = 0;
 
     public Camera (Vector3f position, float pitch, float yaw, float roll){

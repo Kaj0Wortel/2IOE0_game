@@ -84,7 +84,7 @@ public class Renderer implements GLEventListener {
 
     private void getProjectionMatrix(){
         float ratio = width / height;
-        float y = (float) ((1f / Math.tan(Math.toRadians(FOV/2f))) * ratio);
+        float y = (float) (1f / Math.tan(Math.toRadians(FOV/2f)));
         float x = y / ratio;
         float delta = FAR - NEAR;
 
