@@ -32,9 +32,11 @@ public class AccurateTimerTool {
     }
     private FPSState fpsState = FPSState.MANUAL;
     
-    private Thread updateThread;
-    private int id;
+    private static int timerIDCounter = 0;
+    final private int timerID = timerIDCounter++;
     
+    private Thread updateThread;
+    private int threadID;
     
     // The tasks to be executed.
     final private Runnable[] tasks;
@@ -115,84 +117,6 @@ public class AccurateTimerTool {
      * --------------------------------------------------------------------------------------------------------
      */
     /**
-     * Create a new timer task from the given runnable.
-     * Also updates the start time and the pause time.
-     * 
-     * @param rs the tasks to be executed. Is allowed to be null,
-     * but this is not effective.
-     * 
-     * Handles the fps rate using M/AIMD (multiplicative/additative increase,
-     * multiplicative decrease). Decreases when the executing task cannot
-     * keep up with the speed of the timer. Increases when the
-     * executing task can keep up with the speed of the timer and the
-     * targetInterval has not yet been reached.
-     *//*
-    private TimerTask createTimerTask(Runnable... rs) {
-        return new TimerTask() {
-            @Override
-            public void run() {
-                Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-                //Logger.write("START");
-                boolean wasRunning;
-                synchronized(AccurateTimerTool.this) {
-                    wasRunning = running;
-                    running = true;
-                }
-                
-                // Update the timestamps of the start and pause time.
-                startTime = System.currentTimeMillis();
-                pauseTime = startTime; // To ensure equal timestamps.
-                
-                if (wasRunning) {
-                    //Logger.write("QUIT");
-                    
-                    if (fpsState == FPSState.AUTO) {
-                        waitMul += 10;
-                        setInterval((long) Math.ceil((interval * 1.05)));
-                    }
-                    
-                    return;
-                    
-                } else {
-                    if (fpsState == FPSState.AUTO) {
-                        if (interval > targetInterval) {
-                            if (--waitMul <= 0) {
-                                waitMul = 0;
-                                setInterval(Math.min(
-                                        (long) (interval * 0.95),
-                                        targetInterval));
-                            } else {
-                                setInterval(interval - 1);
-                            }
-                            
-                        } else if (interval < targetInterval) {
-                            setInterval(targetInterval);
-                        }
-                    }
-                }
-                
-                // Run the function(s) on a new thread.
-                new Thread("Timer-update") {
-                    @Override
-                    public void run() {
-                        Thread.currentThread().setPriority(priority);
-                        if (rs != null) {
-                            for (Runnable r : rs) {
-                                r.run();
-                            }
-                        }
-                        
-                        synchronized(AccurateTimerTool.this) {
-                            running = false;
-                        }
-                        //Logger.write("END");
-                    }
-                }.start();
-            }
-        };
-    }
-    /**/
-    /**
      * (Re)-starts the timer.
      * If the timer is already running, purge the timer and create a new timer.
      */
@@ -203,7 +127,7 @@ public class AccurateTimerTool {
             
             startTime = System.currentTimeMillis();
             pauseTime = System.currentTimeMillis();
-            updateThread = createUpdateThread(++id);
+            updateThread = createUpdateThread(++threadID);
             updateThread.start();
         }
     }
@@ -216,7 +140,7 @@ public class AccurateTimerTool {
         if (timerState == TimerState.PAUSED ||
                 timerState == TimerState.CANCELED) return;
         
-        id++;
+        threadID++;
         
         // Set the pause time stamp
         pauseTime = System.currentTimeMillis();
@@ -243,7 +167,7 @@ public class AccurateTimerTool {
         // Update the start time stamp.
         startTime = curTime - timeBeforeRun;
         
-        updateThread = createUpdateThread(++id);
+        updateThread = createUpdateThread(++threadID);
         updateThread.start();
         delay = startDelay;
         
@@ -257,7 +181,7 @@ public class AccurateTimerTool {
     public void cancel() {
         // Kill the current timer.
         if (timerState == TimerState.RUNNING) {
-            id++;
+            threadID++;
         }
         
         // Update the timeState
@@ -368,10 +292,10 @@ public class AccurateTimerTool {
     
     private Lock lock = new ReentrantLock(true);
     private Condition stopWaiting = lock.newCondition();
-    //private long prevTime;
+    private long prevTime;
     
     private Thread createUpdateThread(int threadID) {
-        return new Thread("update-thread") {
+        return new Thread("update-thread-" + timerID) {
             @Override
             public void run() {
                 Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
@@ -380,7 +304,7 @@ public class AccurateTimerTool {
                     MultiTool.sleepThread(1);
                 }
                 
-                while (threadID == id) {
+                while (threadID == threadID) {
                     //Logger.write("START");
                     
                     // Update the timestamps of the start and pause time.
@@ -445,11 +369,11 @@ public class AccurateTimerTool {
                         }
                     }
                     
-                    /*
+                    /**/
                     long curTime = System.currentTimeMillis();
                     System.out.println(curTime - prevTime);
                     prevTime = curTime;
-                    */
+                    /**/
                     
                     // Run the function(s) on a new thread.
                     new Thread("Timer-update") {
@@ -473,12 +397,22 @@ public class AccurateTimerTool {
                         }
                     }.start();
                     
+                    // recision: +-0ms
+                    long sleepTime = interval - (System.currentTimeMillis() - startTime) - 1;
+                    if (sleepTime > 0) {
+                        MultiTool.sleepThread(sleepTime);
+                        
+                        while (System.currentTimeMillis() - pauseTime < interval) {
+                        }
+                    }
+                    
+                    // Precision: +-1 ms
+                    /*
                     while (System.currentTimeMillis() - pauseTime - 2 < interval) {
                         MultiTool.sleepThread(1);
                     }
-                    
                     while (System.currentTimeMillis() - pauseTime < interval) {
-                    }
+                    }/**/
                 }
             }
         };
