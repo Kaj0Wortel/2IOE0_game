@@ -138,8 +138,8 @@ public class Instance {
         velocity = (float) curStruct.v;
         position.z = -(float) curStruct.pos.x;
         position.x = -(float) curStruct.pos.y;
-        System.out.println(velocity + ": (" + -position.z + ", " + -position.x 
-                + "), " + roty);
+        //System.out.println(velocity + ": (" + -position.z + ", " + -position.x 
+        //        + "), " + roty);
         
         // Instance requires roty to be stored in degrees
         roty = (float) (Math.toDegrees(roty) % 360);
