@@ -44,11 +44,8 @@ public class Updater {
     final private static List<UpdateThread> updateThreads = new ArrayList<>();
     
     final private static AccurateTimerTool tt = new AccurateTimerTool(() -> {
-        //Logger.write("scheduleTask");
         // Obtain the time stamp.
         long timeStamp = System.currentTimeMillis();
-        // Update the keys. -> replace by separate timer/thread.
-        //if (GS.keyDet != null) GS.keyDet.scheduleTask();
         
         synchronized(updateSet) {
             // Distribute the tasks evenly and randomly over the
@@ -71,9 +68,7 @@ public class Updater {
                 Updateable updateable = it.next();
                 tasks.add(updateable);
                 
-                if (tasks.size() <= tasksPerThread) {
-                    
-                } else {
+                if (tasks.size() > tasksPerThread) {
                     // Create a new scheduleTask thread.
                     updater.scheduleTask(createUpdateRunnable(tasks, timeStamp));
                     if (++counter < updateThreads.size()) {
@@ -92,9 +87,6 @@ public class Updater {
             }
             
             if (!tasks.isEmpty()) {
-                Logger.write("Executing remaining tasks in updater!",
-                        Logger.Type.ERROR);
-                // Schedules the tasks for the updater.
                 updater.scheduleTask(createUpdateRunnable(tasks, timeStamp));
             }
             
@@ -158,7 +150,6 @@ public class Updater {
      */
     @SuppressWarnings("UseSpecificCatch")
     private static boolean updateUpdateable(Updateable up, long timeStamp) {
-        //Logger.write("Started updateable: " + up);
         try {
             if (Locker.tryLock(up)) {
                 try {
@@ -178,7 +169,6 @@ public class Updater {
             }, Logger.Type.ERROR);
         }
         
-        //Logger.write("Ended updateable: " + up);
         return true;
     }
     
@@ -227,7 +217,6 @@ public class Updater {
      * @see AccurateTimerTool#start()
      */
     public static void start() {
-        tt.start();
         Logger.write("Updater started!", Logger.Type.INFO);
         
         for (int i = 0; i < NUM_THREADS; i++) {
@@ -235,6 +224,8 @@ public class Updater {
             ut.start();
             updateThreads.add(ut);
         }
+        
+        tt.start();
         
         // tmp
         fpsTracker.start();
