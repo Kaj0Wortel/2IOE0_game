@@ -5,6 +5,7 @@ package src.Renderer;
 // Jogamp imports
 
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
@@ -23,7 +24,7 @@ import static com.jogamp.opengl.GL2ES2.GL_SHADING_LANGUAGE_VERSION;
 public class Renderer implements GLEventListener {
 
     private Simulator simulator;
-    private GL2 gl;
+    private GL3 gl;
     private GLU glu;
 
     private final float FOV = 70;
@@ -45,7 +46,7 @@ public class Renderer implements GLEventListener {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        this.gl = glAutoDrawable.getGL().getGL2();
+        this.gl = glAutoDrawable.getGL().getGL3();
         this.glu = new GLU();
 
         gl.glEnable(gl.GL_CULL_FACE);

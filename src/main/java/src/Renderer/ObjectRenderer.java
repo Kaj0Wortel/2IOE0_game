@@ -1,6 +1,7 @@
 package src.Renderer;
 
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import src.Assets.Instance;
 import src.GS;
@@ -11,12 +12,12 @@ public class ObjectRenderer {
     private DefaultShader defaultShader;
     private Matrix4f projectionMatrix;
 
-    public ObjectRenderer(GL2 gl, Matrix4f projectionMatrix){
+    public ObjectRenderer(GL3 gl, Matrix4f projectionMatrix){
         defaultShader = new DefaultShader(gl);
         this.projectionMatrix = projectionMatrix;
     }
 
-    public void render(GL2 gl){
+    public void render(GL3 gl){
         defaultShader.start(gl);
 
         defaultShader.loadProjectionMatrix(gl,projectionMatrix);

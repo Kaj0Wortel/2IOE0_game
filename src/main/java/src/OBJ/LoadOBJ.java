@@ -4,6 +4,7 @@ package src.OBJ;
 // Jogamp imports
 
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import src.Assets.OBJCollection;
@@ -40,7 +41,7 @@ public class LoadOBJ {
     private LoadOBJ() { }
     
     @SuppressWarnings({"null", "UnusedAssignment"})
-    public static OBJCollection load(GL2 gl, String fileName) {
+    public static OBJCollection load(GL3 gl, String fileName) {
         
         OBJCollection collection = map.get(fileName);
         if (collection != null) return collection;

@@ -1,0 +1,53 @@
+package src.shadows;
+
+import com.jogamp.common.nio.Buffers;
+import com.jogamp.opengl.GL3;
+
+import java.nio.IntBuffer;
+
+public class ShadowBuffer {
+
+    private int width;
+    private int height;
+    private IntBuffer frameBufferObject;
+    private IntBuffer depthAttachment;
+
+    public ShadowBuffer(GL3 gl, int width, int height){
+        this.width = width;
+        this.height = height;
+    }
+
+    private IntBuffer createFrameBufferObject(GL3 gl){
+        IntBuffer fbo = Buffers.newDirectIntBuffer(1);
+        gl.glGenFramebuffers(1,fbo);
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER,fbo.get(0));
+        gl.glDrawBuffer(gl.GL_NONE);
+
+        return fbo;
+    }
+
+    private IntBuffer createDepthTextureAttachment(GL3 gl){
+        IntBuffer depthAttachment = Buffers.newDirectIntBuffer(1);
+        gl.glGenTextures(1,depthAttachment);
+        gl.glBindTexture(gl.GL_TEXTURE_2D,depthAttachment.get(0));
+        gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_DEPTH_COMPONENT32, width, height,
+                0, gl.GL_DEPTH_COMPONENT, gl.GL_FLOAT, null);
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST);
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_NEAREST);
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE);
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE);
+
+        gl.glFramebufferTexture(gl.GL_FRAMEBUFFER, gl.GL_DEPTH_ATTACHMENT, depthAttachment.get(0), 0);
+        return depthAttachment;
+    }
+
+    private IntBuffer createDepthAttachment(GL3 gl){
+        IntBuffer rb = Buffers.newDirectIntBuffer(1);
+        gl.glGenRenderbuffers(1,rb);
+        gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, rb.get(0));
+        gl.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_DEPTH_COMPONENT, width, height);
+        gl.glFramebufferRenderbuffer(gl.GL_FRAMEBUFFER, gl.GL_DEPTH_ATTACHMENT, gl.GL_RENDERBUFFER, rb.get(0));
+
+        return rb;
+    }
+}

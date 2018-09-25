@@ -1,6 +1,7 @@
 package src;
 
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import org.joml.Vector3f;
 import src.Assets.*;
 import src.OBJ.LoadOBJ;
@@ -19,7 +20,7 @@ import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
 public class Simulator implements Updateable {
 
-    private GL2 gl;
+    private GL3 gl;
 
     private Binder binder;
     CameraKeyAction[] cameraActions;
@@ -49,7 +50,7 @@ public class Simulator implements Updateable {
         });
     }
 
-    public void setGL(GL2 gl){
+    public void setGL(GL3 gl){
         this.gl = gl;
     }
 
@@ -94,7 +95,7 @@ public class Simulator implements Updateable {
             GS.addAsset(cubeInstance);
         }
 
-        Light light = new Light(new Vector3f(0f, 50f, 0f),
+        Light light = new Light(new Vector3f(10000f, 50000f, -10000f),
                 new Vector3f(1f, 1f, 1f));
         GS.addLight(light);
 

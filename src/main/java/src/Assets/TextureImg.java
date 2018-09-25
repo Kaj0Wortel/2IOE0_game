@@ -1,6 +1,7 @@
 package src.Assets;
 
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import src.GS;
@@ -14,7 +15,7 @@ public class TextureImg {
     private float reflectivity;
     private Texture texture;
 
-    public TextureImg(GL2 gl, String file_path, float shininess, float reflectivity) {
+    public TextureImg(GL3 gl, String file_path, float shininess, float reflectivity) {
         this.shininess = shininess;
         this.reflectivity = reflectivity;
 
@@ -43,11 +44,11 @@ public class TextureImg {
         return reflectivity;
     }
 
-    public void bindTexture(GL2 gl){
+    public void bindTexture(GL3 gl){
         texture.bind(gl);
     }
 
-    public void disableTexture(GL2 gl){
+    public void disableTexture(GL3 gl){
         texture.disable(gl);
     }
 }

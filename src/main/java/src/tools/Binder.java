@@ -2,6 +2,7 @@ package src.tools;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -12,8 +13,8 @@ public class Binder {
     static ArrayList<IntBuffer> vaos = new ArrayList<>();
     static ArrayList<IntBuffer> vbos = new ArrayList<>();
 
-    public static IntBuffer loadVAO(GL2 gl, float[] vertices, float[] uv,
-            float[] normals, int[] indices) {
+    public static IntBuffer loadVAO(GL3 gl, float[] vertices, float[] uv,
+                                    float[] normals, int[] indices) {
 
         IntBuffer vao = createVAO(gl);
 
@@ -27,7 +28,7 @@ public class Binder {
         return vao;
     }
 
-    private static IntBuffer createVAO(GL2 gl) {
+    private static IntBuffer createVAO(GL3 gl) {
         IntBuffer ID = Buffers.newDirectIntBuffer(1);
         vaos.add(ID);
         gl.glGenVertexArrays(1, ID);
@@ -35,8 +36,8 @@ public class Binder {
         return ID;
     }
 
-    private static void storeToAttributeList(GL2 gl, int attrNum, int size,
-            FloatBuffer data) {
+    private static void storeToAttributeList(GL3 gl, int attrNum, int size,
+                                             FloatBuffer data) {
 
         IntBuffer vbo = Buffers.newDirectIntBuffer(1);
         vbos.add(vbo);
@@ -48,7 +49,7 @@ public class Binder {
         gl.glVertexAttribPointer(attrNum, size, GL2.GL_FLOAT, false, 0, 0);
     }
 
-    private static void storeToIndicesList(GL2 gl, IntBuffer indices) {
+    private static void storeToIndicesList(GL3 gl, IntBuffer indices) {
         IntBuffer vbo = Buffers.newDirectIntBuffer(1);
         vbos.add(vbo);
         gl.glGenBuffers(1,vbo);
@@ -58,11 +59,11 @@ public class Binder {
 
     }
 
-    public static void unbindVAO(GL2 gl) {
+    public static void unbindVAO(GL3 gl) {
         gl.glBindVertexArray(0);
     }
 
-    public void clean(GL2 gl) {
+    public void clean(GL3 gl) {
         for(IntBuffer i : vaos){
             gl.glDeleteVertexArrays(1, i);
         }

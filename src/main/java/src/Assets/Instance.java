@@ -1,13 +1,14 @@
 package src.Assets;
 
 import com.jogamp.opengl.GL2;
-import java.awt.geom.Point2D;
+import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import src.Physics.PStruct; // Connection to physics
+import src.Physics.PStruct;
 import src.Physics.Physics;
 import src.Shaders.ShaderProgram;
-import src.tools.MultiTool;
+
+import java.awt.geom.Point2D;
 
 public class Instance {
 
@@ -83,7 +84,7 @@ public class Instance {
         position.y += amt;
     }
 
-    public void draw(GL2 gl, ShaderProgram shader){
+    public void draw(GL3 gl, ShaderProgram shader){
         shader.loadModelMatrix(gl, getTransformationMatrix());
         shader.loadTextureLightValues(gl, model.getTextureImg().getShininess(),
                 model.getTextureImg().getReflectivity());

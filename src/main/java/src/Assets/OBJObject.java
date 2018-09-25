@@ -2,6 +2,7 @@
 package src.Assets;
 
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import org.joml.Vector3f;
 import src.OBJ.MTLObject;
 import src.tools.Binder;
@@ -26,7 +27,7 @@ public class OBJObject extends Object {
         super(name);
     }
     
-    public void setData(GL2 gl, List<Float> vertices, List<Float> tex,
+    public void setData(GL3 gl, List<Float> vertices, List<Float> tex,
                         List<Float> normals, List<Integer> indices) {
 
         vao = Binder.loadVAO(gl,

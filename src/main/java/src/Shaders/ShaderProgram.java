@@ -3,6 +3,7 @@ package src.Shaders;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.Light;
@@ -19,40 +20,40 @@ public abstract class ShaderProgram {
 
     private int ID;
 
-    public ShaderProgram(GL2 gl, String vertex, String fragment){
+    public ShaderProgram(GL3 gl, String vertex, String fragment){
         ID = CreateShader(gl,LoadShaderFile(vertex),LoadShaderFile(fragment));
 
         getAllUniformLocations(gl);
     }
 
-    protected abstract void bindAttributes(GL2 gl);
+    protected abstract void bindAttributes(GL3 gl);
 
-    protected abstract void getAllUniformLocations(GL2 gl);
+    protected abstract void getAllUniformLocations(GL3 gl);
 
-    public abstract void loadModelMatrix(GL2 gl, Matrix4f matrix);
+    public abstract void loadModelMatrix(GL3 gl, Matrix4f matrix);
 
-    public abstract void loadViewMatrix(GL2 gl, Matrix4f matrix);
+    public abstract void loadViewMatrix(GL3 gl, Matrix4f matrix);
 
-    public abstract void loadProjectionMatrix(GL2 gl, Matrix4f matrix4f);
+    public abstract void loadProjectionMatrix(GL3 gl, Matrix4f matrix4f);
 
-    public abstract void loadTextureLightValues(GL2 gl, float shininess, float reflectivity);
+    public abstract void loadTextureLightValues(GL3 gl, float shininess, float reflectivity);
 
-    public abstract void loadTime(GL2 gl, int time);
+    public abstract void loadTime(GL3 gl, int time);
 
-    public abstract void loadCameraPos(GL2 gl, Vector3f cameraPos);
+    public abstract void loadCameraPos(GL3 gl, Vector3f cameraPos);
 
-    public abstract void loadLight(GL2 gl, Light light);
+    public abstract void loadLight(GL3 gl, Light light);
 
-    public int getUniformLocation(GL2 gl, String uni){
+    public int getUniformLocation(GL3 gl, String uni){
         return gl.glGetUniformLocation(ID,uni);
     }
 
-    public void bindAttr(GL2 gl, int attr, String name){
+    public void bindAttr(GL3 gl, int attr, String name){
         gl.glBindAttribLocation(ID,attr,name);
     }
 
 
-    public int CreateShader(GL2 gl, String[] vertex, String[] fragment){
+    public int CreateShader(GL3 gl, String[] vertex, String[] fragment){
         int program = gl.glCreateProgram();
         int vertexShader = CompileShader(gl, vertex, GL2.GL_VERTEX_SHADER);
         int fragmentShader = CompileShader(gl, fragment, GL2.GL_FRAGMENT_SHADER);
@@ -91,7 +92,7 @@ public abstract class ShaderProgram {
         return program;
     }
 
-    private int CompileShader(GL2 gl, String[] shaderInput, int type){
+    private int CompileShader(GL3 gl, String[] shaderInput, int type){
         int shaderID = gl.glCreateShader(type);
 
         gl.glShaderSource(shaderID,1,shaderInput,null);
@@ -127,7 +128,7 @@ public abstract class ShaderProgram {
         return this.ID;
     }
 
-    private void ErrorHandling(GL2 gl,int shaderID,int type){
+    private void ErrorHandling(GL3 gl,int shaderID,int type){
         //Error handling
         IntBuffer status = Buffers.newDirectIntBuffer(1);
         gl.glGetShaderiv(shaderID, GL2ES2.GL_COMPILE_STATUS, status);
@@ -149,7 +150,7 @@ public abstract class ShaderProgram {
         }
     }
 
-    private void LogHandling(GL2 gl, int program){
+    private void LogHandling(GL3 gl, int program){
         ByteBuffer str = Buffers.newDirectByteBuffer(100);
         gl.glGetProgramInfoLog(program,str.capacity(),null,str);
         String s = "";
@@ -159,34 +160,34 @@ public abstract class ShaderProgram {
         System.out.println(s);
     }
 
-    public void loadUniformMatrix(GL2 gl, int location, Matrix4f matrix){
+    public void loadUniformMatrix(GL3 gl, int location, Matrix4f matrix){
         FloatBuffer m = Buffers.newDirectFloatBuffer(16);
         matrix.get(m);
 
         gl.glUniformMatrix4fv(location,1,false,m);
     }
 
-    public void loadUniformVector(GL2 gl, int location, Vector3f vector){
+    public void loadUniformVector(GL3 gl, int location, Vector3f vector){
         gl.glUniform3f(location, vector.x,vector.y,vector.z);
     }
 
-    public void loadUniformFloat(GL2 gl, int location, float fl){
+    public void loadUniformFloat(GL3 gl, int location, float fl){
         gl.glUniform1f(location,fl);
     }
 
-    public void loadUniformInt(GL2 gl, int location, int in){
+    public void loadUniformInt(GL3 gl, int location, int in){
         gl.glUniform1i(location,in);
     }
 
-    public void stop(GL2 gl){
+    public void stop(GL3 gl){
         gl.glUseProgram(0);
     }
 
-    public void start(GL2 gl){
+    public void start(GL3 gl){
         gl.glUseProgram(ID);
     }
 
-    public void cleanUp(GL2 gl){
+    public void cleanUp(GL3 gl){
         stop(gl);
         gl.glDeleteProgram(ID);
     }

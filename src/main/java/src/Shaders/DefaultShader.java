@@ -1,6 +1,7 @@
 package src.Shaders;
 
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.Light;
@@ -28,19 +29,19 @@ public class DefaultShader extends ShaderProgram {
     private int timeLocation;
     private int cameraPosLocation;
 
-    public DefaultShader(GL2 gl) {
+    public DefaultShader(GL3 gl) {
         super(gl, vertex, fragment);
     }
 
     @Override
-    public void bindAttributes(GL2 gl) {
+    public void bindAttributes(GL3 gl) {
         bindAttr(gl, 0,"position");
         bindAttr(gl, 1, "tex");
         bindAttr(gl, 2, "normal");
     }
 
     @Override
-    protected void getAllUniformLocations(GL2 gl) {
+    protected void getAllUniformLocations(GL3 gl) {
         projectionMatrixLocation = getUniformLocation(gl,"projectionMatrix");
         viewMatrixLocation = getUniformLocation(gl,"viewMatrix");
         modelMatrixLocation = getUniformLocation(gl, "modelMatrix");
@@ -62,35 +63,35 @@ public class DefaultShader extends ShaderProgram {
     }
 
     @Override
-    public void loadProjectionMatrix(GL2 gl, Matrix4f matrix){
+    public void loadProjectionMatrix(GL3 gl, Matrix4f matrix){
         loadUniformMatrix(gl, projectionMatrixLocation, matrix);
     }
 
     @Override
-    public void loadViewMatrix(GL2 gl, Matrix4f matrix){
+    public void loadViewMatrix(GL3 gl, Matrix4f matrix){
         loadUniformMatrix(gl, viewMatrixLocation, matrix);
     }
 
     @Override
-    public void loadModelMatrix(GL2 gl, Matrix4f matrix){
+    public void loadModelMatrix(GL3 gl, Matrix4f matrix){
         loadUniformMatrix(gl, modelMatrixLocation, matrix);
     }
 
-    public void loadLight(GL2 gl, Light light){
+    public void loadLight(GL3 gl, Light light){
         loadUniformVector(gl, lightPositionLocation,light.getPosition());
         loadUniformVector(gl, lightColorLocation, light.getColor());
     }
 
-    public void loadTextureLightValues(GL2 gl, float shininess, float reflectivity){
+    public void loadTextureLightValues(GL3 gl, float shininess, float reflectivity){
         loadUniformFloat(gl, shininessLocation, shininess);
         loadUniformFloat(gl, reflectivityLocation, reflectivity);
     }
 
-    public void loadTime(GL2 gl, int time){
+    public void loadTime(GL3 gl, int time){
         loadUniformInt(gl,timeLocation,time);
     }
 
-    public void loadCameraPos(GL2 gl, Vector3f cameraPos){
+    public void loadCameraPos(GL3 gl, Vector3f cameraPos){
         loadUniformVector(gl, cameraPosLocation, cameraPos);
     }
 }

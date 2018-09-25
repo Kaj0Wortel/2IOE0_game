@@ -1,6 +1,7 @@
 package src.Renderer;
 
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import src.Assets.Instance;
 import src.GS;
@@ -11,12 +12,12 @@ public class TerrainRenderer {
     private TerrainShader terrainShader;
     private Matrix4f projectionMatrix;
 
-    public TerrainRenderer(GL2 gl, Matrix4f projectionMatrix){
+    public TerrainRenderer(GL3 gl, Matrix4f projectionMatrix){
         this.terrainShader = new TerrainShader(gl);
         this.projectionMatrix = projectionMatrix;
     }
 
-    public void render(GL2 gl){
+    public void render(GL3 gl){
         terrainShader.start(gl);
 
         terrainShader.loadProjectionMatrix(gl,projectionMatrix);

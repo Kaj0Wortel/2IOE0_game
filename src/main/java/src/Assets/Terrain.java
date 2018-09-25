@@ -1,6 +1,6 @@
 package src.Assets;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import org.joml.Vector3f;
 import src.tools.Binder;
 
@@ -14,12 +14,12 @@ public class Terrain extends OBJObject{
     private IntBuffer vao;
     private int nrV;
 
-    public Terrain(GL2 gl){
+    public Terrain(GL3 gl){
         super("Terrain");
         vao = generateTerrain(gl);
     }
 
-    private IntBuffer generateTerrain(GL2 gl){
+    private IntBuffer generateTerrain(GL3 gl){
         int total_vertices = number_of_tiles * number_of_tiles;
         float[] vertices = new float[3 * total_vertices];
         float[] normals = new float[3 * total_vertices];
