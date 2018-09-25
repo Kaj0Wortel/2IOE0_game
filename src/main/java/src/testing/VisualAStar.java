@@ -1,14 +1,7 @@
-
 package src.testing;
 
-
-// Own imports
-
-
 // Java imports
-
 import src.AI.Node;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -17,15 +10,10 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-
-/**
- * 
- * 
- */
 public class VisualAStar
         extends JPanel {
     
-    final private Rectangle SIZE = new Rectangle(-1, -3, 4, 4);//-1,-5,7,7
+    final private Rectangle SIZE = new Rectangle(0,-10,10,10);//0, -5, 5, 5
     final private int IMG_SIZE = 5000;
     final private int CIRCLE_SIZE = 50;
     final private Color BACK = Color.BLACK;
@@ -71,11 +59,11 @@ public class VisualAStar
      * @param point the point to add.
      * @param g2d the graphics to paint on.
      */
-    private void addPoint(Point2D.Double point, Graphics2D g2d) {
+    private void addPoint(Point2D.Double point, Graphics2D g2d, int size) {
         double x = (point.x - SIZE.x) * (IMG_SIZE / SIZE.width);
         double y = (point.y - SIZE.y) * (IMG_SIZE / SIZE.height);
-        g2d.fillOval((int) (x - CIRCLE_SIZE/2.0), (int) (y - CIRCLE_SIZE/2.0),
-                CIRCLE_SIZE, CIRCLE_SIZE);
+        g2d.fillOval((int) (x - size*CIRCLE_SIZE/2.0), (int) (y - size*CIRCLE_SIZE/2.0),
+                size*CIRCLE_SIZE, size*CIRCLE_SIZE);
     }
     
     /**
@@ -86,7 +74,13 @@ public class VisualAStar
     public void addPoint(Point2D.Double point) {
         Graphics2D g2d = (Graphics2D) img.getGraphics();
         g2d.setPaint(getForeground());
-        addPoint(point, g2d);
+        addPoint(point, g2d, 1);
+    }
+    
+    public void addPointBig (Point2D.Double point) {
+        Graphics2D g2d = (Graphics2D) img.getGraphics();
+        g2d.setPaint(getForeground());
+        addPoint(point, g2d, 2);
     }
     
     /**
@@ -98,8 +92,56 @@ public class VisualAStar
         Graphics2D g2d = (Graphics2D) img.getGraphics();
         g2d.setPaint(getForeground());
         for (Point2D.Double point : points) {
-            addPoint(point, g2d);
+            addPoint(point, g2d, 1);
         }
+    }
+     
+    /**
+     * @param point1 and point2 the points of the line to be added.
+     * @param g2d the graphics to paint on.
+     */
+    private void addLine(Point2D.Double point1, Point2D.Double point2, Graphics2D g2d) {
+        double x1 = (point1.x - SIZE.x) * (IMG_SIZE / SIZE.width);
+        double y1 = (point1.y - SIZE.y) * (IMG_SIZE / SIZE.height);
+        double x2 = (point2.x - SIZE.x) * (IMG_SIZE / SIZE.width);
+        double y2 = (point2.y - SIZE.y) * (IMG_SIZE / SIZE.height);
+        g2d.drawLine((int) x1,(int) y1,(int) x2,(int) y2);
+    }
+    
+    /**
+     * Adds a single line to the screen.
+     * 
+     * @param point1 and point2 the points of the line to be added.
+     */
+    public void addLine(Point2D.Double point1, Point2D.Double point2) {
+        Graphics2D g2d = (Graphics2D) img.getGraphics();
+        g2d.setPaint(getForeground());
+        g2d.setStroke(new BasicStroke(10));
+        addLine(point1, point2, g2d);
+    }
+        
+    /**
+     * @param point1 and point2 the points of the line to be added.
+     * @param g2d the graphics to paint on.
+     */
+    private void addRec(Point2D.Double point1, Point2D.Double point2, Graphics2D g2d) {
+        double x1 = (Math.min(point1.x, point2.x) - SIZE.x) * (IMG_SIZE / SIZE.width);
+        double y1 = (Math.min(point1.y, point2.y) - SIZE.y) * (IMG_SIZE / SIZE.height);
+        double x2 = (Math.max(point1.x, point2.x) - SIZE.x) * (IMG_SIZE / SIZE.width);
+        double y2 = (Math.max(point1.y, point2.y) - SIZE.y) * (IMG_SIZE / SIZE.height);
+        g2d.fillRect((int) x1,(int) y1,(int) (x2 -x1),(int) (y2 - y1));
+    }
+    
+    /**
+     * Adds a single line to the screen.
+     * 
+     * @param point1 and point2 the points of the line to be added.
+     */
+    public void addRec(Point2D.Double point1, Point2D.Double point2) {
+        Graphics2D g2d = (Graphics2D) img.getGraphics();
+        g2d.setPaint(getForeground());
+        g2d.setStroke(new BasicStroke(10));
+        addRec(point1, point2, g2d);
     }
     
     /**
@@ -111,9 +153,8 @@ public class VisualAStar
         Graphics2D g2d = (Graphics2D) img.getGraphics();
         g2d.setPaint(getForeground());
         for (Node node : nodes) {
-            //TODO change back if y coordinate should not be reverted
-            //addPoint(node.pos, g2d);
-            addPoint(new Point2D.Double(node.pos.x, -node.pos.y), g2d);
+            System.out.println(node.a);
+            addPoint(new Point2D.Double(node.pos.x, -node.pos.y), g2d, 1);
         }
     }
     
@@ -150,6 +191,4 @@ public class VisualAStar
             System.err.println(e);
         }
     }
-    
-    
 }

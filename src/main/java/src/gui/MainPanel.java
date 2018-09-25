@@ -58,7 +58,7 @@ public class MainPanel
         
         SwingUtilities.invokeLater(() -> {
             frame.add(this);
-            frame.setSize(500, 500);
+            frame.setSize(1000, 750);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setVisible(true);
         });
@@ -122,6 +122,10 @@ public class MainPanel
                 comp.setVisible(false);
             }
         }
+    }
+    
+    public JFrame getFrame() {
+        return frame;
     }
     
     

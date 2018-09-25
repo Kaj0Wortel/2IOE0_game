@@ -3,8 +3,9 @@ package src.Shaders;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
-import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import src.Assets.Light;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -13,7 +14,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 
 public abstract class ShaderProgram {
 
@@ -28,6 +28,20 @@ public abstract class ShaderProgram {
     protected abstract void bindAttributes(GL2 gl);
 
     protected abstract void getAllUniformLocations(GL2 gl);
+
+    public abstract void loadModelMatrix(GL2 gl, Matrix4f matrix);
+
+    public abstract void loadViewMatrix(GL2 gl, Matrix4f matrix);
+
+    public abstract void loadProjectionMatrix(GL2 gl, Matrix4f matrix4f);
+
+    public abstract void loadTextureLightValues(GL2 gl, float shininess, float reflectivity);
+
+    public abstract void loadTime(GL2 gl, int time);
+
+    public abstract void loadCameraPos(GL2 gl, Vector3f cameraPos);
+
+    public abstract void loadLight(GL2 gl, Light light);
 
     public int getUniformLocation(GL2 gl, String uni){
         return gl.glGetUniformLocation(ID,uni);
@@ -150,6 +164,18 @@ public abstract class ShaderProgram {
         matrix.get(m);
 
         gl.glUniformMatrix4fv(location,1,false,m);
+    }
+
+    public void loadUniformVector(GL2 gl, int location, Vector3f vector){
+        gl.glUniform3f(location, vector.x,vector.y,vector.z);
+    }
+
+    public void loadUniformFloat(GL2 gl, int location, float fl){
+        gl.glUniform1f(location,fl);
+    }
+
+    public void loadUniformInt(GL2 gl, int location, int in){
+        gl.glUniform1i(location,in);
     }
 
     public void stop(GL2 gl){

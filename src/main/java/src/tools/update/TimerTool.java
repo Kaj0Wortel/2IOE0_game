@@ -19,6 +19,7 @@ import src.tools.MultiTool;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import src.tools.log.Logger;
 
 
 public class TimerTool {
@@ -60,6 +61,9 @@ public class TimerTool {
     // Keeps track of how many cycles must pass before the
     // additative increase is replaced multiplicative increase.
     public int waitMul = 0;
+    
+    // Denotes the thread priority for this timer.
+    private int priority = Thread.NORM_PRIORITY;
     
     
     /**--------------------------------------------------------------------------------------------------------
@@ -123,6 +127,8 @@ public class TimerTool {
         return new TimerTask() {
             @Override
             public void run() {
+                Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+                //Logger.write("START");
                 boolean wasRunning;
                 synchronized(TimerTool.this) {
                     wasRunning = running;
@@ -134,7 +140,7 @@ public class TimerTool {
                 pauseTime = startTime; // To ensure equal timestamps.
                 
                 if (wasRunning) {
-                    //System.err.println("QUIT");
+                    //Logger.write("QUIT");
                     
                     if (fpsState == FPSState.AUTO) {
                         waitMul += 10;
@@ -148,8 +154,8 @@ public class TimerTool {
                         if (interval > targetInterval) {
                             if (--waitMul <= 0) {
                                 waitMul = 0;
-                                setInterval(Math.min((
-                                        long) (interval * 0.95),
+                                setInterval(Math.min(
+                                        (long) (interval * 0.95),
                                         targetInterval));
                             } else {
                                 setInterval(interval - 1);
@@ -162,9 +168,10 @@ public class TimerTool {
                 }
                 
                 // Run the function(s) on a new thread.
-                new Thread() {
+                new Thread("Timer-update") {
                     @Override
                     public void run() {
+                        Thread.currentThread().setPriority(priority);
                         if (rs != null) {
                             for (Runnable r : rs) {
                                 r.run();
@@ -174,6 +181,7 @@ public class TimerTool {
                         synchronized(TimerTool.this) {
                             running = false;
                         }
+                        //Logger.write("END");
                     }
                 }.start();
             }
@@ -361,6 +369,25 @@ public class TimerTool {
         synchronized(fpsState) {
             return fpsState;
         }
+    }
+    
+    /**
+     * @param priority the new update thread priority.
+     * 
+     * Note: should be within the range of {@link Thread#MIN_PRIORITY} and
+     * {@link Thread#MAX_PRIORITY}. Default is {@link Thread#NORM_PRIORITY}.
+     * 
+     * @see Thread#setPriority(int)
+     */
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+    
+    /**
+     * @return the current priority of the update thread.
+     */
+    public int getPriority() {
+        return priority;
     }
     
     /**

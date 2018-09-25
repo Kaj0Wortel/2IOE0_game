@@ -469,7 +469,7 @@ public class MultiTool {
      */
     public static <T> boolean isInArray(T[] array, T value) {
         for (T entry : array) {
-            if (entry.equals(value)) return true;
+            if (value.equals(entry)) return true;
         }
         
         return false;
@@ -1016,7 +1016,7 @@ public class MultiTool {
     
     public static <V> V[] shuffleArray(V[] in, Random rnd) {
         for (int i = in.length; i > 1; i--) {
-            swap(in, i - 1, rnd.nextInt(i));
+            swap(in, i - 1, rnd.nextInt(in.length));
         }
         
         return in;
@@ -1042,18 +1042,19 @@ public class MultiTool {
     }
     
     /**
-     * Performs a swap between two elements of an array.
+     * Performs an in place swap between two elements of an array.
      * 
      * @param arr the array where the swap occurs.
      * @param i the first element of the swap.
      * @param j the second element of the swap.
-     * @return arr, but then with the elements i and j swapped.
+     * @return {@code arr}, but then with the elements {@code i}
+     *     and {@code j} swapped.
      * @throws throws ArrayIndexOutOfBoundsException if {@code i} or {@code j}
      *     are invallid indices of {@code arr}.
-     *     
      */
     public static <V> V[] swap(V[] arr, int i, int j)
             throws ArrayIndexOutOfBoundsException {
+        if (i == j) return arr;
         V tmp = arr[i];
         arr[i] = arr[j];
         arr[j] = tmp;
@@ -1097,7 +1098,7 @@ public class MultiTool {
         return true;
     }
     
-    /* 
+    /**
      * Makes a deep clone of the given value.
      * If the value is an array, recursivly make a clone of each element
      * and put them in a new array.
@@ -1354,7 +1355,7 @@ public class MultiTool {
      * @throws IllegalArgumentException iff obj is not an array.
      * 
      * Note: if obj is a 1D array of a primative type (e.g. int[]),
-     * then a new Object[] is created that contains the same values.
+     * then a new {@code Object[]} is created that contains the same values.
      */
     public static Object[] safeObjArrCast(Object obj) {
         if (!obj.getClass().isArray()) {
@@ -1363,7 +1364,7 @@ public class MultiTool {
         }
         
         try {
-            // Try to cast to Object[]
+            // Try to cast to {@code Object[]}.
             return (Object[]) obj;
             
         } catch (ClassCastException e) {
@@ -1685,6 +1686,63 @@ public class MultiTool {
                     "No more elements!");
             return its[counter].next();
         }
+        
+        
+    }
+    
+    
+    /**
+     * Iterator class for returning all elements in a collection or an
+     * iterable at random.
+     * 
+     * @param <V> the type of the returned classes.
+     */
+    public static class RandomIterator<V>
+            implements Iterator<V> {
+        
+        private Iterator<V> it;
+        
+        
+        /**
+         * @param iterable the iterable to create this iterator of.
+         */
+        public RandomIterator(Iterable<V> iterable) {
+            List<V> list = new ArrayList<V>();
+            for (V value : iterable) {
+                list.add(value);
+            }
+            Collections.shuffle(list);
+            it = list.iterator();
+        }
+        
+        /**
+         * @param col the collection to create this iterator of.
+         */
+        public RandomIterator(Collection<V> col) {
+            V[] arr = (V[]) new Object[col.size()];
+            int i = 0;
+            for (V value : col) {
+                arr[i++] = value;
+            }
+            shuffleArray(arr);
+            it = new ArrayIterator(arr);
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return it.hasNext();
+        }
+        
+        @Override
+        public V next() {
+            return it.next();
+        }
+        
+        @Override
+        public void remove() {
+            it.remove();
+        }
+        
         
     }
     

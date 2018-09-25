@@ -1,8 +1,7 @@
 package src.Controllers;
 
 import src.Renderer.Camera;
-
-import java.awt.event.KeyEvent;
+import src.tools.event.keyAction.CameraKeyAction;
 
 public class CameraController {
 
@@ -12,19 +11,20 @@ public class CameraController {
         this.camera = camera;
     }
 
-    public void processKey(KeyEvent e) {
-        switch(e.getKeyChar()){
-            case 'a':
+    public void processKey(CameraKeyAction.MovementAction e) {
+        if(!camera.isOnPlayer()) {
+            if (e == CameraKeyAction.MovementAction.LEFT) {
                 camera.YawLeft();
-                break;
-            case 'd':
+            }
+            if (e == CameraKeyAction.MovementAction.RIGHT) {
                 camera.YawRight();
-                break;
-            case 'w':
-
-                break;
-            case 's':
-                break;
+            }
+            if (e == CameraKeyAction.MovementAction.FORWARD) {
+                camera.MoveForward();
+            }
+            if (e == CameraKeyAction.MovementAction.BACKWARD) {
+                camera.MoveBackwards();
+            }
         }
 
         camera.calculateViewMatrix();
