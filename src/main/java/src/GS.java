@@ -2,13 +2,15 @@
 package src;
 
 
-// Own imports
-
+// Jogamp imports
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
 import org.joml.Vector3f;
+
+
+// Own imports
 import src.Assets.Instance;
 import src.Assets.Light;
 import src.Controllers.CameraController;
@@ -29,6 +31,11 @@ import src.tools.io.ImageManager;
 import src.tools.log.*;
 import src.tools.update.Updater;
 
+import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
+import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
+
+
+// Java imports
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -37,11 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
-
-import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
-import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
-
-// Java imports
 
 
 /**
@@ -60,7 +62,7 @@ public class GS {
     }
     
     /**
-     * TODO
+     * TODO.
      */
     public static enum CameraMode {
         SOME_MODE;
