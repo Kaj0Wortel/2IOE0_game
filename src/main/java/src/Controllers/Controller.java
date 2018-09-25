@@ -2,10 +2,9 @@
 
 package src.Controllers;
 
-import src.tools.event.keyAction.KeyAction;
-
 
 // Own imports
+import src.tools.event.keyAction.KeyAction;
 
 
 // Java imports
