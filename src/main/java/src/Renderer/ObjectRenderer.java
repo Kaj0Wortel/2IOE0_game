@@ -25,7 +25,6 @@ public class ObjectRenderer {
         defaultShader.loadCameraPos(gl, GS.getCamera().getPosition());
 
         for(Instance asset : GS.getAssets()){
-            defaultShader.loadTextureLightValues(gl, asset.getModel().getTextureImg().getShininess(), asset.getModel().getTextureImg().getReflectivity());
             asset.draw(gl, defaultShader);
         }
 

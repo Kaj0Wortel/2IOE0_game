@@ -60,6 +60,8 @@ public class Renderer implements GLEventListener {
         getProjectionMatrix();
         objectRenderer = new ObjectRenderer(gl,projectionMatrix);
         terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
+
+        gl.glEnable(gl.GL_DEPTH_TEST);
     }
 
     @Override
@@ -69,7 +71,6 @@ public class Renderer implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
-        gl.glEnable(gl.GL_DEPTH_TEST);
         gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         gl.glClearColor(1f, 1f, 1f, 1f);
 
