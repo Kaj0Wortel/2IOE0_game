@@ -340,6 +340,7 @@ public class ControllerKeyDetector {
                             comp.getPollData());
                     newState.add(key);
                     //if (key.getValue() == 1.0f) System.out.println(key);
+                    //Logger.write(comp.getPollData() + ", " + comp);
                 }
             }
         } finally {

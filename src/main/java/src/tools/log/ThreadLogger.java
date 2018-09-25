@@ -39,7 +39,8 @@ public class ThreadLogger
             while (true) {
                 try {
                     while (!requestQueue.isEmpty()) {
-                        requestQueue.pollFirst().run();
+                        Runnable r = requestQueue.pollFirst();
+                        if (r != null) r.run();
                     }
                     
                     lock.lock();
@@ -53,6 +54,7 @@ public class ThreadLogger
                     }
                     
                 } catch (Exception e) {
+                    System.err.println("Logger error:");
                     System.err.println(e);
                 }
             }
@@ -103,15 +105,14 @@ public class ThreadLogger
     }
     
     private void checkAndExe(Runnable r) {
+        if (r == null) return;
         lock.lock();
         try {
             if (Thread.currentThread().equals(loggerThread)) {
                 r.run();
 
             } else {
-                requestQueue.addLast(() -> {
-                    r.run();
-                });
+                requestQueue.addLast(r);
                 
                 addedRequest.signal();
             }
