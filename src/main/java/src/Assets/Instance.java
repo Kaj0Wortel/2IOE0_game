@@ -104,27 +104,7 @@ public class Instance {
     public Vector3f getPosition() {
         return position;
     }
-/*
-    public void moveForward(){
-        position.x -= velocity * Math.sin((float) Math.toRadians(roty));
-        position.z -= velocity * Math.cos((float) Math.toRadians(roty));
-    }
-
-    public void moveBackwards(){
-        position.x += velocity * Math.sin((float) Math.toRadians(roty));
-        position.z += velocity * Math.cos((float) Math.toRadians(roty));
-    }
-
-    public void turnLeft(){
-        roty += rotationSpeed;
-        roty %= 360;
-    }
-
-    public void turnRight(){
-        roty -= rotationSpeed;
-        roty %= 360;
-    }
-    */
+    
     public float getRotx() {
         return rotx;
     }
@@ -158,8 +138,8 @@ public class Instance {
         velocity = (float) curStruct.v;
         position.z = -(float) curStruct.pos.x;
         position.x = -(float) curStruct.pos.y;
-        //System.out.println(velocity + ": (" + -position.z + ", " + -position.x 
-        //        + "), " + roty);
+        System.out.println(velocity + ": (" + -position.z + ", " + -position.x 
+                + "), " + roty);
         
         // Instance requires roty to be stored in degrees
         roty = (float) (Math.toDegrees(roty) % 360);
