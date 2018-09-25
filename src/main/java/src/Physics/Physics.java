@@ -8,16 +8,40 @@ import java.util.ArrayList;
 
 public class Physics {
     /**
-     * TODO.
-     * Does something.
-     * Like calculating physics or so, but I don't know.
+     * Computes the position, velocity and rotation after a key input
+     * using the position, velocity and rotation values before the input.
      * 
-     * turn: A/D
-     * acc: W/S
+     * WORKING:
+     * rotating + accelerating
+     * updating its pStruct even when no key pressed
+     * slowing down when no key is pressed
+     * 
+     * TODO:
+     * implement simple collision
+     * implement slowdown when off track (track + track-detection first)
+     * 
+     * TODO?:
+     * completely stop movement when velocity close to 0
+     *      - Already really close, when forcing: physics go haywire
+     *      - Not really necessary
+     * implement realistic collision
+     *      - depends on how many hours we want to invest in this (claw?)
+     * refine rotation physics (-rotVmax<->rotVmax) instead of (-rotVmax/0/rotVmax)
+     *      - controller would then be necessary instead of just an option
+     *      - Controller script also needs to support for range detection
+     * refine rotation physics (increase rot velocity the longer you hold A/D)
+     *      - Less ideal than previous idea
+     *      - If implemented: should be subtle
+     *      - 4-term rotation calculations -> 12-figure rotation calculations
+     *      
+     * 
+     * 
+     * turn: A/D => (1/-1)
+     * acc: W/S => (1/-1)
      * a: max acc
-     * rotV: max rot velocity
-     * vMax: max lin velocity, 
-     * tInt: time interval
+     * rotV: max rot velocity (-max/0/max)
+     * vMax: max lin velocity, (-max<->max)
+     * tInt: time interval (key detection interval)
      * startStruct: begin position
      * velocity and rotation
      */
@@ -26,7 +50,7 @@ public class Physics {
         
         // Calculation constants
         double fricOffset = 0;        
-        // struct disection
+        // struct disection: input position, velocity, rotation before key input
         Point2D.Double startPos = startStruct.pos;
         double startRot = startStruct.rot;
         double startV = startStruct.v;
@@ -39,13 +63,18 @@ public class Physics {
                 (acc == -1 && startV - a*tInt < -vMax)) {
             acc = 0;
         }
+        
         // Friction abs(v) decrease
         if (acc == 0) {
-            // TODO.
-            // Just what...?
+            if (startV > 0) {
+                a = -0.2 * a;
+            } else if (startV < 0) {
+                a = 0.2 * a;
+            }
+        }  else {
+            a = (acc * a);
         }
         
-        a = (acc * a) - fricOffset;
         if (turn == 0) { // Straight
             distTravelled = startV * tInt + 0.5 * a * tInt * tInt;
             
@@ -70,6 +99,11 @@ public class Physics {
                         - (a / (rotV*rotV)) * Math.sin(startRot);
             ePos = new Point2D.Double(startPos.x + deltaX, startPos.y +deltaY);
         }
+        // velocity should be 0 if really close
+        /*if (Math.abs(eV) < 0.005) {
+            eV = 0;
+        }*/
+        // new position, velocity and rotation after input
         return new PStruct(ePos, eV, eRot);
     }
     

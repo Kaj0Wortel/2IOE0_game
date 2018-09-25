@@ -91,27 +91,14 @@ public class AStarPointers {
         // <editor-fold defaultstate="collapsed" desc="VARIABLES">
         // Checkpoints and start position
         List<Point2D.Double> checkPoints = new ArrayList<Point2D.Double>();        
-        checkPoints.add(new Point2D.Double(8.5, 8.5));
-        checkPoints.add(new Point2D.Double(5.5, 8.5));
-        checkPoints.add(new Point2D.Double(5, 5.5));
-        checkPoints.add(new Point2D.Double(1.1, 5.3));
-        checkPoints.add(new Point2D.Double(1.4, 1.4));
-        checkPoints.add(new Point2D.Double(8.6, 1.4));
-        
-        checkPoints.add(new Point2D.Double(8.5, 8.5));
-        checkPoints.add(new Point2D.Double(5.5, 8.5));
-        checkPoints.add(new Point2D.Double(5, 5.5));
-        checkPoints.add(new Point2D.Double(1.1, 5.3));
-        checkPoints.add(new Point2D.Double(1.4, 1.4));
-        checkPoints.add(new Point2D.Double(8.6, 1.4));
-        
-        checkPoints.add(new Point2D.Double(8.5, 8.5));
-        checkPoints.add(new Point2D.Double(5.5, 8.5));
-        checkPoints.add(new Point2D.Double(5, 5.5));
-        checkPoints.add(new Point2D.Double(1.1, 5.3));
-        checkPoints.add(new Point2D.Double(1.4, 1.4));
-        checkPoints.add(new Point2D.Double(8.6, 1.4));
-        
+        for (int i = 0; i < 1; i++) {
+            checkPoints.add(new Point2D.Double(8.5, 8.5));
+            checkPoints.add(new Point2D.Double(5.5, 8.5));
+            checkPoints.add(new Point2D.Double(5, 5.5));
+            checkPoints.add(new Point2D.Double(1.1, 5.3));
+            checkPoints.add(new Point2D.Double(1.4, 1.4));
+            checkPoints.add(new Point2D.Double(8.6, 1.4));
+        }
         checkPoints.add(new Point2D.Double(9, 6.2));
         Point2D.Double firstPos = new Point2D.Double(9, 5);
         Point2D.Double startPos = firstPos;
