@@ -27,6 +27,7 @@ hs_err_pid*
 *.iws
 out/
 .idea_modules/
+.idea/
 
 # User-specific stuff
 .idea/**/workspace.xml
