@@ -47,9 +47,7 @@ public class Physics {
      */
     public PStruct calcPhysics(int turn, int acc, double a, double rotV,
             double vMax, double tInt, PStruct startStruct) {
-        
-        // Calculation constants
-        double fricOffset = 0;        
+             
         // struct disection: input position, velocity, rotation before key input
         Point2D.Double startPos = startStruct.pos;
         double startRot = startStruct.rot;
