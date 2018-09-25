@@ -37,6 +37,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
 
+import net.java.games.input.ContrlEnv;
+import net.java.games.input.ControllerEnvironment;
+import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 
@@ -164,6 +167,10 @@ public class GS {
         debugMap.put(Key.N1, () -> printDebug());
         debugMap.put(Key.N2, () -> {
             setFullScreen(!isFullScreen());
+        });
+        debugMap.put(Key.N3, () -> {
+            ((ContrlEnv) ControllerEnvironment
+                    .getDefaultEnvironment()).forceUpdate();
         });
         Logger.setDefaultLogger(new ThreadLogger(new MultiLogger(
                 new ScreenLogger("Test logger", debugMap),
@@ -329,6 +336,7 @@ public class GS {
     public static List<ControllerKey> getKeys(KeyAction action) {
         Locker.lock(ControllerKey.class);
         try {
+            ControllerKey.setCompMode(DEFAULT_GET_COMP_MODE);
             return keyMap.get(action);
             
         } finally {
