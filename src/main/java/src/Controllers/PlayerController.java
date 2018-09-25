@@ -12,17 +12,26 @@ public class PlayerController {
     }
 
     public void processKey(PlayerKeyAction.MovementAction e) {
+        int turn = 0;
+        int acc = 0;
+        
         if (e == PlayerKeyAction.MovementAction.LEFT) {
-            player.turnLeft();
+            //player.turnLeft();
+            turn++;
         }
         if (e == PlayerKeyAction.MovementAction.RIGHT) {
-            player.turnRight();
+            //player.turnRight();
+            turn--;
         }
         if (e == PlayerKeyAction.MovementAction.FORWARD) {
-            player.moveForward();
+            //player.moveForward();
+            acc++;
         }
         if (e == PlayerKeyAction.MovementAction.BACKWARD) {
-            player.moveBackwards();
+            //player.moveBackwards();
+            acc--;
         }
+        // Movement physics determine new position, rotation and velocity
+        player.movement(turn, acc);
     }
 }

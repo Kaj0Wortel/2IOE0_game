@@ -5,7 +5,6 @@ import src.testing.VisualAStar;
 //Java imports
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.awt.Color;
 
 public class Physics {
     // turn: A/D, acc: W/S, a: max acc, rotV: max rot velocity, vMax: max lin velocity, 
@@ -13,6 +12,8 @@ public class Physics {
     public PStruct Physics (int turn, int acc, double a, double rotV, double vMax, double tInt, 
                     PStruct startStruct) {
         
+        // Calculation constants
+        double fricOffset = 0;        
         // struct disection
         Point2D.Double startPos = startStruct.pos;
         double startRot = startStruct.rot;
@@ -25,8 +26,12 @@ public class Physics {
         if ((acc == 1 && startV + a*tInt > vMax) || (acc == -1 && startV - a*tInt < -vMax)) {
             acc = 0;
         }
+        // Friction abs(v) decrease
+        if (acc == 0) {
+            
+        }
         
-        a = acc * a;
+        a = (acc * a) - fricOffset;
         if (turn == 0) { // Straight
             distTravelled = startV * tInt + 0.5 * a * tInt * tInt;
             
@@ -62,34 +67,26 @@ public class Physics {
         ArrayList<PStruct> testDrive = new ArrayList<>();
         
         // Start position, rotation and velocity
-        PStruct currentStruct = new PStruct(new Point2D.Double(5,1), 0, Math.PI/2);
+        PStruct currentStruct = new PStruct(new Point2D.Double(0,0), 0, 0);
         testDrive.add(currentStruct);
         
         // INSERT TEST COMMANDS
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 4; i++) {
             currentStruct = physics.Physics(0, 1, 1, Math.PI/2, 2.01, 0.1, currentStruct);
             testDrive.add(currentStruct);
         }
-        for (int i = 0; i < 5; i++) {
-            currentStruct = physics.Physics(1, 1, 1, Math.PI/2, 2.01, 0.1, currentStruct);
+        for (int i = 0; i < 4; i++) {
+            currentStruct = physics.Physics(1, 0, 1, Math.PI/2, 2.01, 0.1, currentStruct);
             testDrive.add(currentStruct);
         }
-        for (int i = 0; i < 5; i++) {
-            currentStruct = physics.Physics(0, 1, 1, Math.PI/2, 2.01, 0.1, currentStruct);
-            testDrive.add(currentStruct);
-        }
-        for (int i = 0; i < 5; i++) {
-            currentStruct = physics.Physics(-1, 1, 1, Math.PI/2, 2.01, 0.1, currentStruct);
-            testDrive.add(currentStruct);
-        }
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 4; i++) {
             currentStruct = physics.Physics(0, 1, 1, Math.PI/2, 2.01, 0.1, currentStruct);
             testDrive.add(currentStruct);
         }
         
         // Visualization
         for (int i = 0; i < testDrive.size(); i++) {
-            System.out.println(new Point2D.Double(testDrive.get(i).pos.x, -testDrive.get(i).pos.y));
+            System.out.println(new Point2D.Double(testDrive.get(i).pos.x, testDrive.get(i).pos.y));
             visual.addPoint(new Point2D.Double(testDrive.get(i).pos.x, -testDrive.get(i).pos.y));
         }
         visual.repaint();

@@ -1,8 +1,11 @@
 package src.Assets;
 
 import com.jogamp.opengl.GL2;
+import java.awt.geom.Point2D;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import src.Physics.PStruct; // Connection to physics
+import src.Physics.Physics;
 import src.Shaders.ShaderProgram;
 
 public class Instance {
@@ -13,7 +16,7 @@ public class Instance {
     private float roty;
     private float rotz;
 
-    private float speed;
+    private float velocity;
     private float rotationSpeed;
 
     private OBJTexture model;
@@ -25,7 +28,7 @@ public class Instance {
         this.roty = roty;
         this.rotz = rotz;
         this.model = model;
-        this.speed = 2f;
+        this.velocity = 0;
         this.rotationSpeed = 5f;
     }
 
@@ -34,6 +37,7 @@ public class Instance {
         transformationMatrix.identity();
         transformationMatrix.translate(position);
         transformationMatrix.rotate((float) Math.toRadians(rotx),1,0,0);
+        transformationMatrix.rotate((float) Math.toRadians(roty),0,1,0);
         transformationMatrix.rotate((float) Math.toRadians(roty),0,1,0);
         transformationMatrix.rotate((float) Math.toRadians(rotz),0,0,1);
         transformationMatrix.scale(size,size,size);
@@ -95,15 +99,15 @@ public class Instance {
     public Vector3f getPosition() {
         return position;
     }
-
+/*
     public void moveForward(){
-        position.x -= speed * Math.sin((float) Math.toRadians(roty));
-        position.z -= speed * Math.cos((float) Math.toRadians(roty));
+        position.x -= velocity * Math.sin((float) Math.toRadians(roty));
+        position.z -= velocity * Math.cos((float) Math.toRadians(roty));
     }
 
     public void moveBackwards(){
-        position.x += speed * Math.sin((float) Math.toRadians(roty));
-        position.z += speed * Math.cos((float) Math.toRadians(roty));
+        position.x += velocity * Math.sin((float) Math.toRadians(roty));
+        position.z += velocity * Math.cos((float) Math.toRadians(roty));
     }
 
     public void turnLeft(){
@@ -115,7 +119,7 @@ public class Instance {
         roty -= rotationSpeed;
         roty %= 360;
     }
-
+    */
     public float getRotx() {
         return rotx;
     }
@@ -126,5 +130,35 @@ public class Instance {
 
     public float getRotz() {
         return rotz;
+    }
+    
+    public void movement(int turn, int acc) {
+        Physics physics = new Physics();
+        
+        // INPUT
+        double linearAcceleration = 1;
+        double rotationalVelocity = Math.PI/20;
+        double maxLinearVelocity = 10.01;
+        double deltaTime = 0.1;
+        
+        
+        // Physiscs requires roty to be in degrees
+        roty = (float)Math.toRadians(roty);
+        
+        PStruct curStruct = new PStruct(new Point2D.Double(
+                -position.z, -position.x), velocity, roty);
+        System.out.println("turn: " +turn+ ", acc: " +acc+ "");
+        curStruct = physics.Physics(turn, acc, linearAcceleration, 
+                rotationalVelocity, maxLinearVelocity, deltaTime, curStruct);
+        // 3D-2D conversion (might change physics to directly support 3D input)
+        roty = (float)curStruct.rot;
+        velocity = (float)curStruct.v;
+        position.z = -(float)curStruct.pos.x;
+        position.x = -(float)curStruct.pos.y;
+        //System.out.println(velocity + ": (" + -position.z + "," + -position.x 
+        //        + "), " + roty);
+        
+        // Camera requires roty to be stored in degrees
+        roty = (float)Math.toDegrees(roty);
     }
 }

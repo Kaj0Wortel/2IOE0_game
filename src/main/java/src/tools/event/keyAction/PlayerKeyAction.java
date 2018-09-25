@@ -38,7 +38,7 @@ public class PlayerKeyAction
      *
      * @param data the data needed to create the key action.
      * @return a fresh key action described by the data.
-     * @throws IllegalArgumentException if the given data was invallid.
+     * @throws IllegalArgumentException if the given data was invalid.
      */
     public static KeyAction createFromString(String[] data)
         throws IllegalArgumentException {
