@@ -94,7 +94,7 @@ public class Updater {
             if (!tasks.isEmpty()) {
                 Logger.write("Executing remaining tasks in updater!",
                         Logger.Type.ERROR);
-                // Create a new scheduleTask thread.
+                // Schedules the tasks for the updater.
                 updater.scheduleTask(createUpdateRunnable(tasks, timeStamp));
             }
             

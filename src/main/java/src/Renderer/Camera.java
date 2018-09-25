@@ -40,30 +40,47 @@ public class Camera {
         Vector3f negPos = new Vector3f(-position.x, -position.y, -position.z);
         viewMatrix.translate(negPos);
     }
-
+    
     public Matrix4f getViewMatrix(){
         calculateViewMatrix();
         return viewMatrix;
     }
-
-    public void YawLeft(){
-        yaw -= 5f;
+    
+    public void yaw(float amt) {
+        yaw += amt;
         yaw %= 360;
     }
 
-    public void YawRight(){
-        yaw += 5f;
-        yaw %= 360;
+    @Deprecated
+    public void yawLeft(){
+        yaw(-5f);
     }
-
-    public void MoveForward(){
-        position.x += speed * Math.sin((float) Math.toRadians(yaw));
-        position.z -= speed * Math.cos((float) Math.toRadians(yaw));
+    
+    @Deprecated
+    public void yawRight(){
+        yaw(5f);
     }
-
-    public void MoveBackwards(){
-        position.x -= speed * Math.sin((float) Math.toRadians(yaw));
-        position.z += speed * Math.cos((float) Math.toRadians(yaw));
+    
+    /**
+     * Moves the camera forward or backwards.
+     * A positive factor let's it move forward, negative backwards.
+     * One should use {@code 1.0f} or {@code -1.0f} for default behaviour.
+     * 
+     * @param factor 
+     */
+    public void move(float factor) {
+        position.x += speed * Math.sin((float) Math.toRadians(yaw)) * factor;
+        position.z -= speed * Math.cos((float) Math.toRadians(yaw)) * factor;
+    }
+    
+    @Deprecated
+    public void moveForward() {
+        move(1.0f);
+    }
+    
+    @Deprecated
+    public void moveBackwards(){
+        move(-1.0f);
     }
 
     public Vector3f getPosition() {
@@ -71,7 +88,7 @@ public class Camera {
     }
 
     public void setPosition(Vector3f position) {
-        this.position = position;
+        this.position = new Vector3f(position);
     }
 
     public void setFocus(Instance instance){
@@ -82,7 +99,7 @@ public class Camera {
         pitch = 20;
     }
 
-    public void removeFocus(){
+    public void removeFocus() {
         focusedOn = null;
         onPlayer = false;
         position = new Vector3f(previousPosition);

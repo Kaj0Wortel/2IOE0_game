@@ -1,6 +1,8 @@
 
 
-package game_2IOE0.Controllers;
+package src.Controllers;
+
+import src.tools.event.keyAction.KeyAction;
 
 
 // Own imports
@@ -14,6 +16,6 @@ package game_2IOE0.Controllers;
  */
 public abstract class Controller {
     
-    
+    public abstract void processKey(KeyAction e, long dt);
     
 }

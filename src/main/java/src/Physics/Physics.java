@@ -7,10 +7,22 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 public class Physics {
-    // turn: A/D, acc: W/S, a: max acc, rotV: max rot velocity, vMax: max lin velocity, 
-    // tInt: time interval, startStruct: begin position, velocity and rotation
-    public PStruct Physics (int turn, int acc, double a, double rotV, double vMax, double tInt, 
-                    PStruct startStruct) {
+    /**
+     * TODO.
+     * Does something.
+     * Like calculating physics or so, but I don't know.
+     * 
+     * turn: A/D
+     * acc: W/S
+     * a: max acc
+     * rotV: max rot velocity
+     * vMax: max lin velocity, 
+     * tInt: time interval
+     * startStruct: begin position
+     * velocity and rotation
+     */
+    public PStruct calcPhysics(int turn, int acc, double a, double rotV,
+            double vMax, double tInt, PStruct startStruct) {
         
         // Calculation constants
         double fricOffset = 0;        
@@ -23,12 +35,14 @@ public class Physics {
         Point2D.Double ePos;
         
         // Max speed regulation
-        if ((acc == 1 && startV + a*tInt > vMax) || (acc == -1 && startV - a*tInt < -vMax)) {
+        if ((acc == 1 && startV + a*tInt > vMax) ||
+                (acc == -1 && startV - a*tInt < -vMax)) {
             acc = 0;
         }
         // Friction abs(v) decrease
         if (acc == 0) {
-            
+            // TODO.
+            // Just what...?
         }
         
         a = (acc * a) - fricOffset;
@@ -72,15 +86,18 @@ public class Physics {
         
         // INSERT TEST COMMANDS
         for (int i = 0; i < 4; i++) {
-            currentStruct = physics.Physics(0, 1, 1, Math.PI/2, 2.01, 0.1, currentStruct);
+            currentStruct = physics.calcPhysics(0, 1, 1,
+                    Math.PI/2, 2.01, 0.1, currentStruct);
             testDrive.add(currentStruct);
         }
         for (int i = 0; i < 4; i++) {
-            currentStruct = physics.Physics(1, 0, 1, Math.PI/2, 2.01, 0.1, currentStruct);
+            currentStruct = physics.calcPhysics(1, 0, 1,
+                    Math.PI/2, 2.01, 0.1, currentStruct);
             testDrive.add(currentStruct);
         }
         for (int i = 0; i < 4; i++) {
-            currentStruct = physics.Physics(0, 1, 1, Math.PI/2, 2.01, 0.1, currentStruct);
+            currentStruct = physics.calcPhysics(0, 1, 1,
+                    Math.PI/2, 2.01, 0.1, currentStruct);
             testDrive.add(currentStruct);
         }
         

@@ -7,6 +7,7 @@ import org.joml.Vector3f;
 import src.Physics.PStruct; // Connection to physics
 import src.Physics.Physics;
 import src.Shaders.ShaderProgram;
+import src.tools.MultiTool;
 
 public class Instance {
 
@@ -36,10 +37,9 @@ public class Instance {
         Matrix4f transformationMatrix = new Matrix4f();
         transformationMatrix.identity();
         transformationMatrix.translate(position);
-        transformationMatrix.rotate((float) Math.toRadians(rotx),1,0,0);
-        transformationMatrix.rotate((float) Math.toRadians(roty),0,1,0);
-        transformationMatrix.rotate((float) Math.toRadians(roty),0,1,0);
-        transformationMatrix.rotate((float) Math.toRadians(rotz),0,0,1);
+        transformationMatrix.rotate((float) Math.toRadians(rotx), 1, 0, 0);
+        transformationMatrix.rotate((float) Math.toRadians(roty), 0, 1, 0);
+        transformationMatrix.rotate((float) Math.toRadians(rotz), 0, 0, 1);
         transformationMatrix.scale(size,size,size);
 
         return transformationMatrix;
@@ -132,33 +132,33 @@ public class Instance {
         return rotz;
     }
     
-    public void movement(int turn, int acc) {
+    public void movement(int turn, int acc, long dt) {
         Physics physics = new Physics();
         
-        // INPUT
-        double linearAcceleration = 1;
-        double rotationalVelocity = Math.PI/20;
-        double maxLinearVelocity = 10.01;
-        double deltaTime = 0.1;
-        
+        // TODO: INPUT
+        double linearAcceleration = 0.25;
+        double rotationalVelocity = Math.PI/10;
+        double maxLinearVelocity = 5;
         
         // Physiscs requires roty to be in degrees
-        roty = (float)Math.toRadians(roty);
+        roty = (float) Math.toRadians(roty);
         
         PStruct curStruct = new PStruct(new Point2D.Double(
                 -position.z, -position.x), velocity, roty);
         System.out.println("turn: " +turn+ ", acc: " +acc+ "");
-        curStruct = physics.Physics(turn, acc, linearAcceleration, 
-                rotationalVelocity, maxLinearVelocity, deltaTime, curStruct);
+        curStruct = physics.calcPhysics(turn, acc, linearAcceleration, 
+                rotationalVelocity, maxLinearVelocity, dt / 160f, curStruct);
         // 3D-2D conversion (might change physics to directly support 3D input)
-        roty = (float)curStruct.rot;
-        velocity = (float)curStruct.v;
-        position.z = -(float)curStruct.pos.x;
-        position.x = -(float)curStruct.pos.y;
-        //System.out.println(velocity + ": (" + -position.z + "," + -position.x 
-        //        + "), " + roty);
+        roty = (float) curStruct.rot;
+        velocity = (float) curStruct.v;
+        position.z = -(float) curStruct.pos.x;
+        position.x = -(float) curStruct.pos.y;
+        System.out.println(velocity + ": (" + -position.z + ", " + -position.x 
+                + "), " + roty);
         
-        // Camera requires roty to be stored in degrees
-        roty = (float)Math.toDegrees(roty);
+        // Instance requires roty to be stored in degrees
+        roty = (float) (Math.toDegrees(roty) % 360);
     }
+    
+    
 }
