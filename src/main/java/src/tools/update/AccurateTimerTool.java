@@ -52,6 +52,9 @@ public class AccurateTimerTool {
     // this iteration then it is equal to the start timestamp.
     private Long pauseTime;
     
+    // Denots whether there is already a thread waiting on a previous thread.
+    private boolean waiting = false;
+    
     // The current state of the timer
     public enum TimerState {
         RUNNING, PAUSED, CANCELED
@@ -365,9 +368,8 @@ public class AccurateTimerTool {
     
     private Lock lock = new ReentrantLock(true);
     private Condition stopWaiting = lock.newCondition();
-    private long prevTime;
+    //private long prevTime;
     
-    private boolean waiting = false;
     private Thread createUpdateThread(int threadID) {
         return new Thread("update-thread") {
             @Override
@@ -384,8 +386,6 @@ public class AccurateTimerTool {
                     // Update the timestamps of the start and pause time.
                     startTime += interval;
                     pauseTime = startTime;
-                    //prevTime = System.currentTimeMillis();
-                    
                     
                     boolean wasRunning;
                     lock.lock();
@@ -445,11 +445,11 @@ public class AccurateTimerTool {
                         }
                     }
                     
-                    
+                    /*
                     long curTime = System.currentTimeMillis();
                     System.out.println(curTime - prevTime);
                     prevTime = curTime;
-                    
+                    */
                     
                     // Run the function(s) on a new thread.
                     new Thread("Timer-update") {
@@ -473,8 +473,11 @@ public class AccurateTimerTool {
                         }
                     }.start();
                     
-                    while (System.currentTimeMillis() - pauseTime < interval) {
+                    while (System.currentTimeMillis() - pauseTime - 2 < interval) {
                         MultiTool.sleepThread(1);
+                    }
+                    
+                    while (System.currentTimeMillis() - pauseTime < interval) {
                     }
                 }
             }

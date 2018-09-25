@@ -58,7 +58,7 @@ public class MainPanel
         
         SwingUtilities.invokeLater(() -> {
             frame.add(this);
-            frame.setSize(1000, 500);
+            frame.setSize(1000, 750);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setVisible(true);
         });

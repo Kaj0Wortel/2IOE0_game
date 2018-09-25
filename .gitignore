@@ -59,5 +59,4 @@ nbdist/
 .nb-gradle/
 
 # Maven
-log/
 target/maven-archiver/pom.properties
