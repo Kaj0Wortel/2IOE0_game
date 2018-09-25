@@ -62,17 +62,26 @@ public class Simulator implements Updateable {
         Instance TerrainInstance = new Instance(
                 new Vector3f(TexturedTerrain.getAsset().getCenteredPosition())
                         .add(new Vector3f(0, -2, 0)), 1f, 0f, 0f, 0f,
-                TexturedTerrain);
+                TexturedTerrain, 0);
         GS.addTerrain(TerrainInstance);
 
         OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "cube.obj");
         OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "dragon.obj");
+        OBJCollection car = LoadOBJ.load(gl, GS.OBJ_DIR + "car.obj");
         
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
                     new TextureImg(5, 0.5f));
             Instance cubeInstance = new Instance(new Vector3f(0f, 0f, 0f),
-                    1f, 0, 0, 0, texturedCube);
+                    1f, 0, 0, 0, texturedCube,0);
+            GS.addAsset(cubeInstance);
+        }
+
+        for (OBJObject obj : car){
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            Instance cubeInstance = new Instance(new Vector3f(-5f, 0f, 0f),
+                    5f, 0, 90, 0, texturedCube,90);
             player = cubeInstance;
             GS.addAsset(cubeInstance);
         }
@@ -81,7 +90,7 @@ public class Simulator implements Updateable {
             OBJTexture texturedCube = new OBJTexture(obj,
                     new TextureImg(5, 0.5f));
             Instance cubeInstance = new Instance(new Vector3f(0f, 0f, -5f),
-                    1, 0, 0, 0, texturedCube);
+                    1, 0, 0, 0, texturedCube,0);
             GS.addAsset(cubeInstance);
         }
 
@@ -105,9 +114,6 @@ public class Simulator implements Updateable {
         long dt = timeStamp - prevTimeStamp;
         prevTimeStamp = timeStamp;
 
-        if(GS.getAssets().size() > 0) {
-            GS.getAssets().get(1).roty(1f);
-        }
         if(player != null) {
             GS.getCamera().setFocus(player);
             processInput(dt);

@@ -16,13 +16,16 @@ public class Instance {
     private float rotx;
     private float roty;
     private float rotz;
+    private float integratedRotation;
 
     private float velocity;
     private float rotationSpeed;
 
     private OBJTexture model;
 
-    public Instance(Vector3f position, float size, float rotx, float roty, float rotz, OBJTexture model) {
+    public Instance(Vector3f position, float size,
+            float rotx, float roty, float rotz,
+            OBJTexture model, float integratedRotation) {
         this.position = position;
         this.size = size;
         this.rotx = rotx;
@@ -30,6 +33,7 @@ public class Instance {
         this.rotz = rotz;
         this.model = model;
         this.velocity = 0;
+        this.integratedRotation = integratedRotation;
         this.rotationSpeed = 5f;
     }
 
@@ -38,7 +42,8 @@ public class Instance {
         transformationMatrix.identity();
         transformationMatrix.translate(position);
         transformationMatrix.rotate((float) Math.toRadians(rotx), 1, 0, 0);
-        transformationMatrix.rotate((float) Math.toRadians(roty), 0, 1, 0);
+        transformationMatrix.rotate(
+                (float) Math.toRadians(roty + integratedRotation), 0, 1, 0);
         transformationMatrix.rotate((float) Math.toRadians(rotz), 0, 0, 1);
         transformationMatrix.scale(size,size,size);
 
