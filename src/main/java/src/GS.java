@@ -130,6 +130,9 @@ public class GS {
     private static GLCanvas canvas;
     private static FPSAnimator animator;
 
+    private static int windowHeight = 720;
+    private static int windowWidth = 1080;
+
 
     
     
@@ -191,7 +194,7 @@ public class GS {
         cameraController = new CameraController(camera);
 
         simulator = new Simulator();
-        renderer = new Renderer(simulator, 1080, 720);
+        renderer = new Renderer(simulator, windowWidth, windowHeight);
 
         canvas.addGLEventListener(renderer);
         canvas.setSize(1080, 720);
@@ -439,4 +442,12 @@ public class GS {
     }
 
     public static PlayerController getPlayerController() { return  playerController;}
+
+    public static int getWindowHeight() {
+        return windowHeight;
+    }
+
+    public static int getWindowWidth() {
+        return windowWidth;
+    }
 }

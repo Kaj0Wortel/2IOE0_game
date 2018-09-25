@@ -4,7 +4,6 @@ package src.Renderer;
 
 // Jogamp imports
 
-import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
@@ -63,6 +62,7 @@ public class Renderer implements GLEventListener {
         terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
 
         gl.glEnable(gl.GL_DEPTH_TEST);
+        gl.glViewport(0,0, GS.getWindowWidth(),GS.getWindowHeight());
     }
 
     @Override
