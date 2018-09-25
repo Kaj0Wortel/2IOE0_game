@@ -145,7 +145,7 @@ public class Instance {
         
         PStruct curStruct = new PStruct(new Point2D.Double(
                 -position.z, -position.x), velocity, roty);
-        System.out.println("turn: " +turn+ ", acc: " +acc+ "");
+        //System.out.println("turn: " +turn+ ", acc: " +acc+ "");
         curStruct = physics.calcPhysics(turn, acc, linearAcceleration, 
                 rotationalVelocity, maxLinearVelocity, dt / 160f, curStruct);
         // 3D-2D conversion (might change physics to directly support 3D input)
@@ -153,8 +153,8 @@ public class Instance {
         velocity = (float) curStruct.v;
         position.z = -(float) curStruct.pos.x;
         position.x = -(float) curStruct.pos.y;
-        System.out.println(velocity + ": (" + -position.z + ", " + -position.x 
-                + "), " + roty);
+        //System.out.println(velocity + ": (" + -position.z + ", " + -position.x 
+        //        + "), " + roty);
         
         // Instance requires roty to be stored in degrees
         roty = (float) (Math.toDegrees(roty) % 360);
