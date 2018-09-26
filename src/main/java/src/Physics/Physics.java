@@ -5,6 +5,7 @@ import src.testing.VisualAStar;
 //Java imports
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.awt.geom.Point2D;
 
 public class Physics {
     /**
@@ -15,9 +16,13 @@ public class Physics {
      * rotating + accelerating
      * updating its pStruct even when no key pressed
      * slowing down when no key is pressed
+     * simple collision (cylinder colliders)
      * 
      * TODO:
-     * implement simple collision
+     * ? a = 0 when collision bump is still busy?
+     * implement falling when not on ground
+     *      - tumbling over
+     *      - point2d.doubles need to become vector2f?
      * implement slowdown when off track (track + track-detection first)
      * 
      * TODO?:
@@ -116,11 +121,9 @@ public class Physics {
             colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
             
             if (colV < 0.05) {
-                colV = startV * 0.05;
+                colV = Math.abs(startV) * 0.05;
                 ePos = new Point2D.Double(ePos.x + colV * 10 * Math.cos(colAngle), 
                     ePos.y + colV * 10 * Math.sin(colAngle));
-                
-                System.out.println("Kaas");
             } 
         } else {
             colV = colV * 0.95;
@@ -134,9 +137,6 @@ public class Physics {
             ePos = new Point2D.Double(ePos.x + colV * 10 * Math.cos(colAngle), 
                     ePos.y + colV * 10 * Math.sin(colAngle));
         }
-        //if (colV != 0)
-        //    System.out.println(colV);
-        
         //-------------------
         
         // new position, velocity and rotation after input
