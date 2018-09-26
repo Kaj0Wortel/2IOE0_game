@@ -20,6 +20,7 @@ public class Instance {
     private float integratedRotation;
 
     private float velocity;
+    private float collisionVelocity;
     private float rotationSpeed;
 
     private OBJTexture model;
@@ -34,6 +35,7 @@ public class Instance {
         this.rotz = rotz;
         this.model = model;
         this.velocity = 0;
+        this.collisionVelocity = 0;
         this.integratedRotation = integratedRotation;
         this.rotationSpeed = 5f;
     }
@@ -105,7 +107,7 @@ public class Instance {
     public Vector3f getPosition() {
         return position;
     }
-    
+
     public float getRotx() {
         return rotx;
     }
@@ -125,22 +127,25 @@ public class Instance {
         double linearAcceleration = 0.4;
         double rotationalVelocity = Math.PI/10;
         double maxLinearVelocity = 5;
+        double frictionConstant = 0.2;
         
         // Physiscs requires roty to be in degrees
         roty = (float) Math.toRadians(roty);
-        
+
         PStruct curStruct = new PStruct(new Point2D.Double(
-                -position.z, -position.x), velocity, roty);
+                -position.z, -position.x), velocity, roty, collisionVelocity);
         //System.out.println("turn: " +turn+ ", acc: " +acc+ "");
         curStruct = physics.calcPhysics(turn, acc, linearAcceleration, 
-                rotationalVelocity, maxLinearVelocity, dt / 160f, curStruct);
+                rotationalVelocity, maxLinearVelocity, dt / 160f, 
+                frictionConstant, curStruct);
         // 3D-2D conversion (might change physics to directly support 3D input)
         roty = (float) curStruct.rot;
         velocity = (float) curStruct.v;
         position.z = -(float) curStruct.pos.x;
         position.x = -(float) curStruct.pos.y;
-        //System.out.println(velocity + ": (" + -position.z + ", " + -position.x 
-        //        + "), " + roty);
+        collisionVelocity = (float) curStruct.colV;
+        //System.out.println(/*velocity + */": (" + -position.z + ", " + -position.x 
+        //        + "), "/* + roty*/);
         
         // Instance requires roty to be stored in degrees
         roty = (float) (Math.toDegrees(roty) % 360);
