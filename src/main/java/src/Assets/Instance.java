@@ -7,11 +7,8 @@ import org.joml.Vector3f;
 import src.Physics.PStruct;
 import src.Physics.Physics;
 import src.Shaders.ShaderProgram;
-<<<<<<< Updated upstream
-
 import java.awt.geom.Point2D;
-=======
->>>>>>> Stashed changes
+
 
 public class Instance {
 
