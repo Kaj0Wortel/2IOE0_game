@@ -62,7 +62,7 @@ public class Physics {
             acc = 0;
         }
         
-        // Friction abs(v) decrease
+        // Friction: abs(v) decreases when W/S are not pressed
         if (acc == 0) {
             if (startV > 0) {
                 a = -0.2 * a;
@@ -101,6 +101,20 @@ public class Physics {
         /*if (Math.abs(eV) < 0.005) {
             eV = 0;
         }*/
+        
+        //COLLISION TEST ZONE
+        Point2D.Double colPos = new Point2D.Double(5, 0.001);
+        double colRange = 1;
+        double carRange = 1;
+        
+        if (Math.sqrt(Math.pow(startPos.x - colPos.x, 2) 
+                    + Math.pow(startPos.y - colPos.y, 2)) < (colRange + carRange)) {
+            double colAngle = Math.atan2( startPos.x - colPos.x, startPos.y - colPos.y);
+            System.out.println(colAngle);
+        }
+        
+        //-------------------
+        
         // new position, velocity and rotation after input
         return new PStruct(ePos, eV, eRot);
     }

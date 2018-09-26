@@ -7,8 +7,11 @@ import org.joml.Vector3f;
 import src.Physics.PStruct;
 import src.Physics.Physics;
 import src.Shaders.ShaderProgram;
+<<<<<<< Updated upstream
 
 import java.awt.geom.Point2D;
+=======
+>>>>>>> Stashed changes
 
 public class Instance {
 
@@ -122,7 +125,7 @@ public class Instance {
         Physics physics = new Physics();
         
         // TODO: INPUT
-        double linearAcceleration = 0.25;
+        double linearAcceleration = 0.4;
         double rotationalVelocity = Math.PI/10;
         double maxLinearVelocity = 5;
         
