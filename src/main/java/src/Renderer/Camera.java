@@ -150,4 +150,8 @@ public class Camera {
 
     }
 
+    public Matrix4f getInverseViewMatrix(){
+        return new Matrix4f(viewMatrix).invert();
+    }
+
 }
