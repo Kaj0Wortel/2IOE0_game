@@ -79,6 +79,13 @@ public class Physics {
             a = (acc * a);
         } 
         
+        // Turning correction for small velocities
+        if (Math.abs(startV) < 0.05) {
+            turn = 0;
+        } else if (Math.abs(startV) < 0.5) {
+            rotV = (Math.abs(startV) * 2 * rotV);
+        }
+        
         // velocity should be 0 if really small
         /*if (Math.abs(startV) < 0.02) { // (for a = 0.4 (linear scale)))
             startV = 0;
