@@ -12,6 +12,9 @@ import org.joml.Matrix4f;
 import src.Controllers.PlayerController;
 import src.GS;
 import src.Simulator;
+import src.shadows.ShadowRenderer;
+
+import java.nio.IntBuffer;
 
 import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
 import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
@@ -36,6 +39,9 @@ public class Renderer implements GLEventListener {
 
     private ObjectRenderer objectRenderer;
     private TerrainRenderer terrainRenderer;
+    private ShadowRenderer shadowRenderer;
+
+    private IntBuffer shadowMap;
 
     public Renderer(Simulator simulator, float width, float height){
         this.simulator = simulator;
@@ -60,6 +66,8 @@ public class Renderer implements GLEventListener {
         getProjectionMatrix();
         objectRenderer = new ObjectRenderer(gl,projectionMatrix);
         terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
+        shadowRenderer = new ShadowRenderer(gl);
+        shadowMap = shadowRenderer.getShadowBuffer().getDepthAttachment();
 
         gl.glEnable(gl.GL_DEPTH_TEST);
         gl.glViewport(0,0, GS.getWindowWidth(),GS.getWindowHeight());
@@ -72,11 +80,14 @@ public class Renderer implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
+        shadowRenderer.update();
+        shadowRenderer.render(gl);
+        shadowMap = shadowRenderer.getShadowBuffer().getDepthAttachment();
         gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         gl.glClearColor(1f, 1f, 1f, 1f);
 
-        objectRenderer.render(gl);
-        terrainRenderer.render(gl);
+        objectRenderer.render(gl,shadowMap);
+        terrainRenderer.render(gl,shadowMap);
     }
 
     @Override
@@ -104,5 +115,6 @@ public class Renderer implements GLEventListener {
     public void cleanup(){
         simulator.cleanup();
     }
+
 
 }

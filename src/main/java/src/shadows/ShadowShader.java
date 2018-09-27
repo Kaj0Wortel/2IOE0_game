@@ -8,7 +8,9 @@ import src.Shaders.ShaderProgram;
 
 public class ShadowShader extends ShaderProgram {
 
-    private int modelViewProjectionMatrixLocation;
+    private int projectionMatrixLocation;
+    private int viewMatrixLocation;
+    private int modelMatrixLocation;
 
     public ShadowShader(GL3 gl, String vertex, String fragment) {
         super(gl, vertex, fragment);
@@ -21,23 +23,29 @@ public class ShadowShader extends ShaderProgram {
 
     @Override
     protected void getAllUniformLocations(GL3 gl) {
-        modelViewProjectionMatrixLocation = getUniformLocation(gl,"MVP");
+        projectionMatrixLocation = getUniformLocation(gl,"projectionMatrix");
+        viewMatrixLocation = getUniformLocation(gl,"viewMatrix");
+        modelMatrixLocation = getUniformLocation(gl, "modelMatrix");
+
+        System.out.println("Projection location: " + projectionMatrixLocation);
+        System.out.println("ViewMatrix Location: " + viewMatrixLocation);
+        System.out.println("TransformationMatrix Location: " + modelMatrixLocation);
 
     }
 
     @Override
     public void loadModelMatrix(GL3 gl, Matrix4f matrix) {
-
+        loadUniformMatrix(gl,modelMatrixLocation,matrix);
     }
 
     @Override
     public void loadViewMatrix(GL3 gl, Matrix4f matrix) {
-
+        loadUniformMatrix(gl,viewMatrixLocation,matrix);
     }
 
     @Override
-    public void loadProjectionMatrix(GL3 gl, Matrix4f matrix4f) {
-
+    public void loadProjectionMatrix(GL3 gl, Matrix4f matrix) {
+        loadUniformMatrix(gl,projectionMatrixLocation,matrix);
     }
 
     @Override

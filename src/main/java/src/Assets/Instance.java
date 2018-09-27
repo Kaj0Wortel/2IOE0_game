@@ -7,6 +7,7 @@ import org.joml.Vector3f;
 import src.Physics.PStruct;
 import src.Physics.Physics;
 import src.Shaders.ShaderProgram;
+import src.shadows.ShadowShader;
 
 
 public class Instance {
@@ -101,6 +102,19 @@ public class Instance {
         gl.glDisableVertexAttribArray(0);
         gl.glDisableVertexAttribArray(1);
         gl.glDisableVertexAttribArray(2);
+
+        gl.glBindVertexArray(0);
+    }
+
+
+    public void draw(GL3 gl, ShadowShader shader){
+        shader.loadModelMatrix(gl, getTransformationMatrix());
+
+        gl.glBindVertexArray(model.getAsset().getVao().get(0));
+        gl.glEnableVertexAttribArray(0);
+        gl.glDrawElements(GL2.GL_TRIANGLES, model.getAsset().getNrV(),
+                GL2.GL_UNSIGNED_INT, 0);
+        gl.glDisableVertexAttribArray(0);
 
         gl.glBindVertexArray(0);
     }

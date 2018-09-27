@@ -3,10 +3,13 @@ package src;
 
 
 // Jogamp imports
+
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
+import net.java.games.input.ContrlEnv;
+import net.java.games.input.ControllerEnvironment;
 import org.joml.Vector3f;
 import src.Assets.Instance;
 import src.Assets.Light;
@@ -37,8 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
 
-import net.java.games.input.ContrlEnv;
-import net.java.games.input.ControllerEnvironment;
 import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;

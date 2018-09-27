@@ -11,6 +11,8 @@ uniform vec3 lightColor;
 uniform float shininess;
 uniform float reflectivity;
 
+uniform sampler2D shadowMap;
+
 void main() {
     vec3 unitNormal = normalize(normalVector);
     vec3 unitLight = normalize(toLight);

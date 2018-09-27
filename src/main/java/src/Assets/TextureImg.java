@@ -45,6 +45,7 @@ public class TextureImg {
     }
 
     public void bindTexture(GL3 gl){
+        gl.glActiveTexture(gl.GL_TEXTURE0);
         texture.bind(gl);
     }
 

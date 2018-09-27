@@ -6,26 +6,20 @@ package net.java.games.input;
 
 
 // Own imports
+import src.GS;
+import src.Locker;
 import src.tools.log.Logger;
 
-
-// Java imports
+import javax.swing.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import javax.swing.SwingUtilities;
-import src.GS;
-import src.Locker;
+
+// Java imports
 
 
 /**

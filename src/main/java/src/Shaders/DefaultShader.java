@@ -1,6 +1,5 @@
 package src.Shaders;
 
-import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -28,6 +27,7 @@ public class DefaultShader extends ShaderProgram {
     private int reflectivityLocation;
     private int timeLocation;
     private int cameraPosLocation;
+    private int shadowMapLocation;
 
     public DefaultShader(GL3 gl) {
         super(gl, vertex, fragment);
@@ -51,6 +51,7 @@ public class DefaultShader extends ShaderProgram {
         reflectivityLocation = getUniformLocation(gl, "reflectivity");
         timeLocation = getUniformLocation(gl, "time");
         cameraPosLocation = getUniformLocation(gl, "camera");
+        shadowMapLocation = getUniformLocation(gl, "shadowMap");
 
         System.out.println("Projection location: " + projectionMatrixLocation);
         System.out.println("ViewMatrix Location: " + viewMatrixLocation);
@@ -60,6 +61,7 @@ public class DefaultShader extends ShaderProgram {
         System.out.println("Shininess: " + shininessLocation);
         System.out.println("Reflectivity: " + reflectivityLocation);
         System.out.println("CameraPos: " + cameraPosLocation);
+        System.out.println("ShadowMap: " + shadowMapLocation);
     }
 
     @Override
@@ -93,5 +95,9 @@ public class DefaultShader extends ShaderProgram {
 
     public void loadCameraPos(GL3 gl, Vector3f cameraPos){
         loadUniformVector(gl, cameraPosLocation, cameraPos);
+    }
+
+    public void loadTextures(GL3 gl){
+        loadUniformInt(gl,shadowMapLocation,1);
     }
 }

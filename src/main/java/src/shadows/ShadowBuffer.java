@@ -16,6 +16,9 @@ public class ShadowBuffer {
     public ShadowBuffer(GL3 gl, int width, int height){
         this.width = width;
         this.height = height;
+        frameBufferObject = createFrameBufferObject(gl);
+        depthAttachment = createDepthTextureAttachment(gl);
+        unBindFrameBuffer(gl);
     }
 
     private IntBuffer createFrameBufferObject(GL3 gl){
@@ -43,13 +46,13 @@ public class ShadowBuffer {
         return depthAttachment;
     }
 
-    private void bindFrameBuffer(GL3 gl){
+    public void bindFrameBuffer(GL3 gl){
         gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER,frameBufferObject.get(0));
         gl.glViewport(0,0,width,height);
     }
 
-    private void unBindFrameBuffer(GL3 gl){
+    public void unBindFrameBuffer(GL3 gl){
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0);
         gl.glViewport(0,0, GS.getWindowWidth(),GS.getWindowHeight());
     }
@@ -57,5 +60,9 @@ public class ShadowBuffer {
     public void cleanUp(GL3 gl){
         gl.glDeleteFramebuffers(1,frameBufferObject);
         gl.glDeleteTextures(1,depthAttachment);
+    }
+
+    public IntBuffer getDepthAttachment(){
+        return depthAttachment;
     }
 }
