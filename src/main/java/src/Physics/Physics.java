@@ -61,12 +61,20 @@ public class Physics {
             double vMax, double tInt, double fric, PStruct startStruct) {
         
         // INPUT
-        double turnCorrection = 2; // How fast you have to go to reach rotVmax
-        double knockback = 0.3; // How strong the knockback is
-        double knockbackDur = 0.95; // The closer to 1, the longer the knockback
-        double accBlockDur = 20; // The higher, the longer acceleration is blocked after colliding
-        double largeSlowDown = 4; // Extra de-acceleration when velocity is too big
-        double bounceFactor = 0.5; // How much vertV is maintained after surface collision
+        //  How fast you have to go to reach rotVmax
+        double turnCorrection = 2; // 0 - vMax
+        // How strong the knockback is
+        double knockback = 0.3; // 0 - 1~ish
+        // The closer to 1, the longer the knockback
+        double knockbackDur = 0.95; // 0.5 - 1
+        // The higher, the longer acceleration is blocked after colliding
+        double accBlockDur = 20; // 5 - 40
+        // Extra de-acceleration when velocity is too big
+        double largeSlowDown = 4; // 1 - 10~ish
+        // How much vertical velocity is maintained after surface collision
+        double bounceFactor = 0.5; // 0 - <1
+        // How good your controlls are in air
+        double airControl = 0.6; // 0 - 1 (if > 0.6: change a correction factor)
         
         // struct disection: input position, velocity, rotation before key input
         Vector3f startPos = startStruct.pos;
@@ -87,6 +95,7 @@ public class Physics {
             startV = items.speedBoost(startPos, startV); // not refined
         // Slow down spot
         vMax = items.SlowDownSpot(startPos, vMax); // not refined
+        
         
         // ACCELERATION
         // Max speed regulation
@@ -109,7 +118,8 @@ public class Physics {
         }  else
             a = (acc * a);
         
-        //ROTATION
+        
+        // ROTATION
         // Turn correction for small velocities
         if (Math.abs(startV) < 0.05)
             turn = 0;
@@ -119,9 +129,16 @@ public class Physics {
         // Turn correction for negative velocities
         if (startV < 0)
             turn = -turn;
+        
+        
+        // AIR MOVEMENT
+        if (startPos.z > 0.1) {
+            rotV = rotV * airControl;
+            a = a * (1.45 * airControl);
+        }
 
         
-        // END PSTRUCT CALCULATION
+        // HORIZONTAL MOVEMENT CALCULATIONS
         if (turn == 0) { // Straight
             distTravelled = startV * tInt + 0.5 * a * tInt * tInt;
             
@@ -149,6 +166,7 @@ public class Physics {
                     (float)(startPos.y +deltaY), 
                     startPos.z);
         }
+        
         
         // VERTICAL MOVEMENT CALCULATIONS
         double deltaZ = vertV * tInt + 0.5 * vertA * tInt * tInt;
@@ -181,7 +199,7 @@ public class Physics {
         if (vertV > 10)
             vertV = 10;
         //Death barrier: reset
-        if (ePos.z < -50) {
+        if (ePos.z < -100) {
             ePos = new Vector3f(0,0,2);
             eV = 0;
             eRot = Math.PI/2;
