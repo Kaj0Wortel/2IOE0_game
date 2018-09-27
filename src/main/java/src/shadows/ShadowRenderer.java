@@ -2,7 +2,6 @@ package src.shadows;
 
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import src.Assets.Light;
 import src.Renderer.Camera;
 
@@ -11,8 +10,12 @@ public class ShadowRenderer {
     Light light;
     Camera camera;
 
+    private int NEAR;
+    private int FAR;
 
-    public ShadowRenderer(GL3 gl){
+    public ShadowRenderer(GL3 gl, int NEAR, int FAR){
+        this.NEAR = NEAR;
+        this.FAR = FAR;
 
     }
 
@@ -20,14 +23,8 @@ public class ShadowRenderer {
         return new Matrix4f();
     }
 
-    private Matrix4f viewMatrix(){
-        Matrix4f viewMatrix = new Matrix4f();
-        viewMatrix.lookAt(light.getPosition(),new Vector3f(light.getPosition()).negate(), new Vector3f(0,1,0));
-        return viewMatrix;
-    }
-
     private Matrix4f projectionMatrix(){
-        return new Matrix4f();
+        return new Matrix4f().ortho(-10,10,-10,10, NEAR, FAR);
     }
 
 }

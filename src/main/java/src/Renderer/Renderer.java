@@ -26,11 +26,11 @@ public class Renderer implements GLEventListener {
     private GL3 gl;
     private GLU glu;
 
-    private final float FOV = 70;
-    private final float NEAR = 0.1f;
-    private final float FAR = 1000f;
-    private float width = 1080;
-    private float height = 720;
+    public static final float FOV = 70;
+    public static final float NEAR = 0.1f;
+    public static final float FAR = 1000f;
+    public static float width = 1080;
+    public static float height = 720;
 
     private Matrix4f projectionMatrix;
 
