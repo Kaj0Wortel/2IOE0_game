@@ -133,10 +133,14 @@ public class Instance {
         
         // Physiscs requires roty to be in degrees
         roty = (float) Math.toRadians(roty);
+        
+        // TEMP: do not jump if already jumping
+        if (verticalVelocity == 0)
+            verticalVelocity += vertV;
 
         PStruct curStruct = new PStruct(new Vector3f(
                 -position.z, -position.x, position.y), velocity, roty, 
-                collisionVelocity, gravity, verticalVelocity + vertV);
+                collisionVelocity, gravity, verticalVelocity);
         //System.out.println("turn: " +turn+ ", acc: " +acc+ "");
         curStruct = physics.calcPhysics(turn, acc, linearAcceleration, 
                 rotationalVelocity, maxLinearVelocity, dt / 160f, 

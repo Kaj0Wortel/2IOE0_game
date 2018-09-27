@@ -64,6 +64,7 @@ public class Physics {
         double knockbackDur = 0.95; // The closer to 1, the longer the knockback
         double accBlockDur = 20; // The higher, the longer acceleration is blocked after colliding
         double largeSlowDown = 4; // Extra de-acceleration when velocity is too big
+        double bounceFactor = 0.5; // How much vertV is maintained after surface collision
         
         // struct disection: input position, velocity, rotation before key input
         Vector3f startPos = startStruct.pos;
@@ -146,23 +147,38 @@ public class Physics {
                     (float)(startPos.y +deltaY), 
                     startPos.z);
         }
+        
         // VERTICAL MOVEMENT CALCULATIONS
-        if (startPos.x > 100 ||
-                -100 > startPos.x ||
-                startPos.y > 100 ||
-                -100 > startPos.y) {
-            ePos.z -= 0.01;
-        }
         double deltaZ = vertV * tInt + 0.5 * vertA * tInt * tInt;
-        if (ePos.z + deltaZ > 0.0001) {
+        // When off-track (temporary: no track to infer from yet)
+        boolean offTrack = false;
+        if (startPos.x > 120 ||
+                -120 > startPos.x ||
+                startPos.y > 120 ||
+                -120 > startPos.y) {
+            offTrack = true;
             vertV += vertA * tInt;
             ePos.z += deltaZ;
-        } else
+        }
+        
+        // When in the air
+        if (ePos.z + deltaZ > 0) {
+            vertV += vertA * tInt;
+            ePos.z += deltaZ;
+        } 
+        // When bouncing on the ground
+        else if (Math.abs(vertV) > 0.01 && !offTrack) {
+            vertV = - vertV * bounceFactor;
+        } 
+        // When on track on the ground
+        else if (!offTrack) {
             vertV = 0;
-        // Bounce test
-        if (vertV == 0)
-            vertV = 2;
-        System.out.println("vertV: "+vertV);
+            ePos.z = 0;
+        }
+        // Limit upwards velocity
+        if (vertV > 10)
+            vertV = 10;
+        //System.out.println("vertV: "+vertV + ", z: " + ePos.z);
         
         
         // COLLISION CALCULATION

@@ -27,6 +27,7 @@ public class PlayerController {
         }
         if (e == PlayerKeyAction.MovementAction.BACKWARD) {
             acc--;
+            vertV = 10;
         }
         /*
         if (e == PlayerKeyAction.MovementAction.JUMP) {
