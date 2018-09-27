@@ -5,6 +5,7 @@ import src.testing.VisualAStar;
 //Java imports
 import java.util.ArrayList;
 import java.awt.geom.Point2D;
+import org.joml.Vector3f;
 
 public class Physics {
     /**
@@ -65,13 +66,15 @@ public class Physics {
         double largeSlowDown = 4; // Extra de-acceleration when velocity is too big
         
         // struct disection: input position, velocity, rotation before key input
-        Point2D.Double startPos = startStruct.pos;
+        Vector3f startPos = startStruct.pos;
         double startRot = startStruct.rot;
         double startV = startStruct.v;
         double colV = startStruct.colV;
+        double vertA = startStruct.vertA;
+        double vertV = startStruct.vertV;
         // Used in physics calculations
         double distTravelled, eV, eRot;
-        Point2D.Double ePos;
+        Vector3f ePos;
         
         
         // ITEMS
@@ -121,9 +124,10 @@ public class Physics {
             
             eV = startV + a * tInt;
             eRot = startRot;
-            ePos = new Point2D.Double (
-                    startPos.x + Math.cos(startRot) * distTravelled,
-                    startPos.y + Math.sin(startRot) * distTravelled);
+            ePos = new Vector3f (
+                    (float)(startPos.x + Math.cos(startRot) * distTravelled),
+                    (float)(startPos.y + Math.sin(startRot) * distTravelled),
+                    startPos.z);
         } else { // Turn
             rotV = turn * rotV;
             
@@ -137,8 +141,29 @@ public class Physics {
                         + (a / (rotV*rotV)) * Math.sin(eRot)
                         + (startV / rotV) * Math.cos(startRot)
                         - (a / (rotV*rotV)) * Math.sin(startRot);
-            ePos = new Point2D.Double(startPos.x + deltaX, startPos.y +deltaY);
+            ePos = new Vector3f(
+                    (float)(startPos.x + deltaX),
+                    (float)(startPos.y +deltaY), 
+                    startPos.z);
         }
+        // VERTICAL MOVEMENT CALCULATIONS
+        if (startPos.x > 100 ||
+                -100 > startPos.x ||
+                startPos.y > 100 ||
+                -100 > startPos.y) {
+            ePos.z -= 0.01;
+        }
+        double deltaZ = vertV * tInt + 0.5 * vertA * tInt * tInt;
+        if (ePos.z + deltaZ > 0.0001) {
+            vertV += vertA * tInt;
+            ePos.z += deltaZ;
+        } else
+            vertV = 0;
+        // Bounce test
+        if (vertV == 0)
+            vertV = 2;
+        System.out.println("vertV: "+vertV);
+        
         
         // COLLISION CALCULATION
         // These should be integrated into other classes and sent to here
@@ -156,8 +181,10 @@ public class Physics {
             // Can only receive knockback once the last knockback is sufficiently small
             if (colV < 1) {
                 colV = Math.abs(startV) * knockback;
-                ePos = new Point2D.Double(ePos.x + colV * Math.cos(colAngle), 
-                    ePos.y + colV * Math.sin(colAngle));
+                ePos = new Vector3f(
+                    (float)(ePos.x + colV * Math.cos(colAngle)), 
+                    (float)(ePos.y + colV * Math.sin(colAngle)),
+                    ePos.z);
             } 
         } 
         // Moments after collision
@@ -167,8 +194,10 @@ public class Physics {
             // Angle can change during bump: maybe looks better?
             double colAngle = Math.atan2( startPos.x - colPos.x, startPos.y - colPos.y);
             colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
-            ePos = new Point2D.Double(ePos.x + colV * Math.cos(colAngle), 
-                    ePos.y + colV * Math.sin(colAngle));
+            ePos = new Vector3f(
+                   (float)(ePos.x + colV * Math.cos(colAngle)), 
+                   (float)(ePos.y + colV * Math.sin(colAngle)),
+                   ePos.z);
         } 
         // No collision happening
         else {
@@ -177,7 +206,7 @@ public class Physics {
         }
 
         // new position, velocity and rotation after input
-        return new PStruct(ePos, eV, eRot, colV);
+        return new PStruct(ePos, eV, eRot, colV, vertA, vertV);
     }
     
     public static void physicsTestVisuals () {
@@ -188,25 +217,45 @@ public class Physics {
         ArrayList<PStruct> testDrive = new ArrayList<>();
         
         // Start position, rotation and velocity
-        PStruct currentStruct = new PStruct(new Point2D.Double(0,0), 0, 0, 0);
+        PStruct currentStruct = new PStruct(new Vector3f(1,1,0), 0, 0, 0, 0, 0);
         testDrive.add(currentStruct);
         
         // INSERT TEST COMMANDS
+        for (int i = 0; i < 20; i++) {
+            currentStruct = physics.calcPhysics(0, 1, 1,
+                    Math.PI/2, 2.01, 0.1, 0, currentStruct);
+            testDrive.add(currentStruct);
+        }
+        for (int i = 0; i < 7; i++) {
+            currentStruct = physics.calcPhysics(1, 0, 1,
+                    Math.PI/2, 2.01, 0.1, 0, currentStruct);
+            testDrive.add(currentStruct);
+        }
         for (int i = 0; i < 10; i++) {
             currentStruct = physics.calcPhysics(0, 1, 1,
                     Math.PI/2, 2.01, 0.1, 0, currentStruct);
             testDrive.add(currentStruct);
         }
-        /*for (int i = 0; i < 4; i++) {
-            currentStruct = physics.calcPhysics(1, 0, 1,
+        for (int i = 0; i < 10; i++) {
+            currentStruct = physics.calcPhysics(0, 0, 1,
                     Math.PI/2, 2.01, 0.1, 0, currentStruct);
             testDrive.add(currentStruct);
         }
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 20; i++) {
+            currentStruct = physics.calcPhysics(1, -1, 1,
+                    Math.PI/2, 2.01, 0.1, 0, currentStruct);
+            testDrive.add(currentStruct);
+        }
+        for (int i = 0; i < 35; i++) {
+            currentStruct = physics.calcPhysics(-1, 1, 1,
+                    Math.PI/2, 2.01, 0.1, 0, currentStruct);
+            testDrive.add(currentStruct);
+        }
+        for (int i = 0; i < 30; i++) {
             currentStruct = physics.calcPhysics(0, 1, 1,
                     Math.PI/2, 2.01, 0.1, 0, currentStruct);
             testDrive.add(currentStruct);
-        }*/
+        }
         
         // Visualization
         for (int i = 0; i < testDrive.size(); i++) {

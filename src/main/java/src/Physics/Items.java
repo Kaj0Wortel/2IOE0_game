@@ -1,10 +1,10 @@
 package src.Physics;
 
-import java.awt.geom.Point2D;
+import org.joml.Vector3f;
 
 public class Items {
     
-    public double speedBoost(Point2D.Double startPos, double startV) {
+    public double speedBoost(Vector3f startPos, double startV) {
         if (startPos.x + 3 > 40 - 0.5 &&
                 40 + 0.5 > startPos.x - 3 &&
                 startPos.y + 3 > 0 - 0.5 &&
@@ -14,7 +14,7 @@ public class Items {
         return startV;
     }
     
-    public double SlowDownSpot (Point2D.Double startPos, double vMax) {
+    public double SlowDownSpot (Vector3f startPos, double vMax) {
         if (startPos.x + 3 > -150 - 25 &&
                 -150 + 25 > startPos.x - 3 &&
                 startPos.y + 3 > 0 - 25 &&

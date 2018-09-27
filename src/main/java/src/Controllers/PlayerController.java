@@ -14,6 +14,7 @@ public class PlayerController {
     public void processKey(PlayerKeyAction.MovementAction e, long dt) {
         int turn = 0;
         int acc = 0;
+        double vertV = 0;
         
         if (e == PlayerKeyAction.MovementAction.LEFT) {
             turn++;
@@ -27,7 +28,12 @@ public class PlayerController {
         if (e == PlayerKeyAction.MovementAction.BACKWARD) {
             acc--;
         }
+        /*
+        if (e == PlayerKeyAction.MovementAction.JUMP) {
+            vertV = 10;
+        }
+        */
         // Movement physics determine new position, rotation and velocity
-        player.movement(turn, acc, dt);
+        player.movement(turn, acc, vertV, dt);
     }
 }
