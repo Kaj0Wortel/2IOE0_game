@@ -15,10 +15,10 @@ public class Items {
     }
     
     public double SlowDownSpot (Vector3f startPos, double vMax) {
-        if (startPos.x + 3 > -150 - 25 &&
-                -150 + 25 > startPos.x - 3 &&
-                startPos.y + 3 > 0 - 25 &&
-                0 + 25 > startPos.y - 3) {
+        if (startPos.x + 3 > 0 - 25 &&
+                0 + 25 > startPos.x - 3 &&
+                startPos.y + 3 > -100 - 25 &&
+                -100 + 25 > startPos.y - 3) {
             return vMax/4;
         }
         return vMax;

@@ -98,7 +98,7 @@ public class Simulator implements Updateable {
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
                     new TextureImg(5, 0.5f));
-            Instance cubeInstance = new Instance(new Vector3f(0f, -50f, 150f),
+            Instance cubeInstance = new Instance(new Vector3f(100f, -52f, 0),
                     50f, 0, 0, 0, texturedCube,0);
             GS.addAsset(cubeInstance);
         }

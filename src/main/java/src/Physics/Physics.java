@@ -232,7 +232,7 @@ public class Physics {
             // set collision velocity to 0 when it was already really small
             colV = 0;
         }
-
+        
         // new position, velocity and rotation after input
         return new PStruct(ePos, eV, eRot, colV, vertA, vertV);
     }
