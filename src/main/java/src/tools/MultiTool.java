@@ -748,11 +748,7 @@ public class MultiTool {
      * @param size length of the text.
      */
     public static String fillSpaceLeft(String text, int size) {
-        for (int i = text.length(); i < size; i++) {
-            text = " " + text;
-        }
-        
-        return text;
+        return fillLeft(text, ' ', size);
     }
     
     /**
@@ -765,11 +761,50 @@ public class MultiTool {
      * @param size length of the text.
      */
     public static String fillSpaceRight(String text, int size) {
+        return fillRight(text, ' ', size);
+    }
+    
+    /**
+     * Fills the given text with the contents on the left
+     * until the given size.
+     * 
+     * @param text the text to format.
+     * @param contents the contents to add.
+     * @param size the final size of the text.
+     * @return {@code text} with a number of times {@code contents}
+     *     on the left, such that the returned text has a length of
+     *     {@code size}, or only {@code text} if initially
+     *     {@code text.length() >= size}.
+     */
+    public static String fillLeft(String text, char contents, int size) {
+        if (text.length() >= size) return text;
+        StringBuilder sb = new StringBuilder();
         for (int i = text.length(); i < size; i++) {
-            text = text + " ";
+            sb.append(contents);
         }
-        
-        return text;
+        sb.append(text);
+        return sb.toString();
+    }
+    
+    /**
+     * Fills the given text with the contents on the right
+     * until the given size.
+     * 
+     * @param text the text to format.
+     * @param contents the contents to add.
+     * @param size the final size of the text.
+     * @return {@code text} with a number of times {@code contents}
+     *     on the right, such that the returned text has a length of
+     *     {@code size}, or only {@code text} if initially
+     *     {@code text.length() >= size}.
+     */
+    public static String fillRight(String text, char contents, int size) {
+        if (text.length() >= size) return text;
+        StringBuilder sb = new StringBuilder(text);
+        for (int i = text.length(); i < size; i++) {
+            sb.append(contents);
+        }
+        return sb.toString();
     }
     
     /**

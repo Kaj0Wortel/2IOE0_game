@@ -70,6 +70,7 @@ public class Simulator implements Updateable {
         OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "dragon.obj");
         OBJCollection car = LoadOBJ.load(gl, GS.OBJ_DIR + "car.obj");
         
+        // (0,0,0) REFERENCE
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
                     new TextureImg(5, 0.5f));
@@ -77,7 +78,31 @@ public class Simulator implements Updateable {
                     1f, 0, 0, 0, texturedCube,0);
             GS.addAsset(cubeInstance);
         }
-
+        // COLLISION TEST
+        for (OBJObject obj : col) {
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            Instance cubeInstance = new Instance(new Vector3f(-40f, 1f, 0.001f),
+                    2f, 0, 0, 0, texturedCube,0);
+            GS.addAsset(cubeInstance);
+        }
+        // SPEEDBOOST TEST
+        for (OBJObject obj : col) {
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            Instance cubeInstance = new Instance(new Vector3f(0f, 1f, -40f),
+                    1f, 0, 0, 0, texturedCube,0);
+            GS.addAsset(cubeInstance);
+        }
+        // SLOWDOWN TEST
+        for (OBJObject obj : col) {
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            Instance cubeInstance = new Instance(new Vector3f(100f, -52f, 0),
+                    50f, 0, 0, 0, texturedCube,0);
+            GS.addAsset(cubeInstance);
+        }
+        // CAR
         for (OBJObject obj : car){
             OBJTexture texturedCube = new OBJTexture(obj,
                     new TextureImg(5, 0.5f));
@@ -86,7 +111,7 @@ public class Simulator implements Updateable {
             player = cubeInstance;
             GS.addAsset(cubeInstance);
         }
-
+        // REALLY COOL DRAGON
         for (OBJObject obj : sp) {
             OBJTexture texturedCube = new OBJTexture(obj,
                     new TextureImg(5, 0.5f));

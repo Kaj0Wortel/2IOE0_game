@@ -8,7 +8,6 @@ import src.Physics.PStruct;
 import src.Physics.Physics;
 import src.Shaders.ShaderProgram;
 
-import java.awt.geom.Point2D;
 
 public class Instance {
 
@@ -20,6 +19,8 @@ public class Instance {
     private float integratedRotation;
 
     private float velocity;
+    private float collisionVelocity;
+    private float verticalVelocity;
     private float rotationSpeed;
 
     private OBJTexture model;
@@ -34,6 +35,8 @@ public class Instance {
         this.rotz = rotz;
         this.model = model;
         this.velocity = 0;
+        this.collisionVelocity = 0;
+        this.verticalVelocity = 0;
         this.integratedRotation = integratedRotation;
         this.rotationSpeed = 5f;
     }
@@ -105,7 +108,7 @@ public class Instance {
     public Vector3f getPosition() {
         return position;
     }
-    
+
     public float getRotx() {
         return rotx;
     }
@@ -118,29 +121,40 @@ public class Instance {
         return rotz;
     }
     
-    public void movement(int turn, int acc, long dt) {
+    public void movement(int turn, int acc, double vertV, long dt) {
         Physics physics = new Physics();
         
         // TODO: INPUT
-        double linearAcceleration = 0.25;
+        double linearAcceleration = 0.4;
         double rotationalVelocity = Math.PI/10;
         double maxLinearVelocity = 5;
+        double frictionConstant = 0.2;
+        double gravity = -1;
         
         // Physiscs requires roty to be in degrees
         roty = (float) Math.toRadians(roty);
         
-        PStruct curStruct = new PStruct(new Point2D.Double(
-                -position.z, -position.x), velocity, roty);
+        // TEMP: do not jump if already jumping
+        if (verticalVelocity == 0)
+            verticalVelocity += vertV;
+
+        PStruct curStruct = new PStruct(new Vector3f(
+                -position.z, -position.x, position.y), velocity, roty, 
+                collisionVelocity, gravity, verticalVelocity);
         //System.out.println("turn: " +turn+ ", acc: " +acc+ "");
         curStruct = physics.calcPhysics(turn, acc, linearAcceleration, 
-                rotationalVelocity, maxLinearVelocity, dt / 160f, curStruct);
+                rotationalVelocity, maxLinearVelocity, dt / 160f, 
+                frictionConstant, curStruct);
         // 3D-2D conversion (might change physics to directly support 3D input)
         roty = (float) curStruct.rot;
         velocity = (float) curStruct.v;
-        position.z = -(float) curStruct.pos.x;
-        position.x = -(float) curStruct.pos.y;
-        //System.out.println(velocity + ": (" + -position.z + ", " + -position.x 
-        //        + "), " + roty);
+        position.z = -curStruct.pos.x;
+        position.x = -curStruct.pos.y;
+        position.y = curStruct.pos.z;
+        collisionVelocity = (float) curStruct.colV;
+        verticalVelocity = (float) curStruct.vertV;
+        //System.out.println(/*velocity + */": (" + -position.z + ", " + -position.x 
+        //        + "), "/* + roty*/);
         
         // Instance requires roty to be stored in degrees
         roty = (float) (Math.toDegrees(roty) % 360);
