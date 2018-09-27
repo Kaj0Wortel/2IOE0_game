@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.awt.geom.Point2D;
 import org.joml.Vector3f;
 
+import src.Assets.Instance;
+
 public class Physics {
     /**
      * Computes the position, velocity and rotation after a key input
@@ -178,19 +180,28 @@ public class Physics {
         // Limit upwards velocity
         if (vertV > 10)
             vertV = 10;
-        //System.out.println("vertV: "+vertV + ", z: " + ePos.z);
+        //Death barrier: reset
+        if (ePos.z < -50) {
+            ePos = new Vector3f(0,0,2);
+            eV = 0;
+            eRot = Math.PI/2;
+            colV = 0;
+            vertV = 0;
+        }
         
         
         // COLLISION CALCULATION
         // These should be integrated into other classes and sent to here
-        Point2D.Double colPos = new Point2D.Double(0.0001, 40);
+        Vector3f colPos = new Vector3f (0.0001f, 40, 1);
         double colRange = 2;
         double carRange = 6;
         // Collision detection
         if (startPos.x + carRange/2 > colPos.x - colRange/2 &&
                 colPos.x + colRange/2 > startPos.x - carRange/2 &&
                 startPos.y + carRange/2 > colPos.y - colRange/2 &&
-                colPos.y + colRange/2 > startPos.y - carRange/2) {
+                colPos.y + colRange/2 > startPos.y - carRange/2 &&
+                startPos.z + carRange/2 > colPos.z - colRange/2 &&
+                colPos.z + colRange/2 > startPos.z - carRange/2) {
             
             double colAngle = Math.atan2( startPos.x - colPos.x, startPos.y - colPos.y);
             colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
@@ -201,6 +212,7 @@ public class Physics {
                     (float)(ePos.x + colV * Math.cos(colAngle)), 
                     (float)(ePos.y + colV * Math.sin(colAngle)),
                     ePos.z);
+                vertV = 1 + Math.abs(startV)/4;
             } 
         } 
         // Moments after collision
@@ -273,7 +285,7 @@ public class Physics {
             testDrive.add(currentStruct);
         }
         
-        // Visualization
+        // Visualization        
         for (int i = 0; i < testDrive.size(); i++) {
             System.out.println(new Point2D.Double(testDrive.get(i).pos.x, testDrive.get(i).pos.y));
             visual.addPoint(new Point2D.Double(testDrive.get(i).pos.x, -testDrive.get(i).pos.y));
