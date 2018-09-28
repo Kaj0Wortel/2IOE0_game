@@ -35,13 +35,12 @@ public abstract class Instance {
         final public float velocity;
         final public float collisionVelocity;
         final public float verticalVelocity;
-        final public float rotationSpeed;
         
         
         public State(Box3f box, float size,
                 float rotx, float roty, float rotz, float integratedRotation,
                 float velocity, float collisionVelocity,
-                float verticalVelocity, float rotationSpeed) {
+                float verticalVelocity) {
             this.box = box;
             this.size = size;
             this.rotx = rotx;
@@ -51,7 +50,6 @@ public abstract class Instance {
             this.velocity = velocity;
             this.collisionVelocity = collisionVelocity;
             this.verticalVelocity = verticalVelocity;
-            this.rotationSpeed = rotationSpeed;
         }
         
         
@@ -68,7 +66,7 @@ public abstract class Instance {
             OBJTexture model, float integratedRotation, 
             PhysicsContext physicConst) {
         state = new State(box, size, rotx, roty, rotz,
-                integratedRotation, 0, 0, 0, 5f);
+                integratedRotation, 0, 0, 0);
                 
         this.model = model;
         this.physicsContext = physicConst;
@@ -103,7 +101,7 @@ public abstract class Instance {
         state = new State(s.box, s.size,
                 (s.rotx + rot) % 360, s.roty, s.rotz, s.integratedRotation,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity, s.rotationSpeed);
+                s.verticalVelocity);
     }
 
     @Deprecated
@@ -117,7 +115,7 @@ public abstract class Instance {
         state = new State(s.box, s.size,
                 s.rotx, (s.roty + rot) % 360, s.rotz, s.integratedRotation,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity, s.rotationSpeed);
+                s.verticalVelocity);
     }
 
     @Deprecated
@@ -128,13 +126,12 @@ public abstract class Instance {
     @Deprecated
     public void moveup(float amt) {
         State s = state; // For sync.
-        Vector3f pos = s.box.pos();
         Box3f newBox = s.box.clone();
         newBox.translate(new Vector3f(0, amt, 0));
         state = new State(newBox, s.size,
                 s.rotx, s.roty, s.rotz, s.integratedRotation,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity, s.rotationSpeed);
+                s.verticalVelocity);
     }
 
     public void draw(GL3 gl, ShaderProgram shader){

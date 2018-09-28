@@ -26,7 +26,6 @@ public class Physics {
         public float velocity;
         public float collisionVelocity;
         public float verticalVelocity;
-        public float rotationSpeed;
         
         
         public ModState(State state) {
@@ -39,7 +38,6 @@ public class Physics {
             velocity = state.velocity;
             collisionVelocity = state.collisionVelocity;
             verticalVelocity = state.verticalVelocity;
-            rotationSpeed = state.rotationSpeed;
         }
         
         /**
@@ -51,8 +49,7 @@ public class Physics {
          */
         public State createState() {
             return new State(box, size, rotx, roty, rotz, integratedRotation,
-                    velocity, collisionVelocity, verticalVelocity,
-                    rotationSpeed);
+                    velocity, collisionVelocity, verticalVelocity);
         }
         
         
@@ -131,8 +128,9 @@ public class Physics {
                     calcPhysics(source, pStruct, pc, s); // TODO
                     
                 } else if (instance instanceof Item) {
-                    //((Item) instance).physicsAtCollision(source, pStruct, pc, s);
-                    calcPhysics(source, pStruct, pc, s);
+                    System.out.println("hit item!");
+                    ((Item) instance).physicsAtCollision(source, pStruct, pc, s);
+                    //calcPhysics(source, pStruct, pc, s);
                 }
             }
             
@@ -235,26 +233,26 @@ public class Physics {
             distTravelled = dt * (s.velocity + 0.5f * linAccel * dt);
             
             eV = s.velocity + linAccel * dt;
-            eRot = s.rotationSpeed;
+            eRot = s.roty;
             ePos = new Vector3f (
-                    (float) (s.box.pos().x + Math.cos(s.rotationSpeed) * distTravelled),
-                    (float) (s.box.pos().y + Math.sin(s.rotationSpeed) * distTravelled),
+                    (float) (s.box.pos().x + Math.cos(s.roty) * distTravelled),
+                    (float) (s.box.pos().y + Math.sin(s.roty) * distTravelled),
                     s.box.pos().z);
             
         } else { // Turn
             rotationalVelocity = pStruct.turn * rotationalVelocity;
             
             eV = s.velocity + linAccel * dt;
-            eRot = s.rotationSpeed + rotationalVelocity * dt;
+            eRot = s.roty + rotationalVelocity * dt;
             float aRotVSquared = linAccel / (rotationalVelocity * rotationalVelocity);
             float deltaX = (float) ((eV / rotationalVelocity) * Math.sin(eRot)
                         + aRotVSquared * Math.cos(eRot)
-                        - (s.velocity / rotationalVelocity) * Math.sin(s.rotationSpeed)
-                        - aRotVSquared * Math.cos(s.rotationSpeed));
+                        - (s.velocity / rotationalVelocity) * Math.sin(s.roty)
+                        - aRotVSquared * Math.cos(s.roty));
             float deltaY = (float) (-(eV / rotationalVelocity) * Math.cos(eRot)
                         + aRotVSquared * Math.sin(eRot)
-                        + (s.velocity / rotationalVelocity) * Math.cos(s.rotationSpeed)
-                        - aRotVSquared * Math.sin(s.rotationSpeed));
+                        + (s.velocity / rotationalVelocity) * Math.cos(s.roty)
+                        - aRotVSquared * Math.sin(s.roty));
             ePos = new Vector3f(
                     (float)(s.box.pos().x + deltaX),
                     (float)(s.box.pos().y +deltaY), 
@@ -351,7 +349,7 @@ public class Physics {
         // Update the state.
         s.box.setPosition(ePos);
         s.velocity = eV;
-        s.rotationSpeed = eRot;
+        s.roty = eRot;
     }
     
     

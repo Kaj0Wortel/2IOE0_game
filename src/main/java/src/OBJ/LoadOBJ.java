@@ -72,6 +72,13 @@ public class LoadOBJ {
             List<Float> normsBuf = new ArrayList<>();
             List<Integer> facesBuf = new ArrayList<>();
             
+            float minX = 0;
+            float maxX = 0;
+            float minY = 0;
+            float maxY = 0;
+            float minZ = 0;
+            float maxZ = 0;
+            
             int locCounter = 0;
             
             Map<FaceElement, Integer> faces = new HashMap<>();
@@ -80,11 +87,18 @@ public class LoadOBJ {
                 String[] data = brp.getData();
                 
                 if (brp.fieldEquals("v")) {
-                    verts.add(new Vector3f(
+                    Vector3f v = new Vector3f(
                             Float.parseFloat(data[0]),
                             Float.parseFloat(data[1]),
                             Float.parseFloat(data[2])
-                    ));
+                    );
+                    verts.add(v);
+                    minX = Math.min(minX, v.x);
+                    maxX = Math.max(maxX, v.x);
+                    minY = Math.min(minY, v.y);
+                    maxY = Math.max(maxY, v.y);
+                    minZ = Math.min(minZ, v.z);
+                    maxZ = Math.max(maxZ, v.z);
                     
                 } else if (brp.fieldEquals("vt")) {
                     texs.add(new Vector2f(
