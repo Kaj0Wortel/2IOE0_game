@@ -205,7 +205,7 @@ public class Physics {
                 linAccel = -pc.frictionConstant * linAccel;
             else if (s.velocity < 0)
                 linAccel = pc.frictionConstant * linAccel;
-        }  else 
+        } else 
             linAccel = (pStruct.accel * linAccel);
         
         
@@ -258,7 +258,7 @@ public class Physics {
                     (float)(s.box.pos().y +deltaY), 
                     s.box.pos().z);
         }
-        /**/
+        
         
         // VERTICAL MOVEMENT CALCULATIONS
         double deltaZ = dt * (s.verticalVelocity + 0.5 * pc.gravity * dt);
@@ -344,7 +344,6 @@ public class Physics {
             s.collisionVelocity = 0;
         }
         
-        /**/
         
         // Update the state.
         s.box.setPosition(ePos);

@@ -20,9 +20,9 @@ public class ObjectRenderer {
         defaultShader.start(gl);
 
         defaultShader.loadProjectionMatrix(gl,projectionMatrix);
-        defaultShader.loadViewMatrix(gl, GS.getCamera().getViewMatrix());
+        defaultShader.loadViewMatrix(gl, GS.camera.getViewMatrix());
         defaultShader.loadLight(gl,GS.getLights().get(0));
-        defaultShader.loadCameraPos(gl, GS.getCamera().getPosition());
+        defaultShader.loadCameraPos(gl, GS.camera.getPosition());
 
         for(Instance asset : GS.getAssets()){
             asset.draw(gl, defaultShader);

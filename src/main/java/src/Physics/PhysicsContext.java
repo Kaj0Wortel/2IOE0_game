@@ -59,9 +59,9 @@ public class PhysicsContext {
      * Initializes the default constants.
      */
     public PhysicsContext() {
-        this.linAccel = 0.4f;
+        this.linAccel = 0.8f;
         this.rotationalVelocity = (float) Math.PI / 10f;
-        this.maxLinearVelocity = 5f;
+        this.maxLinearVelocity = 10f;
         this.frictionConstant = 0.2f;
         this.gravity = -1;
         

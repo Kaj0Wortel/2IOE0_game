@@ -129,10 +129,10 @@ public class GS {
     public static ControllerKeyDetector keyDet;
     public static MainPanel mainPanel;
     public static Camera camera;
-    public static CameraMode cameraMode;
     public static CameraController cameraController;
     public static PlayerController playerController;
     public static Grid grid;
+    private static CameraMode cameraMode;
     private static boolean fullScreen = false;
     private static Map<KeyAction, List<ControllerKey>> keyMap = new HashMap<>();
     private static Simulator simulator;
@@ -142,8 +142,8 @@ public class GS {
     
     public static List<Car> cars = new ArrayList<>();
     public static Instance player;
-
-
+    
+    
     
     
     /**-------------------------------------------------------------------------
@@ -448,14 +448,6 @@ public class GS {
     
     public static void setCameraMode(CameraMode cameraMode) {
         GS.cameraMode = cameraMode;
-    }
-    
-    public static Camera getCamera(){
-        return camera;
-    }
-
-    public static CameraController getCameraController() {
-        return cameraController;
     }
 
     public static PlayerController getPlayerController() { return  playerController;}

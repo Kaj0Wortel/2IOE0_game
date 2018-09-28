@@ -50,6 +50,24 @@ public class Updater {
         // Obtain the time stamp.
         long timeStamp = System.currentTimeMillis();
         
+        CameraController camContr = GS.cameraController;
+        if (camContr == null) return;
+        try {
+            Locker.lock(camContr);
+            try {
+                camContr.update(timeStamp);
+                
+            } finally {
+                Locker.unlock(camContr);
+            }
+            
+        } catch (Exception e) { // Play it safe to catch all types.
+            Logger.write(new Object[] {
+                "Exception occured in Camera controller:",
+                e,
+            }, Logger.Type.ERROR);
+        }
+        
         synchronized(updateSet) {
             // Distribute the tasks evenly and randomly over the
             // available threads.
@@ -96,24 +114,6 @@ public class Updater {
             // Wait for the other threads to terminate.
             for (UpdateThread thread : updateThreads) {
                 thread.waitUntilDone();
-            }
-            
-            CameraController camContr = GS.cameraController;
-            if (camContr == null) return;
-            try {
-                Locker.lock(camContr);
-                try {
-                     camContr.update(timeStamp);
-
-                } finally {
-                    Locker.unlock(camContr);
-                }
-                
-            } catch (Exception e) { // Play it safe to catch all types.
-                Logger.write(new Object[] {
-                    "Exception occured in Camera controller:",
-                    e,
-                }, Logger.Type.ERROR);
             }
         }
     });
@@ -174,7 +174,9 @@ public class Updater {
         try {
             if (Locker.tryLock(up)) {
                 try {
+                    //System.out.println("Updating: " + up.toString());
                     up.update(timeStamp);
+                    //System.out.println("Updated: " + up.toString());
                     
                 } finally {
                     Locker.unlock(up);

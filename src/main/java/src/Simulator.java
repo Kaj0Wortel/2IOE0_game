@@ -69,6 +69,7 @@ public class Simulator
                     1f, 0, 0, 0, texturedCube, 0, new PhysicsContext());
             GS.addAsset(cubeInstance);
         }
+        
         // COLLISION TEST
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
@@ -79,6 +80,7 @@ public class Simulator
                     EnvironmentItem.Type.STATIC_OBSTACLE);
             GS.addAsset(cubeInstance);
         }
+        
         // SPEEDBOOST TEST
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
@@ -89,6 +91,7 @@ public class Simulator
                     EnvironmentItem.Type.SPEED_BOOST);
             GS.addAsset(cubeInstance);
         }
+        
         // SLOWDOWN TEST
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
@@ -99,6 +102,7 @@ public class Simulator
                     EnvironmentItem.Type.SLOW_DOWN);
             GS.addAsset(cubeInstance);
         }
+        
         // CAR
         for (OBJObject obj : car){
             OBJTexture texturedCube = new OBJTexture(obj,
@@ -109,6 +113,7 @@ public class Simulator
             GS.player = cubeInstance;
             GS.addAsset(cubeInstance);
         }
+        
         // REALLY COOL DRAGON
         for (OBJObject obj : sp) {
             OBJTexture texturedCube = new OBJTexture(obj,
@@ -138,11 +143,12 @@ public class Simulator
             throws InterruptedException {
         long dt = timeStamp - prevTimeStamp;
         prevTimeStamp = timeStamp;
-
+        /*
         if (GS.player != null) {
-            GS.getCamera().setFocus(GS.player);
-            GS.getCamera().calculateInstanceValues();
+            GS.camera.setFocus(GS.player);
+            GS.camera.calculateInstanceValues();
         }
+        */
     }
     
     @Override

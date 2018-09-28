@@ -31,29 +31,36 @@ public class CameraController
     
     @Override
     public void controlUpdate(long dt) {
-        if (GS.getCamera().isOnPlayer()) return;
-        
-        for (CameraKeyAction action : cameraActions) {
-            List<ControllerKey> keys = GS.getKeys(action);
-            if (keys == null) continue;
-            
-            if (GS.keyDet.werePressed(keys)) {
-                if (action.getAction() == CameraKeyAction.MovementAction.LEFT) {
-                    camera.yaw(dt / 3f);
-                }
-                if (action.getAction() == CameraKeyAction.MovementAction.RIGHT) {
-                    camera.yaw(dt / 3f);
-                }
-                if (action.getAction() == CameraKeyAction.MovementAction.FORWARD) {
-                    camera.move(dt / 16f);
-                }
-                if (action.getAction() == CameraKeyAction.MovementAction.BACKWARD) {
-                    camera.move(dt / 16f);
+        if (!GS.camera.isOnPlayer()) {
+            for (CameraKeyAction action : cameraActions) {
+                List<ControllerKey> keys = GS.getKeys(action);
+                if (keys == null) continue;
+
+                if (GS.keyDet.werePressed(keys)) {
+                    if (action.getAction() == CameraKeyAction.MovementAction.LEFT) {
+                        camera.yaw(dt / 3f);
+                    }
+                    if (action.getAction() == CameraKeyAction.MovementAction.RIGHT) {
+                        camera.yaw(dt / 3f);
+                    }
+                    if (action.getAction() == CameraKeyAction.MovementAction.FORWARD) {
+                        camera.move(dt / 16f);
+                    }
+                    if (action.getAction() == CameraKeyAction.MovementAction.BACKWARD) {
+                        camera.move(dt / 16f);
+                    }
                 }
             }
         }
         
-        camera.calculateViewMatrix();
+        if (!camera.isOnPlayer() && GS.player != null) {
+            camera.setFocus(GS.player);
+        }
+        
+        if (camera.isOnPlayer()) {
+            camera.calculateInstanceValues();
+            camera.calculateViewMatrix();
+        }
     }
     
     

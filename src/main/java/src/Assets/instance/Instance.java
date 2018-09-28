@@ -52,6 +52,11 @@ public abstract class Instance {
             this.verticalVelocity = verticalVelocity;
         }
         
+        @Override
+        public String toString() {
+            return "";
+        }
+        
         
     }
     
@@ -72,7 +77,7 @@ public abstract class Instance {
         this.physicsContext = physicConst;
     }
 
-    public Matrix4f getTransformationMatrix(){
+    public Matrix4f getTransformationMatrix() {
         State s = state; // For sync.
         Matrix4f transformationMatrix = new Matrix4f();
         transformationMatrix.identity();
@@ -82,7 +87,7 @@ public abstract class Instance {
                 (float) Math.toRadians(s.roty + s.integratedRotation), 0, 1, 0);
         transformationMatrix.rotate((float) Math.toRadians(s.rotz), 0, 0, 1);
         transformationMatrix.scale(s.size, s.size, s.size);
-
+        
         return transformationMatrix;
     }
 
@@ -122,7 +127,7 @@ public abstract class Instance {
     public void moveup() {
         moveup(0.1f);
     }
-
+    
     @Deprecated
     public void moveup(float amt) {
         State s = state; // For sync.
@@ -148,30 +153,64 @@ public abstract class Instance {
         gl.glDisableVertexAttribArray(0);
         gl.glDisableVertexAttribArray(1);
         gl.glDisableVertexAttribArray(2);
-
+        
         gl.glBindVertexArray(0);
     }
     
+    /**
+     * @return the current state of {@code this} instance.
+     *     The returned state is immutable.
+     */
     public State getState() {
         return state;
     }
     
+    /**
+     * @return the current bounding box of {@code this} instance.
+     * 
+     * When using more than this data from {@code this} instance,
+     * use {@link #getState()} instead.
+     */
     public Box3f getBox() {
         return state.box;
     }
-
+    
+    /**
+     * @return the current position of {@code this} instance.
+     * 
+     * When using more than this data from {@code this} instance,
+     * use {@link #getState()} instead.
+     */
     public Vector3f getPosition() {
         return state.box.pos();
     }
-
+    
+    /**
+     * @return the current rotation around the x-axis of {@code this} instance.
+     * 
+     * When using more than this data from {@code this} instance,
+     * use {@link #getState()} instead.
+     */
     public float getRotx() {
         return state.rotx;
     }
-
+    
+    /**
+     * @return the current rotation around the y-axis of {@code this} instance.
+     * 
+     * When using more than this data from {@code this} instance,
+     * use {@link #getState()} instead.
+     */
     public float getRoty() {
         return state.roty;
     }
-
+    
+    /**
+     * @return the current rotation around the z-axis of {@code this} instance.
+     * 
+     * When using more than this data from {@code this} instance,
+     * use {@link #getState()} instead.
+     */
     public float getRotz() {
         return state.rotz;
     }
