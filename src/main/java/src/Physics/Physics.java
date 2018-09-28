@@ -70,7 +70,7 @@ public class Physics {
      * simple collision (rectangle colliders)
      * rotation correction for small velocities and negative velocities
      * 2 simple items/situations implemented
-     * Large slowdown when speed higher than vMax 
+    \* Large slowdown when speed higher than vMax 
      * 
      * 
      * TODO:
@@ -157,7 +157,6 @@ public class Physics {
      * @param pStruct
      * @param pc
      * @param s
-     * @return 
      */
     public static void calcPhysics(Instance source, PStructAction pStruct,
             PhysicsContext pc, ModState s) {
@@ -264,7 +263,7 @@ public class Physics {
         /**/
         
         // VERTICAL MOVEMENT CALCULATIONS
-        double deltaZ = s.verticalVelocity * (dt + 0.5 * dt * dt);
+        double deltaZ = dt * (s.verticalVelocity + 0.5 * pc.gravity * dt);
         // When off-track (temporary: no track to infer from yet)
         boolean offTrack = false;
         if (s.box.pos().x > 120 ||
@@ -272,13 +271,13 @@ public class Physics {
                 s.box.pos().y > 120 ||
                 -120 > s.box.pos().y) {
             offTrack = true;
-            s.verticalVelocity += linAccel * dt;
+            s.verticalVelocity += pc.gravity * dt;
             ePos.z += deltaZ;
         }
         
         // When in the air
         if (ePos.z + deltaZ > 0) {
-            s.verticalVelocity += linAccel * dt;
+            s.verticalVelocity += pc.gravity * dt;
             ePos.z += deltaZ;
         } 
         // When bouncing on the ground
@@ -518,7 +517,7 @@ public class Physics {
         
         
         
-         // COLLISION CALCULATION
+        // COLLISION CALCULATION
         // These should be integrated into other classes and sent to here
         Vector3f colPos = new Vector3f (0.0001f, 40, 1);
         double colRange = 2;

@@ -4,15 +4,15 @@ package src.Assets.instance;
 
 // Own imports
 import org.joml.Vector3f;
+
+
+// Java imports
 import src.Assets.OBJTexture;
 import src.Physics.PStructAction;
 import src.Physics.Physics;
 import src.Physics.Physics.ModState;
 import src.Physics.PhysicsContext;
 import src.tools.Box3f;
-
-
-// Java imports
 
 
 /**

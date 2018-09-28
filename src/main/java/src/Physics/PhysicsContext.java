@@ -34,8 +34,9 @@ public class PhysicsContext {
     final public float airControl; // 0 - 1 (if > 0.6: change a correction factor)
     
     
-    public PhysicsContext(float linearAcceleration, float rotationalVelocity,
-            float maxLinearVelocity, float frictionConstant, float gravity,
+    public PhysicsContext(float linearAcceleration,
+            float rotationalVelocity, float maxLinearVelocity,
+            float frictionConstant, float gravity,
             float turnCorrection, float knockback,
             float knockbackDur, float accBlockDur, float largeSlowDown,
             float bounceFactor, float airControl) {
