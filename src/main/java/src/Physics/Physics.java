@@ -201,12 +201,16 @@ public class Physics {
         
         // Friction: When acceleration is 0, abs(v) decreases
         if (pStruct.accel == 0) {
-            if (s.velocity > 0)
+            if (s.velocity > 0.01)
                 linAccel = -pc.frictionConstant * linAccel;
-            else if (s.velocity < 0)
+            else if (s.velocity < 0.01)
                 linAccel = pc.frictionConstant * linAccel;
+            else { // Does not entirely work
+                s.velocity = 0;
+                linAccel = 0;
+            }
         } else 
-            linAccel = (pStruct.accel * linAccel);
+            linAccel = pStruct.accel * linAccel;
         
         
         // ROTATION
@@ -255,7 +259,7 @@ public class Physics {
                         - aRotVSquared * Math.sin(s.roty));
             ePos = new Vector3f(
                     (float)(s.box.pos().x + deltaX),
-                    (float)(s.box.pos().y +deltaY), 
+                    (float)(s.box.pos().y + deltaY), 
                     s.box.pos().z);
         }
         
@@ -264,10 +268,10 @@ public class Physics {
         double deltaZ = dt * (s.verticalVelocity + 0.5 * pc.gravity * dt);
         // When off-track (temporary: no track to infer from yet)
         boolean offTrack = false;
-        if (s.box.pos().x > 120 ||
-                -120 > s.box.pos().x ||
-                s.box.pos().y > 120 ||
-                -120 > s.box.pos().y) {
+        if (s.box.pos().x > 125 ||
+                -125 > s.box.pos().x ||
+                s.box.pos().y > 125 ||
+                -125 > s.box.pos().y) {
             offTrack = true;
             s.verticalVelocity += pc.gravity * dt;
             ePos.z += deltaZ;
