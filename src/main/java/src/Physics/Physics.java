@@ -306,7 +306,6 @@ public class Physics {
         
         // COLLISION CALCULATION
         // These should be integrated into other classes and sent to here
-        
         Vector3f colPos = new Vector3f (0.0001f, 40, 1);
         double colRange = 2;
         double carRange = 6;
@@ -327,7 +326,7 @@ public class Physics {
                     (float)(ePos.x + s.collisionVelocity * Math.cos(colAngle)), 
                     (float)(ePos.y + s.collisionVelocity * Math.sin(colAngle)),
                     ePos.z);
-                s.verticalVelocity = 1 + Math.abs(s.velocity)/4;
+                s.verticalVelocity = 0.5f + Math.abs(s.velocity)/8;
             } 
             
             // Moments after collision
