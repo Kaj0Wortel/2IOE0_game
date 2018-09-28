@@ -112,7 +112,10 @@ public class Physics {
         ModState s = new ModState(state);
         
         // Convert to physics space.
-        s.box.pos().z = -s.box.pos().z;
+        float x = s.box.pos().x;
+        s.box.pos().x = -s.box.pos().z;
+        s.box.pos().z = s.box.pos().y;
+        s.box.pos().y = -x;
         s.roty = (float) Math.toRadians(s.roty);
         
         
@@ -124,10 +127,11 @@ public class Physics {
              // WARNING, incorrect handeling of multiple items.
             for (Instance instance : collisions) {
                 if (instance instanceof Car) {
-                    calcPhysics(source, pStruct, pc, s);
+                    calcPhysics(source, pStruct, pc, s); // TODO
                     
                 } else if (instance instanceof Item) {
-                    ((Item) instance).physicsAtCollision(source, pStruct, pc, s);
+                    //((Item) instance).physicsAtCollision(source, pStruct, pc, s);
+                    calcPhysics(source, pStruct, pc, s);
                 }
             }
             
@@ -136,13 +140,25 @@ public class Physics {
         }
         
         // Convert back to instance space.
-        s.box.pos().z = -s.box.pos().z;
+        //s.box.pos().z = -s.box.pos().z;
         s.roty = (float) (Math.toDegrees(s.roty) % 360);
+        x = s.box.pos().x;
+        s.box.pos().x = -s.box.pos().y;
+        s.box.pos().y = s.box.pos().z;
+        s.box.pos().z = -x;
         
         return s.createState();
     }
     
-    public static ModState calcPhysics(Instance source, PStructAction pStruct,
+    /**
+     * 
+     * @param source
+     * @param pStruct
+     * @param pc
+     * @param s
+     * @return 
+     */
+    public static void calcPhysics(Instance source, PStructAction pStruct,
             PhysicsContext pc, ModState s) {
         /*
         Items items = new Items();
@@ -160,26 +176,27 @@ public class Physics {
         
         
         // Variables used in physics calculations.
+        float dt = pStruct.dt / 160f;
         float linAccel = pc.linAccel;
         float rotationalVelocity = pc.rotationalVelocity;
         float distTravelled;
-        float eV;
-        float eRot;
-        Vector3f ePos;
+        float eV = 0;
+        float eRot = 0;
+        Vector3f ePos = new Vector3f();
         
         
-         // ACCELERATION
+        // ACCELERATION
         // Max speed regulation
-        if ((pStruct.accel > 0 && s.velocity + linAccel*pStruct.dt > pc.maxLinearVelocity) ||
-                (pStruct.accel < 0&& s.velocity - linAccel*pStruct.dt < -pc.maxLinearVelocity))
+        if ((pStruct.accel > 0 && s.velocity + linAccel*dt > pc.maxLinearVelocity) ||
+                (pStruct.accel < 0 && s.velocity - linAccel*dt < -pc.maxLinearVelocity))
             pStruct.accel = 0;
         // Block manual acceleration when collision just happened
         if (s.collisionVelocity > pc.knockback / pc.accBlockDur)
             pStruct.accel = 0;
         
         // Temporary slowdown after speedboost: not refined
-        if (s.velocity + linAccel*pStruct.dt > pc.maxLinearVelocity * 1.1 ||
-                s.velocity - linAccel*pStruct.dt < -pc.maxLinearVelocity * 1.1)
+        if (s.velocity + linAccel*dt > pc.maxLinearVelocity * 1.1 ||
+                s.velocity - linAccel*dt < -pc.maxLinearVelocity * 1.1)
             linAccel *= (Math.abs(s.velocity - pc.maxLinearVelocity*1.1) + 1)
                     * pc.frictionConstant * pc.largeSlowDown;
         
@@ -190,7 +207,7 @@ public class Physics {
                 linAccel = -pc.frictionConstant * linAccel;
             else if (s.velocity < 0)
                 linAccel = pc.frictionConstant * linAccel;
-        }  else
+        }  else 
             linAccel = (pStruct.accel * linAccel);
         
         
@@ -212,21 +229,24 @@ public class Physics {
             linAccel *= (1.45 * pc.airControl);
         }
         
+        
         // HORIZONTAL MOVEMENT CALCULATIONS
         if (pStruct.turn == 0) { // Straight
-            distTravelled = pStruct.dt * (s.velocity + 0.5f * linAccel * pStruct.dt);
+            distTravelled = dt * (s.velocity + 0.5f * linAccel * dt / 160f);
+            System.out.println(distTravelled);
             
-            eV = s.velocity + linAccel * pStruct.dt;
+            eV = s.velocity + linAccel * dt;
             eRot = s.rotationSpeed;
             ePos = new Vector3f (
                     (float) (s.box.pos().x + Math.cos(s.rotationSpeed) * distTravelled),
                     (float) (s.box.pos().y + Math.sin(s.rotationSpeed) * distTravelled),
                     s.box.pos().z);
+            
         } else { // Turn
             rotationalVelocity = pStruct.turn * rotationalVelocity;
             
-            eV = s.velocity + linAccel * pStruct.dt;
-            eRot = s.rotationSpeed + rotationalVelocity * pStruct.dt;
+            eV = s.velocity + linAccel * dt;
+            eRot = s.rotationSpeed + rotationalVelocity * dt;
             float aRotVSquared = linAccel / (rotationalVelocity * rotationalVelocity);
             float deltaX = (float) ((eV / rotationalVelocity) * Math.sin(eRot)
                         + aRotVSquared * Math.cos(eRot)
@@ -241,10 +261,10 @@ public class Physics {
                     (float)(s.box.pos().y +deltaY), 
                     s.box.pos().z);
         }
-        
+        /**/
         
         // VERTICAL MOVEMENT CALCULATIONS
-        double deltaZ = s.verticalVelocity * (pStruct.dt + 0.5 * pStruct.dt * pStruct.dt);
+        double deltaZ = s.verticalVelocity * (dt + 0.5 * dt * dt);
         // When off-track (temporary: no track to infer from yet)
         boolean offTrack = false;
         if (s.box.pos().x > 120 ||
@@ -252,13 +272,13 @@ public class Physics {
                 s.box.pos().y > 120 ||
                 -120 > s.box.pos().y) {
             offTrack = true;
-            s.verticalVelocity += linAccel * pStruct.dt;
+            s.verticalVelocity += linAccel * dt;
             ePos.z += deltaZ;
         }
         
         // When in the air
         if (ePos.z + deltaZ > 0) {
-            s.verticalVelocity += linAccel * pStruct.dt;
+            s.verticalVelocity += linAccel * dt;
             ePos.z += deltaZ;
         } 
         // When bouncing on the ground
@@ -285,6 +305,7 @@ public class Physics {
         
         // COLLISION CALCULATION
         // These should be integrated into other classes and sent to here
+        
         Vector3f colPos = new Vector3f (0.0001f, 40, 1);
         double colRange = 2;
         double carRange = 6;
@@ -307,9 +328,9 @@ public class Physics {
                     ePos.z);
                 s.verticalVelocity = 1 + Math.abs(s.velocity)/4;
             } 
-        } 
-        // Moments after collision
-        else if (s.collisionVelocity > pc.knockback/1000000000) {
+            
+            // Moments after collision
+        } else if (s.collisionVelocity > pc.knockback/1_000_000_000) {
             // Slowly diminish the knockback over time
             s.collisionVelocity *= pc.knockbackDur;
             // Angle can change during bump: maybe looks better?
@@ -326,13 +347,12 @@ public class Physics {
             s.collisionVelocity = 0;
         }
         
+        /**/
         
         // Update the state.
         s.box.setPosition(ePos);
         s.velocity = eV;
         s.rotationSpeed = eRot;
-        
-        return s;
     }
     
     
@@ -381,7 +401,7 @@ public class Physics {
         
         
         
-         // ACCELERATION
+        // ACCELERATION
         // Max speed regulation
         if ((acc == 1 && startV + a*tInt > vMax) ||(acc == -1 && startV - a*tInt < -vMax))
             acc = 0;

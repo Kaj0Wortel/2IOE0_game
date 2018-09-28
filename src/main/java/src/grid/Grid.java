@@ -355,6 +355,7 @@ public class Grid {
                         Set<GridItem> set = items.get(hash);
                         if (set == null) continue;
                         for (GridItem item : set) {
+                            if (item == source) continue;
                             if (!(item instanceof Instance)) continue;
                             Instance instance = (Instance) item;
                             if (source.intersectsWith(instance)) {
