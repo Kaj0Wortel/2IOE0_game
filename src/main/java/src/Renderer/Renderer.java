@@ -49,20 +49,20 @@ public class Renderer implements GLEventListener {
         this.gl = glAutoDrawable.getGL().getGL3();
         this.glu = new GLU();
 
-        gl.glEnable(gl.GL_CULL_FACE);
-        gl.glCullFace(gl.GL_BACK);
+        gl.glEnable(GL3.GL_CULL_FACE);
+        gl.glCullFace(GL3.GL_BACK);
 
         System.out.println(gl.glGetString(GL_SHADING_LANGUAGE_VERSION));
 
         simulator.setGL(gl);
         simulator.initAssets();
-        GS.playerController = new PlayerController(simulator.getPlayer());
+        GS.playerController = new PlayerController(GS.player);
 
         getProjectionMatrix();
         objectRenderer = new ObjectRenderer(gl,projectionMatrix);
         terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
 
-        gl.glEnable(gl.GL_DEPTH_TEST);
+        gl.glEnable(GL3.GL_DEPTH_TEST);
     }
 
     @Override

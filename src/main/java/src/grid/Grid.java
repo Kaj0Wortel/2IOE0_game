@@ -15,6 +15,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
+import src.Assets.instance.Instance;
 import src.GS;
 import src.tools.MultiTool;
 
@@ -90,6 +91,35 @@ public class Grid {
         this.startZ = startZ;
     }
     
+    
+    /**
+     * Calculates the hash vector of the given vector.
+     * 
+     * @param vec the vector to calculate the hash vector of.
+     * @return the hash vector of {@code vec}.
+     */
+    private Vector3i calcHash(Vector3f vec) {
+        return (vec == null
+                ? null
+                : calcHash(vec.x, vec.y, vec.z));
+    }
+    
+    /**
+     * Calculates the hash vector of the given coords.
+     * 
+     * @param x the x-coord to calculate the hash vector of.
+     * @param y the y-coord to calculate the hash vector of.
+     * @param z the z-coord to calculate the hash vector of.
+     * @return the hash vector of the given coords.
+     */
+    private Vector3i calcHash(float x, float y, float z) {
+        return new Vector3i(
+                (int) ((x + startX) / dx),
+                (int) ((y + startY) / dy),
+                (int) ((z + startZ) / dz)
+        );
+    }
+    
     /**
      * Updates the given item.
      * This update function should be called every time
@@ -98,18 +128,10 @@ public class Grid {
      * @param item the item to be updated.
      */
     public void update(GridItem item) {
-        Vector3f cur = item.getCurLocation();
-        Vector3f prev = item.getPrevLocation();
-        Vector3i curHash = new Vector3i(
-                (int) ((cur.x + startX) / dx),
-                (int) ((cur.y + startY) / dy),
-                (int) ((cur.z + startZ) / dz)
-        );
-        Vector3i prevHash = (prev == null ? null : new Vector3i(
-                (int) ((prev.x + startX) / dx),
-                (int) ((prev.y + startY) / dy),
-                (int) ((prev.z + startZ) / dz)
-        ));
+        Vector3f cur = item.getCurPosition();
+        Vector3f prev = item.getPrevPosition();
+        Vector3i curHash = calcHash(cur);
+        Vector3i prevHash = calcHash(prev);
         //System.out.println(cur);
         //System.out.println(curHash);
         
@@ -142,12 +164,8 @@ public class Grid {
      * @param item the item to remove.
      */
     public void removeUsingCur(GridItem item) {
-        Vector3f cur = item.getCurLocation();
-        Vector3i curHash = (cur == null ? null : new Vector3i(
-                (int) ((cur.x + startX) / dx),
-                (int) ((cur.y + startY) / dy),
-                (int) ((cur.z + startZ) / dz)
-        ));
+        Vector3f cur = item.getCurPosition();
+        Vector3i curHash = calcHash(cur);
         
         lock.lock();
         try {
@@ -165,12 +183,8 @@ public class Grid {
      * @param item the item to remove.
      */
     public void removeUsingPrev(GridItem item) {
-        Vector3f cur = item.getCurLocation();
-        Vector3i curHash = (cur == null ? null : new Vector3i(
-                (int) ((cur.x + startX) / dx),
-                (int) ((cur.y + startY) / dy),
-                (int) ((cur.z + startZ) / dz)
-        ));
+        Vector3f cur = item.getCurPosition();
+        Vector3i curHash = calcHash(cur);
         
         lock.lock();
         try {
@@ -311,6 +325,53 @@ public class Grid {
         return cells;
     }
     
+    public Set<Instance> getCollisions(Instance source) {
+        Set<Instance> collidingSet = new HashSet<>();
+        
+        // The center hash.
+        Vector3i ch = calcHash(source.getState().box.pos());
+        
+        // No locking is needed for the outer loops as this is only retrieval.
+        // Note that double object removal is directly implemented by using
+        // a set to store the data.
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++) {
+                for (int z = -1; z <= 1; z++) {
+                    Vector3i hash;
+                    if (x == 0 && y == 0 && z == 0) {
+                        hash = ch;
+                        
+                    } else {
+                        hash = new Vector3i(
+                                ch.x + x,
+                                ch.y + y,
+                                ch.z + z);
+                    }
+                    
+                    // The lock here is needed because of possible
+                    // modifications while retrieving.
+                    lock.lock();
+                    try {
+                        Set<GridItem> set = items.get(hash);
+                        if (set == null) continue;
+                        for (GridItem item : set) {
+                            if (!(item instanceof Instance)) continue;
+                            Instance instance = (Instance) item;
+                            if (source.intersectsWith(instance)) {
+                                collidingSet.add(instance);
+                            }
+                        }
+                        
+                    } finally {
+                        lock.unlock();
+                    }
+                }
+            }
+        }
+        
+        return collidingSet;
+    }
+    
     /**
      * Debug function to visualize the grid.
      * 
@@ -423,12 +484,12 @@ public class Grid {
         private Vector3f prevLoc = null;
         
         @Override
-        public Vector3f getCurLocation() {
+        public Vector3f getCurPosition() {
             return curLoc;
         }
         
         @Override
-        public Vector3f getPrevLocation() {
+        public Vector3f getPrevPosition() {
             return prevLoc;
         }
         

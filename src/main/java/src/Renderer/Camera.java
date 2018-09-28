@@ -2,7 +2,7 @@ package src.Renderer;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import src.Assets.Instance;
+import src.Assets.instance.Instance;
 
 public class Camera {
 

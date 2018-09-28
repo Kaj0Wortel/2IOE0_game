@@ -1,9 +1,8 @@
 package src.Renderer;
 
-import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
-import src.Assets.Instance;
+import src.Assets.instance.Instance;
 import src.GS;
 import src.Shaders.TerrainShader;
 

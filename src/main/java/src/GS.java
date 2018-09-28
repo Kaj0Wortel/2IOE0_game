@@ -8,7 +8,10 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
 import org.joml.Vector3f;
-import src.Assets.Instance;
+
+
+// Own imports
+import src.Assets.instance.Instance;
 import src.Assets.Light;
 import src.Controllers.CameraController;
 import src.Controllers.PlayerController;
@@ -27,7 +30,12 @@ import src.tools.io.BufferedReaderPlus;
 import src.tools.io.ImageManager;
 import src.tools.log.*;
 import src.tools.update.Updater;
+import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
+import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
+import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 
+
+// Java imports
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -37,14 +45,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
 
+
+// JInput imports
 import net.java.games.input.ContrlEnv;
 import net.java.games.input.ControllerEnvironment;
-import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
-import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
-import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
-
-// Own imports
-// Java imports
+import src.Assets.instance.Car;
+import src.grid.Grid;
 
 
 /**
@@ -126,12 +132,16 @@ public class GS {
     public static CameraMode cameraMode;
     public static CameraController cameraController;
     public static PlayerController playerController;
+    public static Grid grid;
     private static boolean fullScreen = false;
     private static Map<KeyAction, List<ControllerKey>> keyMap = new HashMap<>();
     private static Simulator simulator;
     private static Renderer renderer;
     private static GLCanvas canvas;
     private static FPSAnimator animator;
+    
+    public static List<Car> cars = new ArrayList<>();
+    public static Instance player;
 
 
     
@@ -141,12 +151,6 @@ public class GS {
      * -------------------------------------------------------------------------
      */
     public static void init() {
-
-        GLProfile.initSingleton();
-        GLProfile profile = GLProfile.get(GLProfile.GL2);
-        GLCapabilities cap = new GLCapabilities(profile);
-        canvas = new GLCanvas(cap);
-
         // Initialize the logger(s).
         // Setup file logger to prevent missing events.
         Logger fileLogger = null;
@@ -186,16 +190,24 @@ public class GS {
                     + "now been disabled!");
         }
         
+        GLProfile.initSingleton();
+        GLProfile profile = GLProfile.get(GLProfile.GL2);
+        GLCapabilities cap = new GLCapabilities(profile);
+        canvas = new GLCanvas(cap);
+        
         registerImageSheets();
         createGUI();
         GS.keyDet = new ControllerKeyDetector();
         
         reloadKeyMap();
+        
+        grid = new Grid(0f, -1000f, 0f, 2f, 2f, 2f);
 
         animator = new FPSAnimator(canvas, 60, true);
 
         camera = new Camera(new Vector3f(0, 5, 20), 0, 0, 0);
         cameraController = new CameraController(camera);
+        Locker.add(cameraController);
 
         simulator = new Simulator();
         renderer = new Renderer(simulator, 1080, 720);
