@@ -237,8 +237,8 @@ public class Physics {
             eV = s.velocity + linAccel * dt;
             eRot = s.rotationSpeed;
             ePos = new Vector3f (
-                    (float) (s.box.pos().x + Math.cos(s.rotationSpeed) * distTravelled),
-                    (float) (s.box.pos().y + Math.sin(s.rotationSpeed) * distTravelled),
+                    (float) (s.box.pos().x + Math.cos(s.roty) * distTravelled),
+                    (float) (s.box.pos().y + Math.sin(s.roty) * distTravelled),
                     s.box.pos().z);
             
         } else { // Turn
