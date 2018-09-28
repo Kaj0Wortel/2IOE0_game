@@ -112,11 +112,12 @@ public class Physics {
         ModState s = new ModState(state);
         
         // Convert to physics space.
-        float x = s.box.pos().x;
-        s.box.pos().x = -s.box.pos().z;
-        s.box.pos().z = s.box.pos().y;
-        s.box.pos().y = -x;
         s.roty = (float) Math.toRadians(s.roty);
+        s.box.setPosition(new Vector3f(
+                -s.box.pos().z,
+                -s.box.pos().x,
+                s.box.pos().y)
+        );
         
         
         // ITEMS & CARS
@@ -140,12 +141,12 @@ public class Physics {
         }
         
         // Convert back to instance space.
-        //s.box.pos().z = -s.box.pos().z;
         s.roty = (float) (Math.toDegrees(s.roty) % 360);
-        x = s.box.pos().x;
-        s.box.pos().x = -s.box.pos().y;
-        s.box.pos().y = s.box.pos().z;
-        s.box.pos().z = -x;
+        s.box.setPosition(new Vector3f(
+                -s.box.pos().y,
+                s.box.pos().z,
+                -s.box.pos().x)
+        );
         
         return s.createState();
     }
@@ -232,8 +233,7 @@ public class Physics {
         
         // HORIZONTAL MOVEMENT CALCULATIONS
         if (pStruct.turn == 0) { // Straight
-            distTravelled = dt * (s.velocity + 0.5f * linAccel * dt / 160f);
-            System.out.println(distTravelled);
+            distTravelled = dt * (s.velocity + 0.5f * linAccel * dt);
             
             eV = s.velocity + linAccel * dt;
             eRot = s.rotationSpeed;
