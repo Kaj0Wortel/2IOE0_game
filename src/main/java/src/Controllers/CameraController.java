@@ -35,7 +35,7 @@ public class CameraController
             for (CameraKeyAction action : cameraActions) {
                 List<ControllerKey> keys = GS.getKeys(action);
                 if (keys == null) continue;
-
+                
                 if (GS.keyDet.werePressed(keys)) {
                     if (action.getAction() == CameraKeyAction.MovementAction.LEFT) {
                         camera.yaw(dt / 3f);
@@ -59,7 +59,6 @@ public class CameraController
         
         if (camera.isOnPlayer()) {
             camera.calculateInstanceValues();
-            camera.calculateViewMatrix();
         }
     }
     

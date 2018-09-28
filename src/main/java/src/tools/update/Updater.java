@@ -50,24 +50,6 @@ public class Updater {
         // Obtain the time stamp.
         long timeStamp = System.currentTimeMillis();
         
-        CameraController camContr = GS.cameraController;
-        if (camContr == null) return;
-        try {
-            Locker.lock(camContr);
-            try {
-                camContr.update(timeStamp);
-                
-            } finally {
-                Locker.unlock(camContr);
-            }
-            
-        } catch (Exception e) { // Play it safe to catch all types.
-            Logger.write(new Object[] {
-                "Exception occured in Camera controller:",
-                e,
-            }, Logger.Type.ERROR);
-        }
-        
         synchronized(updateSet) {
             // Distribute the tasks evenly and randomly over the
             // available threads.
@@ -116,6 +98,24 @@ public class Updater {
                 thread.waitUntilDone();
             }
         }
+        
+        CameraController camContr = GS.cameraController;
+        if (camContr == null) return;
+        try {
+            Locker.lock(camContr);
+            try {
+                camContr.update(timeStamp);
+                
+            } finally {
+                Locker.unlock(camContr);
+            }
+            
+        } catch (Exception e) { // Play it safe to catch all types.
+            Logger.write(new Object[] {
+                "Exception occured in Camera controller:",
+                e,
+            }, Logger.Type.ERROR);
+        }
     });
     static {
         tt.setPriority(Thread.MAX_PRIORITY);
@@ -128,7 +128,6 @@ public class Updater {
      * @param timeStamp the timestamp the scheduleTask occured.
      * @return a fresh scheduleTask thread.
      */
-    private static long prevTime = System.currentTimeMillis();
     @SuppressWarnings("UseSpecificCatch")
     private static Runnable createUpdateRunnable(
             List<Updateable> threadUpdates, long timeStamp) {
@@ -138,12 +137,7 @@ public class Updater {
             // try it later again.
             List<Updateable> doLater = new ArrayList<Updateable>();
             for (Updateable up : threadUpdates) {
-                long curTimePre = System.currentTimeMillis();
-                //Logger.write("scheduleTask time diff: " + (curTimePre - prevTime));
-                prevTime = curTimePre;
                 if (!updateUpdateable(up, timeStamp)) doLater.add(up);
-                //long curTimePost = System.currentTimeMillis();
-                //Logger.write("time taken: " + (curTimePost - curTimePre));
             }
             
             // Re-do all updateables that were locked the first time.
@@ -174,9 +168,7 @@ public class Updater {
         try {
             if (Locker.tryLock(up)) {
                 try {
-                    //System.out.println("Updating: " + up.toString());
                     up.update(timeStamp);
-                    //System.out.println("Updated: " + up.toString());
                     
                 } finally {
                     Locker.unlock(up);

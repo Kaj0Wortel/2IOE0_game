@@ -72,7 +72,7 @@ public class Camera {
         position.x += speed * Math.sin((float) Math.toRadians(yaw)) * factor;
         position.z -= speed * Math.cos((float) Math.toRadians(yaw)) * factor;
     }
-        
+    
     @Deprecated
     public void moveForward() {
         move(1.0f);
