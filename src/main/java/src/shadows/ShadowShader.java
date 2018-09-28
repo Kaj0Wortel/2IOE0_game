@@ -8,11 +8,24 @@ import src.Shaders.ShaderProgram;
 
 public class ShadowShader extends ShaderProgram {
 
+
+    final public static String FS = System.getProperty("file.separator");
+
+    // Handy file paths.
+    final public static String WORKING_DIR = System.getProperty("user.dir")
+            + FS + "src" +  FS;
+
+    final public static String SHADOWS_DIR = WORKING_DIR + "shadows" + FS;
+
+    final private static String vertex = SHADOWS_DIR + "shadow_vertex.glsl";
+    final private static String fragment = SHADOWS_DIR + "shadow_fragment.glsl";
+
+
     private int projectionMatrixLocation;
     private int viewMatrixLocation;
     private int modelMatrixLocation;
 
-    public ShadowShader(GL3 gl, String vertex, String fragment) {
+    public ShadowShader(GL3 gl) {
         super(gl, vertex, fragment);
     }
 

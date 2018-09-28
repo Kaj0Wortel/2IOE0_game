@@ -1,5 +1,6 @@
 package src.Renderer;
 
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.Instance;
@@ -152,6 +153,15 @@ public class Camera {
 
     public Matrix4f getInverseViewMatrix(){
         return new Matrix4f(viewMatrix).invertAffine();
+    }
+
+    public Matrix3f getRotationMatrix(){
+        Matrix3f rotationMatrix = new Matrix3f();
+        rotationMatrix.rotate(-(float) Math.toRadians(pitch), new Vector3f(1, 0, 0));
+        rotationMatrix.rotate(-(float) Math.toRadians(yaw), new Vector3f(0, 1, 0));
+        rotationMatrix.rotate(-(float) Math.toRadians(roll), new Vector3f(0, 0, 1));
+
+        return rotationMatrix;
     }
 
 }

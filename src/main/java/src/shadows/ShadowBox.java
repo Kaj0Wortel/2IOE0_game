@@ -1,6 +1,7 @@
 package src.shadows;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import src.Assets.Light;
@@ -26,50 +27,54 @@ public class ShadowBox {
     public void updateBoundingBox(){
         Vector4f[] vertices = new Vector4f[8];
 
-        float HALF_WIDTH_NEAR_PLANE = (float) Math.tan((float) Math.toRadians(Renderer.FOV/2f)) * Renderer.NEAR;
-        float HALF_HEIGHT_NEAR_PLANE = (float) HALF_WIDTH_NEAR_PLANE / getAspectRatio();
+        float widthNear = 2 * (float) Math.tan((float) Math.toRadians(Renderer.FOV/2f)) * Renderer.NEAR;
+        float heightNear = (float) widthNear/ getAspectRatio();
+        float widthFar = 2 * (float) Math.tan((float) Math.toRadians(Renderer.FOV/2f)) * Renderer.FAR;
+        float heightFar = (float) widthFar / getAspectRatio();
+        Vector3f UP = new Vector3f(0,1,0).mul(camera.getRotationMatrix());
+        Vector3f DOWN = new Vector3f(UP).negate();
+        Vector3f FORWARD = new Vector3f(0,0,-1).mul(camera.getRotationMatrix());
+        Vector3f RIGHT = new Vector3f(1,0,0).mul(camera.getRotationMatrix());
+        Vector3f LEFT = new Vector3f(RIGHT).negate();
+        Vector3f centerNear = new Vector3f(light.getPosition()).add(new Vector3f(FORWARD).mul(Renderer.NEAR));
+        Vector3f centerFar = new Vector3f(light.getPosition()).add(new Vector3f(FORWARD).mul(Renderer.FAR));
 
-        vertices[0] = new Vector4f(-HALF_WIDTH_NEAR_PLANE, -HALF_HEIGHT_NEAR_PLANE, Renderer.NEAR,1);
-        vertices[1] = new Vector4f(HALF_WIDTH_NEAR_PLANE, -HALF_HEIGHT_NEAR_PLANE, Renderer.NEAR,1);
-        vertices[2] = new Vector4f(-HALF_WIDTH_NEAR_PLANE, HALF_HEIGHT_NEAR_PLANE, Renderer.NEAR,1);
-        vertices[3] = new Vector4f(HALF_WIDTH_NEAR_PLANE, HALF_HEIGHT_NEAR_PLANE, Renderer.NEAR, 1);
+        Vector3f FARTOP = new Vector3f(centerFar).add(new Vector3f(UP).mul(heightFar/2));
+        Vector3f FARBOTTOM = new Vector3f(centerFar).add(new Vector3f(DOWN).mul(heightFar/2));
+        Vector3f NEARTOP = new Vector3f(centerNear).add(new Vector3f(UP).mul(heightNear/2));
+        Vector3f NEARBOTTOM = new Vector3f(centerNear).add(new Vector3f(DOWN).mul(heightNear/2));
 
-        float HALF_WIDTH_FAR_PLANE = (float) Math.tan((float) Math.toRadians(Renderer.FOV/2f)) * Renderer.FAR;
-        float HALF_HEIGHT_FAR_PLANE = (float) HALF_WIDTH_FAR_PLANE / getAspectRatio();
+        vertices[0] = calculateCorner(LEFT, FARTOP, widthFar);
+        vertices[1] = calculateCorner(RIGHT, FARTOP, widthFar);
+        vertices[2] = calculateCorner(LEFT, FARBOTTOM, widthFar);
+        vertices[3] = calculateCorner(RIGHT, FARBOTTOM, widthFar);
 
-        vertices[4] = new Vector4f(-HALF_WIDTH_FAR_PLANE,-HALF_HEIGHT_FAR_PLANE, Renderer.FAR,1);
-        vertices[5] = new Vector4f(HALF_WIDTH_FAR_PLANE, -HALF_HEIGHT_FAR_PLANE, Renderer.FAR,1);
-        vertices[6] = new Vector4f(-HALF_WIDTH_FAR_PLANE, HALF_HEIGHT_FAR_PLANE, Renderer.FAR,1);
-        vertices[7] = new Vector4f(HALF_WIDTH_FAR_PLANE, HALF_HEIGHT_FAR_PLANE, Renderer.FAR, 1);
+        vertices[4] = calculateCorner(LEFT, NEARTOP, widthNear);
+        vertices[5] = calculateCorner(RIGHT, NEARTOP, widthNear);
+        vertices[6] = calculateCorner(LEFT, NEARBOTTOM, widthNear);
+        vertices[7] = calculateCorner(RIGHT, NEARBOTTOM, widthNear);
 
-        transformToWorldSpace(vertices);
-        transformToEyeSpace(vertices);
+        transformToLightSpace(vertices);
 
         getMaxMinValues(vertices);
+    }
+
+    private Vector4f calculateCorner(Vector3f direction, Vector3f topbottom, float width){
+        Vector3f result = new Vector3f(topbottom).add(new Vector3f(direction).mul(width/2));
+        return new Vector4f(result,1.0f);
     }
 
     private float getAspectRatio(){
         return Renderer.width / Renderer.height;
     }
 
-    private void transformToWorldSpace(Vector4f[] vertices){
-        Matrix4f invertedCameraMatrix = camera.getInverseViewMatrix();
-        for(Vector4f vector : vertices){
-            vector.mul(invertedCameraMatrix);
-        }
-    }
+    private void transformToLightSpace(Vector4f[] vertices){
+        Matrix4f lightViewMatrix = getLightViewRotationMatrix();
 
-    private void transformToEyeSpace(Vector4f[] vertices){
-        Matrix4f lightMatrix = getLightViewMatrix();
         for(Vector4f vector : vertices){
-            vector.mul(lightMatrix);
+            vector.mul(lightViewMatrix);
         }
-    }
 
-    public Matrix4f getLightViewMatrix(){
-        Matrix4f viewMatrix = new Matrix4f();
-        viewMatrix.setLookAt(light.getPosition(),new Vector3f(light.getPosition()).negate(), new Vector3f(0,1,0));
-        return viewMatrix;
     }
 
     private void getMaxMinValues(Vector4f[] vertices){
@@ -105,7 +110,46 @@ public class ShadowBox {
         }
     }
 
+    private Matrix4f getLightViewRotationMatrix(){
+        Vector3f direction = new Vector3f(light.getPosition()).negate().normalize();
+        Matrix4f lightViewMatrix = new Matrix4f();
+        float pitch = (float) Math.acos(new Vector2f(direction.x, direction.z).length());
+        lightViewMatrix.rotate(pitch, new Vector3f(1, 0, 0));
+        float yaw = (float) Math.toDegrees(((float) Math.atan(direction.x / direction.z)));
+        yaw = direction.z > 0 ? yaw - 180 : yaw;
+        lightViewMatrix.rotate((float) -Math.toRadians(yaw), new Vector3f(0, 1, 0));
+        return lightViewMatrix;
+    }
+
+    public Matrix4f getLightViewMatrix(){
+        Vector3f direction = new Vector3f(light.getPosition()).negate().normalize();
+        Matrix4f lightViewMatrix = new Matrix4f();
+        float pitch = (float) Math.acos(new Vector2f(direction.x, direction.z).length());
+        lightViewMatrix.rotate(pitch, new Vector3f(1, 0, 0));
+        float yaw = (float) Math.toDegrees(((float) Math.atan(direction.x / direction.z)));
+        yaw = direction.z > 0 ? yaw - 180 : yaw;
+        lightViewMatrix.rotate((float) -Math.toRadians(yaw), new Vector3f(0, 1, 0));
+        lightViewMatrix.translate(getCenter().negate());
+
+        return lightViewMatrix;
+    }
+
     public Matrix4f getOrthoProjectionMatrix(){
-        return new Matrix4f().setOrtho(minX,maxX,minY,maxY,maxZ,minZ);
+        Matrix4f projectionMatrix = new Matrix4f();
+        projectionMatrix.m00(2f / (maxX - minX));
+        projectionMatrix.m11(2f / (maxY - minY));
+        projectionMatrix.m22(-2f / (maxZ - minZ));
+        projectionMatrix.m33(1);
+        return projectionMatrix;
+    }
+
+    private Vector3f getCenter(){
+        float centerX = (maxX + minX)/2f;
+        float centerY = (maxY + minY)/2f;
+        float centerZ = (maxZ + minZ)/2f;
+        Vector4f center = new Vector4f(centerX,centerY,centerZ,1.0f);
+        center.mul(new Matrix4f(getLightViewRotationMatrix()).invert());
+
+        return new Vector3f(center.x,center.y,center.z);
     }
 }

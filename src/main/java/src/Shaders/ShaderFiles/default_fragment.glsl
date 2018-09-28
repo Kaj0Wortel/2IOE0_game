@@ -28,6 +28,5 @@ void main() {
     dotSpec = pow(dotSpec, shininess);
     vec3 specular = dotSpec * reflectivity * lightColor;
 
-
 	color = vec4(change,1.0) * vec4(1.0,0.0,0.0,1.0) + vec4(specular,1.0);
 }

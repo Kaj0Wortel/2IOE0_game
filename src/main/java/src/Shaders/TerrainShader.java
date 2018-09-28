@@ -52,7 +52,7 @@ public class TerrainShader extends ShaderProgram {
         reflectivityLocation = getUniformLocation(gl, "reflectivity");
         timeLocation = getUniformLocation(gl, "time");
         cameraPosLocation = getUniformLocation(gl, "cameraPos");
-        textureLocation = getUniformLocation(gl, "texture");
+        textureLocation = getUniformLocation(gl, "textureImg");
         shadowMapLocation = getUniformLocation(gl, "shadowMap");
 
         System.out.println("Projection location: " + projectionMatrixLocation);
@@ -99,7 +99,7 @@ public class TerrainShader extends ShaderProgram {
 
     public void loadTextures(GL3 gl){
         loadUniformInt(gl, textureLocation, 0);
-        loadUniformInt(gl,shadowMapLocation,1);
+        loadUniformInt(gl, shadowMapLocation,1);
     }
 
 }
