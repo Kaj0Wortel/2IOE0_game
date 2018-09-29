@@ -17,6 +17,7 @@ import src.Controllers.CameraController;
 import src.Controllers.PlayerController;
 import src.Renderer.Camera;
 import src.Renderer.Renderer;
+import src.gui.GUI;
 import src.gui.MainPanel;
 import src.tools.event.ControllerKey;
 import src.tools.event.ControllerKeyDetector;
@@ -114,6 +115,7 @@ public class GS {
     final private static List<Instance> assets = new ArrayList<>();
     final private static List<Instance> terrain = new ArrayList<>();
     final private static List<Light> lights = new ArrayList<>();
+    final private static List<GUI> guis = new ArrayList<>();
     
     
     /**-------------------------------------------------------------------------
@@ -208,7 +210,6 @@ public class GS {
         canvas.setSize(1080, 720);
 
         animator.start();
-        renderer.cleanup();
 
         Updater.start();
     }
@@ -420,6 +421,12 @@ public class GS {
 
     public static List<Light> getLights(){
         return lights;
+    }
+
+    public static List<GUI> getGUIs() { return guis;}
+
+    public static void addGUI(GUI gui){
+        guis.add(gui);
     }
     
     public static void addAsset(Instance asset){

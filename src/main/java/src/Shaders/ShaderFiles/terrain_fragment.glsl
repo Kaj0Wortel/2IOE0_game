@@ -13,7 +13,6 @@ uniform float shininess;
 uniform float reflectivity;
 
 uniform sampler2D textureImg;
-uniform sampler2D shadowMap;
 
 void main() {
     vec3 unitNormal = normalize(normalVector);
@@ -22,5 +21,5 @@ void main() {
     d = max(d,0.3);
     vec3 change = d * lightColor;
 
-	color = vec4(change,1.0) * texture(textureImg,texPass) * texture(shadowMap, texPass);
+	color = vec4(change,1.0) * texture(textureImg,texPass) ;
 }

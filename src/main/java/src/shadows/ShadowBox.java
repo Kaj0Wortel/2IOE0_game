@@ -1,7 +1,6 @@
 package src.shadows;
 
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import src.Assets.Light;
@@ -19,9 +18,12 @@ public class ShadowBox {
     private float maxY;
     private float maxZ;
 
-    public ShadowBox(Camera camera, Light light){
+    Matrix4f lightViewMatrix;
+
+    public ShadowBox(Camera camera, Light light, Matrix4f lightViewMatrix){
         this.camera = camera;
         this.light = light;
+        this.lightViewMatrix = lightViewMatrix;
     }
 
     public void updateBoundingBox(){
@@ -54,28 +56,20 @@ public class ShadowBox {
         vertices[6] = calculateCorner(LEFT, NEARBOTTOM, widthNear);
         vertices[7] = calculateCorner(RIGHT, NEARBOTTOM, widthNear);
 
-        transformToLightSpace(vertices);
-
         getMaxMinValues(vertices);
     }
 
     private Vector4f calculateCorner(Vector3f direction, Vector3f topbottom, float width){
         Vector3f result = new Vector3f(topbottom).add(new Vector3f(direction).mul(width/2));
-        return new Vector4f(result,1.0f);
+        Vector4f homogeneous_result = new Vector4f(result, 1.0f);
+        homogeneous_result.mul(lightViewMatrix);
+        return homogeneous_result;
     }
 
     private float getAspectRatio(){
         return Renderer.width / Renderer.height;
     }
 
-    private void transformToLightSpace(Vector4f[] vertices){
-        Matrix4f lightViewMatrix = getLightViewRotationMatrix();
-
-        for(Vector4f vector : vertices){
-            vector.mul(lightViewMatrix);
-        }
-
-    }
 
     private void getMaxMinValues(Vector4f[] vertices){
         boolean f = true;
@@ -110,46 +104,26 @@ public class ShadowBox {
         }
     }
 
-    private Matrix4f getLightViewRotationMatrix(){
-        Vector3f direction = new Vector3f(light.getPosition()).negate().normalize();
-        Matrix4f lightViewMatrix = new Matrix4f();
-        float pitch = (float) Math.acos(new Vector2f(direction.x, direction.z).length());
-        lightViewMatrix.rotate(pitch, new Vector3f(1, 0, 0));
-        float yaw = (float) Math.toDegrees(((float) Math.atan(direction.x / direction.z)));
-        yaw = direction.z > 0 ? yaw - 180 : yaw;
-        lightViewMatrix.rotate((float) -Math.toRadians(yaw), new Vector3f(0, 1, 0));
-        return lightViewMatrix;
-    }
-
-    public Matrix4f getLightViewMatrix(){
-        Vector3f direction = new Vector3f(light.getPosition()).negate().normalize();
-        Matrix4f lightViewMatrix = new Matrix4f();
-        float pitch = (float) Math.acos(new Vector2f(direction.x, direction.z).length());
-        lightViewMatrix.rotate(pitch, new Vector3f(1, 0, 0));
-        float yaw = (float) Math.toDegrees(((float) Math.atan(direction.x / direction.z)));
-        yaw = direction.z > 0 ? yaw - 180 : yaw;
-        lightViewMatrix.rotate((float) -Math.toRadians(yaw), new Vector3f(0, 1, 0));
-        lightViewMatrix.translate(getCenter().negate());
-
-        return lightViewMatrix;
-    }
-
-    public Matrix4f getOrthoProjectionMatrix(){
-        Matrix4f projectionMatrix = new Matrix4f();
-        projectionMatrix.m00(2f / (maxX - minX));
-        projectionMatrix.m11(2f / (maxY - minY));
-        projectionMatrix.m22(-2f / (maxZ - minZ));
-        projectionMatrix.m33(1);
-        return projectionMatrix;
-    }
-
-    private Vector3f getCenter(){
+    public Vector3f getCenter(){
         float centerX = (maxX + minX)/2f;
         float centerY = (maxY + minY)/2f;
         float centerZ = (maxZ + minZ)/2f;
         Vector4f center = new Vector4f(centerX,centerY,centerZ,1.0f);
-        center.mul(new Matrix4f(getLightViewRotationMatrix()).invert());
+        Matrix4f invLight = new Matrix4f(lightViewMatrix.invert());
+        center.mul(invLight);
 
         return new Vector3f(center.x,center.y,center.z);
+    }
+
+    public float getdX(){
+        return maxX - minX;
+    }
+
+    public float getdY(){
+        return maxY - minY;
+    }
+
+    public float getdZ(){
+        return maxZ - minZ;
     }
 }

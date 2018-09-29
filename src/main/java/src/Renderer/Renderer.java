@@ -9,9 +9,11 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import src.Controllers.PlayerController;
 import src.GS;
 import src.Simulator;
+import src.gui.GUI;
 import src.shadows.ShadowRenderer;
 
 import java.nio.IntBuffer;
@@ -40,6 +42,7 @@ public class Renderer implements GLEventListener {
     private ObjectRenderer objectRenderer;
     private TerrainRenderer terrainRenderer;
     private ShadowRenderer shadowRenderer;
+    private GUIRenderer guiRenderer;
 
     private IntBuffer shadowMap;
 
@@ -67,7 +70,10 @@ public class Renderer implements GLEventListener {
         objectRenderer = new ObjectRenderer(gl,projectionMatrix);
         terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
         shadowRenderer = new ShadowRenderer(gl);
-        shadowMap = shadowRenderer.getShadowBuffer().getDepthAttachment();
+        guiRenderer = new GUIRenderer(gl);
+
+        GUI shadowGui = new GUI(shadowRenderer.getShadowBuffer().getDepthAttachment().get(0),new Vector2f(-0.5f,0.5f), new Vector2f(0.5f,0.5f));
+        GS.addGUI(shadowGui);
 
         gl.glEnable(gl.GL_DEPTH_TEST);
         gl.glViewport(0,0, GS.getWindowWidth(),GS.getWindowHeight());
@@ -80,14 +86,14 @@ public class Renderer implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
-        shadowRenderer.update();
         shadowRenderer.render(gl);
-        shadowMap = shadowRenderer.getShadowBuffer().getDepthAttachment();
+
         gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         gl.glClearColor(1f, 1f, 1f, 1f);
 
-        objectRenderer.render(gl,shadowMap);
-        terrainRenderer.render(gl,shadowMap);
+        objectRenderer.render(gl);
+        terrainRenderer.render(gl);
+        guiRenderer.render(gl);
     }
 
     @Override
@@ -114,6 +120,9 @@ public class Renderer implements GLEventListener {
 
     public void cleanup(){
         simulator.cleanup();
+        objectRenderer.cleanup(gl);
+        terrainRenderer.cleanup(gl);
+        guiRenderer.cleanup(gl);
     }
 
 

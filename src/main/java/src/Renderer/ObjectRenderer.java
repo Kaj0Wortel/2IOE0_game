@@ -6,8 +6,6 @@ import src.Assets.Instance;
 import src.GS;
 import src.Shaders.DefaultShader;
 
-import java.nio.IntBuffer;
-
 public class ObjectRenderer {
 
     private DefaultShader defaultShader;
@@ -18,7 +16,7 @@ public class ObjectRenderer {
         this.projectionMatrix = projectionMatrix;
     }
 
-    public void render(GL3 gl, IntBuffer shadowMap){
+    public void render(GL3 gl){
         defaultShader.start(gl);
 
         defaultShader.loadProjectionMatrix(gl,projectionMatrix);
@@ -26,12 +24,14 @@ public class ObjectRenderer {
         defaultShader.loadLight(gl,GS.getLights().get(0));
         defaultShader.loadCameraPos(gl, GS.getCamera().getPosition());
         defaultShader.loadTextures(gl);
-        gl.glActiveTexture(gl.GL_TEXTURE1);
-        gl.glBindTexture(gl.GL_TEXTURE_2D, shadowMap.get(0));
         for(Instance asset : GS.getAssets()){
             asset.draw(gl, defaultShader);
         }
 
         defaultShader.stop(gl);
+    }
+
+    public void cleanup(GL3 gl){
+        defaultShader.cleanUp(gl);
     }
 }

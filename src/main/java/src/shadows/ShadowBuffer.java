@@ -26,6 +26,7 @@ public class ShadowBuffer {
         gl.glGenFramebuffers(1,fbo);
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER,fbo.get(0));
         gl.glDrawBuffer(gl.GL_NONE);
+        gl.glReadBuffer(gl.GL_NONE);
 
         return fbo;
     }
@@ -35,7 +36,7 @@ public class ShadowBuffer {
         gl.glGenTextures(1,depthAttachment);
         gl.glBindTexture(gl.GL_TEXTURE_2D,depthAttachment.get(0));
 
-        gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_DEPTH_COMPONENT32, width, height,
+        gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_DEPTH_COMPONENT16, width, height,
                 0, gl.GL_DEPTH_COMPONENT, gl.GL_FLOAT, null);
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST);
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_NEAREST);
@@ -48,7 +49,7 @@ public class ShadowBuffer {
 
     public void bindFrameBuffer(GL3 gl){
         gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
-        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER,frameBufferObject.get(0));
+        gl.glBindFramebuffer(gl.GL_DRAW_FRAMEBUFFER,frameBufferObject.get(0));
         gl.glViewport(0,0,width,height);
     }
 

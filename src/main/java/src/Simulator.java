@@ -1,10 +1,11 @@
 package src;
 
-import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import src.Assets.*;
 import src.OBJ.LoadOBJ;
+import src.gui.GUI;
 import src.tools.Binder;
 import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.CameraKeyAction;
@@ -13,7 +14,6 @@ import src.tools.update.Updateable;
 import src.tools.update.Updater;
 
 import javax.swing.*;
-
 import java.util.List;
 
 import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
@@ -55,6 +55,10 @@ public class Simulator implements Updateable {
     }
 
     public void initAssets() {
+
+        GUI testgui = new GUI(new TextureImg(gl,"game_icon.png").getTexture().getTextureObject(), new Vector2f(0.5f,0.5f), new Vector2f(0.25f,0.25f));
+        GS.addGUI(testgui);
+
         //OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "test.obj");
 
         Terrain terrain = new Terrain(gl);

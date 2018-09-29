@@ -113,30 +113,6 @@ public class Camera {
         return onPlayer;
     }
 
-    public void moveToInstance(){
-        distanceToAsset -= 0.1f;
-    }
-
-    public void moveAwayFromInstance(){
-        distanceToAsset += 0.1f;
-    }
-
-    public void rotateAroundAssetR(){
-        angleAroundAsset += 0.1f;
-    }
-
-    public void rotateAroundAssetL(){
-        angleAroundAsset -= 0.1f;
-    }
-
-    public void movePitchDown(){
-        pitch -= 0.1f;
-    }
-
-    public void movePitchUp(){
-        pitch += 0.1f;
-    }
-
     public void calculateInstanceValues(){
         float angle = focusedOn.getRoty() + angleAroundAsset;
         float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
@@ -164,4 +140,11 @@ public class Camera {
         return rotationMatrix;
     }
 
+    public float getPitch() {
+        return pitch;
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
 }

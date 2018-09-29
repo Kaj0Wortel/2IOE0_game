@@ -6,8 +6,6 @@ import src.Assets.Instance;
 import src.GS;
 import src.Shaders.TerrainShader;
 
-import java.nio.IntBuffer;
-
 public class TerrainRenderer {
 
     private TerrainShader terrainShader;
@@ -18,7 +16,7 @@ public class TerrainRenderer {
         this.projectionMatrix = projectionMatrix;
     }
 
-    public void render(GL3 gl, IntBuffer shadowMap){
+    public void render(GL3 gl){
         terrainShader.start(gl);
 
         terrainShader.loadProjectionMatrix(gl,projectionMatrix);
@@ -26,8 +24,6 @@ public class TerrainRenderer {
         terrainShader.loadLight(gl,GS.getLights().get(0));
         terrainShader.loadCameraPos(gl, GS.getCamera().getPosition());
         terrainShader.loadTextures(gl);
-        gl.glActiveTexture(gl.GL_TEXTURE1);
-        gl.glBindTexture(gl.GL_TEXTURE_2D, shadowMap.get(0));
 
         for(Instance asset : GS.getTerrain()){
             terrainShader.loadTextureLightValues(gl, asset.getModel().getTextureImg().getShininess(), asset.getModel().getTextureImg().getReflectivity());
@@ -36,5 +32,9 @@ public class TerrainRenderer {
         }
 
         terrainShader.stop(gl);
+    }
+
+    public void cleanup(GL3 gl){
+        terrainShader.cleanUp(gl);
     }
 }
