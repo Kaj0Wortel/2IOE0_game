@@ -11,7 +11,10 @@ import java.util.Set;
 import org.joml.Vector3f;
 import src.Assets.instance.Car;
 import src.Assets.instance.Item;
+import src.tools.update.CollisionManager.Collision;
 import src.tools.Box3f;
+import src.tools.update.CollisionManager;
+import src.tools.update.CollisionManager.Entry;
 
 
 public class Physics {
@@ -58,6 +61,9 @@ public class Physics {
     }
     
     
+    /**
+     * @see PhysicsContext
+     */
     public static class ModPhysicsContext {
         public float linAccel;
         public float rotationalVelocity;
@@ -91,7 +97,7 @@ public class Physics {
             this.largeSlowDown = pc.largeSlowDown;
             this.bounceFactor = pc.bounceFactor;
             this.airControl = pc.airControl;
-            this.brakeAccel = brakeAccel;
+            this.brakeAccel = pc.brakeAccel;
         }
         
         public ModPhysicsContext(float linAccel, float rotationalVelocity,
@@ -146,7 +152,7 @@ public class Physics {
      * simple collision (rectangle colliders)
      * rotation correction for small velocities and negative velocities
      * 2 simple items/situations implemented
-    \* Large slowdown when speed higher than vMax 
+     * Large slowdown when speed higher than vMax 
      * 
      * 
      * TODO:
@@ -199,21 +205,36 @@ public class Physics {
         // If the instance intersects with a car or an item, use collision
         // dependant collision handeling.
         // Ignore the current actions.
-        if (!collisions.isEmpty()) {
+        if (collisions != null && !collisions.isEmpty()) {
+            boolean calcPhysics = true;
             ModPhysicsContext modPC = new ModPhysicsContext(pc);
             
             for (Instance instance : collisions) {
-                if (instance instanceof Car) {
-                    calcPhysics(source, pStruct, pc, s); // TODO
+                boolean isStatic = source.isStatic() || instance.isStatic();
+                calcPhysics |= !isStatic;
+                
+                if (!isStatic) {
+                    // Double non-static collisions are handled later.
+                    CollisionManager.addCollision(source, instance,
+                            pStruct, modPC, s);
                     
-                } else if (instance instanceof Item) {
-                    System.out.println("hit item!");
-                    ((Item) instance).physicsAtCollision(
-                            source, pStruct, modPC, s);
+                } else {
+                    // Full or single static collisions are handled here.
+                    if (instance instanceof Car) {
+                        calcPhysics(source, pStruct, pc, s); // TODO
+
+                    } else if (instance instanceof Item) {
+                        System.out.println("hit item!");
+                        ((Item) instance).physicsAtCollision(
+                                source, pStruct, modPC, s);
+                    }
                 }
             }
             
-            calcPhysics(source, pStruct, modPC.createContext(), s);
+            // When there are double non-static collisions, the physics are
+            // calculated later.
+            if (calcPhysics)
+                calcPhysics(source, pStruct, modPC.createContext(), s);
             
         } else {
             calcPhysics(source, pStruct, pc, s);
@@ -231,6 +252,21 @@ public class Physics {
     }
     
     /**
+     * Calculates and updates the physics of te instance given in the
+     * entry with the given {@link PStructAction}, {@link ModPhysicsContext}
+     * and {@link ModState}.
+     * Updates the state of the instance afterwards.
+     * 
+     * @param entry the entry to get the data from.
+     */
+    public static void calcAndUpdatePhysics(Entry entry) {
+        calcPhysics(entry.inst, entry.pStruct, entry.mpc.createContext(),
+                entry.ms);
+        entry.inst.setState(entry.ms.createState());
+    }
+    
+    /**
+     * Calculates the movement physics of the source from the given data.
      * 
      * @param source
      * @param pStruct
@@ -446,6 +482,12 @@ public class Physics {
         s.velocity = eV;
         s.roty = eRot;
     }
+    
+    
+    public static void exeCollision(Collision col) {
+        // TODO
+    }
+    
     
     public static void physicsTestVisuals () {
         /*

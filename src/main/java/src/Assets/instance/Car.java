@@ -25,5 +25,10 @@ public class Car
                 physicConst);
     }
     
+    @Override
+    public boolean isStatic() {
+        return false;
+    }
+    
     
 }

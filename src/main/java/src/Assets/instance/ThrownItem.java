@@ -35,5 +35,10 @@ public class ThrownItem
         // TODO
     }
     
+    @Override
+    public boolean isStatic() {
+        return false;
+    }
+    
     
 }

@@ -2,11 +2,14 @@ package src.Assets.instance;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
+import java.util.HashSet;
 import java.util.Set;
+import javax.swing.SwingUtilities;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.OBJTexture;
 import src.GS;
+import src.Locker;
 import src.Physics.PStructAction;
 import src.Physics.PhysicsContext;
 import src.Physics.Physics;
@@ -66,6 +69,7 @@ public abstract class Instance {
     
     protected OBJTexture model;
     
+    
     public Instance(Box3f box, float size,
             float rotx, float roty, float rotz,
             OBJTexture model, float integratedRotation, 
@@ -75,8 +79,12 @@ public abstract class Instance {
                 
         this.model = model;
         this.physicsContext = physicConst;
+        SwingUtilities.invokeLater(() -> {
+            Locker.add(this);
+        });
     }
-
+    
+    
     public Matrix4f getTransformationMatrix() {
         State s = state; // For sync.
         Matrix4f transformationMatrix = new Matrix4f();
@@ -158,6 +166,15 @@ public abstract class Instance {
     }
     
     /**
+     * Sets the state of {@code this} instance.
+     * 
+     * @param state the new state.
+     */
+    public void setState(State state) {
+        this.state = state;
+    }
+    
+    /**
      * @return the current state of {@code this} instance.
      *     The returned state is immutable.
      */
@@ -225,14 +242,26 @@ public abstract class Instance {
     }
     
     /**
+     * @return {@code true} if the instance is static (i.e. not moveable).
+     *     {@code false} otherwise.
+     */
+    public abstract boolean isStatic();
+    
+    /**
      * Calculates the movement of the instance with the given action.
      * 
      * @param pStruct the action to execute.
      */
     public void movement(PStructAction pStruct) {
-        Set<Instance> collisions = GS.grid.getCollisions(this);
-        state = Physics.calcPhysics(this, pStruct, physicsContext, state,
-                collisions);
+        if (!isStatic()) {
+            Set<Instance> collisions = GS.grid.getCollisions(this);
+            state = Physics.calcPhysics(this, pStruct, physicsContext, state,
+                    collisions);
+            
+        } else {
+            state = Physics.calcPhysics(this, pStruct, physicsContext, state,
+                    null);
+        }
         
         /*
         PStructAction curStruct = new PStructAction(new Vector3f(

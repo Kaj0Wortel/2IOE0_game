@@ -26,5 +26,10 @@ public class TerrainInstance
                 physicConst);
     }
     
+    @Override
+    public boolean isStatic() {
+        return true;
+    }
+    
     
 }

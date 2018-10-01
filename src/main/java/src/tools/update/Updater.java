@@ -26,9 +26,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.SwingUtilities;
+import src.Assets.instance.Instance;
 import src.Controllers.CameraController;
 import src.GS;
+import src.Physics.Physics;
 import src.tools.MultiTool.RandomIterator;
+import src.tools.update.CollisionManager.Collision;
+import src.tools.update.CollisionManager.Entry;
 
 
 /**
@@ -50,6 +54,8 @@ public class Updater {
         // Obtain the time stamp.
         long timeStamp = System.currentTimeMillis();
         
+        
+        /** Update updateables. */
         synchronized(updateSet) {
             // Distribute the tasks evenly and randomly over the
             // available threads.
@@ -93,12 +99,89 @@ public class Updater {
                 updater.scheduleTask(createUpdateRunnable(tasks, timeStamp));
             }
             
-            // Wait for the other threads to terminate.
+            // Wait for the update threads to terminate.
             for (UpdateThread thread : updateThreads) {
                 thread.waitUntilDone();
             }
         }
         
+        
+        /** Determine collisions with double non-static collisions. */
+        final Iterator<Collision> colIt = CollisionManager.colLockIterator();
+        for (UpdateThread updater : updateThreads) {
+            updater.scheduleTask(() -> {
+                while (colIt.hasNext()) {
+                    Collision col = colIt.next();
+                    if (col == null) return;
+                    try {
+                        Physics.exeCollision(col);
+                        
+                    } finally {
+                        Locker.unlock(col.e1.inst);
+                        Locker.unlock(col.e2.inst);
+                    }
+                }
+            });
+        }
+        
+        // Wait for the update threads to terminate.
+        for (UpdateThread thread : updateThreads) {
+            thread.waitUntilDone();
+        }
+        
+        
+        /** Update objects that had a double non-static collision. */
+        int tasksPerThread = (int) Math.ceil(
+                ((double) updateSet.size()) / updateThreads.size());
+        int counter = 0;
+        List<Entry> tasks = new ArrayList<>(tasksPerThread);
+        UpdateThread updater = updateThreads.get(0);
+        int threadCounter = 0;
+        
+        final Iterator<Entry> instIt = CollisionManager.entryeIterator();
+        while (instIt.hasNext()) {
+            Entry entry = instIt.next();
+            tasks.add(entry);
+
+            if (tasks.size() > tasksPerThread) {
+                // Create a new scheduleTask thread.
+                final List<Entry> t = tasks;
+                updater.scheduleTask(() -> {
+                    for (Entry e : t) {
+                        Physics.calcAndUpdatePhysics(e);
+                    }
+                });
+                if (++counter < updateThreads.size()) {
+                    updater = updateThreads.get(counter);
+
+                } else {
+                    Logger.write(
+                            "Wrong distribution amoung update threads!",
+                            Logger.Type.WARNING);
+                }
+
+                // Reset counter and scheduleTask list for
+                // the next iteration.
+                tasks = new ArrayList<>();
+            }
+        }
+
+        if (!tasks.isEmpty()) {
+            final List<Entry> t = tasks;
+            updater.scheduleTask(() -> {
+                for (Entry e : t) {
+                    Physics.calcAndUpdatePhysics(e);
+                }
+            });
+        }
+        
+        // Wait for the update threads to terminate.
+        for (UpdateThread thread : updateThreads) {
+            thread.waitUntilDone();
+        }
+        
+        
+        /** Update Camera. */
         CameraController camContr = GS.cameraController;
         if (camContr == null) return;
         try {

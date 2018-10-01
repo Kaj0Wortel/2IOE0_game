@@ -35,5 +35,10 @@ public class PickupItem
         // TODO
     }
     
+    @Override
+    public boolean isStatic() {
+        return true;
+    }
+    
     
 }

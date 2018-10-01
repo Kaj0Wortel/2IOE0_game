@@ -32,7 +32,7 @@ public class PhysicsContext {
     final public float bounceFactor; // 0 - <1
     // How good your controlls are in air.
     final public float airControl; // 0 - 1 (if > 0.6: change a correction factor)
-    //
+    // The amount of breaking power.
     final public float brakeAccel;
     
     

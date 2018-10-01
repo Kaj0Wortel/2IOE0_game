@@ -74,5 +74,10 @@ public class EnvironmentItem
         return vMax;
     }
     
+    @Override
+    public boolean isStatic() {
+        return true;
+    }
+    
     
 }
