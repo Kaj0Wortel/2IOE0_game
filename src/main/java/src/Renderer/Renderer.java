@@ -4,19 +4,15 @@ package src.Renderer;
 
 // Jogamp imports
 
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import src.Controllers.PlayerController;
 import src.GS;
 import src.Simulator;
-import src.gui.GUI;
-import src.shadows.ShadowRenderer;
-
-import java.nio.IntBuffer;
 
 import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
 import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
@@ -31,20 +27,16 @@ public class Renderer implements GLEventListener {
     private GL3 gl;
     private GLU glu;
 
-    public static final float FOV = 70;
-    public static final float NEAR = 0.1f;
-    public static final float FAR = 1000f;
-    public static float width = 1080;
-    public static float height = 720;
+    private final float FOV = 70;
+    private final float NEAR = 0.1f;
+    private final float FAR = 1000f;
+    private float width = 1080;
+    private float height = 720;
 
     private Matrix4f projectionMatrix;
 
     private ObjectRenderer objectRenderer;
     private TerrainRenderer terrainRenderer;
-    private ShadowRenderer shadowRenderer;
-    private GUIRenderer guiRenderer;
-
-    private IntBuffer shadowMap;
 
     public Renderer(Simulator simulator, float width, float height){
         this.simulator = simulator;
@@ -57,26 +49,20 @@ public class Renderer implements GLEventListener {
         this.gl = glAutoDrawable.getGL().getGL3();
         this.glu = new GLU();
 
-        gl.glEnable(gl.GL_CULL_FACE);
-        gl.glCullFace(gl.GL_BACK);
+        gl.glEnable(GL3.GL_CULL_FACE);
+        gl.glCullFace(GL3.GL_BACK);
 
         System.out.println(gl.glGetString(GL_SHADING_LANGUAGE_VERSION));
 
         simulator.setGL(gl);
         simulator.initAssets();
-        GS.playerController = new PlayerController(simulator.getPlayer());
+        GS.playerController = new PlayerController(GS.player);
 
         getProjectionMatrix();
         objectRenderer = new ObjectRenderer(gl,projectionMatrix);
         terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
-        shadowRenderer = new ShadowRenderer(gl);
-        guiRenderer = new GUIRenderer(gl);
 
-        GUI shadowGui = new GUI(shadowRenderer.getShadowBuffer().getDepthAttachment().get(0),new Vector2f(-0.5f,0.5f), new Vector2f(0.5f,0.5f));
-        GS.addGUI(shadowGui);
-
-        gl.glEnable(gl.GL_DEPTH_TEST);
-        gl.glViewport(0,0, GS.getWindowWidth(),GS.getWindowHeight());
+        gl.glEnable(GL3.GL_DEPTH_TEST);
     }
 
     @Override
@@ -86,14 +72,11 @@ public class Renderer implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
-        shadowRenderer.render(gl);
-
         gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         gl.glClearColor(1f, 1f, 1f, 1f);
 
         objectRenderer.render(gl);
         terrainRenderer.render(gl);
-        guiRenderer.render(gl);
     }
 
     @Override
@@ -120,10 +103,6 @@ public class Renderer implements GLEventListener {
 
     public void cleanup(){
         simulator.cleanup();
-        objectRenderer.cleanup(gl);
-        terrainRenderer.cleanup(gl);
-        guiRenderer.cleanup(gl);
     }
-
 
 }

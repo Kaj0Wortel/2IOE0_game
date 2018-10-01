@@ -2,7 +2,7 @@ package src.Renderer;
 
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
-import src.Assets.Instance;
+import src.Assets.instance.Instance;
 import src.GS;
 import src.Shaders.TerrainShader;
 
@@ -20,10 +20,9 @@ public class TerrainRenderer {
         terrainShader.start(gl);
 
         terrainShader.loadProjectionMatrix(gl,projectionMatrix);
-        terrainShader.loadViewMatrix(gl, GS.getCamera().getViewMatrix());
+        terrainShader.loadViewMatrix(gl, GS.camera.getViewMatrix());
         terrainShader.loadLight(gl,GS.getLights().get(0));
-        terrainShader.loadCameraPos(gl, GS.getCamera().getPosition());
-        terrainShader.loadTextures(gl);
+        terrainShader.loadCameraPos(gl, GS.camera.getPosition());
 
         for(Instance asset : GS.getTerrain()){
             terrainShader.loadTextureLightValues(gl, asset.getModel().getTextureImg().getShininess(), asset.getModel().getTextureImg().getReflectivity());
@@ -32,9 +31,5 @@ public class TerrainRenderer {
         }
 
         terrainShader.stop(gl);
-    }
-
-    public void cleanup(GL3 gl){
-        terrainShader.cleanUp(gl);
     }
 }

@@ -1,28 +1,28 @@
 package src.Renderer;
 
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import src.Assets.Instance;
+import scala.xml.Null;
+import src.Assets.instance.Instance;
+import src.Assets.instance.Instance.State;
 
 public class Camera {
-
     private Vector3f position;
     private float pitch;
     private float yaw;
     private float roll;
-
+    
     Matrix4f viewMatrix = new Matrix4f();
-
+    
     int speed = 2;
-
+    
     private Instance focusedOn;
     private Vector3f previousPosition;
     private boolean onPlayer;
-
+    
     private float distanceToAsset = 30;
     private float angleAroundAsset = 0;
-
+    
     public Camera (Vector3f position, float pitch, float yaw, float roll){
         this.position = position;
         this.pitch = pitch;
@@ -32,7 +32,7 @@ public class Camera {
 
         calculateViewMatrix();
     }
-
+    
     public void calculateViewMatrix(){
         viewMatrix.identity();
         viewMatrix.rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0));
@@ -51,7 +51,7 @@ public class Camera {
         yaw += amt;
         yaw %= 360;
     }
-
+    
     @Deprecated
     public void yawLeft(){
         yaw(-5f);
@@ -78,20 +78,20 @@ public class Camera {
     public void moveForward() {
         move(1.0f);
     }
-    
+        
     @Deprecated
     public void moveBackwards(){
         move(-1.0f);
     }
-
+    
     public Vector3f getPosition() {
         return position;
     }
-
+    
     public void setPosition(Vector3f position) {
         this.position = new Vector3f(position);
     }
-
+    
     public void setFocus(Instance instance){
         previousPosition = new Vector3f(position);
         focusedOn = instance;
@@ -100,6 +100,18 @@ public class Camera {
         pitch = 20;
     }
 
+    /*
+    public void rubberBand(){
+        if(focusedOn != null){
+
+        } else {
+            System.out.println(focusedOn.getRotz());
+            distanceToAsset
+        }
+
+    }
+    */
+    
     public void removeFocus() {
         focusedOn = null;
         onPlayer = false;
@@ -108,43 +120,48 @@ public class Camera {
         this.pitch = 0;
         this.roll = 0;
     }
-
+    
     public boolean isOnPlayer() {
         return onPlayer;
     }
-
-    public void calculateInstanceValues(){
-        float angle = focusedOn.getRoty() + angleAroundAsset;
+    
+    public void moveToInstance(){
+        distanceToAsset -= 0.1f;
+    }
+    
+    public void moveAwayFromInstance(){
+        distanceToAsset += 0.1f;
+    }
+    
+    public void rotateAroundAssetR(){
+        angleAroundAsset += 0.1f;
+    }
+    
+    public void rotateAroundAssetL(){
+        angleAroundAsset -= 0.1f;
+    }
+    
+    public void movePitchDown(){
+        pitch -= 0.1f;
+    }
+    
+    public void movePitchUp(){
+        pitch += 0.1f;
+    }
+    
+    public void calculateInstanceValues() {
+        State state = focusedOn.getState();
+        float angle = state.roty + angleAroundAsset;
         float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
         float verDistance = (float) (distanceToAsset * Math.sin(Math.toRadians(pitch)));
         float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
         float z = (float) (horDistance * Math.cos(Math.toRadians(angle)));
-        position.x = focusedOn.getPosition().x + x;
-        position.y = focusedOn.getPosition().y + verDistance;
-        position.z = focusedOn.getPosition().z + z;
-        this.yaw = - (focusedOn.getRoty() + angleAroundAsset);
+        position.x = state.box.pos().x + x;
+        position.y = state.box.pos().y + verDistance;
+        position.z = state.box.pos().z + z;
+        this.yaw = - (state.roty + angleAroundAsset);
         this.yaw %= 360;
 
     }
-
-    public Matrix4f getInverseViewMatrix(){
-        return new Matrix4f(viewMatrix).invertAffine();
-    }
-
-    public Matrix3f getRotationMatrix(){
-        Matrix3f rotationMatrix = new Matrix3f();
-        rotationMatrix.rotate(-(float) Math.toRadians(pitch), new Vector3f(1, 0, 0));
-        rotationMatrix.rotate(-(float) Math.toRadians(yaw), new Vector3f(0, 1, 0));
-        rotationMatrix.rotate(-(float) Math.toRadians(roll), new Vector3f(0, 0, 1));
-
-        return rotationMatrix;
-    }
-
-    public float getPitch() {
-        return pitch;
-    }
-
-    public float getYaw() {
-        return yaw;
-    }
+    
 }

@@ -28,14 +28,6 @@ public class Binder {
         return vao;
     }
 
-    public static IntBuffer loadVAO(GL3 gl, float[] vertices){
-        IntBuffer vao = createVAO(gl);
-        storeToAttributeList(gl,0,2,Buffers.newDirectFloatBuffer(vertices));
-        unbindVAO(gl);
-
-        return vao;
-    }
-
     private static IntBuffer createVAO(GL3 gl) {
         IntBuffer ID = Buffers.newDirectIntBuffer(1);
         vaos.add(ID);

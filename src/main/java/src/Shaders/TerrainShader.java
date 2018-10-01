@@ -1,5 +1,6 @@
 package src.Shaders;
 
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -27,8 +28,6 @@ public class TerrainShader extends ShaderProgram {
     private int reflectivityLocation;
     private int timeLocation;
     private int cameraPosLocation;
-    private int shadowMapLocation;
-    private int textureLocation;
 
     public TerrainShader(GL3 gl) {
         super(gl, vertex, fragment);
@@ -52,14 +51,12 @@ public class TerrainShader extends ShaderProgram {
         reflectivityLocation = getUniformLocation(gl, "reflectivity");
         timeLocation = getUniformLocation(gl, "time");
         cameraPosLocation = getUniformLocation(gl, "cameraPos");
-        textureLocation = getUniformLocation(gl, "textureImg");
 
         System.out.println("Projection location: " + projectionMatrixLocation);
         System.out.println("ViewMatrix Location: " + viewMatrixLocation);
         System.out.println("TransformationMatrix Location: " + modelMatrixLocation);
         System.out.println("Lightpos: " + lightPositionLocation);
         System.out.println("LightColor: " + lightColorLocation);
-        System.out.println("Texture :" + textureLocation);
     }
 
     @Override
@@ -93,10 +90,6 @@ public class TerrainShader extends ShaderProgram {
 
     public void loadCameraPos(GL3 gl, Vector3f cameraPos){
         loadUniformVector(gl, cameraPosLocation, cameraPos);
-    }
-
-    public void loadTextures(GL3 gl){
-        loadUniformInt(gl, textureLocation, 0);
     }
 
 }

@@ -3,6 +3,7 @@ package src.OBJ;
 
 // Jogamp imports
 
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 import org.joml.Vector2f;
 import org.joml.Vector3f;

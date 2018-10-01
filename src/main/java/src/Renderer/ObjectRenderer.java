@@ -2,7 +2,7 @@ package src.Renderer;
 
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
-import src.Assets.Instance;
+import src.Assets.instance.Instance;
 import src.GS;
 import src.Shaders.DefaultShader;
 
@@ -20,18 +20,14 @@ public class ObjectRenderer {
         defaultShader.start(gl);
 
         defaultShader.loadProjectionMatrix(gl,projectionMatrix);
-        defaultShader.loadViewMatrix(gl, GS.getCamera().getViewMatrix());
+        defaultShader.loadViewMatrix(gl, GS.camera.getViewMatrix());
         defaultShader.loadLight(gl,GS.getLights().get(0));
-        defaultShader.loadCameraPos(gl, GS.getCamera().getPosition());
-        defaultShader.loadTextures(gl);
+        defaultShader.loadCameraPos(gl, GS.camera.getPosition());
+
         for(Instance asset : GS.getAssets()){
             asset.draw(gl, defaultShader);
         }
 
         defaultShader.stop(gl);
-    }
-
-    public void cleanup(GL3 gl){
-        defaultShader.cleanUp(gl);
     }
 }
