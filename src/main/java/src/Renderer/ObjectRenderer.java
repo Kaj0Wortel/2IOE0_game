@@ -28,6 +28,8 @@ public class ObjectRenderer {
             asset.draw(gl, defaultShader);
         }
 
+        GS.testRaceTrack.draw(gl, defaultShader);
+
         defaultShader.stop(gl);
     }
 }

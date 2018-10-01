@@ -21,6 +21,7 @@ import src.Renderer.Camera;
 import src.Renderer.Renderer;
 import src.grid.Grid;
 import src.gui.MainPanel;
+import src.racetrack.BezierTrack;
 import src.tools.event.ControllerKey;
 import src.tools.event.ControllerKeyDetector;
 import src.tools.event.Key;
@@ -139,7 +140,8 @@ public class GS {
     private static Renderer renderer;
     private static GLCanvas canvas;
     private static FPSAnimator animator;
-    
+    public static BezierTrack testRaceTrack;
+
     public static List<Car> cars = new ArrayList<>();
     public static Instance player;
     
