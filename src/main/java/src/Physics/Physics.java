@@ -237,20 +237,6 @@ public class Physics {
      */
     public static void calcPhysics(Instance source, PStructAction pStruct,
             PhysicsContext pc, ModState s) {
-        /*
-        Items items = new Items();
-        // Speed boost
-        if (Math.abs(startV) < pc.maxLinearVelocity)
-            startV = items.speedBoost(s.box.pos(), s.velocity); // not refined
-        // Slow down spot
-        pc.maxLinearVelocity = items.SlowDownSpot(s.box.pos(), pc.maxLinearVelocity); // not refined
-        */
-        
-        
-        // TEMP: do not jump if already jumping
-        if (s.verticalVelocity == 0)
-            s.verticalVelocity += pStruct.verticalVelocity;
-        
         
         // Variables used in physics calculations.
         float dt = pStruct.dt / 160f;
@@ -260,49 +246,71 @@ public class Physics {
         float eV = 0;
         float eRot = 0;
         Vector3f ePos = new Vector3f();
+        boolean onTrack = true;
+        boolean inAir = true;
+        // temp before track implementation
+        double gndZ = 0;
         
+        // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
+        // When off-track (temporary: no track to infer from yet)
+        if (s.box.pos().x > 125 ||
+                -125 > s.box.pos().x ||
+                s.box.pos().y > 125 ||
+                -125 > s.box.pos().y) {
+            onTrack = false;
+        }
+        // </editor-fold>
         
-        // ACCELERATION
-        // Max speed regulation
+        if (onTrack) {
+            // <editor-fold defaultstate="collapsed" desc="AIR TIME DETECTION"> 
+            if (s.box.pos().z <= gndZ)
+                inAir = false;
+            // </editor-fold>
+        }
+        
+        // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
+        // (ACCEL) Max speed regulation
         if ((pStruct.accel > 0 && s.velocity + linAccel*dt > pc.maxLinearVelocity) ||
                 (pStruct.accel < 0 && s.velocity - linAccel*dt < -pc.maxLinearVelocity))
             pStruct.accel = 0;
-        // Block manual acceleration when collision just happened
+        // (ACCEL) Block manual acceleration when collision just happened
         if (s.collisionVelocity > pc.knockback / pc.accBlockDur)
             pStruct.accel = 0;
         
-        // Temporary slowdown after speedboost: not refined
+        // (LINACCEL) Temporary slowdown after speedboost: not refined
         if (s.velocity + linAccel*dt > pc.maxLinearVelocity * 1.1 ||
                 s.velocity - linAccel*dt < -pc.maxLinearVelocity * 1.1)
             linAccel *= (Math.abs(s.velocity - pc.maxLinearVelocity*1.1) + 1)
                     * pc.frictionConstant * pc.largeSlowDown;
         
         
-        // Friction: When acceleration is 0, abs(v) decreases
+        // (LINACCEL)/(VEL) Friction: When acceleration is 0, abs(v) decreases
         if (pStruct.accel == 0) {
-            if (s.velocity > 0.01)
+            if (s.velocity > linAccel * pc.frictionConstant * dt)
                 linAccel = -pc.frictionConstant * linAccel;
-            else if (s.velocity < 0.01)
+            else if (s.velocity < -linAccel * pc.frictionConstant * dt)
                 linAccel = pc.frictionConstant * linAccel;
-            else { // Does not entirely work
+            else { // Stop moving when v close to 0
                 s.velocity = 0;
                 linAccel = 0;
             }
-        } else 
+        } else {
             linAccel = pStruct.accel * linAccel;
+        }
+        System.out.println(pStruct.accel+": a: "+linAccel+", v: "+s.velocity);
+        // </editor-fold>
         
-        
-        // ROTATION
-        // Turn correction for small velocities
+        // <editor-fold defaultstate="collapsed" desc="ROTATIONAL IMPROVEMENTS"> 
+        // (TURN)/(ROTVELOCITY) Turn correction for small velocities
         if (Math.abs(s.velocity) < 0.05)
             pStruct.turn = 0;
         else if (Math.abs(s.velocity) < pc.turnCorrection)
             rotationalVelocity *= (Math.abs(s.velocity) / pc.turnCorrection);
         
-        // Turn correction for negative velocities
+        // (TURN) Turn correction for negative velocities
         if (s.velocity < 0)
             pStruct.turn = -pStruct.turn;
-        
+        // </editor-fold>
         
         // AIR MOVEMENT
         if (s.box.pos().z > 0.1) {
@@ -337,38 +345,36 @@ public class Physics {
                         + (s.velocity / rotationalVelocity) * Math.cos(s.roty)
                         - aRotVSquared * Math.sin(s.roty));
             ePos = new Vector3f(
-                    (float)(s.box.pos().x + deltaX),
-                    (float)(s.box.pos().y + deltaY), 
-                    s.box.pos().z);
+                    (float)(ePos.x + s.box.pos().x + deltaX),
+                    (float)(ePos.y + s.box.pos().y + deltaY), 
+                    (float)(ePos.z + s.box.pos().z));
         }
         
         
         // VERTICAL MOVEMENT CALCULATIONS
+        // Do not jump if already jumping
+        if (s.verticalVelocity == 0 && s.box.pos().z < gndZ + 0.1)
+            s.verticalVelocity += pStruct.verticalVelocity;
+        // Change in height when falling
         double deltaZ = dt * (s.verticalVelocity + 0.5 * pc.gravity * dt);
-        // When off-track (temporary: no track to infer from yet)
-        boolean offTrack = false;
-        if (s.box.pos().x > 125 ||
-                -125 > s.box.pos().x ||
-                s.box.pos().y > 125 ||
-                -125 > s.box.pos().y) {
-            offTrack = true;
+        // When in the air
+        if (s.box.pos().z + deltaZ > 0) {
             s.verticalVelocity += pc.gravity * dt;
             ePos.z += deltaZ;
         }
-        
-        // When in the air
-        if (ePos.z + deltaZ > 0) {
-            s.verticalVelocity += pc.gravity * dt;
-            ePos.z += deltaZ;
-        } 
         // When bouncing on the ground
-        else if (Math.abs(s.verticalVelocity) > 0.01 && !offTrack) {
+        else if (Math.abs(s.verticalVelocity) > 0.01 && onTrack) {
             s.verticalVelocity = -s.verticalVelocity * pc.bounceFactor;
+            
         } 
         // When on track on the ground
-        else if (!offTrack) {
+        else if (onTrack) {
             s.verticalVelocity = 0;
             ePos.z = 0;
+        }
+        if (!onTrack) {
+            s.verticalVelocity += pc.gravity * dt;
+            ePos.z += deltaZ;
         }
         // Limit upwards velocity
         if (s.verticalVelocity > 10)
@@ -381,6 +387,8 @@ public class Physics {
             s.collisionVelocity = 0;
             s.verticalVelocity = 0;
         }
+        
+        
         
         
         // COLLISION CALCULATION
@@ -432,220 +440,6 @@ public class Physics {
         s.velocity = eV;
         s.roty = eRot;
     }
-    
-    
-    
-    
-    
-    
-    /*
-    public PStruct calcPhysics(int turn, int acc, double a, double rotV,
-            double vMax, double tInt, double fric, PStruct startStruct) {
-        
-        // INPUT
-        //  How fast you have to go to reach rotVmax
-        double turnCorrection = 2; // 0 - vMax
-        // How strong the knockback is
-        double knockback = 0.3; // 0 - 1~ish
-        // The closer to 1, the longer the knockback
-        double knockbackDur = 0.95; // 0.5 - 1
-        // The higher, the longer acceleration is blocked after colliding
-        double accBlockDur = 20; // 5 - 40
-        // Extra de-acceleration when velocity is too big
-        double largeSlowDown = 4; // 1 - 10~ish
-        // How much vertical velocity is maintained after surface collision
-        double bounceFactor = 0.5; // 0 - <1
-        // How good your controlls are in air
-        double airControl = 0.6; // 0 - 1 (if > 0.6: change a correction factor)
-        
-        // struct disection: input position, velocity, rotation before key input
-        Vector3f startPos = startStruct.pos;
-        double startRot = startStruct.rot;
-        double startV = startStruct.v;
-        double colV = startStruct.colV;
-        double vertA = startStruct.vertA;
-        double vertV = startStruct.vertV;
-        // Used in physics calculations
-        double distTravelled, eV, eRot;
-        Vector3f ePos;
-        
-        // ITEMS
-        Items items = new Items();
-        // Speed boost
-        if (Math.abs(startV) < vMax)
-            startV = items.speedBoost(startPos, startV); // not refined
-        // Slow down spot
-        vMax = items.SlowDownSpot(startPos, vMax); // not refined
-        
-        
-        
-        // ACCELERATION
-        // Max speed regulation
-        if ((acc == 1 && startV + a*tInt > vMax) ||(acc == -1 && startV - a*tInt < -vMax))
-            acc = 0;
-        // Block manual acceleration when collision just happened
-        if (colV > knockback / accBlockDur)
-            acc = 0;
-        
-        
-        
-        // Temporary slowdown after speedboost: not refined
-        if (startV + a*tInt > vMax * 1.1 || startV - a*tInt < -vMax * 1.1)
-            a = (Math.abs(startV - vMax*1.1) + 1) * fric * a * largeSlowDown;
-        
-        
-        // Friction: When acceleration is 0, abs(v) decreases
-        if (acc == 0) {
-            if (startV > 0)
-                a = -fric * a;
-            else if (startV < 0)
-                a = fric * a;
-        }  else
-            a = (acc * a);
-        
-        
-        // ROTATION
-        // Turn correction for small velocities
-        if (Math.abs(startV) < 0.05)
-            turn = 0;
-        else if (Math.abs(startV) < turnCorrection)
-            rotV = (Math.abs(startV) * rotV / turnCorrection);
-        
-        // Turn correction for negative velocities
-        if (startV < 0)
-            turn = -turn;
-        
-        
-        // AIR MOVEMENT
-        if (startPos.z > 0.1) {
-            rotV = rotV * airControl;
-            a = a * (1.45 * airControl);
-        }
-        
-        // HORIZONTAL MOVEMENT CALCULATIONS
-        if (turn == 0) { // Straight
-            distTravelled = startV * tInt + 0.5 * a * tInt * tInt;
-            
-            eV = startV + a * tInt;
-            eRot = startRot;
-            ePos = new Vector3f (
-                    (float)(startPos.x + Math.cos(startRot) * distTravelled),
-                    (float)(startPos.y + Math.sin(startRot) * distTravelled),
-                    startPos.z);
-        } else { // Turn
-            rotV = turn * rotV;
-            
-            eV = startV + a * tInt;
-            eRot = startRot + rotV * tInt;
-            double deltaX = + (eV / rotV) * Math.sin(eRot)
-                        + (a / (rotV*rotV)) * Math.cos(eRot)
-                        - (startV / rotV) * Math.sin(startRot)
-                        - (a / (rotV*rotV)) * Math.cos(startRot);
-            double deltaY = - (eV / rotV) * Math.cos(eRot)
-                        + (a / (rotV*rotV)) * Math.sin(eRot)
-                        + (startV / rotV) * Math.cos(startRot)
-                        - (a / (rotV*rotV)) * Math.sin(startRot);
-            ePos = new Vector3f(
-                    (float)(startPos.x + deltaX),
-                    (float)(startPos.y +deltaY), 
-                    startPos.z);
-        }
-        
-        
-        // VERTICAL MOVEMENT CALCULATIONS
-        double deltaZ = vertV * tInt + 0.5 * vertA * tInt * tInt;
-        // When off-track (temporary: no track to infer from yet)
-        boolean offTrack = false;
-        if (startPos.x > 120 ||
-                -120 > startPos.x ||
-                startPos.y > 120 ||
-                -120 > startPos.y) {
-            offTrack = true;
-            vertV += vertA * tInt;
-            ePos.z += deltaZ;
-        }
-        
-        // When in the air
-        if (ePos.z + deltaZ > 0) {
-            vertV += vertA * tInt;
-            ePos.z += deltaZ;
-        } 
-        // When bouncing on the ground
-        else if (Math.abs(vertV) > 0.01 && !offTrack) {
-            vertV = - vertV * bounceFactor;
-        } 
-        // When on track on the ground
-        else if (!offTrack) {
-            vertV = 0;
-            ePos.z = 0;
-        }
-        // Limit upwards velocity
-        if (vertV > 10)
-            vertV = 10;
-        //Death barrier: reset
-        if (ePos.z < -100) {
-            ePos = new Vector3f(0,0,2);
-            eV = 0;
-            eRot = Math.PI/2;
-            colV = 0;
-            vertV = 0;
-        }
-        
-        
-        
-        
-        
-        
-        // COLLISION CALCULATION
-        // These should be integrated into other classes and sent to here
-        Vector3f colPos = new Vector3f (0.0001f, 40, 1);
-        double colRange = 2;
-        double carRange = 6;
-        // Collision detection
-        if (startPos.x + carRange/2 > colPos.x - colRange/2 &&
-                colPos.x + colRange/2 > startPos.x - carRange/2 &&
-                startPos.y + carRange/2 > colPos.y - colRange/2 &&
-                colPos.y + colRange/2 > startPos.y - carRange/2 &&
-                startPos.z + carRange/2 > colPos.z - colRange/2 &&
-                colPos.z + colRange/2 > startPos.z - carRange/2) {
-            
-            double colAngle = Math.atan2( startPos.x - colPos.x, startPos.y - colPos.y);
-            colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
-            // Can only receive knockback once the last knockback is sufficiently small
-            if (colV < 1) {
-                colV = Math.abs(startV) * knockback;
-                ePos = new Vector3f(
-                    (float)(ePos.x + colV * Math.cos(colAngle)), 
-                    (float)(ePos.y + colV * Math.sin(colAngle)),
-                    ePos.z);
-                vertV = 1 + Math.abs(startV)/4;
-            } 
-        } 
-        // Moments after collision
-        else if (colV > knockback/1000000000) {
-            // Slowly diminish the knockback over time
-            colV = colV * knockbackDur;
-            // Angle can change during bump: maybe looks better?
-            double colAngle = Math.atan2( startPos.x - colPos.x, startPos.y - colPos.y);
-            colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
-            ePos = new Vector3f(
-                   (float)(ePos.x + colV * Math.cos(colAngle)), 
-                   (float)(ePos.y + colV * Math.sin(colAngle)),
-                   ePos.z);
-        } 
-        // No collision happening
-        else {
-            // set collision velocity to 0 when it was already really small
-            colV = 0;
-        }
-        
-        // Instance requires roty to be stored in degrees
-        roty = (float) (Math.toDegrees(roty) % 360);
-        
-        // new position, velocity and rotation after input
-        return new PStruct(ePos, eV, eRot, colV, vertA, vertV);
-    }
-    /**/
     
     public static void physicsTestVisuals () {
         /*
