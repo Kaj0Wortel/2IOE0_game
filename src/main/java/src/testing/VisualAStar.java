@@ -1,7 +1,10 @@
 package src.testing;
 
 // Java imports
+
+import org.joml.Vector3f;
 import src.AI.Node;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -13,15 +16,15 @@ import java.util.List;
 public class VisualAStar
         extends JPanel {
     
-    final private Rectangle SIZE = new Rectangle(0,-10,10,10);//0, -5, 5, 5
+    final private Rectangle SIZE = new Rectangle(-100,-100,300,300);//0, -5, 5, 5
     final private int IMG_SIZE = 5000;
-    final private int CIRCLE_SIZE = 50;
+    final private int CIRCLE_SIZE = 200;
     final private Color BACK = Color.BLACK;
     
     private JFrame frame;
     
     private BufferedImage img;
-    
+    private Vector3f[] control_points;
     
     public VisualAStar() {
         super(null);
@@ -53,7 +56,55 @@ public class VisualAStar
         
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
+
+        control_points = new Vector3f[] {
+                    new Vector3f(0f,0f,0f), new Vector3f(0f,0f,30f), new Vector3f(10f,0f,40f), new Vector3f(40f,0f,40f),
+                new Vector3f(40f,0f,40f), new Vector3f(70f,0f,40f), new Vector3f(80f,0f,80f), new Vector3f(80f,0f,40f),
+                new Vector3f(80f,0f,40f), new Vector3f(80f,0f,-20f), new Vector3f(80f,0f,-60f), new Vector3f(60f,0f,-60f),
+                new Vector3f(60f,0f,-60f), new Vector3f(-20f,0f,-60f), new Vector3f(0f,0f,-40f), new Vector3f(0f,0f,0f),
+               /*
+                new Vector3f(0f,0f,0f), new Vector3f(10f,0f,0f), new Vector3f(0f,0f,10f), new Vector3f(10f,0f,10f),
+                new Vector3f(10f,0f,10f), new Vector3f(20f,0f,10f), new Vector3f(20f,0f,-10f), new Vector3f(0f,0f,-10f),
+                new Vector3f(0f,0f,10f), new Vector3f(-20f,0f,-10f), new Vector3f(-20f,0f,10f), new Vector3f(-10f,0f,-10f),
+                new Vector3f(-10f,0f,-10f), new Vector3f(0f,0f,10f), new Vector3f(-10f,0f,0f), new Vector3f(0f,0f,0f),
+                */};
+
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 30; j++){
+                Vector3f poin = getPoint(i, (float) j / (float) 30);
+                addPoint(new Point2D.Double(poin.x,poin.z));
+            }
+        }
+
     }
+
+
+    public Vector3f getPoint(int segment, float t) {
+        Vector3f point0 = new Vector3f(control_points[4*segment]);
+        Vector3f point1 = new Vector3f(control_points[4*segment + 1]);
+        Vector3f point2 = new Vector3f(control_points[4*segment + 2]);
+        Vector3f point3 = new Vector3f(control_points[4*segment + 3]);
+
+        point0.mul((float) (- Math.pow(t,3) + 3*Math.pow(t,2) - 3*t + 1));
+        point1.mul((float) (3*Math.pow(t,3) - 6*Math.pow(t,2) + 3*t));
+        point2.mul((float) (-3*Math.pow(t,3) + 3*Math.pow(t,2)));
+        point3.mul((float) (Math.pow(t,3)));
+        return new Vector3f().add(point0).add(point1).add(point2).add(point3);
+        }
+
+    public Vector3f getTangent(int segment, float t){
+        Vector3f point0 = new Vector3f(control_points[4*segment]);
+        Vector3f point1 = new Vector3f(control_points[4*segment + 1]);
+        Vector3f point2 = new Vector3f(control_points[4*segment + 2]);
+        Vector3f point3 = new Vector3f(control_points[4*segment + 3]);
+
+        point0.mul((float) (-3*Math.pow(t,2) + 6*t - 3));
+        point1.mul((float) (9*Math.pow(t,2) - 12*Math.pow(t,1) + 3));
+        point2.mul((float) (-9*Math.pow(t,2) * 6*t));
+        point3.mul((float) (3*Math.pow(t,2)));
+
+        return new Vector3f().add(point0).add(point1).add(point2).add(point3);
+        }
     
     /**
      * @param point the point to add.
@@ -175,6 +226,7 @@ public class VisualAStar
         g2d.scale(((double) getWidth()) / img.getWidth(),
                 ((double) getHeight()) / img.getHeight());
         if (img != null) g2d.drawImage(img, 0, 0, null);
+
     }
     
     public static void main(String[] args) {
