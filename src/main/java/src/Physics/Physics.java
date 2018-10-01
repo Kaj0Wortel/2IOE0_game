@@ -318,14 +318,16 @@ public class Physics {
             pStruct.turn = -pStruct.turn;
         // </editor-fold>
         
+        // <editor-fold defaultstate="collapsed" desc="OTHER IMPROVEMENTS"> 
         // AIR MOVEMENT
-        if (s.box.pos().z > 0.1) {
+        if (inAir) {
             rotationalVelocity *= pc.airControl;
             linAccel *= (1.45 * pc.airControl);
         }
+        // </editor-fold>
         
         
-        // HORIZONTAL MOVEMENT CALCULATIONS
+        // <editor-fold defaultstate="collapsed" desc="HORIZONTAL MOVEMENT CALCULATIONS"> 
         if (pStruct.turn == 0) { // Straight
             distTravelled = dt * (s.velocity + 0.5f * linAccel * dt);
             
@@ -355,9 +357,9 @@ public class Physics {
                     (float)(ePos.y + s.box.pos().y + deltaY), 
                     (float)(ePos.z + s.box.pos().z));
         }
+        // </editor-fold>
         
-        
-        // VERTICAL MOVEMENT CALCULATIONS
+        // <editor-fold defaultstate="collapsed" desc="VERTICAL MOVEMENT CALCULATIONS"> 
         // Do not jump if already jumping
         if (s.verticalVelocity == 0 && s.box.pos().z < gndZ + 0.1)
             s.verticalVelocity += pStruct.verticalVelocity;
@@ -393,12 +395,10 @@ public class Physics {
             s.collisionVelocity = 0;
             s.verticalVelocity = 0;
         }
+        // </editor-fold>
         
-        
-        
-        
-        // COLLISION CALCULATION
-        // These should be integrated into other classes and sent to here
+        // <editor-fold defaultstate="collapsed" desc="COLLISION CALCULATIONS"> 
+        // Should be integrated into another class but still change pStruct
         Vector3f colPos = new Vector3f (0.0001f, 40, 1);
         double colRange = 2;
         double carRange = 6;
@@ -439,7 +439,7 @@ public class Physics {
             // Set collision velocity to 0 when it was already really small.
             s.collisionVelocity = 0;
         }
-        
+        // </editor-fold>
         
         // Update the state.
         s.box.setPosition(ePos);
