@@ -32,6 +32,8 @@ public class PhysicsContext {
     final public float bounceFactor; // 0 - <1
     // How good your controlls are in air.
     final public float airControl; // 0 - 1 (if > 0.6: change a correction factor)
+    //
+    final public float brakeAccel;
     
     
     public PhysicsContext(float linearAcceleration,
@@ -39,7 +41,7 @@ public class PhysicsContext {
             float frictionConstant, float gravity,
             float turnCorrection, float knockback,
             float knockbackDur, float accBlockDur, float largeSlowDown,
-            float bounceFactor, float airControl) {
+            float bounceFactor, float airControl, float brakeAccel) {
         this.linAccel = linearAcceleration;
         this.rotationalVelocity = rotationalVelocity;
         this.maxLinearVelocity = maxLinearVelocity;
@@ -53,6 +55,7 @@ public class PhysicsContext {
         this.largeSlowDown = largeSlowDown;
         this.bounceFactor = bounceFactor;
         this.airControl = airControl;
+        this.brakeAccel = brakeAccel;
     }
     
     /**
@@ -72,6 +75,7 @@ public class PhysicsContext {
         this.largeSlowDown = 4f;
         this.bounceFactor = 0.5f;
         this.airControl = 0.6f;
+        this.brakeAccel = 2;
     }
     
     

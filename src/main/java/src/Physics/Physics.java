@@ -73,6 +73,7 @@ public class Physics {
         public float largeSlowDown;
         public float bounceFactor;
         public float airControl;
+        public float brakeAccel;
         
         
         public ModPhysicsContext(PhysicsContext pc) {
@@ -90,13 +91,14 @@ public class Physics {
             this.largeSlowDown = pc.largeSlowDown;
             this.bounceFactor = pc.bounceFactor;
             this.airControl = pc.airControl;
+            this.brakeAccel = brakeAccel;
         }
         
         public ModPhysicsContext(float linAccel, float rotationalVelocity,
                 float maxLinearVelocity, float frictionConstant,
                 float gravity, float turnCorrection, float knockback,
                 float knockbackDur, float accBlockDur, float largeSlowDown,
-                float bounceFactor, float airControl) {
+                float bounceFactor, float airControl, float brakeAccel) {
             this.linAccel = linAccel;
             this.rotationalVelocity = rotationalVelocity;
             this.maxLinearVelocity = maxLinearVelocity;
@@ -111,6 +113,7 @@ public class Physics {
             this.largeSlowDown = largeSlowDown;
             this.bounceFactor = bounceFactor;
             this.airControl = airControl;
+            this.brakeAccel = brakeAccel;
         }
         
         
@@ -125,7 +128,7 @@ public class Physics {
             return new PhysicsContext(linAccel, rotationalVelocity,
                     maxLinearVelocity, frictionConstant, gravity,
                     turnCorrection, knockback, knockbackDur, accBlockDur,
-                    largeSlowDown, bounceFactor, airControl);
+                    largeSlowDown, bounceFactor, airControl, brakeAccel);
         }
         
         
@@ -191,7 +194,6 @@ public class Physics {
                 -s.box.pos().x,
                 s.box.pos().y)
         );
-        
         
         // ITEMS & CARS
         // If the instance intersects with a car or an item, use collision
@@ -294,8 +296,12 @@ public class Physics {
                 s.velocity = 0;
                 linAccel = 0;
             }
-        } else {
-            linAccel = pStruct.accel * linAccel;
+        } else { // When accelerate
+            if (s.velocity > linAccel * pc.frictionConstant * dt && pStruct.accel < 0 
+                    || s.velocity < -linAccel * pc.frictionConstant * dt && pStruct.accel > 0) {
+                linAccel *=pc.brakeAccel;
+            }
+            linAccel *= pStruct.accel;
         }
         System.out.println(pStruct.accel+": a: "+linAccel+", v: "+s.velocity);
         // </editor-fold>
