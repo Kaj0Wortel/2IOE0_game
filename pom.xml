@@ -53,18 +53,25 @@
             <version>2.3.2</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.tensorflow/libtensorflow -->
+        <!-- https://mvnrepository.com/artifact/org.deeplearning4j/deeplearning4j-core -->
         <dependency>
-            <groupId>org.tensorflow</groupId>
-            <artifactId>libtensorflow</artifactId>
-            <version>1.10.0</version>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-core</artifactId>
+            <version>1.0.0-beta2</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.tensorflow/tensorflow -->
+        <!-- https://mvnrepository.com/artifact/org.deeplearning4j/rl4j-core -->
         <dependency>
-            <groupId>org.tensorflow</groupId>
-            <artifactId>tensorflow</artifactId>
-            <version>1.10.0</version>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>rl4j-core</artifactId>
+            <version>1.0.0-beta2</version>
+        </dependency>
+
+        <!-- Dependency for visualising neural network progress-->
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-ui_2.10</artifactId>
+            <version>1.0.0-beta2</version>
         </dependency>
         
         <!-- https://mvnrepository.com/artifact/net.java.jinput/jinput -->
@@ -78,13 +85,6 @@
             <artifactId>jinput</artifactId>
             <version>2.0.9</version>
             <classifier>natives-all</classifier>
-        </dependency>
-        
-        <!-- tmp: https://github.com/StrikerX3/JXInput -->
-        <dependency>
-            <groupId>com.github.strikerx3</groupId>
-            <artifactId>jxinput</artifactId>
-            <version>ca55984</version>    <!-- JXInput 0.8 -->
         </dependency>
     </dependencies>
     

@@ -6,7 +6,7 @@ public class PlayerKeyAction
         extends KeyAction {
 
     public static enum MovementAction {
-        FORWARD, BACKWARD, LEFT, RIGHT, OTHER;
+        FORWARD, BACKWARD, LEFT, RIGHT, OTHER, JUMP;
     }
 
     final private PlayerKeyAction.MovementAction action;

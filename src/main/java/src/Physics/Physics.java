@@ -1,15 +1,61 @@
 package src.Physics;
 
-// Own imports
-import src.testing.VisualAStar;
-//Java imports
-import java.util.ArrayList;
-import java.awt.geom.Point2D;
-import org.joml.Vector3f;
 
-import src.Assets.Instance;
+// Own imports
+import src.Assets.instance.Instance;
+import src.Assets.instance.Instance.State;
+
+
+//Java imports
+import java.util.Set;
+import org.joml.Vector3f;
+import src.Assets.instance.Car;
+import src.Assets.instance.Item;
+import src.tools.Box3f;
+
 
 public class Physics {
+    public static class ModState {
+        public Box3f box;
+        public float size;
+        public float rotx;
+        public float roty;
+        public float rotz;
+        public float integratedRotation;
+        
+        public float velocity;
+        public float collisionVelocity;
+        public float verticalVelocity;
+        
+        
+        public ModState(State state) {
+            box = state.box.clone();
+            size = state.size;
+            rotx = state.rotx;
+            roty = state.roty;
+            rotz = state.rotz;
+            integratedRotation = state.integratedRotation;
+            velocity = state.velocity;
+            collisionVelocity = state.collisionVelocity;
+            verticalVelocity = state.verticalVelocity;
+        }
+        
+        /**
+         * @return a new {@link State} from the current state. Note that the
+         *     values are NOT cloned, as this class should be used as a
+         *     "cast away shell".
+         * 
+         * @see State
+         */
+        public State createState() {
+            return new State(box, size, rotx, roty, rotz, integratedRotation,
+                    velocity, collisionVelocity, verticalVelocity);
+        }
+        
+        
+    }
+    
+    
     /**
      * Computes the position, velocity and rotation after a key input
      * using the position, velocity and rotation values before the input.
@@ -21,15 +67,15 @@ public class Physics {
      * simple collision (rectangle colliders)
      * rotation correction for small velocities and negative velocities
      * 2 simple items/situations implemented
-     * Large slowdown when speed higher than vMax 
+    \* Large slowdown when speed higher than vMax 
      * 
      * 
      * TODO:
-     * improved collision: differentiate between static/dynamic collision 
+     * Improved collision: differentiate between static/dynamic collision 
      *      - AI car necessary to test dynamic
      *      - long wall necessary to test static point-array-based static
      *      - Rotation necessary
-     * implement falling when not on ground
+     * Implement falling when not on ground
      *      - tumbling over
      *      - point2d.doubles need to become vector2f?
      * 
@@ -37,12 +83,12 @@ public class Physics {
      * completely stop movement when velocity close to 0
      *      - Already really close, when forcing: physics go haywire
      *      - Not really necessary
-     * implement realistic collision
+     * Implement realistic collision
      *      - depends on how many hours we want to invest in this (claw?)
-     * refine rotation physics (-rotVmax<->rotVmax) instead of (-rotVmax/0/rotVmax)
+     * Refine rotation physics (-rotVmax<->rotVmax) instead of (-rotVmax/0/rotVmax)
      *      - controller would then be necessary instead of just an option
      *      - Controller script also needs to support for range detection
-     * refine rotation physics (increase rot velocity the longer you hold A/D)
+     * Refine rotation physics (increase rot velocity the longer you hold A/D)
      *      - Less ideal than previous idea
      *      - If implemented: should be subtle
      *      - 4-term rotation calculations -> 12-figure rotation calculations
@@ -57,6 +103,263 @@ public class Physics {
      * startStruct: begin position
      * velocity and rotation
      */
+    public static State calcPhysics(Instance source, PStructAction pStruct,
+            PhysicsContext pc, State state, Set<Instance> collisions) {
+        // Create a modifyable state to reduce the number of objects creations.
+        ModState s = new ModState(state);
+        
+        // Convert to physics space.
+        s.roty = (float) Math.toRadians(s.roty);
+        s.box.setPosition(new Vector3f(
+                -s.box.pos().z,
+                -s.box.pos().x,
+                s.box.pos().y)
+        );
+        
+        
+        // ITEMS & CARS
+        // If the instance intersects with a car or an item, use collision
+        // dependant collision handeling.
+        // Ignore the current actions.
+        if (!collisions.isEmpty()) {
+             // WARNING, incorrect handeling of multiple items.
+            for (Instance instance : collisions) {
+                if (instance instanceof Car) {
+                    calcPhysics(source, pStruct, pc, s); // TODO
+                    
+                } else if (instance instanceof Item) {
+                    System.out.println("hit item!");
+                    ((Item) instance).physicsAtCollision(source, pStruct, pc, s);
+                    //calcPhysics(source, pStruct, pc, s);
+                }
+            }
+            
+        } else {
+            calcPhysics(source, pStruct, pc, s);
+        }
+        
+        // Convert back to instance space.
+        s.roty = (float) (Math.toDegrees(s.roty) % 360);
+        s.box.setPosition(new Vector3f(
+                -s.box.pos().y,
+                s.box.pos().z,
+                -s.box.pos().x)
+        );
+        
+        return s.createState();
+    }
+    
+    /**
+     * 
+     * @param source
+     * @param pStruct
+     * @param pc
+     * @param s
+     */
+    public static void calcPhysics(Instance source, PStructAction pStruct,
+            PhysicsContext pc, ModState s) {
+        /*
+        Items items = new Items();
+        // Speed boost
+        if (Math.abs(startV) < pc.maxLinearVelocity)
+            startV = items.speedBoost(s.box.pos(), s.velocity); // not refined
+        // Slow down spot
+        pc.maxLinearVelocity = items.SlowDownSpot(s.box.pos(), pc.maxLinearVelocity); // not refined
+        */
+        
+        
+        // TEMP: do not jump if already jumping
+        if (s.verticalVelocity == 0)
+            s.verticalVelocity += pStruct.verticalVelocity;
+        
+        
+        // Variables used in physics calculations.
+        float dt = pStruct.dt / 160f;
+        float linAccel = pc.linAccel;
+        float rotationalVelocity = pc.rotationalVelocity;
+        float distTravelled;
+        float eV = 0;
+        float eRot = 0;
+        Vector3f ePos = new Vector3f();
+        
+        
+        // ACCELERATION
+        // Max speed regulation
+        if ((pStruct.accel > 0 && s.velocity + linAccel*dt > pc.maxLinearVelocity) ||
+                (pStruct.accel < 0 && s.velocity - linAccel*dt < -pc.maxLinearVelocity))
+            pStruct.accel = 0;
+        // Block manual acceleration when collision just happened
+        if (s.collisionVelocity > pc.knockback / pc.accBlockDur)
+            pStruct.accel = 0;
+        
+        // Temporary slowdown after speedboost: not refined
+        if (s.velocity + linAccel*dt > pc.maxLinearVelocity * 1.1 ||
+                s.velocity - linAccel*dt < -pc.maxLinearVelocity * 1.1)
+            linAccel *= (Math.abs(s.velocity - pc.maxLinearVelocity*1.1) + 1)
+                    * pc.frictionConstant * pc.largeSlowDown;
+        
+        
+        // Friction: When acceleration is 0, abs(v) decreases
+        if (pStruct.accel == 0) {
+            if (s.velocity > 0.01)
+                linAccel = -pc.frictionConstant * linAccel;
+            else if (s.velocity < 0.01)
+                linAccel = pc.frictionConstant * linAccel;
+            else { // Does not entirely work
+                s.velocity = 0;
+                linAccel = 0;
+            }
+        } else 
+            linAccel = pStruct.accel * linAccel;
+        
+        
+        // ROTATION
+        // Turn correction for small velocities
+        if (Math.abs(s.velocity) < 0.05)
+            pStruct.turn = 0;
+        else if (Math.abs(s.velocity) < pc.turnCorrection)
+            rotationalVelocity *= (Math.abs(s.velocity) / pc.turnCorrection);
+        
+        // Turn correction for negative velocities
+        if (s.velocity < 0)
+            pStruct.turn = -pStruct.turn;
+        
+        
+        // AIR MOVEMENT
+        if (s.box.pos().z > 0.1) {
+            rotationalVelocity *= pc.airControl;
+            linAccel *= (1.45 * pc.airControl);
+        }
+        
+        
+        // HORIZONTAL MOVEMENT CALCULATIONS
+        if (pStruct.turn == 0) { // Straight
+            distTravelled = dt * (s.velocity + 0.5f * linAccel * dt);
+            
+            eV = s.velocity + linAccel * dt;
+            eRot = s.roty;
+            ePos = new Vector3f (
+                    (float) (s.box.pos().x + Math.cos(s.roty) * distTravelled),
+                    (float) (s.box.pos().y + Math.sin(s.roty) * distTravelled),
+                    s.box.pos().z);
+            
+        } else { // Turn
+            rotationalVelocity = pStruct.turn * rotationalVelocity;
+            
+            eV = s.velocity + linAccel * dt;
+            eRot = s.roty + rotationalVelocity * dt;
+            float aRotVSquared = linAccel / (rotationalVelocity * rotationalVelocity);
+            float deltaX = (float) ((eV / rotationalVelocity) * Math.sin(eRot)
+                        + aRotVSquared * Math.cos(eRot)
+                        - (s.velocity / rotationalVelocity) * Math.sin(s.roty)
+                        - aRotVSquared * Math.cos(s.roty));
+            float deltaY = (float) (-(eV / rotationalVelocity) * Math.cos(eRot)
+                        + aRotVSquared * Math.sin(eRot)
+                        + (s.velocity / rotationalVelocity) * Math.cos(s.roty)
+                        - aRotVSquared * Math.sin(s.roty));
+            ePos = new Vector3f(
+                    (float)(s.box.pos().x + deltaX),
+                    (float)(s.box.pos().y + deltaY), 
+                    s.box.pos().z);
+        }
+        
+        
+        // VERTICAL MOVEMENT CALCULATIONS
+        double deltaZ = dt * (s.verticalVelocity + 0.5 * pc.gravity * dt);
+        // When off-track (temporary: no track to infer from yet)
+        boolean offTrack = false;
+        if (s.box.pos().x > 125 ||
+                -125 > s.box.pos().x ||
+                s.box.pos().y > 125 ||
+                -125 > s.box.pos().y) {
+            offTrack = true;
+            s.verticalVelocity += pc.gravity * dt;
+            ePos.z += deltaZ;
+        }
+        
+        // When in the air
+        if (ePos.z + deltaZ > 0) {
+            s.verticalVelocity += pc.gravity * dt;
+            ePos.z += deltaZ;
+        } 
+        // When bouncing on the ground
+        else if (Math.abs(s.verticalVelocity) > 0.01 && !offTrack) {
+            s.verticalVelocity = -s.verticalVelocity * pc.bounceFactor;
+        } 
+        // When on track on the ground
+        else if (!offTrack) {
+            s.verticalVelocity = 0;
+            ePos.z = 0;
+        }
+        // Limit upwards velocity
+        if (s.verticalVelocity > 10)
+            s.verticalVelocity = 10;
+        //Death barrier: reset
+        if (ePos.z < -100) {
+            ePos = new Vector3f(0,0,2);
+            eV = 0;
+            eRot = (float) Math.PI/2;
+            s.collisionVelocity = 0;
+            s.verticalVelocity = 0;
+        }
+        
+        
+        // COLLISION CALCULATION
+        // These should be integrated into other classes and sent to here
+        Vector3f colPos = new Vector3f (0.0001f, 40, 1);
+        double colRange = 2;
+        double carRange = 6;
+        // Collision detection
+        if (s.box.pos().x + carRange/2 > colPos.x - colRange/2 &&
+                colPos.x + colRange/2 > s.box.pos().x - carRange/2 &&
+                s.box.pos().y + carRange/2 > colPos.y - colRange/2 &&
+                colPos.y + colRange/2 > s.box.pos().y - carRange/2 &&
+                s.box.pos().z + carRange/2 > colPos.z - colRange/2 &&
+                colPos.z + colRange/2 > s.box.pos().z - carRange/2) {
+            
+            double colAngle = Math.atan2( s.box.pos().x - colPos.x, s.box.pos().y - colPos.y);
+            colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
+            // Can only receive knockback once the last knockback is sufficiently small
+            if (s.collisionVelocity < 1) {
+                s.collisionVelocity = Math.abs(s.velocity) * pc.knockback;
+                ePos = new Vector3f(
+                    (float)(ePos.x + s.collisionVelocity * Math.cos(colAngle)), 
+                    (float)(ePos.y + s.collisionVelocity * Math.sin(colAngle)),
+                    ePos.z);
+                s.verticalVelocity = 0.5f + Math.abs(s.velocity)/8;
+            } 
+            
+            // Moments after collision
+        } else if (s.collisionVelocity > pc.knockback/1_000_000_000) {
+            // Slowly diminish the knockback over time
+            s.collisionVelocity *= pc.knockbackDur;
+            // Angle can change during bump: maybe looks better?
+            double colAngle = Math.atan2(s.box.pos().x - colPos.x, s.box.pos().y - colPos.y);
+            colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
+            ePos = new Vector3f(
+                   (float) (ePos.x + s.collisionVelocity * Math.cos(colAngle)), 
+                   (float) (ePos.y + s.collisionVelocity * Math.sin(colAngle)),
+                   ePos.z);
+            
+        } else {
+            // No collision happening.
+            // Set collision velocity to 0 when it was already really small.
+            s.collisionVelocity = 0;
+        }
+        
+        
+        // Update the state.
+        s.box.setPosition(ePos);
+        s.velocity = eV;
+        s.roty = eRot;
+    }
+    
+    
+    
+    
+    
+    
+    /*
     public PStruct calcPhysics(int turn, int acc, double a, double rotV,
             double vMax, double tInt, double fric, PStruct startStruct) {
         
@@ -87,7 +390,6 @@ public class Physics {
         double distTravelled, eV, eRot;
         Vector3f ePos;
         
-        
         // ITEMS
         Items items = new Items();
         // Speed boost
@@ -95,6 +397,7 @@ public class Physics {
             startV = items.speedBoost(startPos, startV); // not refined
         // Slow down spot
         vMax = items.SlowDownSpot(startPos, vMax); // not refined
+        
         
         
         // ACCELERATION
@@ -105,9 +408,12 @@ public class Physics {
         if (colV > knockback / accBlockDur)
             acc = 0;
         
+        
+        
         // Temporary slowdown after speedboost: not refined
         if (startV + a*tInt > vMax * 1.1 || startV - a*tInt < -vMax * 1.1)
             a = (Math.abs(startV - vMax*1.1) + 1) * fric * a * largeSlowDown;
+        
         
         // Friction: When acceleration is 0, abs(v) decreases
         if (acc == 0) {
@@ -136,7 +442,6 @@ public class Physics {
             rotV = rotV * airControl;
             a = a * (1.45 * airControl);
         }
-
         
         // HORIZONTAL MOVEMENT CALCULATIONS
         if (turn == 0) { // Straight
@@ -208,6 +513,10 @@ public class Physics {
         }
         
         
+        
+        
+        
+        
         // COLLISION CALCULATION
         // These should be integrated into other classes and sent to here
         Vector3f colPos = new Vector3f (0.0001f, 40, 1);
@@ -251,14 +560,18 @@ public class Physics {
             colV = 0;
         }
         
+        // Instance requires roty to be stored in degrees
+        roty = (float) (Math.toDegrees(roty) % 360);
+        
         // new position, velocity and rotation after input
         return new PStruct(ePos, eV, eRot, colV, vertA, vertV);
     }
+    /**/
     
     public static void physicsTestVisuals () {
+        /*
         // Own class declarations
         VisualAStar visual = new VisualAStar();
-        Physics physics = new Physics();
         // Test arraylist
         ArrayList<PStruct> testDrive = new ArrayList<>();
         
@@ -268,37 +581,37 @@ public class Physics {
         
         // INSERT TEST COMMANDS
         for (int i = 0; i < 20; i++) {
-            currentStruct = physics.calcPhysics(0, 1, 1,
+            currentStruct = Physics.calcPhysics(0, 1, 1,
                     Math.PI/2, 2.01, 0.1, 0, currentStruct);
             testDrive.add(currentStruct);
         }
         for (int i = 0; i < 7; i++) {
-            currentStruct = physics.calcPhysics(1, 0, 1,
+            currentStruct = Physics.calcPhysics(1, 0, 1,
                     Math.PI/2, 2.01, 0.1, 0, currentStruct);
             testDrive.add(currentStruct);
         }
         for (int i = 0; i < 10; i++) {
-            currentStruct = physics.calcPhysics(0, 1, 1,
+            currentStruct = Physics.calcPhysics(0, 1, 1,
                     Math.PI/2, 2.01, 0.1, 0, currentStruct);
             testDrive.add(currentStruct);
         }
         for (int i = 0; i < 10; i++) {
-            currentStruct = physics.calcPhysics(0, 0, 1,
+            currentStruct = Physics.calcPhysics(0, 0, 1,
                     Math.PI/2, 2.01, 0.1, 0, currentStruct);
             testDrive.add(currentStruct);
         }
         for (int i = 0; i < 20; i++) {
-            currentStruct = physics.calcPhysics(1, -1, 1,
+            currentStruct = Physics.calcPhysics(1, -1, 1,
                     Math.PI/2, 2.01, 0.1, 0, currentStruct);
             testDrive.add(currentStruct);
         }
         for (int i = 0; i < 35; i++) {
-            currentStruct = physics.calcPhysics(-1, 1, 1,
+            currentStruct = Physics.calcPhysics(-1, 1, 1,
                     Math.PI/2, 2.01, 0.1, 0, currentStruct);
             testDrive.add(currentStruct);
         }
         for (int i = 0; i < 30; i++) {
-            currentStruct = physics.calcPhysics(0, 1, 1,
+            currentStruct = Physics.calcPhysics(0, 1, 1,
                     Math.PI/2, 2.01, 0.1, 0, currentStruct);
             testDrive.add(currentStruct);
         }
@@ -309,6 +622,7 @@ public class Physics {
             visual.addPoint(new Point2D.Double(testDrive.get(i).pos.x, -testDrive.get(i).pos.y));
         }
         visual.repaint();
+        */
     }
     
     public static void main(String[] args) {

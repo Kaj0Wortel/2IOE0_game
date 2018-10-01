@@ -61,3 +61,4 @@ nbdist/
 # Maven
 target/maven-archiver/pom.properties
 src/main/java/src/log.log
+target/maven-archiver/pom.properties

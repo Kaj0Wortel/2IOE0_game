@@ -320,7 +320,7 @@ public class ControllerKeyDetector {
                     ControllerKey key = new ControllerKey(controller, id, comp,
                             comp.getPollData());
                     newState.add(key);
-                    //if (key.getValue() == 1.0f) System.out.println(key);
+                    //if (!key.isCenter()) System.out.println(key);
                     //Logger.write(comp.getPollData() + ", " + comp);
                 }
             }/**/
@@ -424,6 +424,8 @@ public class ControllerKeyDetector {
     }
     
     private boolean werePressed(List<ControllerKey> keys, int compMode) {
+        if (keys.isEmpty()) return false;
+        
         Locker.lock(ControllerKey.class);
         try {
             ControllerKey.setCompMode(compMode);

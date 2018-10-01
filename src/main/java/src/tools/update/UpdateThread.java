@@ -36,6 +36,7 @@ public class UpdateThread
     
     private static int id;
     private boolean terminate = false;
+    private boolean isDone = true;
     
     
     public UpdateThread() {
@@ -52,6 +53,7 @@ public class UpdateThread
             try {
                 // If the queue is empty, wait for a task.
                 if (requestQueue.isEmpty()) {
+                    isDone = true;
                     waitForEmpty.signalAll();
                     addedToQueue.await();
                 }
@@ -125,6 +127,7 @@ public class UpdateThread
         lock.lock();
         try {
             if (terminate) return;
+            isDone = false;
             requestQueue.addLast(r);
             addedToQueue.signalAll();
             
@@ -147,7 +150,7 @@ public class UpdateThread
         lock.lock();
         try {
             if (terminate) return;
-            if (requestQueue.isEmpty()) return;
+            if (isDone) return;
             waitForEmpty.await();
             
         } catch (InterruptedException e) {
