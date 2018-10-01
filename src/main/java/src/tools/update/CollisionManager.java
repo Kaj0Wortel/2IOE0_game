@@ -34,9 +34,9 @@ import src.tools.MultiTool;
 public class CollisionManager {
     
     public static class Collision {
-        protected Entry e1;
+        final protected Entry e1;
         protected Entry e2;
-        protected Instance other;
+        final protected Instance other;
         
         
         public Collision(Instance source, Instance other,
@@ -47,6 +47,21 @@ public class CollisionManager {
         public Collision(Entry entry, Instance other) {
             this.e1 = entry;
             this.other = other;
+        }
+        
+        
+        /**
+         * @return the first entry of the collision.
+         */
+        public Entry getEntry1() {
+            return e1;
+        }
+        
+        /**
+         * @return the second entry of the collision.
+         */
+        public Entry getEntry2() {
+            return e2;
         }
         
         /**

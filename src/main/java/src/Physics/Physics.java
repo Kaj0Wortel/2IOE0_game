@@ -483,9 +483,16 @@ public class Physics {
         s.roty = eRot;
     }
     
-    
+    /**
+     * Calculate a double non-static collision.
+     * 
+     * @param col the collision data.
+     */
     public static void exeCollision(Collision col) {
-        // TODO
+        Entry e1 = col.getEntry1();
+        Entry e2 = col.getEntry2();
+        
+        // TODO: co stuff with the entries.
     }
     
     
