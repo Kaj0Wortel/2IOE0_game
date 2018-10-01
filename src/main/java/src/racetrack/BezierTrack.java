@@ -13,7 +13,7 @@ import java.util.List;
 public class BezierTrack extends Track{
 
     final private int nr_segment_vertices_col = 30;
-    final private int nr_segment_vertices_row = 5;
+    final private int nr_segment_vertices_row = 2; //Must be odd
     final private Vector3f position;
     final private float size;
     final private float rotx;
@@ -31,10 +31,17 @@ public class BezierTrack extends Track{
         this.size = size;
 
         super.setControl_points(new Vector3f[]{
+
                 new Vector3f(0f,0f,0f), new Vector3f(0f,0f,3f), new Vector3f(1f,0f,4f), new Vector3f(4f,0f,4f),
                 new Vector3f(4f,0f,4f), new Vector3f(7f,0f,4f), new Vector3f(8f,0f,8f), new Vector3f(8f,0f,4f),
                 new Vector3f(8f,0f,4f), new Vector3f(8f,0f,-2f), new Vector3f(8f,0f,-6f), new Vector3f(6f,0f,-6f),
                 new Vector3f(6f,0f,-6f), new Vector3f(-2f,0f,-6f), new Vector3f(0f,0f,-4f), new Vector3f(0f,0f,0f),
+               /*
+                new Vector3f(0f,0f,0f), new Vector3f(10f,0f,0f), new Vector3f(0f,0f,10f), new Vector3f(10f,0f,10f),
+                new Vector3f(10f,0f,10f), new Vector3f(20f,0f,10f), new Vector3f(20f,0f,-10f), new Vector3f(0f,0f,-10f),
+                new Vector3f(0f,0f,10f), new Vector3f(-20f,0f,-10f), new Vector3f(-20f,0f,10f), new Vector3f(-10f,0f,-10f),
+                new Vector3f(-10f,0f,-10f), new Vector3f(0f,0f,10f), new Vector3f(-10f,0f,0f), new Vector3f(0f,0f,0f),
+                */
         });
 
         super.setSegments(control_points.length/4);
@@ -56,6 +63,20 @@ public class BezierTrack extends Track{
         return new Vector3f().add(point0).add(point1).add(point2).add(point3);
     }
 
+    public Vector3f getTangent(int segment, float t){
+        Vector3f point0 = new Vector3f(control_points[4*segment]);
+        Vector3f point1 = new Vector3f(control_points[4*segment + 1]);
+        Vector3f point2 = new Vector3f(control_points[4*segment + 2]);
+        Vector3f point3 = new Vector3f(control_points[4*segment + 3]);
+
+        point0.mul((float) (-3*Math.pow(t,2) + 6*t - 3));
+        point1.mul((float) (9*Math.pow(t,2) - 12*Math.pow(t,1) + 3));
+        point2.mul((float) (-9*Math.pow(t,2) * 6*t));
+        point3.mul((float) (3*Math.pow(t,2)));
+
+        return new Vector3f().add(point0).add(point1).add(point2).add(point3);
+    }
+
     @Override
     public Vector3f[] getControlPoints() {
         return control_points;
@@ -63,7 +84,7 @@ public class BezierTrack extends Track{
 
     @Override
     public Vector3f getHorizontalNormal(int segment, float t) {
-        return  new Vector3f(getPoint(segment, t)).cross(UP);
+        return null;
     }
 
     private void generateTrack(GL3 gl){
@@ -73,23 +94,23 @@ public class BezierTrack extends Track{
         ArrayList<Float> textureCoordinates = new ArrayList<>();
         ArrayList<Integer> indices = new ArrayList<>();
 
-        float dx = 1/ (float) nr_segment_vertices_col;
-        float dz = 1/ (float) nr_segment_vertices_row;
         for(int i = 0; i < nr_of_segments; i++){
-            for(float col = 0.0f; col < 1.0f; col += dx){
-                for(float row = - 1.0f; row < 1.0f; row += dz){
-                    Vector3f point = getPoint(i, col);
-                    Vector3f horNormal = getHorizontalNormal(i, col);
+            System.out.println(vertices.size()/3);
+            for(int col = 0; col < nr_segment_vertices_col; col ++){
 
-                    Vector3f curPoint = new Vector3f(point).add(new Vector3f(horNormal).mul(row));
+                Vector3f point = getPoint(i, (float)col/(float) nr_segment_vertices_col);
+                Vector3f tangent = getTangent(i, (float)col/(float) nr_segment_vertices_col);
+                Vector3f horNormal = new Vector3f(tangent).normalize().cross(UP).normalize().mul(-2f);
 
+                for(int row = 0; row < nr_segment_vertices_row; row ++){
+                    Vector3f curPoint = new Vector3f(point).add(new Vector3f(horNormal).mul(((float) row/ (float) nr_segment_vertices_row) - 0.5f));
                     vertices.add(curPoint.x);
                     vertices.add(curPoint.y);
                     vertices.add(curPoint.z);
                     normals.add(UP.x);
                     normals.add(UP.y);
                     normals.add(UP.z);
-                    textureCoordinates.add(col);
+                    textureCoordinates.add((float)col/(float) nr_segment_vertices_col);
                     textureCoordinates.add((row + 1.0f)/2f);
                 }
             }
@@ -97,16 +118,41 @@ public class BezierTrack extends Track{
         }
         for(int i = 0; i < nr_of_segments; i++){
             int pointer = i * nr_segment_vertices_row * nr_segment_vertices_col;
+
             for(int col = 0; col < nr_segment_vertices_col-1; col++){
-                for(int row = 0; row < (2*nr_segment_vertices_row)-1; row++){
-                    indices.add(pointer + row);
-                    indices.add(pointer + row + 1);
-                    indices.add(pointer + row+(2*nr_segment_vertices_row));
-                    indices.add(pointer + row+1);
-                    indices.add(pointer + row+(2*nr_segment_vertices_row));
-                    indices.add(pointer + row+1+(2*nr_segment_vertices_row));
+                for(int row = 0; row < nr_segment_vertices_row-1; row++){
+                    indices.add(col * (nr_segment_vertices_row) + row + pointer);
+                    indices.add((col+1) * (nr_segment_vertices_row) + row + pointer);
+                    indices.add(col * (nr_segment_vertices_row) + row + pointer + 1);
+
+                    indices.add(col * (nr_segment_vertices_row) + row + pointer + 1);
+                    indices.add((col+1) * (nr_segment_vertices_row) + row + pointer);
+                    indices.add((col+1) * (nr_segment_vertices_row) + row + pointer + 1);
+
                 }
             }
+            System.out.println(indices.size()/3);
+            /*
+            int curCol = nr_segment_vertices_col - 1;
+
+            int p;
+            if(i+1 < 4){
+                p = (i+1) * (nr_segment_vertices_row + 1) * nr_segment_vertices_col;
+            }else{
+                p = 0;
+            }
+            for(int row = 0; row < nr_segment_vertices_row; row++){
+
+                indices.add(curCol * (nr_segment_vertices_row + 1) + row + pointer);
+                indices.add(row + p);
+                indices.add(curCol * (nr_segment_vertices_row + 1) + row + pointer + 1);
+
+                indices.add(curCol * (nr_segment_vertices_row + 1) + row + pointer + 1);
+                indices.add(row + p);
+                indices.add(row + p + 1);
+
+            }
+            */
         }
 
         setVAOValues(Binder.loadVAO(gl,
