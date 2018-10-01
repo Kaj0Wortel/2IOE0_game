@@ -8,7 +8,7 @@ import src.Assets.OBJTexture;
 
 // Java imports
 import src.Physics.PStructAction;
-import src.Physics.Physics;
+import src.Physics.Physics.ModPhysicsContext;
 import src.Physics.Physics.ModState;
 import src.Physics.PhysicsContext;
 import src.tools.Box3f;
@@ -31,8 +31,8 @@ public class PickupItem
     
     @Override
     public void physicsAtCollision(Instance instance, PStructAction pStruct,
-            PhysicsContext ps, ModState s) {
-        Physics.calcPhysics(instance, pStruct, ps, s);
+            ModPhysicsContext pc, ModState s) {
+        // TODO
     }
     
     

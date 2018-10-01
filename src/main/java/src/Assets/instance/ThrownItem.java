@@ -5,6 +5,7 @@ package src.Assets.instance;
 // Own imports
 import src.Assets.OBJTexture;
 import src.Physics.PStructAction;
+import src.Physics.Physics.ModPhysicsContext;
 import src.Physics.Physics.ModState;
 import src.Physics.PhysicsContext;
 import src.tools.Box3f;
@@ -30,8 +31,8 @@ public class ThrownItem
     
     @Override
     public void physicsAtCollision(Instance instance, PStructAction pStruct,
-            PhysicsContext physConst, ModState s) {
-        
+            ModPhysicsContext pc, ModState s) {
+        // TODO
     }
     
     

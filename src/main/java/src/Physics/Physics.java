@@ -15,6 +15,8 @@ import src.tools.Box3f;
 
 
 public class Physics {
+    
+    
     public static class ModState {
         public Box3f box;
         public float size;
@@ -50,6 +52,80 @@ public class Physics {
         public State createState() {
             return new State(box, size, rotx, roty, rotz, integratedRotation,
                     velocity, collisionVelocity, verticalVelocity);
+        }
+        
+        
+    }
+    
+    
+    public static class ModPhysicsContext {
+        public float linAccel;
+        public float rotationalVelocity;
+        public float maxLinearVelocity;
+        public float frictionConstant;
+        public float gravity;
+        
+        public float turnCorrection;
+        public float knockback;
+        public float knockbackDur;
+        public float accBlockDur;
+        
+        public float largeSlowDown;
+        public float bounceFactor;
+        public float airControl;
+        
+        
+        public ModPhysicsContext(PhysicsContext pc) {
+            this.linAccel = pc.linAccel;
+            this.rotationalVelocity = pc.rotationalVelocity;
+            this.maxLinearVelocity = pc.maxLinearVelocity;
+            this.frictionConstant = pc.frictionConstant;
+            this.gravity = pc.gravity;
+            
+            this.turnCorrection = pc.turnCorrection;
+            this.knockback = pc.knockback;
+            this.knockbackDur = pc.knockbackDur;
+            this.accBlockDur = pc.accBlockDur;
+            
+            this.largeSlowDown = pc.largeSlowDown;
+            this.bounceFactor = pc.bounceFactor;
+            this.airControl = pc.airControl;
+        }
+        
+        public ModPhysicsContext(float linAccel, float rotationalVelocity,
+                float maxLinearVelocity, float frictionConstant,
+                float gravity, float turnCorrection, float knockback,
+                float knockbackDur, float accBlockDur, float largeSlowDown,
+                float bounceFactor, float airControl) {
+            this.linAccel = linAccel;
+            this.rotationalVelocity = rotationalVelocity;
+            this.maxLinearVelocity = maxLinearVelocity;
+            this.frictionConstant = frictionConstant;
+            this.gravity = gravity;
+            
+            this.turnCorrection = turnCorrection;
+            this.knockback = knockback;
+            this.knockbackDur = knockbackDur;
+            this.accBlockDur = accBlockDur;
+            
+            this.largeSlowDown = largeSlowDown;
+            this.bounceFactor = bounceFactor;
+            this.airControl = airControl;
+        }
+        
+        
+        /**
+         * @return a new {@link PhysicsContext} from the current state.
+         *     Note that the values are NOT cloned, as this class should
+         *     be used as a "cast away shell".
+         * 
+         * @see PhysicsContext
+         */
+        public PhysicsContext createContext() {
+            return new PhysicsContext(linAccel, rotationalVelocity,
+                    maxLinearVelocity, frictionConstant, gravity,
+                    turnCorrection, knockback, knockbackDur, accBlockDur,
+                    largeSlowDown, bounceFactor, airControl);
         }
         
         
@@ -122,17 +198,20 @@ public class Physics {
         // dependant collision handeling.
         // Ignore the current actions.
         if (!collisions.isEmpty()) {
-             // WARNING, incorrect handeling of multiple items.
+            ModPhysicsContext modPC = new ModPhysicsContext(pc);
+            
             for (Instance instance : collisions) {
                 if (instance instanceof Car) {
                     calcPhysics(source, pStruct, pc, s); // TODO
                     
                 } else if (instance instanceof Item) {
                     System.out.println("hit item!");
-                    ((Item) instance).physicsAtCollision(source, pStruct, pc, s);
-                    //calcPhysics(source, pStruct, pc, s);
+                    ((Item) instance).physicsAtCollision(
+                            source, pStruct, modPC, s);
                 }
             }
+            
+            calcPhysics(source, pStruct, modPC.createContext(), s);
             
         } else {
             calcPhysics(source, pStruct, pc, s);

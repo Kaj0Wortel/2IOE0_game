@@ -10,6 +10,7 @@ import org.joml.Vector3f;
 import src.Assets.OBJTexture;
 import src.Physics.PStructAction;
 import src.Physics.Physics;
+import src.Physics.Physics.ModPhysicsContext;
 import src.Physics.Physics.ModState;
 import src.Physics.PhysicsContext;
 import src.tools.Box3f;
@@ -40,21 +41,15 @@ public class EnvironmentItem
     
     @Override
     public void physicsAtCollision(Instance source, PStructAction pStruct,
-            PhysicsContext pc, ModState s) {
+            ModPhysicsContext pc, ModState s) {
         if (type == Type.SPEED_BOOST) {
             if (Math.abs(s.velocity) < pc.maxLinearVelocity) {
                 s.velocity = speedBoost(s.box.pos(), s.velocity); // not refined
             }
-            Physics.calcPhysics(source, pStruct, pc, s);
                 
         } else if (type == Type.SLOW_DOWN) {
-            float vMax = slowDownSpot(s.box.pos(), pc.maxLinearVelocity); // not refined
-            PhysicsContext context = new PhysicsContext(pc.linAccel,
-                    pc.rotationalVelocity, vMax, pc.frictionConstant,
-                    pc.gravity, pc.turnCorrection, pc.knockback,
-                    pc.knockbackDur, pc.accBlockDur, pc.largeSlowDown,
-                    pc.bounceFactor, pc.airControl);
-            Physics.calcPhysics(source, pStruct, context, s);
+            pc.maxLinearVelocity = slowDownSpot(s.box.pos(),
+                    pc.maxLinearVelocity); // not refined
         }
     }
     
