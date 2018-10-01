@@ -6,6 +6,9 @@ import scala.xml.Null;
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
 
+import static java.lang.Float.max;
+import static java.lang.Math.signum;
+
 public class Camera {
     private Vector3f position;
     private float pitch;
@@ -22,6 +25,15 @@ public class Camera {
     
     private float distanceToAsset = 30;
     private float angleAroundAsset = 0;
+
+    private float previousRotation = 0;
+    private float currentRotation = 0;
+    private boolean rubberBandEnabled = true;
+    private float maxRubberAngle = 15f;
+    private float rubberSmoothness = 0.25f;
+    private float rubberSpeed = 0.15f;
+    private float minRubberDistance = 25f;
+    private float rubberVelocityFactor = 0.5f;
     
     public Camera (Vector3f position, float pitch, float yaw, float roll){
         this.position = position;
@@ -100,17 +112,38 @@ public class Camera {
         pitch = 20;
     }
 
-    /*
     public void rubberBand(){
-        if(focusedOn != null){
+        boolean turned = false;
+        if(focusedOn == null && rubberBandEnabled){
 
         } else {
-            System.out.println(focusedOn.getRotz());
-            distanceToAsset
+            angleAroundAsset *=-1;
+            currentRotation = focusedOn.getRoty();
+            //if(currentRotation < 0) currentRotation *= -1;
+            //System.out.println(focusedOn.getRotz());
+            distanceToAsset = max(focusedOn.getState().velocity*rubberVelocityFactor + minRubberDistance, minRubberDistance);
+            pitch = max(focusedOn.getState().velocity*0.4f + 20, 20);
+            if(angleAroundAsset >= -maxRubberAngle && angleAroundAsset <= maxRubberAngle){
+                if (-rubberSmoothness > currentRotation - previousRotation || currentRotation - previousRotation  > rubberSmoothness){
+                    angleAroundAsset = angleAroundAsset + signum(currentRotation-previousRotation) * rubberSpeed;
+                    turned = true;
+                } else {
+                    if(!turned) {
+                        angleAroundAsset -= signum(angleAroundAsset) * rubberSpeed;
+                    }
+                    turned = false;
+                }
+            } else{
+                angleAroundAsset -= signum(angleAroundAsset) * 0.15f;
+            }
+
+            //System.out.println(currentRotation - previousRotation);
+            //System.out.println(currentRotation);
+            previousRotation = currentRotation;
+            angleAroundAsset *=-1;
         }
 
     }
-    */
     
     public void removeFocus() {
         focusedOn = null;
@@ -150,6 +183,7 @@ public class Camera {
     }
     
     public void calculateInstanceValues() {
+        rubberBand();
         State state = focusedOn.getState();
         float angle = state.roty + angleAroundAsset;
         float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
