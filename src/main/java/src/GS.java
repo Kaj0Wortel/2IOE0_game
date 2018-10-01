@@ -3,20 +3,23 @@ package src;
 
 
 // Jogamp imports
+
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
+import net.java.games.input.ContrlEnv;
+import net.java.games.input.ControllerEnvironment;
 import org.joml.Vector3f;
-
-
-// Own imports
-import src.Assets.instance.Instance;
+import src.Assets.GUI;
 import src.Assets.Light;
+import src.Assets.instance.Car;
+import src.Assets.instance.Instance;
 import src.Controllers.CameraController;
 import src.Controllers.PlayerController;
 import src.Renderer.Camera;
 import src.Renderer.Renderer;
+import src.grid.Grid;
 import src.gui.MainPanel;
 import src.tools.event.ControllerKey;
 import src.tools.event.ControllerKeyDetector;
@@ -30,12 +33,7 @@ import src.tools.io.BufferedReaderPlus;
 import src.tools.io.ImageManager;
 import src.tools.log.*;
 import src.tools.update.Updater;
-import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
-import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
-import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 
-
-// Java imports
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -45,12 +43,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
 
+import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
+import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
+import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 
+// Own imports
+// Java imports
 // JInput imports
-import net.java.games.input.ContrlEnv;
-import net.java.games.input.ControllerEnvironment;
-import src.Assets.instance.Car;
-import src.grid.Grid;
 
 
 /**
@@ -119,8 +118,9 @@ public class GS {
     final private static List<Instance> assets = new ArrayList<>();
     final private static List<Instance> terrain = new ArrayList<>();
     final private static List<Light> lights = new ArrayList<>();
-    
-    
+    final private static List<GUI> guis = new ArrayList<>();
+
+
     /**-------------------------------------------------------------------------
      * Variables.
      * -------------------------------------------------------------------------
@@ -428,6 +428,14 @@ public class GS {
 
     public static List<Light> getLights(){
         return lights;
+    }
+
+    public static List<GUI> getGUIs(){
+        return guis;
+    }
+
+    public static void addGUI(GUI gui){
+        guis.add(gui);
     }
     
     public static void addAsset(Instance asset){

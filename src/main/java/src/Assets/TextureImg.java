@@ -31,6 +31,21 @@ public class TextureImg {
 
     }
 
+    public TextureImg(GL3 gl, String file_path) {
+        this.shininess = -1;
+        this.reflectivity = -1;
+        try {
+            texture = TextureIO.newTexture(new File(GS.TEX_DIR + file_path), false);
+            texture.setTexParameteri(gl, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+            texture.setTexParameteri(gl, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        texture.enable(gl);
+
+    }
+
     public TextureImg(float shininess, float reflectivity){
         this.shininess = shininess;
         this.reflectivity = reflectivity;
@@ -45,10 +60,15 @@ public class TextureImg {
     }
 
     public void bindTexture(GL3 gl){
+        gl.glActiveTexture(gl.GL_TEXTURE0);
         texture.bind(gl);
     }
 
     public void disableTexture(GL3 gl){
         texture.disable(gl);
+    }
+
+    public int getTexture() {
+        return texture.getTextureObject();
     }
 }

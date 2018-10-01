@@ -4,7 +4,6 @@ package src.Renderer;
 
 // Jogamp imports
 
-import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
@@ -37,6 +36,7 @@ public class Renderer implements GLEventListener {
 
     private ObjectRenderer objectRenderer;
     private TerrainRenderer terrainRenderer;
+    private GUIRenderer guiRenderer;
 
     public Renderer(Simulator simulator, float width, float height){
         this.simulator = simulator;
@@ -61,6 +61,7 @@ public class Renderer implements GLEventListener {
         getProjectionMatrix();
         objectRenderer = new ObjectRenderer(gl,projectionMatrix);
         terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
+        guiRenderer = new GUIRenderer(gl);
 
         gl.glEnable(GL3.GL_DEPTH_TEST);
     }
@@ -77,6 +78,7 @@ public class Renderer implements GLEventListener {
 
         objectRenderer.render(gl);
         terrainRenderer.render(gl);
+        guiRenderer.render(gl);
     }
 
     @Override
