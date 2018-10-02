@@ -12,11 +12,14 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 public class VisualAStar
         extends JPanel {
     
-    final private Rectangle SIZE = new Rectangle(-20,-20,40,40);//0, -5, 5, 5
+    //final private Rectangle SIZE = new Rectangle(-20,-20,40,40);//0, -5, 5, 5
+    final private Rectangle SIZE = new Rectangle(-20, -15, 40, 30);
     final private int IMG_SIZE = 5000;
     final private int CIRCLE_SIZE = 20;
     final private Color BACK = Color.BLACK;
@@ -24,7 +27,7 @@ public class VisualAStar
     private JFrame frame;
     
     private BufferedImage img;
-    private Vector3f[] control_points;
+    private Vector3f[] controlPoints;
     
     public VisualAStar() {
         super(null);
@@ -57,71 +60,163 @@ public class VisualAStar
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         int elevation = 0;
-
-        control_points = new Vector3f[] {/*
-                    new Vector3f(0f,0f,0f), new Vector3f(0f,0f,3f), new Vector3f(1f,0f,4f), new Vector3f(4f,0f,4f),
-                new Vector3f(4f,0f,4f), new Vector3f(7f,0f,4f), new Vector3f(8f,0f,8f), new Vector3f(8f,0f,4f),
-                new Vector3f(8f,0f,4f), new Vector3f(8f,0f,-2f), new Vector3f(8f,0f,-6f), new Vector3f(6f,0f,-6f),
-                new Vector3f(6f,0f,-6f), new Vector3f(-2f,0f,-6f), new Vector3f(0f,0f,-4f), new Vector3f(0f,0f,0f),
-               */
-
-                new Vector3f(0,0,0+elevation),new Vector3f(10,0,0+elevation),new Vector3f(0,10,0+elevation),new Vector3f(10,10,0+elevation),
-                new Vector3f(10,10,0+elevation),new Vector3f(20,10,0+elevation),new Vector3f(20,-10,0+elevation),new Vector3f(0,-10,0+elevation),
-                new Vector3f(0,-10,0+elevation),new Vector3f(-20,-10,0+elevation),new Vector3f(-20,10,0+elevation),new Vector3f(-10,10,0+elevation),
-                new Vector3f(-10,10,0+elevation),new Vector3f(0,10,0+elevation),new Vector3f(-10,0,0+elevation),new Vector3f(0,0,0+elevation)
+        
+        controlPoints = new Vector3f[] {
+            //new Vector3f(-10, 0, 0), new Vector3f(-10, 10, 0), new Vector3f(10, 10, 0), new Vector3f(10, 0, 0),
+            //new Vector3f(10, 0, 0), new Vector3f(10, -10, 0), new Vector3f(-10, -10, 0), new Vector3f(-10, 0, 0)
+            /*
+            new Vector3f(0f,0f,0f), new Vector3f(0f,0f,3f), new Vector3f(1f,0f,4f), new Vector3f(4f,0f,4f),
+            new Vector3f(4f,0f,4f), new Vector3f(7f,0f,4f), new Vector3f(8f,0f,8f), new Vector3f(8f,0f,4f),
+            new Vector3f(8f,0f,4f), new Vector3f(8f,0f,-2f), new Vector3f(8f,0f,-6f), new Vector3f(6f,0f,-6f),
+            new Vector3f(6f,0f,-6f), new Vector3f(-2f,0f,-6f), new Vector3f(0f,0f,-4f), new Vector3f(0f,0f,0f),
+           /**/
+            
+            new Vector3f(0,0,0+elevation),new Vector3f(10,0,0+elevation),new Vector3f(0,10,0+elevation),new Vector3f(10,10,0+elevation),
+            new Vector3f(10,10,0+elevation),new Vector3f(20,10,0+elevation),new Vector3f(20,-10,0+elevation),new Vector3f(0,-10,0+elevation),
+            new Vector3f(0,-10,0+elevation),new Vector3f(-20,-10,0+elevation),new Vector3f(-20,10,0+elevation),new Vector3f(-10,10,0+elevation),
+            new Vector3f(-10,10,0+elevation),new Vector3f(0,10,0+elevation),new Vector3f(-10,0,0+elevation),new Vector3f(0,0,0+elevation)
+            /**/
         };
 
         Vector3f UP = new Vector3f(0,1,0);
 
         float delta = 0.01f;
-        for(float j = 0.0f; j < 1.0 + delta; j += delta){
+        for(float j = 0.0f; j < 1.0; j += delta){
             Vector3f point = getPoint(j);
             Vector3f tangent = getTangent(j);
             Vector3f addedTang = new Vector3f();
-            point.add(tangent,addedTang);
-            addPoint(new Point2D.Double(point.x,point.y));
+            point.add(tangent, addedTang);
+            addPoint(new Point2D.Double(point.x, point.y));
             addLine(new Point2D.Double(point.x,point.y), new Point2D.Double(addedTang.x,addedTang.y));
         }
 
     }
 
-
+    
+    /**
+     * 
+     * @param t
+     * @return 
+     * 
+     * 
+     * For conventience, since the matrices are by default written
+     * as a transpose, we choose another way of multiplicating them.
+     * We need:
+     * {@code U^T * M * G}
+     * But we have U, M^T and G^T. Note that:{@code
+     *     U^T * (M * G)
+     *       = (M * G)^T * U
+     *       = G^T * M^T * U
+     * }
+     * 
+     */
     public Vector3f getPoint(float t) {
+        /**
         t *= 4;
         t %= 4;
         int segment = (int) Math.floor(t);
         t -= Math.floor(t);
-
-        Vector3f point0 = new Vector3f(control_points[4*segment]);
-        Vector3f point1 = new Vector3f(control_points[4*segment + 1]);
-        Vector3f point2 = new Vector3f(control_points[4*segment + 2]);
-        Vector3f point3 = new Vector3f(control_points[4*segment + 3]);
-
+        * 
+        Vector3f point0 = new Vector3f(controlPoints[4*segment]);
+        Vector3f point1 = new Vector3f(controlPoints[4*segment + 1]);
+        Vector3f point2 = new Vector3f(controlPoints[4*segment + 2]);
+        Vector3f point3 = new Vector3f(controlPoints[4*segment + 3]);
+        
         point0.mul((float) (- Math.pow(t,3) + 3*Math.pow(t,2) - 3*t + 1));
         point1.mul((float) (3*Math.pow(t,3) - 6*Math.pow(t,2) + 3*t));
         point2.mul((float) (-3*Math.pow(t,3) + 3*Math.pow(t,2)));
         point3.mul((float) (Math.pow(t,3)));
         return new Vector3f().add(point0).add(point1).add(point2).add(point3);
-        }
-
-    public Vector3f getTangent(float t){
+        /**/
+        // The number of control segments
+        int numSeg = (controlPoints.length) / 4;
+        // The range of one segment
+        float range = 1 / (float) numSeg;
+        // The current segment
+        int segment = (int) (t / range) % numSeg;
+        // Calculate the new t value for the segment
+        float newT = (t - range*segment) * numSeg;
+        
+        Vector3f p0 = new Vector3f(controlPoints[4*segment]);
+        Vector3f p1 = new Vector3f(controlPoints[4*segment + 1]);
+        Vector3f p2 = new Vector3f(controlPoints[4*segment + 2]);
+        Vector3f p3 = new Vector3f(controlPoints[4*segment + 3]);
+        
+        Vector4f u = new Vector4f(
+                (float) Math.pow(newT, 3), (float) Math.pow(newT, 2), newT, 1);
+        Matrix4f gTranspose = new Matrix4f(
+                p0.x, p0.y, p0.z, 1,
+                p1.x, p1.y, p1.z, 1,
+                p2.x, p2.y, p2.z, 1,
+                p3.x, p3.y, p3.z, 1
+        );
+        /*
+        Vector4f umg = u.mul(m.mul(g, new Matrix4f()).transpose()).normalize();
+        return new Vector3f(umg.x, umg.y, umg.z);
+        /**/
+        
+        Vector4f gTmTu = u.mul(gTranspose.mul(mTranspose));
+        return new Vector3f(gTmTu.x, gTmTu.y, gTmTu.z);
+        /**/
+    }
+    
+    final private static Matrix4f mTranspose = new Matrix4f(
+            -1,  3, -3, 1,
+             3, -6,  3, 0,
+            -3,  3,  0, 0,
+             1,  0,  0, 0
+    );
+    
+    /**
+     * 
+     * @param t
+     * @return 
+     * 
+     * Note that:
+     * {@code U^T * (M * G) = G^T * M^T * U}
+     * @see #getPoint(float)
+     */
+    public Vector3f getTangent(float t) {
+        // The number of control segments
+        int numSeg = (controlPoints.length) / 4;
+        // The range of one segment
+        float range = 1 / (float) numSeg;
+        // The current segment
+        int segment = (int) (t / range) % numSeg;
+        // Calculate the new t value for the segment
+        float newT = (t - range*segment) * numSeg;
+        
+        /*
         t *= 4;
         t %= 4;
         int segment = (int) Math.floor(t);
         t -= Math.floor(t);
+        */
+        Vector3f p0 = new Vector3f(controlPoints[4*segment]);
+        Vector3f p1 = new Vector3f(controlPoints[4*segment + 1]);
+        Vector3f p2 = new Vector3f(controlPoints[4*segment + 2]);
+        Vector3f p3 = new Vector3f(controlPoints[4*segment + 3]);
+        
+        Vector4f u = new Vector4f((float) (3*Math.pow(newT, 2)), 2*newT, 1, 0);
+        Matrix4f gTranspose = new Matrix4f(
+                p0.x, p0.y, p0.z, 1,
+                p1.x, p1.y, p1.z, 1,
+                p2.x, p2.y, p2.z, 1,
+                p3.x, p3.y, p3.z, 1
+        );
+        
+        Vector4f gTmTu = u.mul(gTranspose.mul(mTranspose));
+        return new Vector3f(gTmTu.x, gTmTu.y, gTmTu.z).normalize();
+        
+        /*
+        p0.mul((float) (-3*Math.pow(t,2) + 6*t - 3));
+        p1.mul((float) (9*Math.pow(t,2) - 12*Math.pow(t,1) + 3));
+        p2.mul((float) (-9*Math.pow(t,2) * 6*t));
+        p3.mul((float) (3*Math.pow(t,2)));
 
-        Vector3f point0 = new Vector3f(control_points[4*segment]);
-        Vector3f point1 = new Vector3f(control_points[4*segment + 1]);
-        Vector3f point2 = new Vector3f(control_points[4*segment + 2]);
-        Vector3f point3 = new Vector3f(control_points[4*segment + 3]);
-
-        point0.mul((float) (-3*Math.pow(t,2) + 6*t - 3));
-        point1.mul((float) (9*Math.pow(t,2) - 12*Math.pow(t,1) + 3));
-        point2.mul((float) (-9*Math.pow(t,2) * 6*t));
-        point3.mul((float) (3*Math.pow(t,2)));
-
-        return new Vector3f().add(point0).add(point1).add(point2).add(point3).normalize();
-        }
+        return new Vector3f().add(p0).add(p1).add(p2).add(p3).normalize();
+        */
+    }
     
     /**
      * @param point the point to add.
@@ -249,6 +344,7 @@ public class VisualAStar
     public static void main(String[] args) {
        VisualAStar visual = new VisualAStar();
         
+       /*
         try {
             for (int i = 0; i < 5; i++) {
                 Thread.sleep(1000);
@@ -259,5 +355,6 @@ public class VisualAStar
         } catch (InterruptedException e) {
             System.err.println(e);
         }
+*/
     }
 }
