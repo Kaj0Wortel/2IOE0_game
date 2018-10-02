@@ -70,11 +70,11 @@ public class BezierTrack extends Track{
         Vector3f point3 = new Vector3f(control_points[4*segment + 3]);
 
         point0.mul((float) (-3*Math.pow(t,2) + 6*t - 3));
-        point1.mul((float) (9*Math.pow(t,2) - 12*Math.pow(t,1) + 3));
+        point1.mul((float) (9*Math.pow(t,2) - 12*t + 3));
         point2.mul((float) (-9*Math.pow(t,2) * 6*t));
         point3.mul((float) (3*Math.pow(t,2)));
 
-        return new Vector3f().add(point0).add(point1).add(point2).add(point3);
+        return new Vector3f().add(point0).add(point1).add(point2).add(point3).normalize();
     }
 
     @Override
@@ -96,13 +96,15 @@ public class BezierTrack extends Track{
 
         for(int i = 0; i < nr_of_segments; i++){
             for(int col = 0; col < nr_segment_vertices_col; col ++){
+                float t = (float)col/(float) nr_segment_vertices_col;
 
-                Vector3f point = getPoint(i, (float)col/(float) nr_segment_vertices_col);
-                Vector3f tangent = getTangent(i, (float)col/(float) nr_segment_vertices_col);
-                Vector3f horNormal = new Vector3f(tangent).cross(UP).normalize().mul(-2f);
+                Vector3f point = getPoint(i, t);
+                Vector3f tangent = getTangent(i, t);
+                Vector3f horNormal = new Vector3f(tangent).cross(UP).normalize();
 
                 for(int row = 0; row < nr_segment_vertices_row; row ++){
-                    Vector3f extrude = new Vector3f(horNormal).mul(((float) row/ (float) nr_segment_vertices_row) - 0.5f);
+                    Vector3f extrude = new Vector3f(horNormal);
+                    extrude.mul((float)row-4.5f);
                     Vector3f curPoint = new Vector3f(point).add(extrude);
                     vertices.add(curPoint.x);
                     vertices.add(curPoint.y);
@@ -110,10 +112,11 @@ public class BezierTrack extends Track{
                     normals.add(UP.x);
                     normals.add(UP.y);
                     normals.add(UP.z);
-                    textureCoordinates.add((float)col/(float) nr_segment_vertices_col);
-                    textureCoordinates.add((row + 1.0f)/2f);
+                    textureCoordinates.add(t);
+                    textureCoordinates.add(((float)row + 1.0f)/2f);
                 }
             }
+            System.out.println(vertices.size()/3);
 
         }
         for(int i = 0; i < nr_of_segments; i++){
@@ -128,26 +131,24 @@ public class BezierTrack extends Track{
                     indices.add(col * (nr_segment_vertices_row) + row + pointer + 1);
                     indices.add((col+1) * (nr_segment_vertices_row) + row + pointer);
                     indices.add((col+1) * (nr_segment_vertices_row) + row + pointer + 1);
-
                 }
             }
-            System.out.println(indices.size()/3);
 
             int curCol = nr_segment_vertices_col - 1;
 
             int p;
             if(i+1 < 4){
-                p = (i+1) * (nr_segment_vertices_row + 1) * nr_segment_vertices_col;
+                p = (i+1) * nr_segment_vertices_row * nr_segment_vertices_col;
             }else{
                 p = 0;
             }
             for(int row = 0; row < nr_segment_vertices_row-1; row++){
 
-                indices.add(curCol * (nr_segment_vertices_row + 1) + row + pointer);
+                indices.add(curCol * nr_segment_vertices_row + row + pointer);
                 indices.add(row + p);
-                indices.add(curCol * (nr_segment_vertices_row + 1) + row + pointer + 1);
+                indices.add(curCol * nr_segment_vertices_row + row + pointer + 1);
 
-                indices.add(curCol * (nr_segment_vertices_row + 1) + row + pointer + 1);
+                indices.add(curCol * nr_segment_vertices_row + row + pointer + 1);
                 indices.add(row + p);
                 indices.add(row + p + 1);
 
