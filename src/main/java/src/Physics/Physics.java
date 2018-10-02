@@ -492,7 +492,7 @@ public class Physics {
         Entry e1 = col.getEntry1();
         Entry e2 = col.getEntry2();
         
-        // TODO: co stuff with the entries.
+        // TODO: do stuff with the entries.
     }
     
     

@@ -74,8 +74,8 @@ public abstract class Instance {
             float rotx, float roty, float rotz,
             OBJTexture model, float integratedRotation, 
             PhysicsContext physicConst) {
-        state = new State(box, size, rotx, roty, rotz,
-                integratedRotation, 0, 0, 0);
+        setState(new State(box, size, rotx, roty, rotz,
+                integratedRotation, 0, 0, 0));
                 
         this.model = model;
         this.physicsContext = physicConst;
@@ -111,10 +111,10 @@ public abstract class Instance {
     @Deprecated
     public void rotx(float rot) {
         State s = state; // For sync.
-        state = new State(s.box, s.size,
+        setState(new State(s.box, s.size,
                 (s.rotx + rot) % 360, s.roty, s.rotz, s.integratedRotation,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity);
+                s.verticalVelocity));
     }
 
     @Deprecated
@@ -125,10 +125,10 @@ public abstract class Instance {
     @Deprecated
     public void roty(float rot) {
         State s = state; // For sync.
-        state = new State(s.box, s.size,
+        setState(new State(s.box, s.size,
                 s.rotx, (s.roty + rot) % 360, s.rotz, s.integratedRotation,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity);
+                s.verticalVelocity));
     }
 
     @Deprecated
@@ -141,10 +141,10 @@ public abstract class Instance {
         State s = state; // For sync.
         Box3f newBox = s.box.clone();
         newBox.translate(new Vector3f(0, amt, 0));
-        state = new State(newBox, s.size,
+        setState(new State(newBox, s.size,
                 s.rotx, s.roty, s.rotz, s.integratedRotation,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity);
+                s.verticalVelocity));
     }
 
     public void draw(GL3 gl, ShaderProgram shader){
@@ -255,12 +255,12 @@ public abstract class Instance {
     public void movement(PStructAction pStruct) {
         if (!isStatic()) {
             Set<Instance> collisions = GS.grid.getCollisions(this);
-            state = Physics.calcPhysics(this, pStruct, physicsContext, state,
-                    collisions);
+            setState(Physics.calcPhysics(this, pStruct, physicsContext, state,
+                    collisions));
             
         } else {
-            state = Physics.calcPhysics(this, pStruct, physicsContext, state,
-                    null);
+            setState(Physics.calcPhysics(this, pStruct, physicsContext, state,
+                    null));
         }
         
         /*

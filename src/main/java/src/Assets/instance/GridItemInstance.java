@@ -49,8 +49,14 @@ public abstract class GridItemInstance
     }
     
     @Override
-    public void movement(PStructAction pStruct) {
+    public void setState(State state) {
         prevPosition = state.box.pos();
+        super.setState(state);
+        GS.grid.update(this);
+    }
+    
+    @Override
+    public void movement(PStructAction pStruct) {
         super.movement(pStruct);
         GS.grid.update(this);
     }
