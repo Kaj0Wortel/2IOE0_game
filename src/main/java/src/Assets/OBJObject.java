@@ -1,46 +1,56 @@
 
 package src.Assets;
 
+
+// Jogamp imports
 import com.jogamp.opengl.GL3;
 import org.joml.Vector3f;
-import src.OBJ.MTLObject;
-import src.tools.Binder;
-
-import java.nio.IntBuffer;
-import java.util.List;
-import src.tools.Box3f;
 
 
 // Own imports
+import src.tools.Binder;
+import src.tools.Box3f;
+import src.OBJ.MTLObject;
 
 
 // Java imports
+import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
  * 
  * <url>http://paulbourke.net/dataformats/obj/</url>
  */
-public class OBJObject extends Object {
-    float minX = 0;
-    float maxX = 0;
-    float minY = 0;
-    float maxY = 0;
-    float minZ = 0;
-    float maxZ = 0;
+public class OBJObject
+        extends GraphicsObject {
+    private float minX = 0;
+    private float maxX = 0;
+    private float minY = 0;
+    private float maxY = 0;
+    private float minZ = 0;
+    private float maxZ = 0;
+    
+    
+
+    protected List<MTLObject> mtlObjects = new ArrayList<>();
+    protected List<IntBuffer> vaos = new ArrayList<>();
+    protected List<Integer> nrVs = new ArrayList<>();
+    
     
     public OBJObject(String name) {
         super(name);
     }
     
-    public void setData(GL3 gl, List<Float> vertices, List<Float> tex,
-                        List<Float> normals, List<Integer> indices) {
-
-        vao = Binder.loadVAO(gl,
+    public void addData(GL3 gl, List<Float> vertices, List<Float> tex,
+                        List<Float> normals, List<Integer> indices,
+                        MTLObject mtl) {
+        vaos.add(Binder.loadVAO(gl,
                 toFloatArray(vertices), toFloatArray(tex),
-                toFloatArray(normals), toIntegerArray(indices));
-        nrV = indices.size();
-
+                toFloatArray(normals), toIntegerArray(indices)));
+        nrVs.add(indices.size());
+        mtlObjects.add(mtl);
     }
 
     private float[] toFloatArray(List<Float> floats){
@@ -64,25 +74,23 @@ public class OBJObject extends Object {
     }
     
     @Override
-    public IntBuffer getVao() {
-        return vao;
+    public List<IntBuffer> getVao() {
+        return vaos;
     }
     
     @Override
-    public int getNrV() {
-        return nrV;
+    public int getVao(int id) {
+        return getVao().get(id).get(0);
     }
-
-    public void setVao(IntBuffer vao) {
-        this.vao = vao;
+    
+    @Override
+    public List<Integer> getNrV() {
+        return nrVs;
     }
-
-    public void setNrV(int nrV) {
-        this.nrV = nrV;
-    }
-
-    public void setMltObject(MTLObject mltObject) {
-        this.mltObject = mltObject;
+    
+    @Override
+    public int getNrV(int id) {
+        return getNrV().get(id);
     }
 
     @Override
@@ -100,6 +108,11 @@ public class OBJObject extends Object {
         this.maxY = maxY;
         this.minZ = minZ;
         this.maxZ = maxZ;
+    }
+    
+    @Override
+    public int size() {
+        return mtlObjects.size();
     }
     
     public float getMinX() {

@@ -340,7 +340,7 @@ public class Physics {
             }
             linAccel *= pStruct.accel;
         }
-        System.out.println(pStruct.accel+": a: "+linAccel+", v: "+s.velocity);
+        //System.out.println(pStruct.accel+": a: "+linAccel+", v: "+s.velocity);
         // </editor-fold>
         
         // <editor-fold defaultstate="collapsed" desc="ROTATIONAL IMPROVEMENTS"> 

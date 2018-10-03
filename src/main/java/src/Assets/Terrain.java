@@ -6,17 +6,16 @@ import src.tools.Binder;
 
 import java.nio.IntBuffer;
 
-public class Terrain extends OBJObject{
+
+public class Terrain
+        extends OBJObject {
 
     final private int number_of_tiles = 32;
     final private int total_size = 250;
 
-    private IntBuffer vao;
-    private int nrV;
-
     public Terrain(GL3 gl){
         super("Terrain");
-        vao = generateTerrain(gl);
+        vaos.add(generateTerrain(gl));
     }
 
     private IntBuffer generateTerrain(GL3 gl){
@@ -57,19 +56,14 @@ public class Terrain extends OBJObject{
             }
         }
 
-        nrV = indices.length;
+        nrVs.add(indices.length);
         return Binder.loadVAO(gl, vertices,tex,normals,indices);
     }
-
-    public IntBuffer getVao() {
-        return vao;
-    }
-
-    public int getNrV() {
-        return nrV;
-    }
-
+    
+    @Override
     public Vector3f getCenteredPosition() {
         return new Vector3f(-(total_size/2),0,-(total_size/2));
     }
+    
+    
 }

@@ -2,17 +2,11 @@
 package src.OBJ;
 
 // Jogamp imports
-
-import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import src.Assets.OBJCollection;
-import src.Assets.OBJObject;
-import src.GS;
-import src.tools.io.BufferedReaderPlus;
-import src.tools.log.Logger;
 
+// Java imports
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,11 +14,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+// Own imports
+import src.Assets.OBJCollection;
+import src.Assets.OBJObject;
+import src.GS;
+import src.tools.io.BufferedReaderPlus;
+import src.tools.log.Logger;
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
-
-// Own imports
-// Java imports
 
 
 
@@ -63,6 +60,7 @@ public class LoadOBJ {
             brp.setConfDataSeparator(" ");
             
             OBJObject obj = null;
+            MTLObject mtl = null;
             List<Vector3f> verts = new ArrayList<>();
             List<Vector2f> texs = new ArrayList<>();
             List<Vector3f> norms = new ArrayList<>();
@@ -159,18 +157,34 @@ public class LoadOBJ {
 
                         // Add the position to the faces buffer.
                         facesBuf.add(loc);
-
                     }
 
                 } else if (brp.fieldEquals("o")) {
                     if (obj != null) {
-                        obj.setData(gl, vertsBuf, texsBuf, normsBuf, facesBuf);
-
+                        obj.addData(gl, vertsBuf, texsBuf, normsBuf,
+                                facesBuf, mtl);
+                        vertsBuf = new ArrayList<>();
+                        texsBuf = new ArrayList<>();
+                        normsBuf = new ArrayList<>();
+                        facesBuf = new ArrayList<>();
+                        faces.clear();
+                        locCounter = 0;
                     }
                     collection.add(obj = new OBJObject(data[0]));
                     
                 } else if (brp.fieldEquals("usemtl")) {
-                    obj.setMltObject(mtlCol.get(data[0]));
+                    if (mtl != null) {
+                        obj.addData(gl, vertsBuf, texsBuf, normsBuf,
+                                facesBuf, mtl);
+                        vertsBuf = new ArrayList<>();
+                        texsBuf = new ArrayList<>();
+                        normsBuf = new ArrayList<>();
+                        facesBuf = new ArrayList<>();
+                        faces.clear();
+                        locCounter = 0;
+                    }
+                    mtl = mtlCol.get(data[0]);
+                    
                     
                 } else if (brp.fieldEquals("mtllib")) {
                     mtlCol = LoadMTL.load(GS.OBJ_DIR + data[0]);
@@ -181,7 +195,7 @@ public class LoadOBJ {
                 }
             }
             if (obj != null) {
-                obj.setData(gl, vertsBuf, texsBuf, normsBuf, facesBuf);
+                obj.addData(gl, vertsBuf, texsBuf, normsBuf, facesBuf, mtl);
             }
             
         } catch (IOException e) {

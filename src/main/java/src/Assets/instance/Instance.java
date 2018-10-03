@@ -1,11 +1,11 @@
 package src.Assets.instance;
 
-import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 import java.util.Set;
 import javax.swing.SwingUtilities;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import src.Assets.GraphicsObject;
 import src.Assets.OBJTexture;
 import src.GS;
 import src.Locker;
@@ -151,16 +151,18 @@ public abstract class Instance {
         shader.loadTextureLightValues(gl, model.getTextureImg().getShininess(),
                 model.getTextureImg().getReflectivity());
         
-        gl.glBindVertexArray(model.getAsset().getVao().get(0));
-        gl.glEnableVertexAttribArray(0);
-        gl.glEnableVertexAttribArray(1);
-        gl.glEnableVertexAttribArray(2);
-        gl.glDrawElements(GL2.GL_TRIANGLES, model.getAsset().getNrV(),
-                GL2.GL_UNSIGNED_INT, 0);
-        gl.glDisableVertexAttribArray(0);
-        gl.glDisableVertexAttribArray(1);
-        gl.glDisableVertexAttribArray(2);
-        
+        GraphicsObject obj = model.getAsset();
+        for (int i = 0; i < obj.size(); i++) {
+            gl.glBindVertexArray(obj.getVao(i));
+            gl.glEnableVertexAttribArray(0);
+            gl.glEnableVertexAttribArray(1);
+            gl.glEnableVertexAttribArray(2);
+            gl.glDrawElements(GL3.GL_TRIANGLES, obj.getNrV(i),
+                    GL3.GL_UNSIGNED_INT, 0);
+            gl.glDisableVertexAttribArray(0);
+            gl.glDisableVertexAttribArray(1);
+            gl.glDisableVertexAttribArray(2);
+        }
         gl.glBindVertexArray(0);
     }
     
