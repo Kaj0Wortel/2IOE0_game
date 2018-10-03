@@ -7,6 +7,7 @@ import com.jogamp.opengl.GL3;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Binder {
 
@@ -23,6 +24,26 @@ public class Binder {
         storeToAttributeList(gl, 1, 2, Buffers.newDirectFloatBuffer(uv));
         storeToAttributeList(gl, 2, 3, Buffers.newDirectFloatBuffer(normals));
         
+        unbindVAO(gl);
+
+        return vao;
+    }
+
+    public static IntBuffer loadVAO(GL3 gl, List<Float> v, List<Float> u,
+                                    List<Float> n, List<Integer> i) {
+
+        float[] vertices = toFloatArray(v);
+        float[] uv = toFloatArray(u);
+        float[] normals = toFloatArray(n);
+        int[] indices = toIntegerArray(i);
+
+        IntBuffer vao = createVAO(gl);
+
+        storeToIndicesList(gl, Buffers.newDirectIntBuffer(indices));
+        storeToAttributeList(gl, 0, 3, Buffers.newDirectFloatBuffer(vertices));
+        storeToAttributeList(gl, 1, 2, Buffers.newDirectFloatBuffer(uv));
+        storeToAttributeList(gl, 2, 3, Buffers.newDirectFloatBuffer(normals));
+
         unbindVAO(gl);
 
         return vao;
@@ -81,5 +102,21 @@ public class Binder {
         for(IntBuffer j : vbos) {
             gl.glDeleteBuffers(1, j);
         }
+    }
+
+    private static float[] toFloatArray(List<Float> floats) {
+        float[] floatar = new float[floats.size()];
+        for (int i = 0; i < floats.size(); i++) {
+            floatar[i] = floats.get(i);
+        }
+        return floatar;
+    }
+
+    private static int[] toIntegerArray(List<Integer> integers) {
+        int[] intar = new int[integers.size()];
+        for (int i = 0; i < integers.size(); i++) {
+            intar[i] = integers.get(i);
+        }
+        return intar;
     }
 }
