@@ -49,16 +49,13 @@ public class RacetrackShader extends ShaderProgram {
         shininessLocation = getUniformLocation(gl, "shininess");
         reflectivityLocation = getUniformLocation(gl, "reflectivity");
         timeLocation = getUniformLocation(gl, "time");
-        cameraPosLocation = getUniformLocation(gl, "camera");
+        cameraPosLocation = getUniformLocation(gl, "cameraPos");
 
         System.out.println("Projection location: " + projectionMatrixLocation);
         System.out.println("ViewMatrix Location: " + viewMatrixLocation);
         System.out.println("TransformationMatrix Location: " + modelMatrixLocation);
         System.out.println("Lightpos: " + lightPositionLocation);
         System.out.println("LightColor: " + lightColorLocation);
-        System.out.println("Shininess: " + shininessLocation);
-        System.out.println("Reflectivity: " + reflectivityLocation);
-        System.out.println("CameraPos: " + cameraPosLocation);
     }
 
     @Override
@@ -93,4 +90,5 @@ public class RacetrackShader extends ShaderProgram {
     public void loadCameraPos(GL3 gl, Vector3f cameraPos){
         loadUniformVector(gl, cameraPosLocation, cameraPos);
     }
+
 }

@@ -130,8 +130,8 @@ public class Simulator
         GUI test = new GUI(new TextureImg(gl,"test_icon.png").getTexture(), new Vector2f(-0.5f,-0.5f), new Vector2f(0.25f,0.25f));
         GS.addGUI(test);
 
-        BezierTrack testTrack = new BezierTrack(gl, new Vector3f(0,1,-5),1f,0,0,0);
-        GS.testRaceTrack = testTrack;
+        BezierTrack testTrack = new BezierTrack(gl, new Vector3f(0,1,-5),10f,0,0,0, new TextureImg(gl,"road.png"));
+        GS.raceTrack = testTrack;
 
         System.out.println("Assets initialized");
 

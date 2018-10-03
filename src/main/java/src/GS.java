@@ -140,7 +140,7 @@ public class GS {
     private static Renderer renderer;
     private static GLCanvas canvas;
     private static FPSAnimator animator;
-    public static BezierTrack testRaceTrack;
+    public static BezierTrack raceTrack;
 
     public static List<Car> cars = new ArrayList<>();
     public static Instance player;
