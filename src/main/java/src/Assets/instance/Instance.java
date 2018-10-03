@@ -2,7 +2,6 @@ package src.Assets.instance;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
-import java.util.HashSet;
 import java.util.Set;
 import javax.swing.SwingUtilities;
 import org.joml.Matrix4f;
@@ -255,35 +254,12 @@ public abstract class Instance {
     public void movement(PStructAction pStruct) {
         if (!isStatic()) {
             Set<Instance> collisions = GS.grid.getCollisions(this);
-            setState(Physics.calcPhysics(this, pStruct, physicsContext, state,
-                    collisions));
+            Physics.calcPhysics(this, pStruct, physicsContext, state,
+                    collisions);
             
         } else {
-            setState(Physics.calcPhysics(this, pStruct, physicsContext, state,
-                    null));
+            Physics.calcPhysics(this, pStruct, physicsContext, state, null);
         }
-        
-        /*
-        PStructAction curStruct = new PStructAction(new Vector3f(
-                -position.z, -position.x, position.y), velocity, roty, 
-                collisionVelocity, gravity, verticalVelocity);
-        //System.out.println("turn: " +turn+ ", acc: " +acc+ "");
-        curStruct = Physics.calcPhysics(turn, acc, linearAcceleration, 
-                rotationalVelocity, maxLinearVelocity, dt / 160f, 
-                frictionConstant, curStruct);
-        // 3D-2D conversion (might change physics to directly support 3D input)
-        roty = (float) curStruct.rot;
-        velocity = (float) curStruct.v;
-        position.z = -curStruct.pos.x;
-        position.x = -curStruct.pos.y;
-        position.y = curStruct.pos.z;
-        collisionVelocity = (float) curStruct.colV;
-        verticalVelocity = (float) curStruct.vertV;
-        //System.out.println(": (" + -position.z + ", " + -position.x 
-        //        + "), ");
-        /**/
-        
-        
     }
     
     

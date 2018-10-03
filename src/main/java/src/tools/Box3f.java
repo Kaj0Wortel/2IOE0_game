@@ -86,6 +86,17 @@ public class Box3f
     }
     
     /**
+     * Shorthand for {@link #getDX()}.
+     * 
+     * @return the dx of the box.
+     * 
+     * @see #getDX()
+     */
+    public float dx() {
+        return getDX();
+    }
+    
+    /**
      * @return the dy of the box.
      */
     public float getDY() {
@@ -93,10 +104,32 @@ public class Box3f
     }
     
     /**
+     * Shorthand for {@link #getDY()}.
+     * 
+     * @return the dy of the box.
+     * 
+     * @see #getDY()
+     */
+    public float dy() {
+        return getDY();
+    }
+    
+    /**
      * @return the dz of the box.
      */
     public float getDZ() {
         return dz;
+    }
+    
+    /**
+     * Shorthand for {@link #getDZ()}.
+     * 
+     * @return the dz of the box.
+     * 
+     * @see #getDZ()
+     */
+    public float dz() {
+        return getDZ();
     }
     
     /**

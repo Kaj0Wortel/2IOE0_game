@@ -58,7 +58,6 @@ public abstract class GridItemInstance
     @Override
     public void movement(PStructAction pStruct) {
         super.movement(pStruct);
-        GS.grid.update(this);
     }
     
     
