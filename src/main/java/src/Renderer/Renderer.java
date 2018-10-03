@@ -11,6 +11,7 @@ import com.jogamp.opengl.glu.GLU;
 import org.joml.Matrix4f;
 import src.Controllers.PlayerController;
 import src.GS;
+import src.Shaders.RacetrackShader;
 import src.Simulator;
 
 import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
@@ -63,6 +64,9 @@ public class Renderer implements GLEventListener {
         terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
         guiRenderer = new GUIRenderer(gl);
 
+        RacetrackShader racetrackShader = new RacetrackShader(gl);
+        GS.raceTrack.setShaderAndRenderMatrices(racetrackShader, projectionMatrix, GS.camera.getViewMatrix());
+
         gl.glEnable(GL3.GL_DEPTH_TEST);
     }
 
@@ -79,6 +83,8 @@ public class Renderer implements GLEventListener {
         objectRenderer.render(gl);
         terrainRenderer.render(gl);
         guiRenderer.render(gl);
+
+        GS.raceTrack.draw(gl);
     }
 
     @Override

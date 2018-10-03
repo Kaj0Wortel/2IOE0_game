@@ -12,6 +12,7 @@ import src.Assets.instance.Instance;
 import src.Assets.instance.TerrainInstance;
 import src.OBJ.LoadOBJ;
 import src.Physics.PhysicsContext;
+import src.racetrack.BezierTrack;
 import src.tools.Binder;
 import src.tools.Box3f;
 import src.tools.update.Updateable;
@@ -128,6 +129,9 @@ public class Simulator
 
         GUI test = new GUI(new TextureImg(gl,"test_icon.png").getTexture(), new Vector2f(-0.5f,-0.5f), new Vector2f(0.25f,0.25f));
         GS.addGUI(test);
+
+        BezierTrack testTrack = new BezierTrack(gl, new Vector3f(0,1,-5),10f,0,0,0, new TextureImg(gl,"road.png"));
+        GS.raceTrack = testTrack;
 
         System.out.println("Assets initialized");
 

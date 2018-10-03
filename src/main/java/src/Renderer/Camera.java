@@ -2,7 +2,6 @@ package src.Renderer;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import scala.xml.Null;
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
 
