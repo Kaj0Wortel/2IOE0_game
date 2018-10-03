@@ -72,7 +72,7 @@ public class CollisionManager {
          */
         @Override
         public int hashCode() {
-            return MultiTool.calcHashCode(e1.hashCode() + e2.hashCode());
+            return MultiTool.calcHashCode(e1.hashCode() + other.hashCode());
         }
         
         @Override
