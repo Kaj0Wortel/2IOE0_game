@@ -43,13 +43,40 @@ public class OBJObject
         super(name);
     }
     
+    
     public void addData(GL3 gl, List<Float> vertices, List<Float> tex,
                         List<Float> normals, List<Integer> indices,
                         MTLObject mtl) {
+        vaos.add(Binder.loadVAO(gl,
+                toFloatArray(vertices), toFloatArray(tex),
+                toFloatArray(normals), toIntegerArray(indices)));
+        nrVs.add(indices.size());
+        mtlObjects.add(mtl);
+    }
 
+    private float[] toFloatArray(List<Float> floats){
+        float[] floatar = new float[floats.size()];
+        for(int i = 0; i < floats.size(); i++){
+            floatar[i] = floats.get(i);
+        }
+        return floatar;
+    }
+
+    private int[] toIntegerArray(List<Integer> integers){
+        int[] intar = new int[integers.size()];
+        for(int i = 0; i < integers.size(); i++){
+            intar[i] = integers.get(i);
+        }
+        return intar;
+    }
+    
+    /*
+    public void addData(GL3 gl, List<Float> vertices, List<Float> tex,
+                        List<Float> normals, List<Integer> indices,
+                        MTLObject mtl) {
         vaos.add(Binder.loadVAO(gl, vertices, tex, normals, indices));
         nrVs.add(indices.size());
-    }
+    }*/
 
     public String getName() {
         return name;
