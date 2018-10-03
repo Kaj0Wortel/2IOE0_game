@@ -1,6 +1,8 @@
 package src.racetrack;
 
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import src.Shaders.RacetrackShader;
 
 import java.nio.IntBuffer;
 
@@ -11,6 +13,12 @@ public abstract class Track {
 
     protected IntBuffer vao;
     protected int nrV;
+
+    protected RacetrackShader shader;
+    protected Matrix4f projectionMatrix;
+    protected Matrix4f viewMatrix;
+
+    public abstract void setShaderAndRenderMatrices(RacetrackShader shader, Matrix4f projectionMatrix, Matrix4f viewMatrix);
 
     public abstract Vector3f getPoint(int segment, float t);
 

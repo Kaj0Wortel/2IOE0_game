@@ -4,7 +4,9 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import src.Shaders.ShaderProgram;
+import org.joml.Vector4f;
+import src.GS;
+import src.Shaders.RacetrackShader;
 import src.tools.Binder;
 
 import java.util.ArrayList;
@@ -13,7 +15,7 @@ import java.util.List;
 public class BezierTrack extends Track{
 
     final private int nr_segment_vertices_col = 30;
-    final private int nr_segment_vertices_row = 9; //Must be odd
+    final private int nr_segment_vertices_row = 3; //Must be odd
     final private Vector3f position;
     final private float size;
     final private float rotx;
@@ -21,6 +23,8 @@ public class BezierTrack extends Track{
     final private float rotz;
 
     private Vector3f UP = new Vector3f(0,1,0);
+    private int scale_points = 10;
+    private int lane_width = 4;
 
     public BezierTrack(GL3 gl, Vector3f position, float size,
                        float rotx, float roty, float rotz) {
@@ -32,16 +36,10 @@ public class BezierTrack extends Track{
 
         super.setControl_points(new Vector3f[]{
 
-                new Vector3f(0f,0f,0f), new Vector3f(0f,0f,30f), new Vector3f(10f,0f,40f), new Vector3f(40f,0f,40f),
-                new Vector3f(40f,0f,40f), new Vector3f(70f,0f,40f), new Vector3f(80f,0f,80f), new Vector3f(80f,0f,40f),
-                new Vector3f(80f,0f,40f), new Vector3f(80f,0f,-20f), new Vector3f(80f,0f,-60f), new Vector3f(60f,0f,-60f),
-                new Vector3f(60f,0f,-60f), new Vector3f(-20f,0f,-60f), new Vector3f(0f,0f,-40f), new Vector3f(0f,0f,0f),
-               /*
-                new Vector3f(0f,0f,0f), new Vector3f(10f,0f,0f), new Vector3f(0f,0f,10f), new Vector3f(10f,0f,10f),
-                new Vector3f(10f,0f,10f), new Vector3f(20f,0f,10f), new Vector3f(20f,0f,-10f), new Vector3f(0f,0f,-10f),
-                new Vector3f(0f,0f,10f), new Vector3f(-20f,0f,-10f), new Vector3f(-20f,0f,10f), new Vector3f(-10f,0f,-10f),
-                new Vector3f(-10f,0f,-10f), new Vector3f(0f,0f,10f), new Vector3f(-10f,0f,0f), new Vector3f(0f,0f,0f),
-                */
+                new Vector3f(0f,0f,0f), new Vector3f(0f,0f,3f), new Vector3f(1f,0f,4f), new Vector3f(4f,0f,4f),
+                new Vector3f(4f,0f,4f), new Vector3f(7f,0f,4f), new Vector3f(8f,0f,8f), new Vector3f(8f,0f,4f),
+                new Vector3f(8f,0f,4f), new Vector3f(8f,0f,-2f), new Vector3f(8f,0f,-6f), new Vector3f(6f,0f,-6f),
+                new Vector3f(6f,0f,-6f), new Vector3f(-2f,0f,-6f), new Vector3f(0f,0f,-4f), new Vector3f(0f,0f,0f),
         });
 
         super.setSegments(control_points.length/4);
@@ -50,31 +48,64 @@ public class BezierTrack extends Track{
     }
 
     @Override
-    public Vector3f getPoint(int segment, float t) {
-        Vector3f point0 = new Vector3f(control_points[4*segment]);
-        Vector3f point1 = new Vector3f(control_points[4*segment + 1]);
-        Vector3f point2 = new Vector3f(control_points[4*segment + 2]);
-        Vector3f point3 = new Vector3f(control_points[4*segment + 3]);
-
-        point0.mul((float) (- Math.pow(t,3) + 3*Math.pow(t,2) - 3*t + 1));
-        point1.mul((float) (3*Math.pow(t,3) - 6*Math.pow(t,2) + 3*t));
-        point2.mul((float) (-3*Math.pow(t,3) + 3*Math.pow(t,2)));
-        point3.mul((float) (Math.pow(t,3)));
-        return new Vector3f().add(point0).add(point1).add(point2).add(point3);
+    public void setShaderAndRenderMatrices(RacetrackShader shader, Matrix4f projectionMatrix, Matrix4f viewMatrix) {
+        this.shader = shader;
+        this.projectionMatrix = projectionMatrix;
+        this.viewMatrix = viewMatrix;
     }
 
-    public Vector3f getTangent(int segment, float t){
-        Vector3f point0 = new Vector3f(control_points[4*segment]);
-        Vector3f point1 = new Vector3f(control_points[4*segment + 1]);
-        Vector3f point2 = new Vector3f(control_points[4*segment + 2]);
-        Vector3f point3 = new Vector3f(control_points[4*segment + 3]);
+    @Override
+    public Vector3f getPoint(int segment, float t) {
+        Vector3f p0 = new Vector3f(control_points[4*segment]).mul(scale_points);
+        Vector3f p1 = new Vector3f(control_points[4*segment + 1]).mul(scale_points);
+        Vector3f p2 = new Vector3f(control_points[4*segment + 2]).mul(scale_points);
+        Vector3f p3 = new Vector3f(control_points[4*segment + 3]).mul(scale_points);
 
-        point0.mul((float) (-3*Math.pow(t,2) + 6*t - 3));
-        point1.mul((float) (9*Math.pow(t,2) - 12*t + 3));
-        point2.mul((float) (-9*Math.pow(t,2) * 6*t));
-        point3.mul((float) (3*Math.pow(t,2)));
+        Vector4f u = new Vector4f(
+                (float) Math.pow(t, 3), (float) Math.pow(t, 2), t, 1);
+        Matrix4f gTranspose = new Matrix4f(
+                p0.x, p0.y, p0.z, 1,
+                p1.x, p1.y, p1.z, 1,
+                p2.x, p2.y, p2.z, 1,
+                p3.x, p3.y, p3.z, 1
+        );
 
-        return new Vector3f().add(point0).add(point1).add(point2).add(point3).normalize();
+        Vector4f gTmTu = u.mul(gTranspose.mul(mTranspose));
+        return new Vector3f(gTmTu.x, gTmTu.y, gTmTu.z);
+    }
+
+    final private static Matrix4f mTranspose = new Matrix4f(
+            -1,  3, -3, 1,
+            3, -6,  3, 0,
+            -3,  3,  0, 0,
+            1,  0,  0, 0
+    );
+
+    /**
+     *
+     * @param t
+     * @return
+     *
+     * Note that:
+     * {@code U^T * (M * G) = G^T * M^T * U}
+     * @see #getPoint(int, float)
+     */
+    public Vector3f getTangent(int segment, float t) {
+        Vector3f p0 = new Vector3f(control_points[4*segment]).mul(scale_points);
+        Vector3f p1 = new Vector3f(control_points[4*segment + 1]).mul(scale_points);
+        Vector3f p2 = new Vector3f(control_points[4*segment + 2]).mul(scale_points);
+        Vector3f p3 = new Vector3f(control_points[4*segment + 3]).mul(scale_points);
+
+        Vector4f u = new Vector4f((float) (3*Math.pow(t, 2)), 2*t, 1, 0);
+        Matrix4f gTranspose = new Matrix4f(
+                p0.x, p0.y, p0.z, 1,
+                p1.x, p1.y, p1.z, 1,
+                p2.x, p2.y, p2.z, 1,
+                p3.x, p3.y, p3.z, 1
+        );
+
+        Vector4f gTmTu = u.mul(gTranspose.mul(mTranspose));
+        return new Vector3f(gTmTu.x, gTmTu.y, gTmTu.z).normalize().negate();
     }
 
     @Override
@@ -88,7 +119,6 @@ public class BezierTrack extends Track{
     }
 
     private void generateTrack(GL3 gl){
-
         ArrayList<Float> vertices = new ArrayList<>();
         ArrayList<Float> normals = new ArrayList<>();
         ArrayList<Float> textureCoordinates = new ArrayList<>();
@@ -97,27 +127,25 @@ public class BezierTrack extends Track{
         for(int i = 0; i < nr_of_segments; i++){
             for(int col = 0; col < nr_segment_vertices_col; col ++){
                 float t = (float)col/(float) nr_segment_vertices_col;
-
-                Vector3f point = getPoint(i, t);
-                Vector3f tangent = getTangent(i, t);
-                Vector3f horNormal = new Vector3f(tangent).cross(UP).normalize();
+                Vector3f point = getPoint(i,t);
+                Vector3f tangent = getTangent(i,t);
 
                 for(int row = 0; row < nr_segment_vertices_row; row ++){
-                    Vector3f extrude = new Vector3f(horNormal);
-                    extrude.mul((float)row-4.5f);
-                    Vector3f curPoint = new Vector3f(point).add(extrude);
-                    vertices.add(curPoint.x);
-                    vertices.add(curPoint.y);
-                    vertices.add(curPoint.z);
+                    Vector3f normal = new Vector3f(tangent);
+                    normal.cross(UP).normalize().mul(lane_width).mul((float)row-(((float)(nr_segment_vertices_row-1)/2)));
+                    Vector3f addedNormal = new Vector3f();
+                    point.add(normal, addedNormal);
+
+                    vertices.add(addedNormal.x);
+                    vertices.add(addedNormal.y);
+                    vertices.add(addedNormal.z);
                     normals.add(UP.x);
                     normals.add(UP.y);
                     normals.add(UP.z);
+                    textureCoordinates.add(((float)row)/((float) nr_segment_vertices_row - 1));
                     textureCoordinates.add(t);
-                    textureCoordinates.add(((float)row + 1.0f)/2f);
                 }
             }
-            System.out.println(vertices.size()/3);
-
         }
         for(int i = 0; i < nr_of_segments; i++){
             int pointer = i * nr_segment_vertices_row * nr_segment_vertices_col;
@@ -137,7 +165,7 @@ public class BezierTrack extends Track{
             int curCol = nr_segment_vertices_col - 1;
 
             int p;
-            if(i+1 < 4){
+            if(i+1 < nr_of_segments){
                 p = (i+1) * nr_segment_vertices_row * nr_segment_vertices_col;
             }else{
                 p = 0;
@@ -180,7 +208,8 @@ public class BezierTrack extends Track{
         return intar;
     }
 
-    public void draw(GL3 gl, ShaderProgram shader){
+    public void draw(GL3 gl){
+        prepare(gl);
         shader.loadModelMatrix(gl, getTransformationMatrix());
         //shader.loadTextureLightValues(gl, model.getTextureImg().getShininess(),
                 //model.getTextureImg().getReflectivity());
@@ -209,6 +238,15 @@ public class BezierTrack extends Track{
         transformationMatrix.scale(size, size, size);
 
         return transformationMatrix;
+    }
+
+    private void prepare(GL3 gl){
+        shader.start(gl);
+
+        shader.loadProjectionMatrix(gl,projectionMatrix);
+        shader.loadViewMatrix(gl, GS.camera.getViewMatrix());
+        shader.loadLight(gl,GS.getLights().get(0));
+        shader.loadCameraPos(gl, GS.camera.getPosition());
     }
 
 }
