@@ -19,9 +19,9 @@ public class BezierTrack extends Track {
 
     private Vector3f UP = new Vector3f(0, 1, 0);
 
-    public BezierTrack(GL3 gl, Vector3f position, float size,
-                       float rotx, float roty, float rotz, TextureImg texture) {
-        super(position, size, rotx, roty, rotz,texture, new TextureImg(gl, "road_normal.png"));
+    public BezierTrack(Vector3f position, float size,
+                       float rotx, float roty, float rotz, TextureImg texture, TextureImg bumbmap) {
+        super(position, size, rotx, roty, rotz,texture, bumbmap);
 
         super.setControl_points(new Vector3f[]{
 
@@ -32,8 +32,6 @@ public class BezierTrack extends Track {
         });
 
         super.setSegments(control_points.length / 4);
-
-        generateTrack(gl);
     }
 
     @Override
@@ -95,7 +93,7 @@ public class BezierTrack extends Track {
         return new Vector3f(gTmTu.x, gTmTu.y, gTmTu.z).normalize().negate();
     }
 
-    private void generateTrack(GL3 gl) {
+    public void generateTrack(GL3 gl) {
         ArrayList<Float> vertices = new ArrayList<>();
         ArrayList<Float> normals = new ArrayList<>();
         ArrayList<Float> textureCoordinates = new ArrayList<>();
