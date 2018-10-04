@@ -11,6 +11,7 @@ import src.Assets.instance.Car;
 import src.Assets.instance.EnvironmentItem;
 import src.Assets.instance.Instance;
 import src.Assets.instance.TerrainInstance;
+import src.Assets.skybox.Skybox;
 import src.OBJ.LoadOBJ;
 import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
@@ -144,9 +145,12 @@ public class Simulator
         GUI test = new GUI(new TextureImg(gl,"test_icon.png").getTexture(), new Vector2f(-0.5f,-0.5f), new Vector2f(0.25f,0.25f));
         GS.addGUI(test);
 
-        BezierTrack testTrack = new BezierTrack(new Vector3f(0,1,-5),10f,0,0,0, new TextureImg(gl,"road.png"), new TextureImg(gl, "road_normal.png"));
+        BezierTrack testTrack = new BezierTrack(new Vector3f(0,1,-5),3f,0,0,0, new TextureImg(gl,"rainbow_road.png"), new TextureImg(gl, "road_normal.png"));
         testTrack.generateTrack(gl);
         GS.setTrack(testTrack);
+
+        Skybox skybox = new Skybox(gl);
+        GS.setSkybox(skybox);
         
         System.out.println("Assets initialized");
 

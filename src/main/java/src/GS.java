@@ -15,13 +15,15 @@ import src.Assets.GUI;
 import src.Assets.Light;
 import src.Assets.instance.Car;
 import src.Assets.instance.Instance;
+import src.Assets.skybox.Skybox;
 import src.Controllers.CameraController;
 import src.Controllers.PlayerController;
+import src.Physics.Physics;
 import src.Renderer.Camera;
 import src.Renderer.Renderer;
 import src.grid.Grid;
 import src.gui.MainPanel;
-import src.racetrack.BezierTrack;
+import src.racetrack.Track;
 import src.tools.event.ControllerKey;
 import src.tools.event.ControllerKeyDetector;
 import src.tools.event.Key;
@@ -44,8 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
 
-import src.Physics.Physics;
-import src.racetrack.Track;
 import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
@@ -143,6 +143,7 @@ public class GS {
     private static GLCanvas canvas;
     private static FPSAnimator animator;
     private static Track raceTrack;
+    private static Skybox skybox;
 
     public static List<Car> cars = new ArrayList<>();
     public static Instance player;
@@ -469,6 +470,14 @@ public class GS {
     public static void setTrack(Track track) {
         Physics.setTrack(track);
         raceTrack = track;
+    }
+
+    public static void setSkybox(Skybox box){
+        skybox = box;
+    }
+
+    public static Skybox getSkybox(){
+        return skybox;
     }
     
     public static Track getTrack() {

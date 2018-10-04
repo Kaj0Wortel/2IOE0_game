@@ -18,7 +18,7 @@ public class GUIRenderer {
     public GUIRenderer(GL3 gl) {
         guiShader = new GUIShader(gl);
         float[] vertices = { -1, 1, -1, -1, 1, 1, 1, -1};
-        vao = Binder.loadVAO(gl, vertices);
+        vao = Binder.loadVAO(gl, vertices,2);
         nrV = vertices.length/2;
     }
 
