@@ -17,6 +17,7 @@ uniform vec3 lightPosition;
 uniform vec3 cameraPos;
 uniform int time;
 
+
 void main(void) {
     texPass = tex;
     vec4 pos = modelMatrix * vec4(position,1.0);
