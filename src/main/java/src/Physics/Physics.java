@@ -291,7 +291,6 @@ public class Physics {
                 points[ind].z - s.box.pos().z + tangents[ind].z*t);
         dist = (float)Math.sqrt(dDir.x*dDir.x + dDir.y*dDir.y + dDir.z*dDir.z);
         // If you are outside of the track
-        System.out.println(ind+": "+dist);
         if (dist > trackWidth) {
             onTrack = false;
         }
