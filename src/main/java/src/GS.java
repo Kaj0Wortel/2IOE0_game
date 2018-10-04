@@ -67,54 +67,56 @@ public class GS {
     public static enum GameState {
         PLAYING, PAUSED, STOPPED;
     }
-    
+
     /**
      * TODO.
      */
     public static enum CameraMode {
         SOME_MODE;
     }
-    
-    
+
+
     /**-------------------------------------------------------------------------
      * Constants.
      * -------------------------------------------------------------------------
      */
     /** The application name. */
     final public static String APP_NAME = "2IOE0 game";
-    
+
     /** The system independant file separator. */
     final public static String FS = System.getProperty("file.separator");
-    
+
     /** The system independant line separator. */
     final public static String LS = System.getProperty("line.separator");
-    
+
     /** Whether to disable the logging by {@link java.util.logging.Logger}. */
     final private static boolean DISABLE_JAVA_LOGGING = true;
-    
+
     /** Handy file paths. */
     final public static String WORKING_DIR = System.getProperty("user.dir")
-            + FS + "src"  + FS;
+            + FS + "src" + FS;
     final public static String FONT_DIR = WORKING_DIR + "tools"
             + FS + "font" + FS;
-    
+
     final public static String LOG_FILE = WORKING_DIR + "log.log";
     final public static String SHADER_DIR = WORKING_DIR
             + "shaderPrograms" + FS;
-    
+
     final public static String DATA_DIR = WORKING_DIR + "data" + FS;
     final public static String KEYS_CONFIG = DATA_DIR + "keys.conf";
-    
+
     final public static String RESOURCE_DIR = WORKING_DIR + "res" + FS;
     final public static String MUSIC_DIR = RESOURCE_DIR + "music" + FS;
     final public static String IMG_DIR = RESOURCE_DIR + "img" + FS;
     final public static String OBJ_DIR = RESOURCE_DIR + "obj" + FS;
     final public static String TEX_DIR = RESOURCE_DIR + "textures" + FS;
-    
-    
+
+    /** Delimiter used in reading and writing CSV. */
+    final public static char DELIM = ',';
+
     /** Image constants. */
     final public static String FRAME_ICON = "FRAME_ICON";
-    
+
     /** Assets and camera. */
     final private static List<Instance> assets = new ArrayList<>();
     final private static List<Instance> terrain = new ArrayList<>();
@@ -122,7 +124,8 @@ public class GS {
     final private static List<GUI> guis = new ArrayList<>();
 
 
-    /**-------------------------------------------------------------------------
+    /**
+     * -------------------------------------------------------------------------
      * Variables.
      * -------------------------------------------------------------------------
      */
@@ -144,11 +147,10 @@ public class GS {
 
     public static List<Car> cars = new ArrayList<>();
     public static Instance player;
-    
-    
-    
-    
-    /**-------------------------------------------------------------------------
+
+
+    /**
+     * -------------------------------------------------------------------------
      * Logger initialization.
      * -------------------------------------------------------------------------
      */
@@ -158,15 +160,15 @@ public class GS {
         Logger fileLogger = null;
         try {
             fileLogger = new FileLogger(LOG_FILE);
-            
+
         } catch (IOException e) {
             System.err.println(e);
         }
         Logger.setDefaultLogger(fileLogger);
-        
+
         // Initialize the fonts.
         FontLoader.init();
-        
+
         // Setup key map for the screen logger.
         Map<Key, Runnable> debugMap = new HashMap<>();
         debugMap.put(Key.ESC, () -> System.exit(0));
@@ -185,24 +187,24 @@ public class GS {
         Logger.write("Starting application...", Logger.Type.INFO);
         Logger.setShutDownMessage("Shutting down application...",
                 Logger.Type.INFO);
-        
+
         if (DISABLE_JAVA_LOGGING) {
             LogManager.getLogManager().reset();
             Logger.write("Logging via \"java.util.logging.Logger\" has "
                     + "now been disabled!");
         }
-        
+
         GLProfile.initSingleton();
         GLProfile profile = GLProfile.get(GLProfile.GL2);
         GLCapabilities cap = new GLCapabilities(profile);
         canvas = new GLCanvas(cap);
-        
+
         registerImageSheets();
         createGUI();
         GS.keyDet = new ControllerKeyDetector();
-        
+
         reloadKeyMap();
-        
+
         grid = new Grid(0f, -1000f, 0f, 2f, 2f, 2f);
 
         animator = new FPSAnimator(canvas, 60, true);
@@ -222,14 +224,14 @@ public class GS {
 
         Updater.start();
     }
-    
+
     /**
      * Registers all images that are neede in the application.
      */
     private static void registerImageSheets() {
         ImageManager.registerSheet("game_icon.png", GS.FRAME_ICON, -1, -1);
     }
-    
+
     /**
      * Creates the GUI of the application.
      * Also adds all necessary listeners.
@@ -239,7 +241,7 @@ public class GS {
 
         GS.mainPanel.add(canvas);
         GS.mainPanel.setSize(1080, 720);
-        
+
         // Add listeners.
         mainPanel.getFrame().addWindowListener(new WindowAdapter() {
             @Override
@@ -250,23 +252,23 @@ public class GS {
             }
         });
     }
-    
+
     /**
      * Reloads the key map.
      */
     private static void reloadKeyMap() {
-        Logger.write(new Object[] {
-            "",
-            "===== BEGIN RELOADING KEY MAP =====",
-             "File = " + KEYS_CONFIG
+        Logger.write(new Object[]{
+                "",
+                "===== BEGIN RELOADING KEY MAP =====",
+                "File = " + KEYS_CONFIG
         }, Logger.Type.INFO);
-        
+
         // Create new key map.
         Map<KeyAction, List<ControllerKey>> newKeyMap = new HashMap<>();
-        
+
         try (BufferedReaderPlus brp = new BufferedReaderPlus(KEYS_CONFIG,
                 HASHTAG_COMMENT, TYPE_CONFIG)) {
-            
+
             List<ControllerKey> keys = new ArrayList<>();
             while (brp.readNextConfLine()) {
                 try {/*
@@ -282,7 +284,7 @@ public class GS {
                                 .createFromString(brp.getData()));
                         System.out.println("ControllerKey created: "
                                 + keys.get(keys.size() - 1));
-                        
+
                     } else if (brp.fieldEquals(CarKeyAction.class.getName())) {
                         KeyAction action = CarKeyAction
                                 .createFromString(brp.getData());
@@ -306,59 +308,59 @@ public class GS {
 
                     } else {
                         Logger.write("Ignored field on line "
-                                + brp.getLineCounter() + ": " + brp.getField(),
+                                        + brp.getLineCounter() + ": " + brp.getField(),
                                 Logger.Type.WARNING);
                     }
-                    
+
                 } catch (IllegalArgumentException e) {
-                    Logger.write(new Object[] {
-                        "Exception while reading key map on line "
-                                + brp.getLineCounter() + ":",
-                        e
+                    Logger.write(new Object[]{
+                            "Exception while reading key map on line "
+                                    + brp.getLineCounter() + ":",
+                            e
                     }, Logger.Type.ERROR);
                 }
             }
-            
+
         } catch (IOException e) {
             Logger.write(e);
         }
-        
+
         // Replace the key map.
         Locker.lock(ControllerKey.class);
         try {
             keyMap.clear();
             keyMap = newKeyMap;
             System.out.println("key map:" + keyMap);
-            
+
         } finally {
             Locker.unlock(ControllerKey.class);
-            Logger.write(new Object[] {
-                "===== FINISHED RELOADING KEY MAP =====",
-                ""
+            Logger.write(new Object[]{
+                    "===== FINISHED RELOADING KEY MAP =====",
+                    ""
             }, Logger.Type.INFO);
         }
     }
-    
+
     /**
      * Gets the keys that are defined for the given action.
-     * 
+     *
      * @param action the action to get the keys from.
      * @return either:
-     *     - A list containing all keys corresponding to this action.
-     *     - {@code null}, meaning that the action is undefined.
+     * - A list containing all keys corresponding to this action.
+     * - {@code null}, meaning that the action is undefined.
      */
     public static List<ControllerKey> getKeys(KeyAction action) {
         Locker.lock(ControllerKey.class);
         try {
             ControllerKey.setCompMode(DEFAULT_GET_COMP_MODE);
             return keyMap.get(action);
-            
+
         } finally {
             Locker.unlock(ControllerKey.class);
         }
     }
-    
-    
+
+
     /**-------------------------------------------------------------------------
      * Functions.
      * -------------------------------------------------------------------------
@@ -369,41 +371,41 @@ public class GS {
     public static double getFPS() {
         return Updater.getFPS();
     }
-    
+
     /**
      * @param fps the new fps rate.
      */
     public static void setFPS(double fps) {
         Updater.setFPS(fps);
     }
-    
+
     /**
      * @return the current game state.
      */
     public static GameState getGameState() {
         return gameState;
     }
-    
+
     /**
      * @param state the new game state.
      */
     public static void setGameState(GameState state) {
         gameState = state;
     }
-    
+
     public static void setFullScreen(boolean full) {
         if (fullScreen == full) return;
         fullScreen = full;
         if (mainPanel != null) mainPanel.update();
     }
-    
+
     /**
      * @return {@code true} if the main panel is in full screen.
      */
     public static boolean isFullScreen() {
         return fullScreen;
     }
-    
+
     /**
      * Prints a debug string to the logger.
      */
@@ -419,46 +421,48 @@ public class GS {
         Logger.write("==== End debug ====");
         Logger.write("");
     }
-    
-    public static List<Instance> getAssets(){
+
+    public static List<Instance> getAssets() {
         return assets;
     }
 
-    public static List<Instance> getTerrain(){
+    public static List<Instance> getTerrain() {
         return terrain;
     }
 
-    public static List<Light> getLights(){
+    public static List<Light> getLights() {
         return lights;
     }
 
-    public static List<GUI> getGUIs(){
+    public static List<GUI> getGUIs() {
         return guis;
     }
 
-    public static void addGUI(GUI gui){
+    public static void addGUI(GUI gui) {
         guis.add(gui);
     }
-    
-    public static void addAsset(Instance asset){
+
+    public static void addAsset(Instance asset) {
         assets.add(asset);
     }
 
-    public static void addTerrain(Instance asset){
+    public static void addTerrain(Instance asset) {
         terrain.add(asset);
     }
 
-    public static void addLight(Light light){
+    public static void addLight(Light light) {
         lights.add(light);
     }
 
     public static CameraMode isCameraMode() {
         return cameraMode;
     }
-    
+
     public static void setCameraMode(CameraMode cameraMode) {
         GS.cameraMode = cameraMode;
     }
 
-    public static PlayerController getPlayerController() { return  playerController;}
+    public static PlayerController getPlayerController() {
+        return playerController;
+    }
 }
