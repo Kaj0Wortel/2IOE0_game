@@ -71,7 +71,7 @@ public class Skybox {
 
     private String[] files = {"right", "left", "top", "bottom", "back", "front"};
 
-    public Skybox(GL3 gl){
+    public Skybox(GL3 gl) {
         this.vao = Binder.loadVAO(gl, skyBoxVertices, 3);
         this.texture = getCubeMap(gl);
         this.nrV = skyBoxVertices.length/3;
@@ -95,7 +95,7 @@ public class Skybox {
         skyBoxShader.stop(gl);
     }
 
-    private Matrix4f getSkyboxViewMatrix(){
+    private Matrix4f getSkyboxViewMatrix() {
         Matrix4f viewMatrix = new Matrix4f(GS.camera.getViewMatrix());
         viewMatrix.m30(0);
         viewMatrix.m31(0);
