@@ -14,8 +14,8 @@ public class BezierTrack extends Track {
 
     final private int nr_segment_vertices_col = 150;
     final private int nr_segment_vertices_row = 17; //Must be odd
-    private int scale_points = 10;
     private int lane_width = 7;
+    private int scale_points = 5;
 
     private Vector3f UP = new Vector3f(0, 1, 0);
 
@@ -160,6 +160,14 @@ public class BezierTrack extends Track {
         }
 
         setVAOValues(Binder.loadVAO(gl,vertices,textureCoordinates,normals,indices),indices.size());
+    }
+    
+    public int getSize() {
+        return scale_points;
+    }
+    
+    public int getWidth() {
+        return lane_width;
     }
 
     private float nMap(int i){

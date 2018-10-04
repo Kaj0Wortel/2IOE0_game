@@ -107,7 +107,7 @@ public class Simulator
             GS.addAsset(cubeInstance);
         }
         // SLOPE TEST
-        for (OBJObject obj : col) {
+        /*for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
                     new TextureImg(5, 0.5f));
             box = new Box3f(new Vector3f(-100f, -81f, -100f), 2f, 2f, 6f);
@@ -115,7 +115,7 @@ public class Simulator
                     150f, 0, -45, -35.26438968f, texturedCube, 0, new PhysicsContext(),
                     EnvironmentItem.Type.SLOW_DOWN);
             GS.addAsset(cubeInstance);
-        }
+        }*/
         
         // CAR
         for (OBJObject obj : car){
@@ -123,7 +123,7 @@ public class Simulator
                     new TextureImg(5, 0.5f));
             box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
             Instance cubeInstance = new Car(box,
-                    5f, 0, 45, 0, texturedCube, 90, new PhysicsContext());
+                    5f, 0, 0, 0, texturedCube, 90, new PhysicsContext());
             GS.player = cubeInstance;
             GS.addAsset(cubeInstance);
         }

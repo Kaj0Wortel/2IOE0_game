@@ -2,22 +2,20 @@ package src.Physics;
 
 
 // Own imports
-import java.util.ArrayList;
-import java.util.List;
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
-
-
-//Java imports
-import java.util.Set;
-import org.joml.Vector3f;
 import src.Assets.instance.Car;
 import src.Assets.instance.Item;
 import src.racetrack.Track;
 import src.tools.Box3f;
 import src.tools.update.CollisionManager.Collision;
 import src.tools.update.CollisionManager.Entry;
-//import src.racetrack.BezierTrack;
+
+//Java imports
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import org.joml.Vector3f;
 
 
 public class Physics {
@@ -151,10 +149,13 @@ public class Physics {
         
     }
     
-    
-    final private static int pointsPerSegment = 10;
+     // Necessary for determining if on track
+    final private static int pointsPerSegment = 50;
     private static Vector3f[] points = new Vector3f[0];
     private static Vector3f[] normals = new Vector3f[0];
+    private static Vector3f[] tangents = new Vector3f[0];
+    private static int trackSize = 0;
+    private static int trackWidth = 0;
     
     
     /**
@@ -264,21 +265,39 @@ public class Physics {
         // temp before complete track implementation
         double gndZ = 0;
         
-        // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
-        // When off-track (temporary: no track to infer from yet)
-        /*if (s.box.pos().x > 125 ||
-                -125 > s.box.pos().x ||
-                s.box.pos().y > 125 ||
-                -125 > s.box.pos().y) {
-            onTrack = false;
-        }*/
-        //BezierTrack bezierTrack = new BezierTrack();
         
-        //Vector3f rN = new Vector3f(-0.5f, -0.5f, (float)Math.sqrt(2)/2);
+        // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
+        // Find road point closest to car
+        float shortestDist = 10000000;
+        float dist;
+        int ind = 0; // Current road point index
+        for (int i = 0; i < points.length; i++) {
+            dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
+                    + (float)Math.pow( s.box.pos().y - points[i].y, 2));
+            if (dist < shortestDist) {
+                shortestDist = dist;
+                ind = i;
+            }
+        }
+        // Find distance from the middle road curve
+        float t = ((points[ind].x - s.box.pos().x)*tangents[ind].x
+                + (points[ind].y - s.box.pos().y)*tangents[ind].y
+                + (points[ind].z - s.box.pos().z)*tangents[ind].z)/
+                -(tangents[ind].x*tangents[ind].x + tangents[ind].y*tangents[ind].y 
+                + tangents[ind].z*tangents[ind].z);
+        // direction and magnitude towards the track
+        Vector3f dDir = new Vector3f(points[ind].x - s.box.pos().x + tangents[ind].x*t,
+                points[ind].y - s.box.pos().y + tangents[ind].y*t,
+                points[ind].z - s.box.pos().z + tangents[ind].z*t);
+        dist = (float)Math.sqrt(dDir.x*dDir.x + dDir.y*dDir.y + dDir.z*dDir.z);
+        // If you are outside of the track
+        if (dist > trackWidth) {
+            onTrack = false;
+        }
         //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
         //        , (float)Math.sqrt(6)/3);
-        Vector3f rN = new Vector3f(0,0,1);
-        Vector3f roadPos = new Vector3f(0,0,1);
+        Vector3f rN = normals[ind];
+        Vector3f roadPos = new Vector3f(points[ind].x, points[ind].y, points[ind].z + 1);
         // </editor-fold>
         
         if (onTrack) {
@@ -495,9 +514,7 @@ public class Physics {
             s.collisionVelocity = 0;
         }
         // </editor-fold>
-           
-        //System.out.println(eRot + ", " + s.verticalVelocity + ", " + ePos);
-        
+                
         // Update the state.
         s.box.setPosition(ePos);
         s.velocity = eV;
@@ -541,17 +558,31 @@ public class Physics {
     public static void setTrack(Track track) {
         List<Vector3f> pointList = new ArrayList<Vector3f>();
         List<Vector3f> normalList = new ArrayList<Vector3f>();
+        List<Vector3f> tangentList = new ArrayList<Vector3f>();
         
+        trackSize = track.getSize()*2;
+        trackWidth = track.getWidth()*trackSize;
         for (int i = 0; i < track.getNrOfSegments(); i++) {
             float delta = 1.0f / pointsPerSegment;
             for (float t = 0; t < 1.0; t += delta) {
-                pointList.add(track.getPoint(i, t));
-                normalList.add(Track.calcNormal(track.getTangent(i, t)));
+                // positions
+                pointList.add(new Vector3f(-track.getPoint(i, t).z * trackSize,
+                -track.getPoint(i, t).x * trackSize, 
+                track.getPoint(i, t).y * trackSize));
+                // normals
+                normalList.add(new Vector3f(-Track.calcNormal(track.getTangent(i, t)).z,
+                -Track.calcNormal(track.getTangent(i, t)).x,
+                Track.calcNormal(track.getTangent(i, t)).y));
+                // tangents
+                tangentList.add(new Vector3f(-track.getTangent(i, t).z,
+                -track.getTangent(i, t).x,
+                track.getTangent(i, t).y));
             }
         }
         
         points = pointList.toArray(new Vector3f[pointList.size()]);
         normals = normals = normalList.toArray(new Vector3f[normalList.size()]);
+        tangents = tangentList.toArray(new Vector3f[tangentList.size()]);
     }
     
     

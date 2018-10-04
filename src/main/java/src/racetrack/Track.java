@@ -44,6 +44,8 @@ public abstract class Track {
 
     public abstract Vector3f getPoint(int segment, float t);
     public abstract Vector3f getTangent(int segment, float t);
+    public abstract int getSize();
+    public abstract int getWidth();
 
     public void setControl_points(Vector3f[] control_points){
         this.control_points = control_points;
