@@ -151,8 +151,9 @@ public class Physics {
     }
     
     
-    public static Vector3f[] points = new Vector3f[0];
-    public static Vector3f[] normals = new Vector3f[0];
+    final private static int pointsPerSegment = 10;
+    private static Vector3f[] points = new Vector3f[0];
+    private static Vector3f[] normals = new Vector3f[0];
     
     
     /**
@@ -253,9 +254,9 @@ public class Physics {
         Vector3f carDir, u, uNorm, vFactor;
         float udist;
         // End pStruct
-        float eV = 0;
-        float eRot = 0;
-        Vector3f ePos = new Vector3f();
+        float eV;
+        float eRot;
+        Vector3f ePos;
         // State description
         boolean onTrack = true;
         boolean inAir = true;
@@ -539,8 +540,11 @@ public class Physics {
         List<Vector3f> normalList = new ArrayList<Vector3f>();
         
         for (int i = 0; i < track.getNrOfSegments(); i++) {
-            pointList.add(track.getPoint(i, 0.5f));
-            normalList.add(Track.calcNormal(track.getTangent(i, 0.5f)));
+            float delta = 1.0f / pointsPerSegment;
+            for (float t = 0; t < 1.0; t += delta) {
+                pointList.add(track.getPoint(i, t));
+                normalList.add(Track.calcNormal(track.getTangent(i, t)));
+            }
         }
         
         points = pointList.toArray(new Vector3f[pointList.size()]);
