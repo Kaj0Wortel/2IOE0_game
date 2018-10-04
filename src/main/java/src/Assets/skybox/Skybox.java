@@ -11,6 +11,7 @@ import src.tools.Binder;
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import src.tools.log.Logger;
 
 public class Skybox {
 
@@ -90,7 +91,7 @@ public class Skybox {
         gl.glBindTexture(GL3.GL_TEXTURE_CUBE_MAP, texture);
         gl.glDrawArrays(GL3.GL_TRIANGLES, 0, nrV);
         gl.glBindVertexArray(0);
-
+        
         skyBoxShader.stop(gl);
     }
 
@@ -110,7 +111,8 @@ public class Skybox {
         gl.glBindTexture(GL3.GL_TEXTURE_CUBE_MAP, cubeMap.get(0));
 
         for(int i = 0; i < files.length; i++){
-            SkyboxTexurePart skyboxTexurePart = getPartialCubeMap(SKYBOX_DIR + files[i] + ".png");
+            SkyboxTexurePart skyboxTexurePart = getPartialCubeMap(
+                    SKYBOX_DIR + files[i] + ".png");
             gl.glTexImage2D(GL3.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, 
                     GL3.GL_RGBA, skyboxTexurePart.getWidth(),
                     skyboxTexurePart.getHeight(),
@@ -118,31 +120,29 @@ public class Skybox {
                     skyboxTexurePart.getData());
         }
         
-        gl.glTexParameteri(GL3.GL_TEXTURE_CUBE_MAP, GL3.GL_TEXTURE_MIN_FILTER,
-                GL3.GL_LINEAR);
+        gl.glTexParameteri(GL3.GL_TEXTURE_CUBE_MAP, GL3.GL_TEXTURE_MAG_FILTER, GL3.GL_LINEAR);
+        gl.glTexParameteri(GL3.GL_TEXTURE_CUBE_MAP, GL3.GL_TEXTURE_MIN_FILTER, GL3.GL_LINEAR);
+        gl.glTexParameteri(GL3.GL_TEXTURE_CUBE_MAP, GL3.GL_TEXTURE_WRAP_S, GL3.GL_CLAMP_TO_EDGE);
+        gl.glTexParameteri(GL3.GL_TEXTURE_CUBE_MAP, GL3.GL_TEXTURE_WRAP_T, GL3.GL_CLAMP_TO_EDGE);
         return cubeMap.get(0);
     }
 
-    private SkyboxTexurePart getPartialCubeMap(String file){
-
-        int imgHeight = 0;
-        int imgWidth = 0;
-        ByteBuffer rawImgData = null;
-        try{
-            FileInputStream imgData = new FileInputStream(file);
+    private SkyboxTexurePart getPartialCubeMap(String file) {
+        try (FileInputStream imgData = new FileInputStream(file)) {
             PNGDecoder pngDecoder = new PNGDecoder(imgData);
-            imgHeight = pngDecoder.getHeight();
-            imgWidth = pngDecoder.getWidth();
-            rawImgData = ByteBuffer.allocateDirect(4 * imgWidth * imgHeight);
+            int imgHeight = pngDecoder.getHeight();
+            int imgWidth = pngDecoder.getWidth();
+            ByteBuffer rawImgData = ByteBuffer.allocateDirect(4 * imgWidth * imgHeight);
             pngDecoder.decode(rawImgData, imgWidth * 4, PNGDecoder.Format.RGBA);
             rawImgData.flip();
-            imgData.close();
-        }catch(Exception e){
-            e.printStackTrace();
+            return new SkyboxTexurePart(rawImgData, imgWidth, imgHeight);
+            
+        } catch(Exception e){
+            Logger.write(e);
             System.exit(-1);
         }
-
-        return new SkyboxTexurePart(rawImgData, imgWidth, imgHeight);
+        
+        return null;
     }
 }
 
