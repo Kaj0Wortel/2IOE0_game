@@ -51,7 +51,7 @@ public class AINN {
     private int out;
     
     private PStructAction curState = new PStructAction(0, 0, 0, 1);
-    private PStructAction newState = null;
+    private PStructAction newState = new PStructAction(0, 0, 0, 1);
     private boolean updatedLeftRight = false;
     private boolean updatedForwardBack = false;
     
@@ -160,13 +160,15 @@ public class AINN {
         @Override
         public void onEpochEnd(Model model) {
             if (model == networks[0]) { // turn model.
+                int input = 1;
+                
+                
                 updatedLeftRight = true;
                 
-                
-                
             } else if (model == networks[1]) { // drive model.
-                updatedForwardBack = true;
+                int input = 1;
                 
+                updatedForwardBack = true;
             }
         }
     };
