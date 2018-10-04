@@ -135,7 +135,8 @@ public class Camera {
             } else{
                 angleAroundAsset -= signum(angleAroundAsset) * 0.15f;
             }
-
+            if (Math.abs(angleAroundAsset) < 0.01)
+                angleAroundAsset = 0;
             //System.out.println(currentRotation - previousRotation);
             //System.out.println(currentRotation);
             previousRotation = currentRotation;

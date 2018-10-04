@@ -464,7 +464,7 @@ public class Physics {
         if (ePos.z < -100) {
             ePos = new Vector3f(0,0,2);
             eV = 0;
-            eRot = (float) Math.PI/2;
+            eRot = (float)Math.PI;
             s.collisionVelocity = 0;
             s.verticalVelocity = 0;
         }
