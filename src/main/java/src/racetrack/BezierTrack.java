@@ -12,16 +12,16 @@ import java.util.ArrayList;
 
 public class BezierTrack extends Track {
 
-    final private int nr_segment_vertices_col = 90;
-    final private int nr_segment_vertices_row = 3; //Must be odd
+    final private int nr_segment_vertices_col = 150;
+    final private int nr_segment_vertices_row = 17; //Must be odd
     private int scale_points = 10;
     private int lane_width = 4;
 
     private Vector3f UP = new Vector3f(0, 1, 0);
 
-    public BezierTrack(GL3 gl, Vector3f position, float size,
-                       float rotx, float roty, float rotz, TextureImg texture) {
-        super(position, size, rotx, roty, rotz,texture);
+    public BezierTrack(Vector3f position, float size,
+                       float rotx, float roty, float rotz, TextureImg texture, TextureImg bumbmap) {
+        super(position, size, rotx, roty, rotz,texture, bumbmap);
 
         super.setControl_points(new Vector3f[]{
 
@@ -32,8 +32,6 @@ public class BezierTrack extends Track {
         });
 
         super.setSegments(control_points.length / 4);
-
-        generateTrack(gl);
     }
 
     @Override
@@ -95,7 +93,7 @@ public class BezierTrack extends Track {
         return new Vector3f(gTmTu.x, gTmTu.y, gTmTu.z).normalize().negate();
     }
 
-    private void generateTrack(GL3 gl) {
+    public void generateTrack(GL3 gl) {
         ArrayList<Float> vertices = new ArrayList<>();
         ArrayList<Float> normals = new ArrayList<>();
         ArrayList<Float> textureCoordinates = new ArrayList<>();
@@ -109,7 +107,7 @@ public class BezierTrack extends Track {
 
                 for (int row = 0; row < nr_segment_vertices_row; row++) {
                     Vector3f normal = new Vector3f(tangent);
-                    normal.cross(UP).normalize().mul(lane_width).mul((float) row - (((float) (nr_segment_vertices_row - 1) / 2)));
+                    normal.cross(UP).normalize().mul(lane_width).mul(nMap(row));
                     Vector3f addedNormal = new Vector3f();
                     point.add(normal, addedNormal);
 
@@ -162,5 +160,12 @@ public class BezierTrack extends Track {
         }
 
         setVAOValues(Binder.loadVAO(gl,vertices,textureCoordinates,normals,indices),indices.size());
+    }
+
+    private float nMap(int i){
+        float nr = (float) nr_segment_vertices_row - 1;
+        float half = nr / 2;
+
+        return ((float) i / half) - 1.0f;
     }
 }

@@ -6,9 +6,6 @@ package src;
 import com.jogamp.opengl.GL3;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-
-
-// Own imports
 import src.Assets.*;
 import src.Assets.instance.Car;
 import src.Assets.instance.EnvironmentItem;
@@ -21,11 +18,13 @@ import src.tools.Binder;
 import src.tools.Box3f;
 import src.tools.update.Updateable;
 import src.tools.update.Updater;
+
+import javax.swing.*;
+
 import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
+// Own imports
 // Java imports
-import javax.swing.*;
-import src.Physics.Physics;
 
 
 public class Simulator
@@ -145,7 +144,8 @@ public class Simulator
         GUI test = new GUI(new TextureImg(gl,"test_icon.png").getTexture(), new Vector2f(-0.5f,-0.5f), new Vector2f(0.25f,0.25f));
         GS.addGUI(test);
 
-        BezierTrack testTrack = new BezierTrack(gl, new Vector3f(0,1,-5),10f,0,0,0, new TextureImg(gl,"road.png"));
+        BezierTrack testTrack = new BezierTrack(new Vector3f(0,1,-5),10f,0,0,0, new TextureImg(gl,"road.png"), new TextureImg(gl, "road_normal.png"));
+        testTrack.generateTrack(gl);
         GS.setTrack(testTrack);
         
         System.out.println("Assets initialized");

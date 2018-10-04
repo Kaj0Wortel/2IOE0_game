@@ -27,6 +27,8 @@ public class RacetrackShader extends ShaderProgram {
     private int reflectivityLocation;
     private int timeLocation;
     private int cameraPosLocation;
+    private int bumpMapLocation;
+    private int textureLocation;
 
     public RacetrackShader(GL3 gl) {
         super(gl, vertex, fragment);
@@ -50,12 +52,16 @@ public class RacetrackShader extends ShaderProgram {
         reflectivityLocation = getUniformLocation(gl, "reflectivity");
         timeLocation = getUniformLocation(gl, "time");
         cameraPosLocation = getUniformLocation(gl, "cameraPos");
+        bumpMapLocation = getUniformLocation(gl, "bumpmap");
+        textureLocation = getUniformLocation(gl, "textureRoad");
 
         System.out.println("Projection location: " + projectionMatrixLocation);
         System.out.println("ViewMatrix Location: " + viewMatrixLocation);
         System.out.println("TransformationMatrix Location: " + modelMatrixLocation);
         System.out.println("Lightpos: " + lightPositionLocation);
         System.out.println("LightColor: " + lightColorLocation);
+        System.out.println("Bumpmap: " + bumpMapLocation);
+        System.out.println("Texture: " + textureLocation);
     }
 
     @Override
@@ -89,6 +95,11 @@ public class RacetrackShader extends ShaderProgram {
 
     public void loadCameraPos(GL3 gl, Vector3f cameraPos){
         loadUniformVector(gl, cameraPosLocation, cameraPos);
+    }
+
+    public void loadTextures(GL3 gl){
+        loadUniformInt(gl, textureLocation, 0);
+        loadUniformInt(gl, bumpMapLocation,1);
     }
 
 }
