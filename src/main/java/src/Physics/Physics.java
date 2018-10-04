@@ -17,6 +17,7 @@ import src.racetrack.Track;
 import src.tools.Box3f;
 import src.tools.update.CollisionManager.Collision;
 import src.tools.update.CollisionManager.Entry;
+//import src.racetrack.BezierTrack;
 
 
 public class Physics {
@@ -270,6 +271,8 @@ public class Physics {
                 -125 > s.box.pos().y) {
             onTrack = false;
         }*/
+        //BezierTrack bezierTrack = new BezierTrack();
+        
         //Vector3f rN = new Vector3f(-0.5f, -0.5f, (float)Math.sqrt(2)/2);
         //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
         //        , (float)Math.sqrt(6)/3);
