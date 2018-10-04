@@ -49,11 +49,11 @@ public class Binder {
         return vao;
     }
 
-    public static IntBuffer loadVAO(GL3 gl, float[] vertices) {
+    public static IntBuffer loadVAO(GL3 gl, float[] vertices, int size) {
 
         IntBuffer vao = createVAO(gl);
 
-        storeToAttributeList(gl, 0, 2, Buffers.newDirectFloatBuffer(vertices));
+        storeToAttributeList(gl, 0,  size, Buffers.newDirectFloatBuffer(vertices));
 
         unbindVAO(gl);
 

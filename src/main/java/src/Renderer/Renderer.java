@@ -83,6 +83,7 @@ public class Renderer implements GLEventListener {
         objectRenderer.render(gl);
         terrainRenderer.render(gl);
         GS.getTrack().draw(gl);
+        GS.getSkybox().draw(gl, projectionMatrix);
         guiRenderer.render(gl);
 
     }
