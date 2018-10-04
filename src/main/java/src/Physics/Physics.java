@@ -291,6 +291,7 @@ public class Physics {
                 points[ind].z - s.box.pos().z + tangents[ind].z*t);
         dist = (float)Math.sqrt(dDir.x*dDir.x + dDir.y*dDir.y + dDir.z*dDir.z);
         // If you are outside of the track
+        System.out.println(ind+": "+dist);
         if (dist > trackWidth) {
             onTrack = false;
         }
@@ -534,7 +535,7 @@ public class Physics {
     }
     
     /**
-     * Calculates and updates the physics of te instance given in the
+     * Calculates and updates the physics of the instance given in the
      * entry with the given {@link PStructAction}, {@link ModPhysicsContext}
      * and {@link ModState}.
      * Updates the state of the instance afterwards.
@@ -560,7 +561,7 @@ public class Physics {
         List<Vector3f> normalList = new ArrayList<Vector3f>();
         List<Vector3f> tangentList = new ArrayList<Vector3f>();
         
-        trackSize = track.getSize()*2;
+        trackSize = track.getSize()/3;
         trackWidth = track.getWidth()*trackSize;
         for (int i = 0; i < track.getNrOfSegments(); i++) {
             float delta = 1.0f / pointsPerSegment;
