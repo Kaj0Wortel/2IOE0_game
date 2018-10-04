@@ -14,13 +14,8 @@ import java.nio.IntBuffer;
 
 public class Skybox {
 
-    final public static String FS = System.getProperty("file.separator");
-
-    // Handy file paths.
-    final public static String WORKING_DIR = System.getProperty("user.dir")
-            + FS + "src" +  FS;
-
-    final public static String SKYBOX_DIR = WORKING_DIR + "res" + FS + "skyboximages" + FS;
+    final public static String SKYBOX_DIR = GS.RESOURCE_DIR
+            + "skyboximages" + GS.FS;
 
     private IntBuffer vao;
     private int nrV;
@@ -32,9 +27,9 @@ public class Skybox {
     private final float[] skyBoxVertices = {
             -SIZE,  SIZE, -SIZE,
             -SIZE, -SIZE, -SIZE,
-            SIZE, -SIZE, -SIZE,
-            SIZE, -SIZE, -SIZE,
-            SIZE,  SIZE, -SIZE,
+             SIZE, -SIZE, -SIZE,
+             SIZE, -SIZE, -SIZE,
+             SIZE,  SIZE, -SIZE,
             -SIZE,  SIZE, -SIZE,
 
             -SIZE, -SIZE,  SIZE,
@@ -44,33 +39,33 @@ public class Skybox {
             -SIZE,  SIZE,  SIZE,
             -SIZE, -SIZE,  SIZE,
 
-            SIZE, -SIZE, -SIZE,
-            SIZE, -SIZE,  SIZE,
-            SIZE,  SIZE,  SIZE,
-            SIZE,  SIZE,  SIZE,
-            SIZE,  SIZE, -SIZE,
-            SIZE, -SIZE, -SIZE,
+             SIZE, -SIZE, -SIZE,
+             SIZE, -SIZE,  SIZE,
+             SIZE,  SIZE,  SIZE,
+             SIZE,  SIZE,  SIZE,
+             SIZE,  SIZE, -SIZE,
+             SIZE, -SIZE, -SIZE,
 
             -SIZE, -SIZE,  SIZE,
             -SIZE,  SIZE,  SIZE,
-            SIZE,  SIZE,  SIZE,
-            SIZE,  SIZE,  SIZE,
-            SIZE, -SIZE,  SIZE,
+             SIZE,  SIZE,  SIZE,
+             SIZE,  SIZE,  SIZE,
+             SIZE, -SIZE,  SIZE,
             -SIZE, -SIZE,  SIZE,
 
             -SIZE,  SIZE, -SIZE,
-            SIZE,  SIZE, -SIZE,
-            SIZE,  SIZE,  SIZE,
-            SIZE,  SIZE,  SIZE,
+             SIZE,  SIZE, -SIZE,
+             SIZE,  SIZE,  SIZE,
+             SIZE,  SIZE,  SIZE,
             -SIZE,  SIZE,  SIZE,
             -SIZE,  SIZE, -SIZE,
 
             -SIZE, -SIZE, -SIZE,
             -SIZE, -SIZE,  SIZE,
-            SIZE, -SIZE, -SIZE,
-            SIZE, -SIZE, -SIZE,
+             SIZE, -SIZE, -SIZE,
+             SIZE, -SIZE, -SIZE,
             -SIZE, -SIZE,  SIZE,
-            SIZE, -SIZE,  SIZE
+             SIZE, -SIZE,  SIZE
     };
 
     private String[] files = {"right", "left", "top", "bottom", "back", "front"};
@@ -81,8 +76,8 @@ public class Skybox {
         this.nrV = skyBoxVertices.length/3;
         this.skyBoxShader = new SkyBoxShader(gl);
     }
-
-    public void draw(GL3 gl, Matrix4f projectionMatrix){
+    
+    public void draw(GL3 gl, Matrix4f projectionMatrix) {
         skyBoxShader.start(gl);
 
         skyBoxShader.loadProjectionMatrix(gl,projectionMatrix);
@@ -91,9 +86,9 @@ public class Skybox {
 
         gl.glBindVertexArray(vao.get(0));
         gl.glEnableVertexAttribArray(0);
-        gl.glActiveTexture(gl.GL_TEXTURE0);
-        gl.glBindTexture(gl.GL_TEXTURE_CUBE_MAP, texture);
-        gl.glDrawArrays(gl.GL_TRIANGLES, 0, nrV);
+        gl.glActiveTexture(GL3.GL_TEXTURE0);
+        gl.glBindTexture(GL3.GL_TEXTURE_CUBE_MAP, texture);
+        gl.glDrawArrays(GL3.GL_TRIANGLES, 0, nrV);
         gl.glBindVertexArray(0);
 
         skyBoxShader.stop(gl);
@@ -111,17 +106,20 @@ public class Skybox {
 
         IntBuffer cubeMap = Buffers.newDirectIntBuffer(1);
         gl.glGenTextures(1,cubeMap);
-        gl.glActiveTexture(gl.GL_TEXTURE0);
-        gl.glBindTexture(gl.GL_TEXTURE_CUBE_MAP, cubeMap.get(0));
+        gl.glActiveTexture(GL3.GL_TEXTURE0);
+        gl.glBindTexture(GL3.GL_TEXTURE_CUBE_MAP, cubeMap.get(0));
 
         for(int i = 0; i < files.length; i++){
             SkyboxTexurePart skyboxTexurePart = getPartialCubeMap(SKYBOX_DIR + files[i] + ".png");
-            gl.glTexImage2D(gl.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.GL_RGBA, skyboxTexurePart.getWidth(), skyboxTexurePart.getHeight(),
-                    0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, skyboxTexurePart.getData());
+            gl.glTexImage2D(GL3.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, 
+                    GL3.GL_RGBA, skyboxTexurePart.getWidth(),
+                    skyboxTexurePart.getHeight(),
+                    0, GL3.GL_RGBA, GL3.GL_UNSIGNED_BYTE,
+                    skyboxTexurePart.getData());
         }
-
-        gl.glTexParameteri(gl.GL_TEXTURE_CUBE_MAP, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR);
-        gl.glTexParameteri(gl.GL_TEXTURE_CUBE_MAP, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR);
+        
+        gl.glTexParameteri(GL3.GL_TEXTURE_CUBE_MAP, GL3.GL_TEXTURE_MIN_FILTER,
+                GL3.GL_LINEAR);
         return cubeMap.get(0);
     }
 
