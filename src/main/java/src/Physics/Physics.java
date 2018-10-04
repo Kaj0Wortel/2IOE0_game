@@ -295,7 +295,6 @@ public class Physics {
                 points[ind].z - s.box.pos().z + tangents[ind].z*t);
         dist = (float)Math.sqrt(dDir.x*dDir.x + dDir.y*dDir.y + dDir.z*dDir.z);
         // If you are outside of the track
-        System.out.println(ind+": "+dist);
         if (dist > trackWidth) {
             onTrack = false;
         }
@@ -469,7 +468,7 @@ public class Physics {
         if (ePos.z < -100) {
             ePos = new Vector3f(0,0,2);
             eV = 0;
-            eRot = (float) Math.PI/2;
+            eRot = (float)Math.PI;
             s.collisionVelocity = 0;
             s.verticalVelocity = 0;
         }
