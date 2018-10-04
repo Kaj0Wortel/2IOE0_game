@@ -22,7 +22,9 @@ public class Physics {
     
     public static class ModState {
         public Box3f box;
-        public float size;
+        public float sizex;
+        public float sizey;
+        public float sizez;
         public float rotx;
         public float roty;
         public float rotz;
@@ -39,7 +41,9 @@ public class Physics {
                     -state.box.pos().x,
                     state.box.pos().y
             ), state.box.dx(), state.box.dy(), state.box.dz());
-            size = state.size;
+            sizex = state.sizez;
+            sizey = state.sizex;
+            sizez = state.sizey;
             rotx = state.rotx;
             this.roty = (float) Math.toRadians(state.roty);
             rotz = state.rotz;
@@ -63,7 +67,7 @@ public class Physics {
                     box.pos().z,
                     -box.pos().x
             ), box.dx(), box.dy(), box.dz());
-            return new State(newBox, size,
+            return new State(newBox, sizey, sizez, sizex,
                     rotx, (float) (Math.toDegrees(roty) % 360), rotz,
                     integratedRotation, velocity, collisionVelocity,
                     verticalVelocity);
@@ -150,7 +154,7 @@ public class Physics {
     }
     
      // Necessary for determining if on track
-    final private static int pointsPerSegment = 50;
+    final private static int POINTS_PER_SEGMENT = 50;
     private static Vector3f[] points = new Vector3f[0];
     private static Vector3f[] normals = new Vector3f[0];
     private static Vector3f[] tangents = new Vector3f[0];
@@ -564,7 +568,7 @@ public class Physics {
         trackSize = track.getSize()/3;
         trackWidth = track.getWidth()*trackSize;
         for (int i = 0; i < track.getNrOfSegments(); i++) {
-            float delta = 1.0f / pointsPerSegment;
+            float delta = 1.0f / POINTS_PER_SEGMENT;
             for (float t = 0; t < 1.0; t += delta) {
                 // positions
                 pointList.add(new Vector3f(-track.getPoint(i, t).z * trackSize,

@@ -28,7 +28,9 @@ public abstract class Instance {
      */
     final public static class State {
         final public Box3f box;
-        final public float size;
+        final public float sizex;
+        final public float sizey;
+        final public float sizez;
         final public float rotx;
         final public float roty;
         final public float rotz;
@@ -39,12 +41,14 @@ public abstract class Instance {
         final public float verticalVelocity;
         
         
-        public State(Box3f box, float size,
+        public State(Box3f box, float sizex, float sizey, float sizez,
                 float rotx, float roty, float rotz, float integratedRotation,
                 float velocity, float collisionVelocity,
                 float verticalVelocity) {
             this.box = box;
-            this.size = size;
+            this.sizex = sizex;
+            this.sizey = sizey;
+            this.sizez = sizez;
             this.rotx = rotx;
             this.roty = roty;
             this.rotz = rotz;
@@ -72,12 +76,18 @@ public abstract class Instance {
     public Instance(Box3f box, float size,
             float rotx, float roty, float rotz,
             OBJTexture model, float integratedRotation, 
-            PhysicsContext physicConst) {
-        setState(new State(box, size, rotx, roty, rotz,
+            PhysicsContext physicContext) {
+        this(box, size, size, size, rotx, roty, rotz, model,
+                integratedRotation, physicContext);
+    }
+    public Instance(Box3f box, float sizex, float sizey, float sizez,
+            float rotx, float roty, float rotz, OBJTexture model,
+            float integratedRotation, PhysicsContext physicContext) {
+        setState(new State(box, sizex, sizey, sizez, rotx, roty, rotz,
                 integratedRotation, 0, 0, 0));
         
         this.model = model;
-        this.physicsContext = physicConst;
+        this.physicsContext = physicContext;
         SwingUtilities.invokeLater(() -> {
             Locker.add(this);
         });
@@ -93,7 +103,7 @@ public abstract class Instance {
         transformationMatrix.rotate(
                 (float) Math.toRadians(s.roty + s.integratedRotation), 0, 1, 0);
         transformationMatrix.rotate((float) Math.toRadians(s.rotz), 0, 0, 1);
-        transformationMatrix.scale(s.size, s.size, s.size);
+        transformationMatrix.scale(s.sizex, s.sizey, s.sizez);
         
         return transformationMatrix;
     }
@@ -110,7 +120,7 @@ public abstract class Instance {
     @Deprecated
     public void rotx(float rot) {
         State s = state; // For sync.
-        setState(new State(s.box, s.size,
+        setState(new State(s.box, s.sizex, s.sizey, s.sizez,
                 (s.rotx + rot) % 360, s.roty, s.rotz, s.integratedRotation,
                 s.velocity, s.collisionVelocity,
                 s.verticalVelocity));
@@ -124,7 +134,7 @@ public abstract class Instance {
     @Deprecated
     public void roty(float rot) {
         State s = state; // For sync.
-        setState(new State(s.box, s.size,
+        setState(new State(s.box, s.sizex, s.sizey, s.sizez,
                 s.rotx, (s.roty + rot) % 360, s.rotz, s.integratedRotation,
                 s.velocity, s.collisionVelocity,
                 s.verticalVelocity));
@@ -140,7 +150,7 @@ public abstract class Instance {
         State s = state; // For sync.
         Box3f newBox = s.box.clone();
         newBox.translate(new Vector3f(0, amt, 0));
-        setState(new State(newBox, s.size,
+        setState(new State(newBox, s.sizex, s.sizey, s.sizez,
                 s.rotx, s.roty, s.rotz, s.integratedRotation,
                 s.velocity, s.collisionVelocity,
                 s.verticalVelocity));
