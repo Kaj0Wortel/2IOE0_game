@@ -11,10 +11,7 @@ import java.util.Set;
 import org.joml.Vector3f;
 import src.Assets.instance.Car;
 import src.Assets.instance.Item;
-import src.tools.update.CollisionManager.Collision;
 import src.tools.Box3f;
-import src.tools.update.CollisionManager;
-import src.tools.update.CollisionManager.Entry;
 
 
 public class Physics {
@@ -34,14 +31,10 @@ public class Physics {
         
         
         public ModState(State state) {
-            box = new Box3f(new Vector3f(
-                    -state.box.pos().z,
-                    -state.box.pos().x,
-                    state.box.pos().y
-            ), state.box.dx(), state.box.dy(), state.box.dz());
+            box = state.box.clone();
             size = state.size;
             rotx = state.rotx;
-            this.roty = (float) Math.toRadians(state.roty);
+            roty = state.roty;
             rotz = state.rotz;
             integratedRotation = state.integratedRotation;
             velocity = state.velocity;
@@ -57,26 +50,14 @@ public class Physics {
          * @see State
          */
         public State createState() {
-
-            // Convert back to instance space.
-            Box3f newBox = new Box3f(new Vector3f(
-                    -box.pos().y,
-                    box.pos().z,
-                    -box.pos().x
-            ), box.dx(), box.dy(), box.dz());
-            return new State(newBox, size,
-                    rotx, (float) (Math.toDegrees(roty) % 360), rotz,
-                    integratedRotation, velocity, collisionVelocity,
-                    verticalVelocity);
+            return new State(box, size, rotx, roty, rotz, integratedRotation,
+                    velocity, collisionVelocity, verticalVelocity);
         }
         
         
     }
     
     
-    /**
-     * @see PhysicsContext
-     */
     public static class ModPhysicsContext {
         public float linAccel;
         public float rotationalVelocity;
@@ -110,7 +91,7 @@ public class Physics {
             this.largeSlowDown = pc.largeSlowDown;
             this.bounceFactor = pc.bounceFactor;
             this.airControl = pc.airControl;
-            this.brakeAccel = pc.brakeAccel;
+            this.brakeAccel = brakeAccel;
         }
         
         public ModPhysicsContext(float linAccel, float rotationalVelocity,
@@ -165,7 +146,7 @@ public class Physics {
      * simple collision (rectangle colliders)
      * rotation correction for small velocities and negative velocities
      * 2 simple items/situations implemented
-     * Large slowdown when speed higher than vMax 
+    \* Large slowdown when speed higher than vMax 
      * 
      * 
      * TODO:
@@ -201,73 +182,55 @@ public class Physics {
      * startStruct: begin position
      * velocity and rotation
      */
-    public static void calcPhysics(Instance source, PStructAction pStruct,
+    public static State calcPhysics(Instance source, PStructAction pStruct,
             PhysicsContext pc, State state, Set<Instance> collisions) {
         // Create a modifyable state to reduce the number of objects creations.
         ModState s = new ModState(state);
+        
+        // Convert to physics space.
+        s.roty = (float) Math.toRadians(s.roty);
+        s.box.setPosition(new Vector3f(
+                -s.box.pos().z,
+                -s.box.pos().x,
+                s.box.pos().y)
+        );
         
         // ITEMS & CARS
         // If the instance intersects with a car or an item, use collision
         // dependant collision handeling.
         // Ignore the current actions.
-        if (collisions != null && !collisions.isEmpty()) {
-            boolean calcPhysics = true;
+        if (!collisions.isEmpty()) {
             ModPhysicsContext modPC = new ModPhysicsContext(pc);
             
             for (Instance instance : collisions) {
-                boolean isStatic = source.isStatic() || instance.isStatic();
-                
-                if (!isStatic) {
-                    // Double non-static collisions are handled later.
-                    calcPhysics = false;
-                    CollisionManager.addCollision(source, instance,
-                            pStruct, modPC, s);
+                if (instance instanceof Car) {
+                    calcPhysics(source, pStruct, pc, s); // TODO
                     
-                } else {
-                    // Full or single static collisions are handled here.
-                    if (instance instanceof Car) {
-                        calcPhysics(source, pStruct, pc, s); // TODO
-
-                    } else if (instance instanceof Item) {
-                        System.out.println("hit item!");
-                        ((Item) instance).physicsAtCollision(
-                                source, pStruct, modPC, s);
-                    }
+                } else if (instance instanceof Item) {
+                    System.out.println("hit item!");
+                    ((Item) instance).physicsAtCollision(
+                            source, pStruct, modPC, s);
                 }
             }
             
-            // When there are double non-static collisions, the physics are
-            // calculated later. Otherwise calculate them here.
-            if (calcPhysics) {
-                calcPhysics(source, pStruct, modPC.createContext(), s);
-                source.setState(s.createState());
-            }
+            calcPhysics(source, pStruct, modPC.createContext(), s);
             
         } else {
             calcPhysics(source, pStruct, pc, s);
-            source.setState(s.createState());
         }
+        
+        // Convert back to instance space.
+        s.roty = (float) (Math.toDegrees(s.roty) % 360);
+        s.box.setPosition(new Vector3f(
+                -s.box.pos().y,
+                s.box.pos().z,
+                -s.box.pos().x)
+        );
+        
+        return s.createState();
     }
     
     /**
-     * Calculates and updates the physics of te instance given in the
-     * entry with the given {@link PStructAction}, {@link ModPhysicsContext}
-     * and {@link ModState}.
-     * Updates the state of the instance afterwards.
-     * 
-     * @param entry the entry to get the data from.
-     * 
-     * Should be called when the entry was updated outside it's
-     * own update cycle.
-     */
-    public static void calcAndUpdatePhysics(Entry entry) {
-        calcPhysics(entry.inst, entry.pStruct, entry.mpc.createContext(),
-                entry.ms);
-        entry.inst.setState(entry.ms.createState());
-    }
-    
-    /**
-     * Calculates the movement physics of the source from the given data.
      * 
      * @param source
      * @param pStruct
@@ -304,9 +267,9 @@ public class Physics {
             onTrack = false;
         }*/
         //Vector3f rN = new Vector3f(-0.5f, -0.5f, (float)Math.sqrt(2)/2);
-        Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
-                , (float)Math.sqrt(6)/3);
-        //Vector3f rN = new Vector3f(0,0,1);
+        //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
+        //        , (float)Math.sqrt(6)/3);
+        Vector3f rN = new Vector3f(0,0,1);
         Vector3f roadPos = new Vector3f(0,0,1);
         // </editor-fold>
         
@@ -359,10 +322,6 @@ public class Physics {
             }
             linAccel *= pStruct.accel;
         }
-<<<<<<< Updated upstream
-        //System.out.println(pStruct.accel+": a: "+linAccel+", v: "+s.velocity);
-=======
->>>>>>> Stashed changes
         // </editor-fold>
         
         // <editor-fold defaultstate="collapsed" desc="ROTATIONAL IMPROVEMENTS"> 
@@ -536,19 +495,6 @@ public class Physics {
         s.velocity = eV;
         s.roty = eRot;
     }
-    
-    /**
-     * Calculate a double non-static collision.
-     * 
-     * @param col the collision data.
-     */
-    public static void exeCollision(Collision col) {
-        Entry e1 = col.getEntry1();
-        Entry e2 = col.getEntry2();
-        
-        // TODO: do stuff with the entries.
-    }
-    
     
     public static void physicsTestVisuals () {
         /*
