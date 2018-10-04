@@ -65,7 +65,7 @@ public class Renderer implements GLEventListener {
         guiRenderer = new GUIRenderer(gl);
 
         RacetrackShader racetrackShader = new RacetrackShader(gl);
-        GS.raceTrack.setShaderAndRenderMatrices(racetrackShader, projectionMatrix, GS.camera.getViewMatrix());
+        GS.getTrack().setShaderAndRenderMatrices(racetrackShader, projectionMatrix, GS.camera.getViewMatrix());
 
         gl.glEnable(GL3.GL_DEPTH_TEST);
     }
@@ -82,7 +82,7 @@ public class Renderer implements GLEventListener {
 
         objectRenderer.render(gl);
         terrainRenderer.render(gl);
-        GS.raceTrack.draw(gl);
+        GS.getTrack().draw(gl);
         guiRenderer.render(gl);
 
     }

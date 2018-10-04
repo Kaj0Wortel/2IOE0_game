@@ -2,6 +2,8 @@ package src.Physics;
 
 
 // Own imports
+import java.util.ArrayList;
+import java.util.List;
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
 
@@ -11,13 +13,13 @@ import java.util.Set;
 import org.joml.Vector3f;
 import src.Assets.instance.Car;
 import src.Assets.instance.Item;
+import src.racetrack.Track;
 import src.tools.Box3f;
 import src.tools.update.CollisionManager.Collision;
 import src.tools.update.CollisionManager.Entry;
 
 
 public class Physics {
-    
     
     public static class ModState {
         public Box3f box;
@@ -147,6 +149,10 @@ public class Physics {
         
         
     }
+    
+    
+    public static Vector3f[] points = new Vector3f[0];
+    public static Vector3f[] normals = new Vector3f[0];
     
     
     /**
@@ -522,6 +528,25 @@ public class Physics {
                 entry.ms);
         entry.inst.setState(entry.ms.createState());
     }
+    
+    /**
+     * Sets the points and normals of the given track as reference points.
+     * 
+     * @param track the track to get the points and normals of.
+     */
+    public static void setTrack(Track track) {
+        List<Vector3f> pointList = new ArrayList<Vector3f>();
+        List<Vector3f> normalList = new ArrayList<Vector3f>();
+        
+        for (int i = 0; i < track.getNrOfSegments(); i++) {
+            pointList.add(track.getPoint(i, 0.5f));
+            normalList.add(Track.calcNormal(track.getTangent(i, 0.5f)));
+        }
+        
+        points = pointList.toArray(new Vector3f[pointList.size()]);
+        normals = normals = normalList.toArray(new Vector3f[normalList.size()]);
+    }
+    
     
     public static void physicsTestVisuals () {
         /*

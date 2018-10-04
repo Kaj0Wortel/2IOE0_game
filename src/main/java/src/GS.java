@@ -44,6 +44,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
 
+import src.Physics.Physics;
+import src.racetrack.Track;
 import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
@@ -140,7 +142,7 @@ public class GS {
     private static Renderer renderer;
     private static GLCanvas canvas;
     private static FPSAnimator animator;
-    public static BezierTrack raceTrack;
+    private static Track raceTrack;
 
     public static List<Car> cars = new ArrayList<>();
     public static Instance player;
@@ -460,5 +462,18 @@ public class GS {
         GS.cameraMode = cameraMode;
     }
 
-    public static PlayerController getPlayerController() { return  playerController;}
+    public static PlayerController getPlayerController() {
+        return  playerController;
+    }
+    
+    public static void setTrack(Track track) {
+        Physics.setTrack(track);
+        raceTrack = track;
+    }
+    
+    public static Track getTrack() {
+        return raceTrack;
+    }
+    
+    
 }

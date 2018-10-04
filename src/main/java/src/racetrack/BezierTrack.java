@@ -76,6 +76,7 @@ public class BezierTrack extends Track {
      * {@code U^T * (M * G) = G^T * M^T * U}
      * @see #getPoint(int, float)
      */
+    @Override
     public Vector3f getTangent(int segment, float t) {
         Vector3f p0 = new Vector3f(control_points[4 * segment]).mul(scale_points);
         Vector3f p1 = new Vector3f(control_points[4 * segment + 1]).mul(scale_points);

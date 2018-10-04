@@ -41,6 +41,7 @@ public abstract class Track {
     public abstract void setShaderAndRenderMatrices(RacetrackShader shader, Matrix4f projectionMatrix, Matrix4f viewMatrix);
 
     public abstract Vector3f getPoint(int segment, float t);
+    public abstract Vector3f getTangent(int segment, float t);
 
     public void setControl_points(Vector3f[] control_points){
         this.control_points = control_points;
@@ -61,6 +62,10 @@ public abstract class Track {
 
     public int getNrV() {
         return nrV;
+    }
+    
+    public int getNrOfSegments() {
+        return nr_of_segments;
     }
 
     public void draw(GL3 gl){
