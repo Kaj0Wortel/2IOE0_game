@@ -82,9 +82,9 @@ public class Renderer implements GLEventListener {
 
         objectRenderer.render(gl);
         terrainRenderer.render(gl);
+        GS.raceTrack.draw(gl);
         guiRenderer.render(gl);
 
-        GS.raceTrack.draw(gl);
     }
 
     @Override

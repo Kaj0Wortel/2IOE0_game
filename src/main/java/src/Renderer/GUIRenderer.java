@@ -39,8 +39,9 @@ public class GUIRenderer {
             gl.glDrawArrays(gl.GL_TRIANGLE_STRIP,0, nrV);
         }
 
-        gl.glDisable(gl.GL_BLEND);
         gl.glEnable(gl.GL_DEPTH_TEST);
+        gl.glDisable(gl.GL_BLEND);
+
 
         gl.glDisableVertexAttribArray(0);
         gl.glBindVertexArray(0);
