@@ -91,6 +91,21 @@ public abstract class Track {
 
         return transformationMatrix;
     }
+    
+    /**
+     * Calculates the normal of the point.
+     * 
+     * @param tangent the tangent of the point.
+     * @return the normal of the point.
+     */
+    public static Vector3f calcNormal(Vector3f tangent) {
+        Vector3f sideVector = new Vector3f(tangent);
+        sideVector.rotateY((float) (0.5 * Math.PI));
+        sideVector.y = 0;
+        sideVector.normalize();
+        return tangent.cross(sideVector);
+    }
+    
 
     private void prepare(GL3 gl){
         shader.start(gl);
@@ -103,4 +118,6 @@ public abstract class Track {
         shader.loadModelMatrix(gl, getTransformationMatrix());
         texture.bindTexture(gl);
     }
+    
+    
 }

@@ -75,7 +75,7 @@ public abstract class Instance {
             PhysicsContext physicConst) {
         setState(new State(box, size, rotx, roty, rotz,
                 integratedRotation, 0, 0, 0));
-                
+        
         this.model = model;
         this.physicsContext = physicConst;
         SwingUtilities.invokeLater(() -> {
