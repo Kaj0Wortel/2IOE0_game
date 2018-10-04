@@ -282,26 +282,45 @@ public class Physics {
         float linAccel = pc.linAccel;
         float rotationalVelocity = pc.rotationalVelocity;
         float distTravelled;
+        // vFactor
+        Vector3f carDir, u, uNorm, vFactor;
+        float udist;
+        // End pStruct
         float eV = 0;
         float eRot = 0;
         Vector3f ePos = new Vector3f();
+        // State description
         boolean onTrack = true;
         boolean inAir = true;
-        // temp before track implementation
+        // temp before complete track implementation
         double gndZ = 0;
         
         // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
         // When off-track (temporary: no track to infer from yet)
-        if (s.box.pos().x > 125 ||
+        /*if (s.box.pos().x > 125 ||
                 -125 > s.box.pos().x ||
                 s.box.pos().y > 125 ||
                 -125 > s.box.pos().y) {
             onTrack = false;
-        }
+        }*/
+        //Vector3f rN = new Vector3f(-0.5f, -0.5f, (float)Math.sqrt(2)/2);
+        Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
+                , (float)Math.sqrt(6)/3);
+        //Vector3f rN = new Vector3f(0,0,1);
+        Vector3f roadPos = new Vector3f(0,0,1);
         // </editor-fold>
         
         if (onTrack) {
             // <editor-fold defaultstate="collapsed" desc="AIR TIME DETECTION"> 
+            //TODO:
+            // check what current situation is (what is gndz compared to epos)
+            //      camera seems to shake?
+            //- check at ePos if under GNDz: teleport up to gnd
+            //(maybe also check at ePos if over  GNDz (airtime?))
+            // re-organise air time and vertical movement parts
+            gndZ = roadPos.z 
+                    - (s.box.pos().x - roadPos.x) *rN.x / rN.z
+                    - (s.box.pos().y - roadPos.y) *rN.y / rN.z;
             if (s.box.pos().z <= gndZ)
                 inAir = false;
             // </editor-fold>
@@ -340,12 +359,15 @@ public class Physics {
             }
             linAccel *= pStruct.accel;
         }
+<<<<<<< Updated upstream
         //System.out.println(pStruct.accel+": a: "+linAccel+", v: "+s.velocity);
+=======
+>>>>>>> Stashed changes
         // </editor-fold>
         
         // <editor-fold defaultstate="collapsed" desc="ROTATIONAL IMPROVEMENTS"> 
         // (TURN)/(ROTVELOCITY) Turn correction for small velocities
-        if (Math.abs(s.velocity) < 0.05)
+        if (Math.abs(s.velocity) == 0)
             pStruct.turn = 0;
         else if (Math.abs(s.velocity) < pc.turnCorrection)
             rotationalVelocity *= (Math.abs(s.velocity) / pc.turnCorrection);
@@ -356,7 +378,7 @@ public class Physics {
         // </editor-fold>
         
         // <editor-fold defaultstate="collapsed" desc="OTHER IMPROVEMENTS"> 
-        // AIR MOVEMENT
+        // (ROTVELOCITY)/(LINACCEL) Air movement
         if (inAir) {
             rotationalVelocity *= pc.airControl;
             linAccel *= (1.45 * pc.airControl);
@@ -367,19 +389,32 @@ public class Physics {
         // <editor-fold defaultstate="collapsed" desc="HORIZONTAL MOVEMENT CALCULATIONS"> 
         if (pStruct.turn == 0) { // Straight
             distTravelled = dt * (s.velocity + 0.5f * linAccel * dt);
-            
+            // Calculate end rotation and velocity
             eV = s.velocity + linAccel * dt;
             eRot = s.roty;
+            // Calculate the vFactor in the direction of XY movement
+            carDir = new Vector3f ((float)Math.cos(s.roty), (float)Math.sin(s.roty), 0);
+            u = new Vector3f(carDir.y*rN.z - carDir.z*rN.y,
+                    carDir.z*rN.x - carDir.x*rN.z,
+                    carDir.x*rN.y - carDir.y*rN.x);
+            udist = (float)Math.sqrt(u.x*u.x + u.y*u.y + u.z*u.z);
+            uNorm = new Vector3f(u.x/udist, u.y/udist, u.z/udist);
+            vFactor = new Vector3f(rN.y*uNorm.z - rN.z*uNorm.y,
+                    rN.z*uNorm.x - rN.x*uNorm.z,
+                    rN.x*uNorm.y - rN.y*uNorm.x); // vFactor = roadTan
+            
+            // Calculate the end position
             ePos = new Vector3f (
-                    (float) (s.box.pos().x + Math.cos(s.roty) * distTravelled),
-                    (float) (s.box.pos().y + Math.sin(s.roty) * distTravelled),
-                    s.box.pos().z);
+                    (float) (s.box.pos().x + vFactor.x * distTravelled),
+                    (float) (s.box.pos().y + vFactor.y * distTravelled),
+                    (float) (s.box.pos().z + vFactor.z * distTravelled));
             
         } else { // Turn
             rotationalVelocity = pStruct.turn * rotationalVelocity;
-            
+            // Calculate end rotation and velocity
             eV = s.velocity + linAccel * dt;
             eRot = s.roty + rotationalVelocity * dt;
+            // Calculate direction and magnitude of XY movement during this frame
             float aRotVSquared = linAccel / (rotationalVelocity * rotationalVelocity);
             float deltaX = (float) ((eV / rotationalVelocity) * Math.sin(eRot)
                         + aRotVSquared * Math.cos(eRot)
@@ -389,10 +424,25 @@ public class Physics {
                         + aRotVSquared * Math.sin(eRot)
                         + (s.velocity / rotationalVelocity) * Math.cos(s.roty)
                         - aRotVSquared * Math.sin(s.roty));
+            distTravelled = (float)Math.sqrt(deltaX*deltaX + deltaY*deltaY);
+            double distAngle = Math.atan2(deltaX, deltaY);
+            distAngle = (-(distAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
+            
+            // Calculate the vFactor in the direction of XY movement
+            carDir = new Vector3f ((float)Math.cos(distAngle), (float)Math.sin(distAngle), 0);
+            u = new Vector3f(carDir.y*rN.z - carDir.z*rN.y,
+                    carDir.z*rN.x - carDir.x*rN.z,
+                    carDir.x*rN.y - carDir.y*rN.x);
+            udist = (float)Math.sqrt(u.x*u.x + u.y*u.y + u.z*u.z);
+            uNorm = new Vector3f(u.x/udist, u.y/udist, u.z/udist);
+            vFactor = new Vector3f(rN.y*uNorm.z - rN.z*uNorm.y,
+                    rN.z*uNorm.x - rN.x*uNorm.z,
+                    rN.x*uNorm.y - rN.y*uNorm.x); // vFactor = roadTan
+            // Calculate the end position
             ePos = new Vector3f(
-                    (float)(ePos.x + s.box.pos().x + deltaX),
-                    (float)(ePos.y + s.box.pos().y + deltaY), 
-                    (float)(ePos.z + s.box.pos().z));
+                    (float)(s.box.pos().x + vFactor.x * distTravelled),
+                    (float)(s.box.pos().y + vFactor.y * distTravelled), 
+                    (float)(s.box.pos().z + vFactor.z * distTravelled));
         }
         // </editor-fold>
         
@@ -403,7 +453,7 @@ public class Physics {
         // Change in height when falling
         double deltaZ = dt * (s.verticalVelocity + 0.5 * pc.gravity * dt);
         // When in the air
-        if (s.box.pos().z + deltaZ > 0) {
+        if (s.box.pos().z + deltaZ > gndZ) {
             s.verticalVelocity += pc.gravity * dt;
             ePos.z += deltaZ;
         }
@@ -415,7 +465,7 @@ public class Physics {
         // When on track on the ground
         else if (onTrack) {
             s.verticalVelocity = 0;
-            ePos.z = 0;
+            ePos.z = (float)gndZ;
         }
         if (!onTrack) {
             s.verticalVelocity += pc.gravity * dt;
@@ -433,6 +483,7 @@ public class Physics {
             s.verticalVelocity = 0;
         }
         // </editor-fold>
+        
         
         // <editor-fold defaultstate="collapsed" desc="COLLISION CALCULATIONS"> 
         // Should be integrated into another class but still change pStruct
@@ -477,6 +528,8 @@ public class Physics {
             s.collisionVelocity = 0;
         }
         // </editor-fold>
+           
+        System.out.println(eRot + ", " + s.verticalVelocity + ", " + ePos);
         
         // Update the state.
         s.box.setPosition(ePos);
