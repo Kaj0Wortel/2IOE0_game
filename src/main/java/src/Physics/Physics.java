@@ -31,10 +31,14 @@ public class Physics {
         
         
         public ModState(State state) {
-            box = state.box.clone();
+            box = new Box3f(new Vector3f(
+                    -state.box.pos().z,
+                    -state.box.pos().x,
+                    state.box.pos().y
+            ), state.box.dx(), state.box.dy(), state.box.dz());
             size = state.size;
             rotx = state.rotx;
-            roty = state.roty;
+            this.roty = (float) Math.toRadians(state.roty);
             rotz = state.rotz;
             integratedRotation = state.integratedRotation;
             velocity = state.velocity;
@@ -50,8 +54,16 @@ public class Physics {
          * @see State
          */
         public State createState() {
-            return new State(box, size, rotx, roty, rotz, integratedRotation,
-                    velocity, collisionVelocity, verticalVelocity);
+            // Convert back to instance space.
+            Box3f newBox = new Box3f(new Vector3f(
+                    -box.pos().y,
+                    box.pos().z,
+                    -box.pos().x
+            ), box.dx(), box.dy(), box.dz());
+            return new State(newBox, size,
+                    rotx, (float) (Math.toDegrees(roty) % 360), rotz,
+                    integratedRotation, velocity, collisionVelocity,
+                    verticalVelocity);
         }
         
         
@@ -91,7 +103,7 @@ public class Physics {
             this.largeSlowDown = pc.largeSlowDown;
             this.bounceFactor = pc.bounceFactor;
             this.airControl = pc.airControl;
-            this.brakeAccel = brakeAccel;
+            this.brakeAccel = pc.brakeAccel;
         }
         
         public ModPhysicsContext(float linAccel, float rotationalVelocity,
@@ -182,18 +194,10 @@ public class Physics {
      * startStruct: begin position
      * velocity and rotation
      */
-    public static State calcPhysics(Instance source, PStructAction pStruct,
+    public static void calcPhysics(Instance source, PStructAction pStruct,
             PhysicsContext pc, State state, Set<Instance> collisions) {
         // Create a modifyable state to reduce the number of objects creations.
         ModState s = new ModState(state);
-        
-        // Convert to physics space.
-        s.roty = (float) Math.toRadians(s.roty);
-        s.box.setPosition(new Vector3f(
-                -s.box.pos().z,
-                -s.box.pos().x,
-                s.box.pos().y)
-        );
         
         // ITEMS & CARS
         // If the instance intersects with a car or an item, use collision
@@ -214,20 +218,12 @@ public class Physics {
             }
             
             calcPhysics(source, pStruct, modPC.createContext(), s);
+            source.setState(s.createState());
             
         } else {
             calcPhysics(source, pStruct, pc, s);
+            source.setState(s.createState());
         }
-        
-        // Convert back to instance space.
-        s.roty = (float) (Math.toDegrees(s.roty) % 360);
-        s.box.setPosition(new Vector3f(
-                -s.box.pos().y,
-                s.box.pos().z,
-                -s.box.pos().x)
-        );
-        
-        return s.createState();
     }
     
     /**
@@ -488,7 +484,7 @@ public class Physics {
         }
         // </editor-fold>
            
-        System.out.println(eRot + ", " + s.verticalVelocity + ", " + ePos);
+        //System.out.println(eRot + ", " + s.verticalVelocity + ", " + ePos);
         
         // Update the state.
         s.box.setPosition(ePos);
