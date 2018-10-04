@@ -10,9 +10,9 @@ import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.CarKeyAction;
 import src.tools.event.keyAction.CarKeyAction.MovementAction;
 import src.tools.update.Updateable;
-import src.tools.update.Updater;
 
 import java.util.List;
+import src.AI.AINN;
 
 // Java imports
 
@@ -26,8 +26,9 @@ public class Main {
         GS.init();
         
         // TMP
-        Updateable up = new TmpUpdateable(1);
-        Updater.addTask(up);
+        //Updateable up = new TmpUpdateable(1);
+        //Updater.addTask(up);
+        new AINN();
     }
     
     // BEGIN TMP

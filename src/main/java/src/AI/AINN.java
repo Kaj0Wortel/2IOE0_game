@@ -1,5 +1,7 @@
 package src.AI;
 
+import java.io.File;
+import java.io.IOException;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
@@ -20,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.nativeblas.NativeOps;
 import org.nd4j.nativeblas.NativeOpsHolder;
 import org.nd4j.nativeblas.Nd4jBlas;
@@ -57,18 +58,21 @@ public class AINN {
     
 
     public AINN() {
-        setMaxThreads(1);           // Set threads to 1.
+        // Set threads to 1.
+        setMaxThreads(1);
 
         // Reading Data
         aStarReader = new CSVRecordReader(0, GS.DELIM);
 
         try {
-            aStarReader.initialize(new FileSplit(new ClassPathResource("astar.txt").getFile()));
-        } catch (Exception e) {
+            aStarReader.initialize(new FileSplit(new File(
+                    GS.RESOURCE_DIR + "A_star_data")));
+            
+        } catch (IOException | InterruptedException e) {
             Logger.write(new Object[] {
                     "At AINN: CSV reading failure.",
                     e
-            }, Logger.Type.INFO);
+            }, Logger.Type.ERROR);
         }
 
         // TODO Create iterator
