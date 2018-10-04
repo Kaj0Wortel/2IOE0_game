@@ -12,6 +12,8 @@ import org.joml.Vector3f;
 import src.Assets.instance.Car;
 import src.Assets.instance.Item;
 import src.tools.Box3f;
+import src.tools.update.CollisionManager.Collision;
+import src.tools.update.CollisionManager.Entry;
 
 
 public class Physics {
@@ -490,6 +492,35 @@ public class Physics {
         s.box.setPosition(ePos);
         s.velocity = eV;
         s.roty = eRot;
+    }
+    
+    /**
+     * Calculate a double non-static collision.
+     * 
+     * @param col the collision data.
+     */
+    public static void exeCollision(Collision col) {
+        Entry e1 = col.getEntry1();
+        Entry e2 = col.getEntry2();
+        
+        // TODO: do stuff with the entries.
+    }
+    
+    /**
+     * Calculates and updates the physics of te instance given in the
+     * entry with the given {@link PStructAction}, {@link ModPhysicsContext}
+     * and {@link ModState}.
+     * Updates the state of the instance afterwards.
+     * 
+     * @param entry the entry to get the data from.
+     * 
+     * Should be called when the entry was updated outside it's
+     * own update cycle.
+     */
+    public static void calcAndUpdatePhysics(Entry entry) {
+        calcPhysics(entry.inst, entry.pStruct, entry.mpc.createContext(),
+                entry.ms);
+        entry.inst.setState(entry.ms.createState());
     }
     
     public static void physicsTestVisuals () {
