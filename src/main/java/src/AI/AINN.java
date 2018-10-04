@@ -50,12 +50,11 @@ public class AINN {
     private int in;
     private int out;
     
-    
-    
     private PStructAction curState = new PStructAction(0, 0, 0, 1);
     private PStructAction newState = null;
     private boolean updatedLeftRight = false;
     private boolean updatedForwardBack = false;
+    
 
     public AINN() {
         setMaxThreads(1);           // Set threads to 1.
@@ -153,20 +152,19 @@ public class AINN {
 
     public void execute() {
         updatedLeftRight = false;
-        updatedForwardBack = true;
+        updatedForwardBack = false;
         // TODO
     }
     
     private BaseTrainingListener listener = new BaseTrainingListener() {
-        
         @Override
         public void onEpochEnd(Model model) {
-            if (1 == 1) { // left-right model.
+            if (model == networks[0]) { // turn model.
                 updatedLeftRight = true;
                 
                 
                 
-            } else { // forward-backward model.
+            } else if (model == networks[1]) { // drive model.
                 updatedForwardBack = true;
                 
             }
