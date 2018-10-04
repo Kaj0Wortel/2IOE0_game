@@ -45,7 +45,7 @@ public class Simulator
     }
 
     public void initAssets() {
-        Terrain terrain = new Terrain(gl);
+       Terrain terrain = new Terrain(gl);
         OBJTexture texturedTerrain = new OBJTexture(terrain,
                 new TextureImg(gl,"test.jpg",0, 0));
         Box3f box = new Box3f(new Vector3f(texturedTerrain.getAsset()
@@ -54,7 +54,9 @@ public class Simulator
         Instance terrainInstance = new TerrainInstance(box, 1f, 0f, 0f, 0f,
                 texturedTerrain, 0f, new PhysicsContext());
         GS.addTerrain(terrainInstance);
-        
+        //Box3f box; 
+       
+       
         OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "cube.obj");
         OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "dragon.obj");
         OBJCollection car = LoadOBJ.load(gl, GS.OBJ_DIR + "car.obj");
@@ -101,14 +103,24 @@ public class Simulator
                     EnvironmentItem.Type.SLOW_DOWN);
             GS.addAsset(cubeInstance);
         }
+        // SLOPE TEST
+        for (OBJObject obj : col) {
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            box = new Box3f(new Vector3f(-100f, -81f, -100f), 2f, 2f, 6f);
+            Instance cubeInstance = new EnvironmentItem(box,
+                    150f, 0, -45, -35.26438968f, texturedCube, 0, new PhysicsContext(),
+                    EnvironmentItem.Type.SLOW_DOWN);
+            GS.addAsset(cubeInstance);
+        }
         
         // CAR
         for (OBJObject obj : car){
             OBJTexture texturedCube = new OBJTexture(obj,
                     new TextureImg(5, 0.5f));
-            box = new Box3f(new Vector3f(-5f, 0f, 10f), 2f, 2f, 6f);
+            box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
             Instance cubeInstance = new Car(box,
-                    5f, 0, 90, 0, texturedCube, 90, new PhysicsContext());
+                    5f, 0, 45, 0, texturedCube, 90, new PhysicsContext());
             GS.player = cubeInstance;
             GS.addAsset(cubeInstance);
         }
