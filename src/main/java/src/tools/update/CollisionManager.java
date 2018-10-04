@@ -200,7 +200,7 @@ public class CollisionManager {
          */
         private boolean checkAndLockCol(Collision col) {
             if (Locker.tryLock(col.e1.inst)) {
-                if (Locker.tryLock(col.e2.inst)) {
+                if (Locker.tryLock(col.other)) {
                     return true;
                     
                 } else {
