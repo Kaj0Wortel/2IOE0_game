@@ -24,18 +24,20 @@ public abstract class Track {
     protected IntBuffer vao;
     protected int nrV;
     protected TextureImg texture;
+    protected TextureImg bumpmap;
 
     protected RacetrackShader shader;
     protected Matrix4f projectionMatrix;
     protected Matrix4f viewMatrix;
 
-    public Track(Vector3f position, float size, float rotx, float roty, float rotz, TextureImg texture) {
+    public Track(Vector3f position, float size, float rotx, float roty, float rotz, TextureImg texture, TextureImg bumpmap) {
         this.position = position;
         this.size = size;
         this.rotx = rotx;
         this.roty = roty;
         this.rotz = rotz;
         this.texture = texture;
+        this.bumpmap = bumpmap;
     }
 
     public abstract void setShaderAndRenderMatrices(RacetrackShader shader, Matrix4f projectionMatrix, Matrix4f viewMatrix);
@@ -114,9 +116,13 @@ public abstract class Track {
         shader.loadViewMatrix(gl, GS.camera.getViewMatrix());
         shader.loadLight(gl,GS.getLights().get(0));
         shader.loadCameraPos(gl, GS.camera.getPosition());
+        shader.loadTextures(gl);
 
         shader.loadModelMatrix(gl, getTransformationMatrix());
-        texture.bindTexture(gl);
+        gl.glActiveTexture(gl.GL_TEXTURE0);
+        gl.glBindTexture(gl.GL_TEXTURE_2D, texture.getTexture());
+        gl.glActiveTexture(gl.GL_TEXTURE1);
+        gl.glBindTexture(gl.GL_TEXTURE_2D,bumpmap.getTexture());
     }
     
     
