@@ -154,7 +154,7 @@ public class Physics {
     }
     
      // Necessary for determining if on track
-    final private static int POINTS_PER_SEGMENT = 50;
+    final private static int POINTS_PER_SEGMENT = 200;
     private static Vector3f[] points = new Vector3f[0];
     private static Vector3f[] normals = new Vector3f[0];
     private static Vector3f[] tangents = new Vector3f[0];
@@ -273,11 +273,12 @@ public class Physics {
         // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
         // Find road point closest to car
         float shortestDist = 10000000;
-        float dist;
+        float dist = 0;
         int ind = 0; // Current road point index
         for (int i = 0; i < points.length; i++) {
             dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
-                    + (float)Math.pow( s.box.pos().y - points[i].y, 2));
+                    + (float)Math.pow(s.box.pos().y - points[i].y, 2)
+                    + (float)Math.pow(s.box.pos().z - points[i].z, 2));
             if (dist < shortestDist) {
                 shortestDist = dist;
                 ind = i;
@@ -301,7 +302,7 @@ public class Physics {
         //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
         //        , (float)Math.sqrt(6)/3);
         Vector3f rN = normals[ind];
-        Vector3f roadPos = new Vector3f(points[ind].x, points[ind].y, points[ind].z + 1);
+        Vector3f roadPos = new Vector3f(points[ind].x, points[ind].y, points[ind].z);
         // </editor-fold>
         
         if (onTrack) {
@@ -570,9 +571,9 @@ public class Physics {
             float delta = 1.0f / POINTS_PER_SEGMENT;
             for (float t = 0; t < 1.0; t += delta) {
                 // positions
-                pointList.add(new Vector3f(-track.getPoint(i, t).z * trackSize,
+                pointList.add(new Vector3f(-(track.getPoint(i, t).z - 1.5f) * trackSize,
                 -track.getPoint(i, t).x * trackSize, 
-                track.getPoint(i, t).y * trackSize));
+                track.getPoint(i, t).y * trackSize + 1));
                 // normals
                 normalList.add(new Vector3f(-Track.calcNormal(track.getTangent(i, t)).z,
                 -Track.calcNormal(track.getTangent(i, t)).x,
