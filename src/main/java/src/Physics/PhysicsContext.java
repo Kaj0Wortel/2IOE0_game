@@ -63,7 +63,7 @@ public class PhysicsContext {
      */
     public PhysicsContext() {
         this.linAccel = 0.8f;
-        this.rotationalVelocity = (float) Math.PI / 18f;
+        this.rotationalVelocity = (float) Math.PI / 10f;
         this.maxLinearVelocity = 15f;
         this.frictionConstant = 0.8f;
         this.gravity = -2.5f;
