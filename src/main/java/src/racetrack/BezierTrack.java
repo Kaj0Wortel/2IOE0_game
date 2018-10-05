@@ -23,9 +23,16 @@ public class BezierTrack extends Track {
                        float rotx, float roty, float rotz, TextureImg texture, TextureImg bumbmap) {
         super(position, size, rotx, roty, rotz,texture, bumbmap);
 
-        super.setControl_points(new Vector3f[]{
+        /*super.setControl_points(new Vector3f[]{
 
                 new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 3f), new Vector3f(1f, 0f, 4f), new Vector3f(4f, 0f, 4f),
+                new Vector3f(4f, 0f, 4f), new Vector3f(7f, 0f, 4f), new Vector3f(8f, 0f, 8f), new Vector3f(8f, 0f, 4f),
+                new Vector3f(8f, 0f, 4f), new Vector3f(8f, 0f, -2f), new Vector3f(8f, 0f, -6f), new Vector3f(6f, 0f, -6f),
+                new Vector3f(6f, 0f, -6f), new Vector3f(-2f, 0f, -6f), new Vector3f(0f, 0f, -4f), new Vector3f(0f, 0f, 0f),
+        });*/
+        super.setControl_points(new Vector3f[]{
+
+                new Vector3f(0f, 0f, 0f), new Vector3f(0f, 1f, 3f), new Vector3f(1f, 1f, 4f), new Vector3f(4f, 0f, 4f),
                 new Vector3f(4f, 0f, 4f), new Vector3f(7f, 0f, 4f), new Vector3f(8f, 0f, 8f), new Vector3f(8f, 0f, 4f),
                 new Vector3f(8f, 0f, 4f), new Vector3f(8f, 0f, -2f), new Vector3f(8f, 0f, -6f), new Vector3f(6f, 0f, -6f),
                 new Vector3f(6f, 0f, -6f), new Vector3f(-2f, 0f, -6f), new Vector3f(0f, 0f, -4f), new Vector3f(0f, 0f, 0f),
