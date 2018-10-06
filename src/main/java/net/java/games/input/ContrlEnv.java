@@ -163,11 +163,9 @@ public class ContrlEnv
                         if (autoUpdateEnabled) {
                             requestUpdate.await(updateInterval,
                                     TimeUnit.MILLISECONDS);
-                            System.out.println("02");
                             
                         } else {
                             requestUpdate.await();
-                            System.out.println("03");
                         }
                         
                     } catch (InterruptedException e) {

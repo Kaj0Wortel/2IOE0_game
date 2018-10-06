@@ -2,6 +2,8 @@ package src.AI;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
@@ -25,14 +27,21 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.nativeblas.NativeOps;
 import org.nd4j.nativeblas.NativeOpsHolder;
 import org.nd4j.nativeblas.Nd4jBlas;
+import src.Assets.instance.Instance;
 import src.GS;
 import src.Physics.PStructAction;
 import src.tools.log.Logger;
 
 /**
  * Creates a neural network array for driving.
+ * Start generating actions by invoking {@link #start()},
+ * and stop by invoking {@link #stop()}.
  */
 public class AINN {
+    private static int idCounter = 0;
+    private int id = idCounter++;
+    
+    final private Instance instance;
 
     private MultiLayerNetwork[] networks = new MultiLayerNetwork[2];
     private RecordReader aStarReader;
@@ -51,13 +60,24 @@ public class AINN {
     private int in;
     private int out;
     
-    private PStructAction curState = new PStructAction(0, 0, 0, 1);
-    private PStructAction newState = new PStructAction(0, 0, 0, 1);
-    private boolean updatedLeftRight = false;
-    private boolean updatedForwardBack = false;
+    // The current action.
+    private PStructAction curAction = new PStructAction(0, 0, 0, 1);
     
-
-    public AINN() {
+    // Update thread releated variables.
+    private Thread updateThread = null;
+    private Lock lock = new ReentrantLock();
+    private boolean stopUpdateThread = false;
+    
+    // Update delay.
+    private long MILLIS_PER_UPDATE = 100L;
+    
+    
+    /**
+     * Constructor.
+     */
+    public AINN(Instance instance) {
+        this.instance = instance;
+        
         // Set threads to 1.
         setMaxThreads(1);
 
@@ -70,7 +90,7 @@ public class AINN {
             
         } catch (IOException | InterruptedException e) {
             Logger.write(new Object[] {
-                    "At AINN: CSV reading failure.",
+                    "At AIIN " + id + ": CSV reading failure.",
                     e
             }, Logger.Type.ERROR);
         }
@@ -152,32 +172,163 @@ public class AINN {
         // Initialise networks array
         networks[0] = new MultiLayerNetwork(turnConfig);
         networks[1] = new MultiLayerNetwork(driveConfig);
-    }
-
-    public void execute() {
-        updatedLeftRight = false;
-        updatedForwardBack = false;
-        // TODO
+        
+        // Add listeners.
+        networks[0].addListeners(LISTENER);
+        networks[1].addListeners(LISTENER);
     }
     
-    private BaseTrainingListener listener = new BaseTrainingListener() {
+    /**
+     * Listener for updating the values after an iteration of the AINN.
+     */
+    final private BaseTrainingListener LISTENER = new BaseTrainingListener() {
         @Override
         public void onEpochEnd(Model model) {
             if (model == networks[0]) { // turn model.
-                int input = 1;
+                int output = 1; // TODO
                 
-                
-                updatedLeftRight = true;
+                curAction.turn = output - 1;
                 
             } else if (model == networks[1]) { // drive model.
-                int input = 1;
+                int output = 1; // TODO
                 
-                updatedForwardBack = true;
+                curAction.accel = output - 1;
             }
         }
     };
     
-
+    /**
+     * Starts the update thread.
+     * First resets the {@code stopUpdateThread} flag.
+     * Then start a new update thread, unless there was already one running.
+     * Note that it is possible to call {@link #stop()} and then
+     * {@link #start()} without stopping the old and starting a new
+     * update thread.
+     */
+    public void start() {
+        lock.lock();
+        try {
+            stopUpdateThread = false;
+            
+        } finally {
+            lock.unlock();
+        }
+        
+        if (updateThread != null) return;
+        
+        new Thread("AINN-thread-" + id) {
+            private long prevTime = System.currentTimeMillis();
+            @Override
+            public void run() {
+                // The update thread should have slightly below priority,
+                // but not minimal.
+                Thread.currentThread().setPriority(3);
+                
+                while (true) {
+                    // Execute the net.
+                    try {
+                        execute();
+                        
+                    } catch (Exception e) {
+                        Logger.write(new Object[] {
+                            "Exception occured in AINN " + id + ":",
+                            e
+                        }, Logger.Type.ERROR);
+                    }
+                    
+                    // Wait to fill the time.
+                    long curTime = System.currentTimeMillis();
+                    long wait = MILLIS_PER_UPDATE - (curTime - prevTime);
+                    prevTime = curTime;
+                    if (wait > 0) {
+                        try {
+                            Thread.sleep(wait);
+                        } catch (InterruptedException e) {
+                            
+                        }
+                    } else {
+                        Logger.write(new Object[] {
+                            "AINN " + id + " did not finish within the "
+                                    + "time limit.",
+                            "(it took " + (MILLIS_PER_UPDATE - wait) + "ms)"
+                        }, Logger.Type.WARNING);
+                    }
+                    
+                    // Check exit condition.
+                    lock.lock();
+                    try {
+                        // If needed, stop the update thread.
+                        if (stopUpdateThread) {
+                            updateThread = null;
+                            return;
+                        }
+                        
+                    } finally {
+                        lock.unlock();
+                    }
+                    
+                    if (1 == 0) break; // To stop the compiler from complaining.
+                }
+                
+                Logger.write("Unexpected exit of AINN " + id
+                        + " update thread", Logger.Type.ERROR);
+                updateThread = null;
+            }
+        };
+        updateThread.start();
+    }
+    
+    /**
+     * Stops the update thread. Note that the thread is not immediately
+     * stopped, but might take some time to terminate.
+     */
+    public void stop() {
+        if (updateThread == null) return;
+        lock.lock();
+        try {
+            stopUpdateThread = true;
+            
+        } finally {
+            lock.unlock();
+        }
+    }
+    
+    /**
+     * @return {@code true} if the update is, or is scheduled to be stopped.
+     *     {@code false} otherwise.
+     * 
+     * To check whether the update thread is actually running,
+     * use {@link #isUpdateRunning()}
+     */
+    public boolean isStopped() {
+        return stopUpdateThread;
+    }
+    
+    /**
+     * @return {@code true} if the update
+     */
+    public boolean isUpdateRunning() {
+        return updateThread == null;
+    }
+    
+    /**
+     * Runs one iteration of the AINN.
+     */
+    protected void execute() {
+        // TODO
+    }
+    
+    /**
+     * Creates an action representing the choice of the neural net.
+     * 
+     * @param dt the time difference needed for the event.
+     * @return a fresh action that was generated by the neural net.
+     */
+    public PStructAction createAction(long dt) {
+        return new PStructAction(curAction.turn, curAction.accel,
+                curAction.verticalVelocity, dt);
+    }
+    
     /**
      * Makes sure that this class only uses a total of {@code x} threads.
      *
@@ -190,7 +341,7 @@ public class AINN {
         deviceNativeOps.setOmpNumThreads(x);
         nd4jBlas.setMaxThreads(x);
     }
-
+    
     /**
      * Creates an UIServer, initialises a StatsStorage and attaches it to the UIServer.
      * Then, adds a StatsListener to {@code network} in order for visualisation.
@@ -203,5 +354,6 @@ public class AINN {
         uiServer.attach(statsStorage);
         network.setListeners(new StatsListener(statsStorage));
     }
-
+    
+    
 }

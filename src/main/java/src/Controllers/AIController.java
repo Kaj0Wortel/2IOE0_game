@@ -1,6 +1,7 @@
 
 package src.Controllers;
 
+import src.AI.AINN;
 import src.Assets.instance.Instance;
 
 
@@ -17,6 +18,7 @@ public class AIController
         extends Controller {
     
     final private Instance instance;
+    final private AINN ainn;
     
     
     /**
@@ -25,14 +27,20 @@ public class AIController
      */
     public AIController(Instance instance) {
         this.instance = instance;
-        
-        // Your initialization.
+        ainn = new AINN(instance);
     }
     
     
     @Override
     public void controlUpdate(long dt) {
-        // Your update code.
+        if (ainn.isStopped()) ainn.start();
+        instance.movement(ainn.createAction(dt));
+    }
+    
+    @Override
+    public void ignoreUpdate(long time) {
+        super.ignoreUpdate(time);
+        if (!ainn.isStopped()) ainn.stop();
     }
     
     
