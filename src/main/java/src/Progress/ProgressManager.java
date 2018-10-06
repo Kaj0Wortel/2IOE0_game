@@ -23,11 +23,12 @@ public class ProgressManager {
                 break;
             case 3:
                 if (curPoint > 0 && curPoint < pointAmount * 1 / 8) {
-                    if (lap == 3)
+                    if (lap == 3) {
                         checkPoint++;
-                    else {
+                    } else {
                         checkPoint = 0;
                         lap++;
+                        System.out.println("LAP " + lap);
                     }
                 }
                 break;
