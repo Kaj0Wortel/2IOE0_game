@@ -27,9 +27,10 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.nativeblas.NativeOps;
 import org.nd4j.nativeblas.NativeOpsHolder;
 import org.nd4j.nativeblas.Nd4jBlas;
-import src.Assets.instance.Instance;
+import src.Assets.instance.GridItemInstance;
 import src.GS;
 import src.Physics.PStructAction;
+import src.grid.GridItem;
 import src.tools.log.Logger;
 
 /**
@@ -41,7 +42,7 @@ public class AINN {
     private static int idCounter = 0;
     private int id = idCounter++;
     
-    final private Instance instance;
+    final private GridItemInstance instance;
 
     private MultiLayerNetwork[] networks = new MultiLayerNetwork[2];
     private RecordReader aStarReader;
@@ -75,7 +76,7 @@ public class AINN {
     /**
      * Constructor.
      */
-    public AINN(Instance instance) {
+    public AINN(GridItemInstance instance) {
         this.instance = instance;
         
         // Set threads to 1.
@@ -315,7 +316,10 @@ public class AINN {
      * Runs one iteration of the AINN.
      */
     protected void execute() {
-        // TODO
+        // Get data from the grid.
+        GridItem[][][][] objects = GS.grid.getItemsAround(instance, 2, 2, 2);
+        
+        // TODO apply magic.
     }
     
     /**

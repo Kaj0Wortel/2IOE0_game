@@ -14,15 +14,15 @@ public class PlayerController
     
     final private PlayerKeyAction[] playerActions;
 
-    public PlayerController(Instance player) {
+    public PlayerController(Instance player, int id) {
         this.player = player;
         
         playerActions = new PlayerKeyAction[] {
-                new PlayerKeyAction(1, PlayerKeyAction.MovementAction.LEFT),
-                new PlayerKeyAction(1, PlayerKeyAction.MovementAction.RIGHT),
-                new PlayerKeyAction(1, PlayerKeyAction.MovementAction.FORWARD),
-                new PlayerKeyAction(1, PlayerKeyAction.MovementAction.BACKWARD),
-                new PlayerKeyAction(1, PlayerKeyAction.MovementAction.JUMP)
+                new PlayerKeyAction(id, PlayerKeyAction.MovementAction.LEFT),
+                new PlayerKeyAction(id, PlayerKeyAction.MovementAction.RIGHT),
+                new PlayerKeyAction(id, PlayerKeyAction.MovementAction.FORWARD),
+                new PlayerKeyAction(id, PlayerKeyAction.MovementAction.BACKWARD),
+                new PlayerKeyAction(id, PlayerKeyAction.MovementAction.JUMP)
         };
     }
     

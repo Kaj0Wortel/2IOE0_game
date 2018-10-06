@@ -20,6 +20,7 @@ import src.tools.update.Updater;
 
 import javax.swing.*;
 
+import src.Controllers.PlayerController;
 import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
 // Own imports
@@ -114,7 +115,7 @@ public class Simulator
             GS.addAsset(cubeInstance);
         }
         
-        // CAR
+        // CAR 1
         for (OBJObject obj : car){
             OBJTexture texturedCube = new OBJTexture(obj,
                     new TextureImg(5, 0.5f));
@@ -123,6 +124,17 @@ public class Simulator
                     5f, 0, 45, 0, texturedCube, 90, new PhysicsContext());
             GS.player = cubeInstance;
             GS.addAsset(cubeInstance);
+        }
+        
+        // CAR 2 (TMP)
+        for (OBJObject obj : car){
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            box = new Box3f(new Vector3f(0f, 0f, -2f), 2f, 2f, 6f);
+            Instance cubeInstance = new Car(box,
+                    5f, 0, 45, 0, texturedCube, 90, new PhysicsContext());
+            GS.addAsset(cubeInstance);
+            new PlayerController(cubeInstance, 2);
         }
         
         // REALLY COOL DRAGON

@@ -28,7 +28,7 @@ public class Main {
         // TMP
         //Updateable up = new TmpUpdateable(1);
         //Updater.addTask(up);
-        new AINN();
+        new AINN(null);
     }
     
     // BEGIN TMP

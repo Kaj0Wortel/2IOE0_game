@@ -59,7 +59,7 @@ public abstract class Controller
 
     @Override
     public Priority getPriority() {
-        return Priority.UPDATE_ALWAYS;
+        return Priority.ONLY_WHEN_RUNNING;
     }
     
     

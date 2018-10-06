@@ -2,6 +2,7 @@
 package src.Controllers;
 
 import src.AI.AINN;
+import src.Assets.instance.GridItemInstance;
 import src.Assets.instance.Instance;
 
 
@@ -17,7 +18,7 @@ import src.Assets.instance.Instance;
 public class AIController
         extends Controller {
     
-    final private Instance instance;
+    final private GridItemInstance instance;
     final private AINN ainn;
     
     
@@ -25,7 +26,7 @@ public class AIController
      * The instance to be updated.
      * @param instance 
      */
-    public AIController(Instance instance) {
+    public AIController(GridItemInstance instance) {
         this.instance = instance;
         ainn = new AINN(instance);
     }
