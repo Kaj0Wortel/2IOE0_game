@@ -12,6 +12,7 @@ import src.Locker;
 import src.Physics.PStructAction;
 import src.Physics.PhysicsContext;
 import src.Physics.Physics;
+import src.Progress.ProgressManager;
 import src.Shaders.ShaderProgram;
 import src.tools.Box3f;
 
@@ -66,6 +67,7 @@ public abstract class Instance {
         
     }
     
+    ProgressManager progress = new ProgressManager();
     
     protected State state;
     protected PhysicsContext physicsContext;
@@ -267,10 +269,10 @@ public abstract class Instance {
         if (!isStatic()) {
             Set<Instance> collisions = GS.grid.getCollisions(this);
             Physics.calcPhysics(this, pStruct, physicsContext, state,
-                    collisions);
+                    collisions, progress);
             
         } else {
-            Physics.calcPhysics(this, pStruct, physicsContext, state, null);
+            Physics.calcPhysics(this, pStruct, physicsContext, state, null, progress);
         }
     }
     

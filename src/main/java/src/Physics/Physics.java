@@ -10,12 +10,14 @@ import src.racetrack.Track;
 import src.tools.Box3f;
 import src.tools.update.CollisionManager.Collision;
 import src.tools.update.CollisionManager.Entry;
+import src.Progress.ProgressManager;
 
 //Java imports
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.joml.Vector3f;
+
 
 
 public class Physics {
@@ -210,7 +212,7 @@ public class Physics {
      * velocity and rotation
      */
     public static void calcPhysics(Instance source, PStructAction pStruct,
-            PhysicsContext pc, State state, Set<Instance> collisions) {
+            PhysicsContext pc, State state, Set<Instance> collisions, ProgressManager progress) {
         // Create a modifyable state to reduce the number of objects creations.
         ModState s = new ModState(state);
         
@@ -223,7 +225,7 @@ public class Physics {
             
             for (Instance instance : collisions) {
                 if (instance instanceof Car) {
-                    calcPhysics(source, pStruct, pc, s); // TODO
+                    calcPhysics(source, pStruct, pc, s, progress); // TODO
                     
                 } else if (instance instanceof Item) {
                     System.out.println("hit item!");
@@ -232,11 +234,11 @@ public class Physics {
                 }
             }
             
-            calcPhysics(source, pStruct, modPC.createContext(), s);
+            calcPhysics(source, pStruct, modPC.createContext(), s, progress);
             source.setState(s.createState());
             
         } else {
-            calcPhysics(source, pStruct, pc, s);
+            calcPhysics(source, pStruct, pc, s, progress);
             source.setState(s.createState());
         }
     }
@@ -249,7 +251,7 @@ public class Physics {
      * @param s
      */
     public static void calcPhysics(Instance source, PStructAction pStruct,
-            PhysicsContext pc, ModState s) {
+            PhysicsContext pc, ModState s, ProgressManager progress) {
         
         // Variables used in physics calculations.
         float dt = pStruct.dt / 160f;
@@ -483,7 +485,6 @@ public class Physics {
         }
         // </editor-fold>
         
-        
         // <editor-fold defaultstate="collapsed" desc="COLLISION CALCULATIONS"> 
         // Should be integrated into another class but still change pStruct
         Vector3f colPos = new Vector3f (0.0001f, 40, 1);
@@ -528,6 +529,12 @@ public class Physics {
         }
         // </editor-fold>
                 
+        
+        // <editor-fold defaultstate="collapsed" desc="COLLISION TEST"> 
+        //System.out.println(progress.checkPoint);
+        progress.ManageProgress(s.box.pos(), points.length, ind);
+        // </editor-fold>
+        
         // Update the state.
         s.box.setPosition(ePos);
         s.velocity = eV;
@@ -560,7 +567,7 @@ public class Physics {
      */
     public static void calcAndUpdatePhysics(Entry entry) {
         calcPhysics(entry.inst, entry.pStruct, entry.mpc.createContext(),
-                entry.ms);
+                entry.ms, entry.progress);
         entry.inst.setState(entry.ms.createState());
         System.out.println("Entry wants to calculate physics");
     }
