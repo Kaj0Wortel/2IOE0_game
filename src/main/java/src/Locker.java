@@ -21,7 +21,6 @@ import src.tools.MultiTool;
  * Class for providing global locks for all registered objects.
  */
 public class Locker {
-    final private static long DEFAULT_TIMEOUT = 1L;
     final private static Map<Object, Lock> lockMap
             = new ConcurrentHashMap<>();
     
