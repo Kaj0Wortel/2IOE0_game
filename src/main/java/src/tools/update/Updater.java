@@ -138,7 +138,7 @@ public class Updater {
         UpdateThread updater = updateThreads.get(0);
         int threadCounter = 0;
         
-        final Iterator<Entry> instIt = CollisionManager.entryeIterator();
+        final Iterator<Entry> instIt = CollisionManager.entryIterator();
         while (instIt.hasNext()) {
             Entry entry = instIt.next();
             tasks.add(entry);

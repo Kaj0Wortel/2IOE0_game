@@ -1,3 +1,4 @@
+
 package src;
 
 
@@ -10,6 +11,7 @@ import src.Assets.instance.Car;
 import src.Assets.instance.EnvironmentItem;
 import src.Assets.instance.Instance;
 import src.Assets.instance.TerrainInstance;
+import src.Assets.skybox.Skybox;
 import src.OBJ.LoadOBJ;
 import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
@@ -25,6 +27,7 @@ import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
 // Own imports
 // Java imports
+
 
 public class Simulator
         implements Updateable {
@@ -105,7 +108,7 @@ public class Simulator
             GS.addAsset(cubeInstance);
         }
         // SLOPE TEST
-        for (OBJObject obj : col) {
+        /*for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
                     new TextureImg(5, 0.5f));
             box = new Box3f(new Vector3f(-100f, -81f, -100f), 2f, 2f, 6f);
@@ -113,7 +116,7 @@ public class Simulator
                     150f, 0, -45, -35.26438968f, texturedCube, 0, new PhysicsContext(),
                     EnvironmentItem.Type.SLOW_DOWN);
             GS.addAsset(cubeInstance);
-        }
+        }*/
         
         // CAR 1
         for (OBJObject obj : car){
@@ -121,7 +124,7 @@ public class Simulator
                     new TextureImg(5, 0.5f));
             box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
             Instance cubeInstance = new Car(box,
-                    5f, 0, 45, 0, texturedCube, 90, new PhysicsContext());
+                    5f, 0, 180, 0, texturedCube, 90, new PhysicsContext());
             GS.player = cubeInstance;
             GS.addAsset(cubeInstance);
         }
@@ -154,9 +157,13 @@ public class Simulator
         GUI test = new GUI(new TextureImg(gl,"test_icon.png").getTexture(), new Vector2f(-0.5f,-0.5f), new Vector2f(0.25f,0.25f));
         GS.addGUI(test);
 
-        BezierTrack testTrack = new BezierTrack(gl, new Vector3f(0,1,-5),10f,0,0,0, new TextureImg(gl,"road.png"));
-        GS.raceTrack = testTrack;
+        BezierTrack testTrack = new BezierTrack(new Vector3f(0,1,-5),3f,0,0,0, new TextureImg(gl,"rainbow_road.png"), new TextureImg(gl, "road_normal.png"));
+        testTrack.generateTrack(gl);
+        GS.setTrack(testTrack);
 
+        Skybox skybox = new Skybox(gl);
+        GS.setSkybox(skybox);
+        
         System.out.println("Assets initialized");
 
     }
@@ -172,12 +179,6 @@ public class Simulator
             throws InterruptedException {
         long dt = timeStamp - prevTimeStamp;
         prevTimeStamp = timeStamp;
-        /*
-        if (GS.player != null) {
-            GS.camera.setFocus(GS.player);
-            GS.camera.calculateInstanceValues();
-        }
-        */
     }
     
     @Override

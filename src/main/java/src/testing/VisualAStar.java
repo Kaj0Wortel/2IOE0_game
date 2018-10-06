@@ -107,7 +107,7 @@ public class VisualAStar
                     normal.cross(UP).normalize().mul(1f).mul((float)j-1f);
                     Vector3f addedNormal = new Vector3f();
                     point.add(normal, addedNormal);
-                    addPoint(new Point2D.Double(addedNormal.x, addedNormal.z));
+                    //addPoint(new Point2D.Double(addedNormal.x, addedNormal.z));
 /*
                 for(int row = 0; row < nr_segment_vertices_row; row ++){
                     Vector3f extrude = new Vector3f(horNormal);

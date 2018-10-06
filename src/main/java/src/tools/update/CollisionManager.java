@@ -218,7 +218,7 @@ public class CollisionManager {
     
     
     private static Map<Collision, Collision> collisions = new HashMap<>();
-    private static Set<Entry> reEvalEntry = new HashSet();
+    private static Set<Entry> reEvalEntry = new HashSet<>();
     final private static Lock lock = new ReentrantLock();
     
     /**
@@ -290,7 +290,7 @@ public class CollisionManager {
      * @return an iterator over the instances that were involved
      *     in the collisions.
      */
-    public static Iterator<Entry> entryeIterator() {
+    public static Iterator<Entry> entryIterator() {
         return getEntries().iterator();
     }
     

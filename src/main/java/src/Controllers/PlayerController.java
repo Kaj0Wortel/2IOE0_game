@@ -51,7 +51,7 @@ public class PlayerController
                     acc -= Math.abs(pressed.get(0).getValue());
                 }
                 if (action.getAction() == PlayerKeyAction.MovementAction.JUMP) {
-                    vertV = 5;
+                    vertV = 10;
                 }
             }
         }

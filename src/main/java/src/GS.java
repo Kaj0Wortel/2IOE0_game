@@ -15,13 +15,15 @@ import src.Assets.GUI;
 import src.Assets.Light;
 import src.Assets.instance.Car;
 import src.Assets.instance.Instance;
+import src.Assets.skybox.Skybox;
 import src.Controllers.CameraController;
 import src.Controllers.PlayerController;
+import src.Physics.Physics;
 import src.Renderer.Camera;
 import src.Renderer.Renderer;
 import src.grid.Grid;
 import src.gui.MainPanel;
-import src.racetrack.BezierTrack;
+import src.racetrack.Track;
 import src.tools.event.ControllerKey;
 import src.tools.event.ControllerKeyDetector;
 import src.tools.event.Key;
@@ -143,7 +145,8 @@ public class GS {
     private static Renderer renderer;
     private static GLCanvas canvas;
     private static FPSAnimator animator;
-    public static BezierTrack raceTrack;
+    private static Track raceTrack;
+    private static Skybox skybox;
 
     public static List<Car> cars = new ArrayList<>();
     public static Instance player;
@@ -463,7 +466,24 @@ public class GS {
     }
 
     public static PlayerController getPlayerController() {
-        return playerController;
+        return  playerController;
+    }
+    
+    public static void setTrack(Track track) {
+        Physics.setTrack(track);
+        raceTrack = track;
+    }
+
+    public static void setSkybox(Skybox box){
+        skybox = box;
+    }
+
+    public static Skybox getSkybox(){
+        return skybox;
+    }
+    
+    public static Track getTrack() {
+        return raceTrack;
     }
     
     

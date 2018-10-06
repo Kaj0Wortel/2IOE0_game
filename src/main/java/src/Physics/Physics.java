@@ -4,24 +4,27 @@ package src.Physics;
 // Own imports
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
-
-
-//Java imports
-import java.util.Set;
-import org.joml.Vector3f;
 import src.Assets.instance.Car;
 import src.Assets.instance.Item;
+import src.racetrack.Track;
 import src.tools.Box3f;
 import src.tools.update.CollisionManager.Collision;
 import src.tools.update.CollisionManager.Entry;
 
+//Java imports
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import org.joml.Vector3f;
+
 
 public class Physics {
     
-    
     public static class ModState {
         public Box3f box;
-        public float size;
+        public float sizex;
+        public float sizey;
+        public float sizez;
         public float rotx;
         public float roty;
         public float rotz;
@@ -38,7 +41,9 @@ public class Physics {
                     -state.box.pos().x,
                     state.box.pos().y
             ), state.box.dx(), state.box.dy(), state.box.dz());
-            size = state.size;
+            sizex = state.sizez;
+            sizey = state.sizex;
+            sizez = state.sizey;
             rotx = state.rotx;
             this.roty = (float) Math.toRadians(state.roty);
             rotz = state.rotz;
@@ -62,7 +67,7 @@ public class Physics {
                     box.pos().z,
                     -box.pos().x
             ), box.dx(), box.dy(), box.dz());
-            return new State(newBox, size,
+            return new State(newBox, sizey, sizez, sizex,
                     rotx, (float) (Math.toDegrees(roty) % 360), rotz,
                     integratedRotation, velocity, collisionVelocity,
                     verticalVelocity);
@@ -147,6 +152,14 @@ public class Physics {
         
         
     }
+    
+     // Necessary for determining if on track
+    final private static int POINTS_PER_SEGMENT = 50;
+    private static Vector3f[] points = new Vector3f[0];
+    private static Vector3f[] normals = new Vector3f[0];
+    private static Vector3f[] tangents = new Vector3f[0];
+    private static int trackSize = 0;
+    private static int trackWidth = 0;
     
     
     /**
@@ -247,28 +260,51 @@ public class Physics {
         Vector3f carDir, u, uNorm, vFactor;
         float udist;
         // End pStruct
-        float eV = 0;
-        float eRot = 0;
-        Vector3f ePos = new Vector3f();
+        float eV;
+        float eRot;
+        Vector3f ePos;
         // State description
         boolean onTrack = true;
         boolean inAir = true;
         // temp before complete track implementation
-        double gndZ = 0;
+        float gndZ = -1000;
+        
         
         // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
-        // When off-track (temporary: no track to infer from yet)
-        /*if (s.box.pos().x > 125 ||
-                -125 > s.box.pos().x ||
-                s.box.pos().y > 125 ||
-                -125 > s.box.pos().y) {
+        // Find road point closest to car
+        float shortestDist = 10000000;
+        float dist = 0;
+        int ind = 0; // Current road point index
+        for (int i = 0; i < points.length; i++) {
+            if (Math.abs(s.box.pos().z - points[i].z) < 10) {
+                dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
+                        + (float)Math.pow(s.box.pos().y - points[i].y, 2)
+                        /*+ (float)Math.pow(s.box.pos().z - points[i].z, 2)*/);
+                if (dist < shortestDist) {
+                    shortestDist = dist;
+                    ind = i;
+                }
+            }
+        }
+        // Find distance from the middle road curve
+        float t = ((points[ind].x - s.box.pos().x)*tangents[ind].x
+                + (points[ind].y - s.box.pos().y)*tangents[ind].y
+                + (points[ind].z - s.box.pos().z)*tangents[ind].z)/
+                -(tangents[ind].x*tangents[ind].x + tangents[ind].y*tangents[ind].y 
+                + tangents[ind].z*tangents[ind].z);
+        // direction and magnitude towards the track
+        Vector3f dDir = new Vector3f(points[ind].x - s.box.pos().x + tangents[ind].x*t,
+                points[ind].y - s.box.pos().y + tangents[ind].y*t,
+                points[ind].z - s.box.pos().z + tangents[ind].z*t);
+        dist = (float)Math.sqrt(dDir.x*dDir.x + dDir.y*dDir.y + dDir.z*dDir.z);
+        // If you are outside of the track
+        if (dist > trackWidth) {
             onTrack = false;
-        }*/
-        //Vector3f rN = new Vector3f(-0.5f, -0.5f, (float)Math.sqrt(2)/2);
+        }
         //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
         //        , (float)Math.sqrt(6)/3);
-        Vector3f rN = new Vector3f(0,0,1);
-        Vector3f roadPos = new Vector3f(0,0,1);
+        Vector3f rN = normals[ind];
+        Vector3f roadPos = new Vector3f(points[ind].x, points[ind].y, points[ind].z);
         // </editor-fold>
         
         if (onTrack) {
@@ -282,8 +318,12 @@ public class Physics {
             gndZ = roadPos.z 
                     - (s.box.pos().x - roadPos.x) *rN.x / rN.z
                     - (s.box.pos().y - roadPos.y) *rN.y / rN.z;
-            if (s.box.pos().z <= gndZ)
+            // extra part after gnd is to compensate for small rounding errors
+            if (s.box.pos().z <= gndZ + (1 - rN.z)*(s.velocity / 3))
                 inAir = false;
+            if (s.box.pos().z < gndZ + (1 - rN.z)*(s.velocity / 3))
+                s.box.pos().z = gndZ;
+            //System.out.println((gndZ - s.box.pos().z) +", "+ inAir);
             // </editor-fold>
         }
         
@@ -403,31 +443,28 @@ public class Physics {
         }
         // </editor-fold>
         
+        
         // <editor-fold defaultstate="collapsed" desc="VERTICAL MOVEMENT CALCULATIONS"> 
         // Do not jump if already jumping
-        if (s.verticalVelocity == 0 && s.box.pos().z < gndZ + 0.1)
+        if (s.verticalVelocity == 0 && !inAir)
             s.verticalVelocity += pStruct.verticalVelocity;
         // Change in height when falling
         double deltaZ = dt * (s.verticalVelocity + 0.5 * pc.gravity * dt);
         // When in the air
-        if (s.box.pos().z + deltaZ > gndZ) {
+        if (s.box.pos().z + deltaZ > gndZ/* + 0.01f*/) {
             s.verticalVelocity += pc.gravity * dt;
             ePos.z += deltaZ;
         }
         // When bouncing on the ground
         else if (Math.abs(s.verticalVelocity) > 0.01 && onTrack) {
-            s.verticalVelocity = -s.verticalVelocity * pc.bounceFactor;
-            
-        } 
+        s.verticalVelocity = -s.verticalVelocity * pc.bounceFactor;
+        }   
         // When on track on the ground
         else if (onTrack) {
             s.verticalVelocity = 0;
             ePos.z = (float)gndZ;
         }
-        if (!onTrack) {
-            s.verticalVelocity += pc.gravity * dt;
-            ePos.z += deltaZ;
-        }
+        
         // Limit upwards velocity
         if (s.verticalVelocity > 10)
             s.verticalVelocity = 10;
@@ -435,7 +472,7 @@ public class Physics {
         if (ePos.z < -100) {
             ePos = new Vector3f(0,0,2);
             eV = 0;
-            eRot = (float) Math.PI/2;
+            eRot = (float)Math.PI;
             s.collisionVelocity = 0;
             s.verticalVelocity = 0;
         }
@@ -485,9 +522,7 @@ public class Physics {
             s.collisionVelocity = 0;
         }
         // </editor-fold>
-           
-        //System.out.println(eRot + ", " + s.verticalVelocity + ", " + ePos);
-        
+                
         // Update the state.
         s.box.setPosition(ePos);
         s.velocity = eV;
@@ -507,7 +542,7 @@ public class Physics {
     }
     
     /**
-     * Calculates and updates the physics of te instance given in the
+     * Calculates and updates the physics of the instance given in the
      * entry with the given {@link PStructAction}, {@link ModPhysicsContext}
      * and {@link ModState}.
      * Updates the state of the instance afterwards.
@@ -522,6 +557,42 @@ public class Physics {
                 entry.ms);
         entry.inst.setState(entry.ms.createState());
     }
+    
+    /**
+     * Sets the points and normals of the given track as reference points.
+     * 
+     * @param track the track to get the points and normals of.
+     */
+    public static void setTrack(Track track) {
+        List<Vector3f> pointList = new ArrayList<Vector3f>();
+        List<Vector3f> normalList = new ArrayList<Vector3f>();
+        List<Vector3f> tangentList = new ArrayList<Vector3f>();
+        
+        trackSize = track.getSize()/3;
+        trackWidth = track.getWidth()*trackSize;
+        for (int i = 0; i < track.getNrOfSegments(); i++) {
+            float delta = 1.0f / POINTS_PER_SEGMENT;
+            for (float t = 0; t < 1.0; t += delta) {
+                // positions
+                pointList.add(new Vector3f(-(track.getPoint(i, t).z - 1.5f) * trackSize,
+                -track.getPoint(i, t).x * trackSize, 
+                track.getPoint(i, t).y * trackSize + 1));
+                // normals
+                normalList.add(new Vector3f(-Track.calcNormal(track.getTangent(i, t)).z,
+                -Track.calcNormal(track.getTangent(i, t)).x,
+                Track.calcNormal(track.getTangent(i, t)).y));
+                // tangents
+                tangentList.add(new Vector3f(-track.getTangent(i, t).z,
+                -track.getTangent(i, t).x,
+                track.getTangent(i, t).y));
+            }
+        }
+        
+        points = pointList.toArray(new Vector3f[pointList.size()]);
+        normals = normals = normalList.toArray(new Vector3f[normalList.size()]);
+        tangents = tangentList.toArray(new Vector3f[tangentList.size()]);
+    }
+    
     
     public static void physicsTestVisuals () {
         /*
