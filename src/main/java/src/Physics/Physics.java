@@ -154,7 +154,7 @@ public class Physics {
     }
     
      // Necessary for determining if on track
-    final private static int POINTS_PER_SEGMENT = 200;
+    final private static int POINTS_PER_SEGMENT = 50;
     private static Vector3f[] points = new Vector3f[0];
     private static Vector3f[] normals = new Vector3f[0];
     private static Vector3f[] tangents = new Vector3f[0];
@@ -267,7 +267,7 @@ public class Physics {
         boolean onTrack = true;
         boolean inAir = true;
         // temp before complete track implementation
-        double gndZ = 0;
+        float gndZ = -1000;
         
         
         // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
@@ -276,12 +276,14 @@ public class Physics {
         float dist = 0;
         int ind = 0; // Current road point index
         for (int i = 0; i < points.length; i++) {
-            dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
-                    + (float)Math.pow(s.box.pos().y - points[i].y, 2)
-                    + (float)Math.pow(s.box.pos().z - points[i].z, 2));
-            if (dist < shortestDist) {
-                shortestDist = dist;
-                ind = i;
+            if (Math.abs(s.box.pos().z - points[i].z) < 10) {
+                dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
+                        + (float)Math.pow(s.box.pos().y - points[i].y, 2)
+                        /*+ (float)Math.pow(s.box.pos().z - points[i].z, 2)*/);
+                if (dist < shortestDist) {
+                    shortestDist = dist;
+                    ind = i;
+                }
             }
         }
         // Find distance from the middle road curve
@@ -316,8 +318,12 @@ public class Physics {
             gndZ = roadPos.z 
                     - (s.box.pos().x - roadPos.x) *rN.x / rN.z
                     - (s.box.pos().y - roadPos.y) *rN.y / rN.z;
-            if (s.box.pos().z <= gndZ)
+            // extra part after gnd is to compensate for small rounding errors
+            if (s.box.pos().z <= gndZ + (1 - rN.z)*(s.velocity / 3))
                 inAir = false;
+            if (s.box.pos().z < gndZ + (1 - rN.z)*(s.velocity / 3))
+                s.box.pos().z = gndZ;
+            //System.out.println((gndZ - s.box.pos().z) +", "+ inAir);
             // </editor-fold>
         }
         
@@ -437,31 +443,28 @@ public class Physics {
         }
         // </editor-fold>
         
+        
         // <editor-fold defaultstate="collapsed" desc="VERTICAL MOVEMENT CALCULATIONS"> 
         // Do not jump if already jumping
-        if (s.verticalVelocity == 0 && s.box.pos().z < gndZ + 0.1)
+        if (s.verticalVelocity == 0 && !inAir)
             s.verticalVelocity += pStruct.verticalVelocity;
         // Change in height when falling
         double deltaZ = dt * (s.verticalVelocity + 0.5 * pc.gravity * dt);
         // When in the air
-        if (s.box.pos().z + deltaZ > gndZ) {
+        if (s.box.pos().z + deltaZ > gndZ/* + 0.01f*/) {
             s.verticalVelocity += pc.gravity * dt;
             ePos.z += deltaZ;
         }
         // When bouncing on the ground
         else if (Math.abs(s.verticalVelocity) > 0.01 && onTrack) {
-            s.verticalVelocity = -s.verticalVelocity * pc.bounceFactor;
-            
-        } 
+        s.verticalVelocity = -s.verticalVelocity * pc.bounceFactor;
+        }   
         // When on track on the ground
         else if (onTrack) {
             s.verticalVelocity = 0;
             ePos.z = (float)gndZ;
         }
-        if (!onTrack) {
-            s.verticalVelocity += pc.gravity * dt;
-            ePos.z += deltaZ;
-        }
+        
         // Limit upwards velocity
         if (s.verticalVelocity > 10)
             s.verticalVelocity = 10;

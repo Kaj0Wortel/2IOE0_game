@@ -23,19 +23,24 @@ public class BezierTrack extends Track {
                        float rotx, float roty, float rotz, TextureImg texture, TextureImg bumbmap) {
         super(position, size, rotx, roty, rotz,texture, bumbmap);
 
-        /*super.setControl_points(new Vector3f[]{
-
-                new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 3f), new Vector3f(1f, 0f, 4f), new Vector3f(4f, 0f, 4f),
-                new Vector3f(4f, 0f, 4f), new Vector3f(7f, 0f, 4f), new Vector3f(8f, 0f, 8f), new Vector3f(8f, 0f, 4f),
-                new Vector3f(8f, 0f, 4f), new Vector3f(8f, 0f, -2f), new Vector3f(8f, 0f, -6f), new Vector3f(6f, 0f, -6f),
-                new Vector3f(6f, 0f, -6f), new Vector3f(-2f, 0f, -6f), new Vector3f(0f, 0f, -4f), new Vector3f(0f, 0f, 0f),
-        });*/
         super.setControl_points(new Vector3f[]{
 
-                new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 3f), new Vector3f(1f, 0f, 4f), new Vector3f(4f, 0f, 4f),
+                /*new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 3f), new Vector3f(1f, 0f, 4f), new Vector3f(4f, 0f, 4f),
+                new Vector3f(4f, 0f, 4f), new Vector3f(7f, 0f, 4f), new Vector3f(8f, 0f, 8f), new Vector3f(8f, 0f, 4f),
+                new Vector3f(8f, 0f, 4f), new Vector3f(8f, 0f, -2f), new Vector3f(8f, 0f, -6f), new Vector3f(6f, 0f, -6f),
+                new Vector3f(6f, 0f, -6f), new Vector3f(-2f, 0f, -6f), new Vector3f(0f, 0f, -4f), new Vector3f(0f, 0f, 0f),*/
+                /*new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 3f), new Vector3f(1f, 0f, 4f), new Vector3f(4f, 0f, 4f),
                 new Vector3f(4f, 0f, 4f), new Vector3f(7f, 0f, 4f), new Vector3f(8f, 0f, 3f), new Vector3f(8f, 0f, 0f),
                 new Vector3f(8f, 0f, 0f), new Vector3f(8f, 0f, -3f), new Vector3f(7f, 0f, -4f), new Vector3f(4f, 0f, -4f),
-                new Vector3f(4f, 0f, -4f), new Vector3f(1f, 0f, -4f), new Vector3f(0f, -0f, -3f), new Vector3f(0f, 0f, 0f),
+                new Vector3f(4f, 0f, -4f), new Vector3f(1f, 0f, -4f), new Vector3f(0f, -0f, -3f), new Vector3f(0f, 0f, 0f),*/
+                new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 0.5f), new Vector3f(0f, 0f, 1.5f), new Vector3f(0f, 0f, 2f),
+                new Vector3f(0f, 0f, 2f), new Vector3f(0f, 0f, 2.5f), new Vector3f(0f, -3f, 5.5f), new Vector3f(0f, -3f, 6f),
+                new Vector3f(0f, -3f, 6f), new Vector3f(0f, -3f, 6.5f), new Vector3f(0f, -3f, 7.5f), new Vector3f(0f, -3f, 8f),
+                new Vector3f(0f, -3f, 8f), new Vector3f(0f, -3f, 8.5f), new Vector3f(0f, -1f, 9.5f), new Vector3f(0f, 0f, 10f),
+                new Vector3f(0f, 0f, 10f), new Vector3f(0f, -1f, 10.5f), new Vector3f(0f, -3f, 11.5f), new Vector3f(0f, -3f, 12f),
+                
+                new Vector3f(0f, -3f, 12f), new Vector3f(0f, -3f, 18f), new Vector3f(6f, -3f, 18f), new Vector3f(6f, -3f, 12f),
+                new Vector3f(6f, -3f, 12f), new Vector3f(6f, -2f, -6f), new Vector3f(0f, -1f, -6f), new Vector3f(0f, 0f, 0f),
         });
 
         super.setSegments(control_points.length / 4);
