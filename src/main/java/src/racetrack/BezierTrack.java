@@ -22,25 +22,56 @@ public class BezierTrack extends Track {
     public BezierTrack(Vector3f position, float size,
                        float rotx, float roty, float rotz, TextureImg texture, TextureImg bumbmap) {
         super(position, size, rotx, roty, rotz,texture, bumbmap);
-
+        
         super.setControl_points(new Vector3f[]{
-
-                /*new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 3f), new Vector3f(1f, 0f, 4f), new Vector3f(4f, 0f, 4f),
-                new Vector3f(4f, 0f, 4f), new Vector3f(7f, 0f, 4f), new Vector3f(8f, 0f, 8f), new Vector3f(8f, 0f, 4f),
-                new Vector3f(8f, 0f, 4f), new Vector3f(8f, 0f, -2f), new Vector3f(8f, 0f, -6f), new Vector3f(6f, 0f, -6f),
-                new Vector3f(6f, 0f, -6f), new Vector3f(-2f, 0f, -6f), new Vector3f(0f, 0f, -4f), new Vector3f(0f, 0f, 0f),*/
                 /*new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 3f), new Vector3f(1f, 0f, 4f), new Vector3f(4f, 0f, 4f),
                 new Vector3f(4f, 0f, 4f), new Vector3f(7f, 0f, 4f), new Vector3f(8f, 0f, 3f), new Vector3f(8f, 0f, 0f),
                 new Vector3f(8f, 0f, 0f), new Vector3f(8f, 0f, -3f), new Vector3f(7f, 0f, -4f), new Vector3f(4f, 0f, -4f),
                 new Vector3f(4f, 0f, -4f), new Vector3f(1f, 0f, -4f), new Vector3f(0f, -0f, -3f), new Vector3f(0f, 0f, 0f),*/
-                new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 0.5f), new Vector3f(0f, 0f, 1.5f), new Vector3f(0f, 0f, 2f),
-                new Vector3f(0f, 0f, 2f), new Vector3f(0f, 0f, 2.5f), new Vector3f(0f, -3f, 5.5f), new Vector3f(0f, -3f, 6f),
-                new Vector3f(0f, -3f, 6f), new Vector3f(0f, -3f, 6.5f), new Vector3f(0f, -3f, 7.5f), new Vector3f(0f, -3f, 8f),
-                new Vector3f(0f, -3f, 8f), new Vector3f(0f, -3f, 8.5f), new Vector3f(0f, -1f, 9.5f), new Vector3f(0f, 0f, 10f),
-                new Vector3f(0f, 0f, 10f), new Vector3f(0f, -1f, 10.5f), new Vector3f(0f, -3f, 11.5f), new Vector3f(0f, -3f, 12f),
+
+                // CORRECT SIZE?
+                // downhill speeding
+                new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 0.5f), new Vector3f(0f, 0f, 1f), new Vector3f(0f, 0f, 2f),
+                new Vector3f(0f, 0f, 2f), new Vector3f(0f, 0f, 6f), new Vector3f(0f, -4f, 16f), new Vector3f(0f, -4f, 18f),
+                new Vector3f(0f, -4f, 18f), new Vector3f(0f, -4f, 20f), new Vector3f(0f, -3f, 22f), new Vector3f(0f, -2f, 24f),
+                //first jump
+                new Vector3f(0f, -2f, 24f), new Vector3f(0f, -1f, 26f), new Vector3f(0f, -1f, 26f), new Vector3f(0f, -2f, 28f),
+                //zigzag
+                new Vector3f(0f, -2f, 28f), new Vector3f(0f, -3f, 30f), new Vector3f(4f, -2.8f, 34f), new Vector3f(6f, -2.5f, 32f),
+                new Vector3f(6f, -2.5f, 32f), new Vector3f(8f, -2.2f, 30f), new Vector3f(10f, -2.2f, 32f), new Vector3f(12f, -2.5f, 34f),
+                new Vector3f(12f, -2.5f, 34f), new Vector3f(14f, -2.8f, 36f), new Vector3f(17f, -2.2f, 30f), new Vector3f(18f, -2f, 26f),
+                // upward slope and overpass
+                new Vector3f(18f, -2f, 26f), new Vector3f(19f, -1.8f, 22f), new Vector3f(14f, -1f, 21f), new Vector3f(10f, -0.8f, 20f),
+                new Vector3f(10f, -0.8f, 20f), new Vector3f(6f, -0.6f, 19f), new Vector3f(0f, -0.6f, 17f), new Vector3f(-4f, -0.8f, 16f),
+                // downward turn 1
+                new Vector3f(-4f, -0.8f, 16f), new Vector3f(-8f, -1f, 15f), new Vector3f(-8f, -1.8f, 3f), new Vector3f(-6f, -1.9f, 2f),
+                new Vector3f(-6f, -1.9f, 2f), new Vector3f(-4f, -2f, 1f), new Vector3f(4f, -2f, 0f), new Vector3f(6f, -1.9f, 0f),
+                // downward turn 2
+                new Vector3f(6f, -1.9f, 0f), new Vector3f(8f, -1.8f, 0f), new Vector3f(8f, -1f, -6f), new Vector3f(6f, -0.9f, -8f),
+                new Vector3f(6f, -0.9f, -8f), new Vector3f(4f, -0.8f, -10f), new Vector3f(0f, 0f, -4f), new Vector3f(0f, 0f, -2f),
+                new Vector3f(0f, 0f, -2f), new Vector3f(0f, 0f, -1.5f), new Vector3f(0f, 0f, -0.5f), new Vector3f(0f, 0f, 0f),
                 
-                new Vector3f(0f, -3f, 12f), new Vector3f(0f, -3f, 18f), new Vector3f(6f, -3f, 18f), new Vector3f(6f, -3f, 12f),
-                new Vector3f(6f, -3f, 12f), new Vector3f(6f, -2f, -6f), new Vector3f(0f, -1f, -6f), new Vector3f(0f, 0f, 0f),
+                // MAP SHOWCASE SIZE
+                // downhill speeding
+                /*new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 0.25f), new Vector3f(0f, 0f, 0.5f), new Vector3f(0f, 0f, 1f),
+                new Vector3f(0f, 0f, 1f), new Vector3f(0f, 0f, 3f), new Vector3f(0f, -2f, 8f), new Vector3f(0f, -2f, 9f),
+                new Vector3f(0f, -2f, 9f), new Vector3f(0f, -2f, 10f), new Vector3f(0f, -1.5f, 11f), new Vector3f(0f, -1f, 12f),
+                //first jump
+                new Vector3f(0f, -1f, 12f), new Vector3f(0f, -0.5f, 13f), new Vector3f(0f, -0.5f, 13f), new Vector3f(0f, -1f, 14f),
+                //zigzag
+                new Vector3f(0f, -1f, 14f), new Vector3f(0f, -1.5f, 15f), new Vector3f(2f, -1.4f, 17f), new Vector3f(3f, -1.25f, 16f),
+                new Vector3f(3f, -1.25f, 16f), new Vector3f(4f, -1.1f, 15f), new Vector3f(5f, -1.1f, 16f), new Vector3f(6f, -1.25f, 17f),
+                new Vector3f(6f, -1.25f, 17f), new Vector3f(7f, -1.4f, 18f), new Vector3f(8.5f, -1.1f, 15f), new Vector3f(9f, -1f, 13f),
+                // upward slope and overpass
+                new Vector3f(9f, -1f, 13f), new Vector3f(9.5f, -0.9f, 11f), new Vector3f(7f, -0.5f, 10.5f), new Vector3f(5f, -0.4f, 10f),
+                new Vector3f(5f, -0.4f, 10f), new Vector3f(3f, -0.3f, 9.5f), new Vector3f(0f, -0.3f, 8.5f), new Vector3f(-2f, -0.4f, 8f),
+                // downward turn 1
+                new Vector3f(-2f, -0.4f, 8f), new Vector3f(-4f, -0.5f, 7.5f), new Vector3f(-4f, -0.9f, 1.5f), new Vector3f(-3f, -0.95f, 1f),
+                new Vector3f(-3f, -0.95f, 1f), new Vector3f(-2f, -1f, 0.5f), new Vector3f(2f, -1f, 0f), new Vector3f(3f, -0.95f, 0f),
+                // downward turn 2
+                new Vector3f(3f, -0.95f, 0f), new Vector3f(4f, -0.9f, 0f), new Vector3f(4f, -0.5f, -3f), new Vector3f(3f, -0.45f, -4f),
+                new Vector3f(3f, -0.45f, -4f), new Vector3f(2f, -0.4f, -5f), new Vector3f(0f, 0f, -2f), new Vector3f(0f, 0f, -1f),
+                new Vector3f(0f, 0f, -1f), new Vector3f(0f, 0f, -0.75f), new Vector3f(0f, 0f, -0.25f), new Vector3f(0f, 0f, 0f),*/
         });
 
         super.setSegments(control_points.length / 4);

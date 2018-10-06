@@ -97,7 +97,7 @@ public class Simulator
         }
         
         // SLOWDOWN TEST
-        for (OBJObject obj : col) {
+        /*for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
                     new TextureImg(5, 0.5f));
             box = new Box3f(new Vector3f(100f, -52f, 0), 2f, 2f, 6f);
@@ -105,7 +105,7 @@ public class Simulator
                     50f, 0, 0, 0, texturedCube, 0, new PhysicsContext(),
                     EnvironmentItem.Type.SLOW_DOWN);
             GS.addAsset(cubeInstance);
-        }
+        }*/
         // SLOPE TEST
         /*for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
@@ -117,26 +117,110 @@ public class Simulator
             GS.addAsset(cubeInstance);
         }*/
         
+        // ITEM PROP
+        for (OBJObject obj : col) {
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            box = new Box3f(new Vector3f(0f, -115f, 540f), 2f, 2f, 6f);
+            Instance cubeInstance = new EnvironmentItem(box,
+                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext(),
+                    EnvironmentItem.Type.STATIC_OBSTACLE);
+            GS.addAsset(cubeInstance);
+        }
+        // ITEM PROP
+        for (OBJObject obj : col) {
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            box = new Box3f(new Vector3f(-10f, -115f, 540f), 2f, 2f, 6f);
+            Instance cubeInstance = new EnvironmentItem(box,
+                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext(),
+                    EnvironmentItem.Type.STATIC_OBSTACLE);
+            GS.addAsset(cubeInstance);
+        }
+        // ITEM PROP
+        for (OBJObject obj : col) {
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            box = new Box3f(new Vector3f(10f, -115f, 540f), 2f, 2f, 6f);
+            Instance cubeInstance = new EnvironmentItem(box,
+                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext(),
+                    EnvironmentItem.Type.STATIC_OBSTACLE);
+            GS.addAsset(cubeInstance);
+        }
+        
+        // ITEM PROP
+        for (OBJObject obj : col) {
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            box = new Box3f(new Vector3f(385f, -71f, 1015f), 2f, 2f, 6f);
+            Instance cubeInstance = new EnvironmentItem(box,
+                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext(),
+                    EnvironmentItem.Type.STATIC_OBSTACLE);
+            GS.addAsset(cubeInstance);
+        }
+        // ITEM PROP
+        for (OBJObject obj : col) {
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            box = new Box3f(new Vector3f(385f, -71f, 1025f), 2f, 2f, 6f);
+            Instance cubeInstance = new EnvironmentItem(box,
+                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext(),
+                    EnvironmentItem.Type.STATIC_OBSTACLE);
+            GS.addAsset(cubeInstance);
+        }
+        // ITEM PROP
+        for (OBJObject obj : col) {
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            box = new Box3f(new Vector3f(385f, -71f, 1035f), 2f, 2f, 6f);
+            Instance cubeInstance = new EnvironmentItem(box,
+                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext(),
+                    EnvironmentItem.Type.STATIC_OBSTACLE);
+            GS.addAsset(cubeInstance);
+        }
+        
+        // ITEM PROP
+        for (OBJObject obj : col) {
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            box = new Box3f(new Vector3f(80f, -52f, -5f), 2f, 2f, 6f);
+            Instance cubeInstance = new EnvironmentItem(box,
+                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext(),
+                    EnvironmentItem.Type.STATIC_OBSTACLE);
+            GS.addAsset(cubeInstance);
+        }
+        // ITEM PROP
+        for (OBJObject obj : col) {
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            box = new Box3f(new Vector3f(-40f, -52f, 30f), 2f, 2f, 6f);
+            Instance cubeInstance = new EnvironmentItem(box,
+                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext(),
+                    EnvironmentItem.Type.STATIC_OBSTACLE);
+            GS.addAsset(cubeInstance);
+        }
+        
+        // ENVIRONMENT TEST
+        for (OBJObject obj : sp) {
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            box = new Box3f(new Vector3f(0f, -60f, 500f));
+            Instance cubeInstance = new Car(box,
+                    4, 0, -90, 0, texturedCube, 0, new PhysicsContext());
+            GS.addAsset(cubeInstance);
+        }
+        
         // CAR
         for (OBJObject obj : car){
             OBJTexture texturedCube = new OBJTexture(obj,
                     new TextureImg(5, 0.5f));
             box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
             Instance cubeInstance = new Car(box,
-                    5f, 0, 180, 0, texturedCube, 90, new PhysicsContext());
+                    5f, 0, -180, 0, texturedCube, 90, new PhysicsContext());
             GS.player = cubeInstance;
             GS.addAsset(cubeInstance);
         }
         
-        // REALLY COOL DRAGON
-        for (OBJObject obj : sp) {
-            OBJTexture texturedCube = new OBJTexture(obj,
-                    new TextureImg(5, 0.5f));
-            box = new Box3f(new Vector3f(0f, 0f, -5f));
-            Instance cubeInstance = new Car(box,
-                    1, 0, 0, 0, texturedCube, 0, new PhysicsContext());
-            GS.addAsset(cubeInstance);
-        }
 
         Light light = new Light(new Vector3f(10000f, 50000f, -10000f),
                 new Vector3f(1f, 1f, 1f));

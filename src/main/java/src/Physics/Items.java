@@ -9,6 +9,7 @@ public class Items {
                 40 + 0.5 > startPos.x - 3 &&
                 startPos.y + 3 > 0 - 0.5 &&
                 0 + 0.5 > startPos.y - 3) {
+            System.out.println("NYOOM");
             return startV*2;
         }
         return startV;

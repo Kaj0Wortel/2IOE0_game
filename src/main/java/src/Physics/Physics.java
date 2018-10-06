@@ -158,8 +158,8 @@ public class Physics {
     private static Vector3f[] points = new Vector3f[0];
     private static Vector3f[] normals = new Vector3f[0];
     private static Vector3f[] tangents = new Vector3f[0];
-    private static int trackSize = 0;
-    private static int trackWidth = 0;
+    private static float trackSize = 0;
+    private static float trackWidth = 0;
     
     
     /**
@@ -319,9 +319,9 @@ public class Physics {
                     - (s.box.pos().x - roadPos.x) *rN.x / rN.z
                     - (s.box.pos().y - roadPos.y) *rN.y / rN.z;
             // extra part after gnd is to compensate for small rounding errors
-            if (s.box.pos().z <= gndZ + (1 - rN.z)*(s.velocity / 3))
+            if (s.box.pos().z <= gndZ + (1 - rN.z)*(Math.abs(s.velocity) / 3))
                 inAir = false;
-            if (s.box.pos().z < gndZ + (1 - rN.z)*(s.velocity / 3))
+            if (s.box.pos().z < gndZ + (1 - rN.z)*(Math.abs(s.velocity) / 3))
                 s.box.pos().z = gndZ;
             //System.out.println((gndZ - s.box.pos().z) +", "+ inAir);
             // </editor-fold>
@@ -450,26 +450,31 @@ public class Physics {
             s.verticalVelocity += pStruct.verticalVelocity;
         // Change in height when falling
         double deltaZ = dt * (s.verticalVelocity + 0.5 * pc.gravity * dt);
-        // When in the air
-        if (s.box.pos().z + deltaZ > gndZ/* + 0.01f*/) {
-            s.verticalVelocity += pc.gravity * dt;
-            ePos.z += deltaZ;
-        }
-        // When bouncing on the ground
-        else if (Math.abs(s.verticalVelocity) > 0.01 && onTrack) {
-        s.verticalVelocity = -s.verticalVelocity * pc.bounceFactor;
-        }   
-        // When on track on the ground
-        else if (onTrack) {
-            s.verticalVelocity = 0;
-            ePos.z = (float)gndZ;
+        
+        // TEMPORARILY DISABLED if on track
+        if (!onTrack) {
+            // When in the air
+            if (s.box.pos().z + deltaZ > gndZ + (1 - rN.z)*(Math.abs(s.velocity) / 2)) {
+                s.verticalVelocity += pc.gravity * dt;
+                ePos.z += deltaZ;
+                System.out.println("Falling");
+            }
+            // When bouncing on the ground
+            else if (Math.abs(s.verticalVelocity) > 0.01 && onTrack) {
+            s.verticalVelocity = -s.verticalVelocity * pc.bounceFactor;
+            }   
+            // When on track on the ground
+            else if (onTrack) {
+                s.verticalVelocity = 0;
+                ePos.z = (float)gndZ;
+            }
         }
         
         // Limit upwards velocity
-        if (s.verticalVelocity > 10)
+        if (s.verticalVelocity > 20)
             s.verticalVelocity = 10;
         //Death barrier: reset
-        if (ePos.z < -100) {
+        if (ePos.z < -200) {
             ePos = new Vector3f(0,0,2);
             eV = 0;
             eRot = (float)Math.PI;
@@ -539,6 +544,7 @@ public class Physics {
         Entry e2 = col.getEntry2();
         
         // TODO: do stuff with the entries.
+        System.out.println("Collision occured");
     }
     
     /**
@@ -556,6 +562,7 @@ public class Physics {
         calcPhysics(entry.inst, entry.pStruct, entry.mpc.createContext(),
                 entry.ms);
         entry.inst.setState(entry.ms.createState());
+        System.out.println("Entry wants to calculate physics");
     }
     
     /**
