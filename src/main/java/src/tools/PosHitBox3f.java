@@ -13,6 +13,10 @@ import org.joml.Vector3f;
 public class PosHitBox3f
         extends Box3f {
     
+    protected float rotx;
+    protected float rotz;
+    protected float roty;
+    
     protected Vector3f relPos;
     
     
@@ -45,6 +49,10 @@ public class PosHitBox3f
         this(pos, relPos, new Vector3f(dx, dy, dz));
     }
     
+    public PosHitBox3f(Vector3f pos, Vector3f relPos, Vector3f dim) {
+        this(pos, relPos, dim, 0);
+    }
+    
     /**
      * Full constructor.
      * 
@@ -52,9 +60,11 @@ public class PosHitBox3f
      * @param relPos the relative position of the hit box.
      * @param dx the dimension of the box. Can be negative.
      */
-    public PosHitBox3f(Vector3f pos, Vector3f relPos, Vector3f dim) {
+    public PosHitBox3f(Vector3f pos, Vector3f relPos, Vector3f dim,
+            float roty) {
         super(pos, dim);
         this.relPos = relPos;
+        this.roty = roty;
     }
     
     /**
@@ -164,6 +174,54 @@ public class PosHitBox3f
                 pos.y + relPos.y,
                 pos.z + relPos.z,
                 dx(), dy(), dz());
+    }
+    
+    /**
+     * @return the x-rotation of the hitbox.
+     */
+    public float rotx() {
+        return rotx;
+    }
+    
+    /**
+     * @return the y-rotation of the hitbox.
+     */
+    public float roty() {
+        return roty;
+    }
+    
+    /**
+     * @return the z-rotation of the hitbox.
+     */
+    public float rotz() {
+        return rotz;
+    }
+    
+    /**
+     * Sets the x-rotation of the hitbox.
+     * 
+     * @param rotx the new x-rotation.
+     */
+    public void setRotx(float rotx) {
+        this.rotx = rotx;
+    }
+    
+    /**
+     * Sets the y-rotation of the hitbox.
+     * 
+     * @param roty the new y-rotation.
+     */
+    public void setRoty(float roty) {
+        this.roty = roty;
+    }
+    
+    /**
+     * Sets the z-rotation of the hitbox.
+     * 
+     * @param rotz the new z-rotation.
+     */
+    public void setRotz(float rotz) {
+        this.rotz = rotz;
     }
     
     /**

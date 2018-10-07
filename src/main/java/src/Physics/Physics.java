@@ -31,7 +31,9 @@ public class Physics {
         public float rotx;
         public float roty;
         public float rotz;
-        public float integratedRotation;
+        public float internRotx;
+        public float internRoty;
+        public float internRotz;
         
         public float velocity;
         public float collisionVelocity;
@@ -53,7 +55,9 @@ public class Physics {
             rotx = state.rotx;
             this.roty = (float) Math.toRadians(state.roty);
             rotz = state.rotz;
-            integratedRotation = state.integratedRotation;
+            internRotx = state.internRotx;
+            internRoty = state.internRoty;
+            internRotz = state.internRotz;
             velocity = state.velocity;
             collisionVelocity = state.collisionVelocity;
             verticalVelocity = state.verticalVelocity;
@@ -70,7 +74,8 @@ public class Physics {
             // Convert back to instance space.
             return new State(box.convert(CONV_MAT_INV), sizey, sizez, sizex,
                     rotx, (float) (Math.toDegrees(roty) % 360), rotz,
-                    integratedRotation, velocity, collisionVelocity,
+                    internRotx, internRoty, internRotz,
+                    velocity, collisionVelocity,
                     verticalVelocity);
         }
         
@@ -274,7 +279,7 @@ public class Physics {
         // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
         // Find road point closest to car
         float shortestDist = 10000000;
-        float dist = 0;
+        float dist;
         int ind = 0; // Current road point index
         for (int i = 0; i < points.length; i++) {
             if (Math.abs(s.box.pos().z - points[i].z) < 10) {
@@ -485,7 +490,7 @@ public class Physics {
             ePos = new Vector3f(points[resetInd].x, points[resetInd].y
                     , points[resetInd].z + 2);
             eV = 0;
-            eRot = (float)Math.atan2(-tangents[resetInd].x, -tangents[resetInd].y);/*Math.PI*/;
+            eRot = (float)Math.atan2(-tangents[resetInd].x, -tangents[resetInd].y);// Math.PI
             eRot = (float)((-(eRot - Math.PI/2) + Math.PI*2) % (Math.PI*2));
             s.collisionVelocity = 0;
             s.verticalVelocity = 0;
