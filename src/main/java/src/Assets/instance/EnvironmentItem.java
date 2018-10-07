@@ -9,11 +9,10 @@ import org.joml.Vector3f;
 // Java imports
 import src.Assets.OBJTexture;
 import src.Physics.PStructAction;
-import src.Physics.Physics;
 import src.Physics.Physics.ModPhysicsContext;
 import src.Physics.Physics.ModState;
 import src.Physics.PhysicsContext;
-import src.tools.Box3f;
+import src.tools.PosHitBox3f;
 
 
 /**
@@ -29,7 +28,7 @@ public class EnvironmentItem
     final public Type type;
     
     
-    public EnvironmentItem(Box3f box, float size,
+    public EnvironmentItem(PosHitBox3f box, float size,
             float rotx, float roty, float rotz,
             OBJTexture model, float integratedRotation,
             PhysicsContext physicConst, Type type) {
@@ -38,6 +37,11 @@ public class EnvironmentItem
         this.type = type;
     }
     
+    
+    @Override
+    public void updateItem(long dt) {
+        // TODO
+    }
     
     @Override
     public void physicsAtCollision(Instance source, PStructAction pStruct,

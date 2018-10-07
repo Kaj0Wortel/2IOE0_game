@@ -9,7 +9,6 @@ import org.joml.Vector3f;
 
 // Own imports
 import src.tools.Binder;
-import src.tools.Box3f;
 import src.OBJ.MTLObject;
 
 
@@ -17,6 +16,7 @@ import src.OBJ.MTLObject;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import src.tools.PosHitBox3f;
 
 
 /**
@@ -148,8 +148,11 @@ public class OBJObject
         return maxZ;
     }
     
-    public Box3f createBoundingBox() {
-        return new Box3f(maxX - minX, maxY - minY, maxZ - minZ);
+    public PosHitBox3f createBoundingBox() {
+        return new PosHitBox3f(
+                new Vector3f(), // Pos
+                new Vector3f(minX, minY, minZ), // Rel pos
+                new Vector3f(maxX - minX, maxY - minY, maxZ - minZ)); // Dim
     }
     
     

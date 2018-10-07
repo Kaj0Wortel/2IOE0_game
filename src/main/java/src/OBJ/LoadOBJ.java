@@ -27,15 +27,14 @@ import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 
 /**
  * 
- * 
- * @author Kaj Wortel (0991586)
  */
 public class LoadOBJ {
     final private static Map<String, OBJCollection> map
             = new ConcurrentHashMap<>();
     
-    // Private constructor for static singleton design.
+    // Private constructor for static singleton design pattern.
     private LoadOBJ() { }
+    
     
     @SuppressWarnings({"null", "UnusedAssignment"})
     public static OBJCollection load(GL3 gl, String fileName) {
@@ -163,6 +162,8 @@ public class LoadOBJ {
                     if (obj != null) {
                         obj.addData(gl, vertsBuf, texsBuf, normsBuf,
                                 facesBuf, mtl);
+                        obj.setMinMax(minX, maxX, minY, maxY, minZ, maxZ);
+                        
                         vertsBuf = new ArrayList<>();
                         texsBuf = new ArrayList<>();
                         normsBuf = new ArrayList<>();
@@ -176,6 +177,8 @@ public class LoadOBJ {
                     if (mtl != null) {
                         obj.addData(gl, vertsBuf, texsBuf, normsBuf,
                                 facesBuf, mtl);
+                        obj.setMinMax(minX, maxX, minY, maxY, minZ, maxZ);
+                        
                         vertsBuf = new ArrayList<>();
                         texsBuf = new ArrayList<>();
                         normsBuf = new ArrayList<>();
@@ -196,6 +199,7 @@ public class LoadOBJ {
             }
             if (obj != null) {
                 obj.addData(gl, vertsBuf, texsBuf, normsBuf, facesBuf, mtl);
+                obj.setMinMax(minX, maxX, minY, maxY, minZ, maxZ);
             }
             
         } catch (IOException e) {

@@ -147,7 +147,9 @@ public class GS {
 
     public static List<Car> cars = new ArrayList<>();
     public static Instance player;
-    
+
+    public static int width = 1080;
+    public static int height = 720;
     
     
     
@@ -206,7 +208,7 @@ public class GS {
         
         reloadKeyMap();
         
-        grid = new Grid(0f, -1000f, 0f, 2f, 2f, 2f);
+        grid = new Grid(0f, 0f, -1000f, 4f, 4f, 2000f);
 
         animator = new FPSAnimator(canvas, 60, true);
 
@@ -215,7 +217,7 @@ public class GS {
         Locker.add(cameraController);
 
         simulator = new Simulator();
-        renderer = new Renderer(simulator, 1080, 720);
+        renderer = new Renderer(simulator, width, height);
 
         canvas.addGLEventListener(renderer);
         canvas.setSize(1080, 720);

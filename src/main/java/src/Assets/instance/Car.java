@@ -8,7 +8,7 @@ import src.Assets.OBJTexture;
 
 // Java imports
 import src.Physics.PhysicsContext;
-import src.tools.Box3f;
+import src.tools.PosHitBox3f;
 
 
 /**
@@ -17,7 +17,7 @@ import src.tools.Box3f;
 public class Car
         extends GridItemInstance {
     
-    public Car(Box3f box, float size,
+    public Car(PosHitBox3f box, float size,
             float rotx, float roty, float rotz,
             OBJTexture model, float integratedRotation,
             PhysicsContext physicConst) {

@@ -7,7 +7,6 @@ import src.Assets.instance.Instance.State;
 import src.Assets.instance.Car;
 import src.Assets.instance.Item;
 import src.racetrack.Track;
-import src.tools.Box3f;
 import src.tools.update.CollisionManager.Collision;
 import src.tools.update.CollisionManager.Entry;
 import src.Progress.ProgressManager;
@@ -16,14 +15,16 @@ import src.Progress.ProgressManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.joml.Matrix3f;
 import org.joml.Vector3f;
+import src.tools.PosHitBox3f;
 
 
 
 public class Physics {
     
     public static class ModState {
-        public Box3f box;
+        public PosHitBox3f box;
         public float sizex;
         public float sizey;
         public float sizez;
@@ -36,13 +37,16 @@ public class Physics {
         public float collisionVelocity;
         public float verticalVelocity;
         
+        // Conversion matrix from model -> physics.
+        final public static Matrix3f CONV_MAT = new Matrix3f(
+                0, -1, 0, 0, 0, 1, -1, 0, 0);
+        // Inverse conversion matrix (from physics -> model).
+        final public static Matrix3f CONV_MAT_INV = new Matrix3f(
+                0, 0, -1, -1, 0, 0, 0, 1, 0);
+        
         
         public ModState(State state) {
-            box = new Box3f(new Vector3f(
-                    -state.box.pos().z,
-                    -state.box.pos().x,
-                    state.box.pos().y
-            ), state.box.dx(), state.box.dy(), state.box.dz());
+            box = state.box.convert(CONV_MAT);
             sizex = state.sizez;
             sizey = state.sizex;
             sizez = state.sizey;
@@ -64,12 +68,7 @@ public class Physics {
          */
         public State createState() {
             // Convert back to instance space.
-            Box3f newBox = new Box3f(new Vector3f(
-                    -box.pos().y,
-                    box.pos().z,
-                    -box.pos().x
-            ), box.dx(), box.dy(), box.dz());
-            return new State(newBox, sizey, sizez, sizex,
+            return new State(box.convert(CONV_MAT_INV), sizey, sizez, sizex,
                     rotx, (float) (Math.toDegrees(roty) % 360), rotz,
                     integratedRotation, velocity, collisionVelocity,
                     verticalVelocity);

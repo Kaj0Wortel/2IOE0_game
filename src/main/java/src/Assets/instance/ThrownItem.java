@@ -8,7 +8,7 @@ import src.Physics.PStructAction;
 import src.Physics.Physics.ModPhysicsContext;
 import src.Physics.Physics.ModState;
 import src.Physics.PhysicsContext;
-import src.tools.Box3f;
+import src.tools.PosHitBox3f;
 
 
 // Java imports
@@ -20,7 +20,7 @@ import src.tools.Box3f;
 public class ThrownItem
         extends Item {
     
-    public ThrownItem(Box3f box, float size,
+    public ThrownItem(PosHitBox3f box, float size,
             float rotx, float roty, float rotz,
             OBJTexture model, float integratedRotation,
             PhysicsContext physicConst) {
@@ -32,6 +32,11 @@ public class ThrownItem
     @Override
     public void physicsAtCollision(Instance instance, PStructAction pStruct,
             ModPhysicsContext pc, ModState s) {
+        // TODO
+    }
+    
+    @Override
+    public void updateItem(long dt) {
         // TODO
     }
     

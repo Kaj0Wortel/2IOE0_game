@@ -1,13 +1,8 @@
 
 package src.tools;
 
+
 import org.joml.Vector3f;
-
-
-// Own imports
-
-
-// Java imports
 
 
 /**
@@ -16,10 +11,8 @@ import org.joml.Vector3f;
 public class Box3f
         implements Cloneable {
     
-    private Vector3f pos;
-    private float dx;
-    private float dy;
-    private float dz;
+    protected Vector3f pos;
+    protected Vector3f dim;
     
     
     public Box3f() {
@@ -39,7 +32,7 @@ public class Box3f
     }
     
     /**
-     * Full constructor.
+     * Constructor.
      * 
      * @param pos the position of the box.
      * @param dx the length of the box on the x-axis.
@@ -47,11 +40,20 @@ public class Box3f
      * @param dz the length of the box on the z-axis.
      */
     public Box3f(Vector3f pos, float dx, float dy, float dz) {
-        this.pos = pos;
-        this.dx = dx;
-        this.dy = dy;
-        this.dz = dz;
+        this(pos, new Vector3f(dx, dy, dz));
     }
+    
+    /**
+     * Full constructor.
+     * 
+     * @param pos the position of the box.
+     * @param dim the dimensions of the box.
+     */
+    public Box3f(Vector3f pos, Vector3f dim) {
+        this.pos = pos;
+        this.dim = dim;
+    }
+    
     
     /**
      *  Clone constructor.
@@ -60,29 +62,50 @@ public class Box3f
      */
     public Box3f(Box3f box) {
         this.pos = new Vector3f(box.pos);
-        this.dx = box.dx;
-        this.dy = box.dy;
-        this.dz = box.dz;
+        this.dim = new Vector3f(box.dim);
     }
     
+    /**
+     * @return the location of this box.
+     */
     public Vector3f getPosition() {
         return pos;
     }
     
     /**
+     * Shorthand for {@link #getPosition()}.
+     * 
      * @return the location of this box.
      * 
-     * Shorthand for {@link #getPosition()}.
+     * @see #getposition()
      */
     public Vector3f pos() {
         return getPosition();
     }
     
     /**
+     * @return the dimension of this box.
+     */
+    public Vector3f getDimension() {
+        return dim;
+    }
+    
+    /**
+     * Shorthand for {@link #getDimension()}.
+     * 
+     * @return the dimension of this box.
+     * 
+     * @see #getDimension()
+     */
+    public Vector3f dim() {
+        return getDimension();
+    }
+    
+    /**
      * @return the dx of the box.
      */
     public float getDX() {
-        return dx;
+        return dim.x;
     }
     
     /**
@@ -100,7 +123,7 @@ public class Box3f
      * @return the dy of the box.
      */
     public float getDY() {
-        return dy;
+        return dim.y;
     }
     
     /**
@@ -118,7 +141,7 @@ public class Box3f
      * @return the dz of the box.
      */
     public float getDZ() {
-        return dz;
+        return dim.z;
     }
     
     /**
@@ -158,9 +181,9 @@ public class Box3f
      * @param dz 
      */
     public void reshape(float dx, float dy, float dz) {
-        this.dx = dx;
-        this.dy = dy;
-        this.dz = dz;
+        this.dim.x = dx;
+        this.dim.y = dy;
+        this.dim.z = dz;
     }
     
     /**
@@ -169,7 +192,7 @@ public class Box3f
      * @param dx 
      */
     public void setDX(float dx) {
-        this.dx = dx;
+        this.dim.x = dx;
     }
     
     /**
@@ -178,7 +201,7 @@ public class Box3f
      * @param dy 
      */
     public void setDY(float dy) {
-        this.dy = dy;
+        this.dim.y = dy;
     }
     
     /**
@@ -187,7 +210,7 @@ public class Box3f
      * @param dz 
      */
     public void setDZ(float dz) {
-        this.dz = dz;
+        this.dim.z = dz;
     }
     
     /**
@@ -198,13 +221,14 @@ public class Box3f
      *     {@code false} otherwise.
      */
     public boolean intersects(Box3f box) {
-        return intersectsSegment(this.pos.x, box.pos.x, this.dx, box.dx) &&
-                intersectsSegment(this.pos.y, box.pos.y, this.dy, box.dy) &&
-                intersectsSegment(this.pos.z, box.pos.z, this.dz, box.dz);
+        return intersectsSegment(this.pos.x, box.pos.x, this.dx(), box.dx()) &&
+                intersectsSegment(this.pos.y, box.pos.y, this.dy(), box.dy()) &&
+                intersectsSegment(this.pos.z, box.pos.z, this.dz(), box.dz());
     }
     
     /**
      * Checks whether the two given line segments intersect.
+     * 
      * @param v1 the begin of the first line segment.
      * @param v2 the begin of the second line segment.
      * @param d1 the length of the first line segment.
@@ -212,12 +236,16 @@ public class Box3f
      * @return {@code true} if the two line segments intersect.
      *     {@code false} otherwise.
      */
-    private boolean intersectsSegment(float v1, float v2, float d1, float d2) {
-        return (v1 < v2 && v1 + d1 > v2) ||
-                (v2 < v1 && v2 + d2 > v1) ||
-                (v1 + d1 > v2 + d2 && v1 < v2 + d2) ||
-                (v2 + d2 > v1 + d1 && v2 < v1 + d1);
-                
+    protected boolean intersectsSegment(float v1, float v2, float d1, float d2) {
+        float p11 = Math.min(v1, v1 + d1);
+        float p12 = Math.max(v1, v1 + d1);
+        float p21 = Math.min(v2, v2 + d2);
+        float p22 = Math.max(v2, v2 + d2);
+        
+        return (p11 < p21 && p12 > p21) ||
+                (p21 < p11 && p22 > p11) ||
+                (p12 > p22 && p11 < p22) ||
+                (p22 > p12 && p21 < p12);
     }
     
     @Override

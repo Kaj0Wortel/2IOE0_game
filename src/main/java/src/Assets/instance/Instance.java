@@ -14,7 +14,7 @@ import src.Physics.PhysicsContext;
 import src.Physics.Physics;
 import src.Progress.ProgressManager;
 import src.Shaders.ShaderProgram;
-import src.tools.Box3f;
+import src.tools.PosHitBox3f;
 
 
 public abstract class Instance {
@@ -28,7 +28,7 @@ public abstract class Instance {
      * to prevent intermediate state changes.
      */
     final public static class State {
-        final public Box3f box;
+        final public PosHitBox3f box;
         final public float sizex;
         final public float sizey;
         final public float sizez;
@@ -42,7 +42,7 @@ public abstract class Instance {
         final public float verticalVelocity;
         
         
-        public State(Box3f box, float sizex, float sizey, float sizez,
+        public State(PosHitBox3f box, float sizex, float sizey, float sizez,
                 float rotx, float roty, float rotz, float integratedRotation,
                 float velocity, float collisionVelocity,
                 float verticalVelocity) {
@@ -73,23 +73,26 @@ public abstract class Instance {
     protected PhysicsContext physicsContext;
     
     protected OBJTexture model;
+    protected long prevTimeStamp;
     
     
-    public Instance(Box3f box, float size,
+    public Instance(PosHitBox3f box, float size,
             float rotx, float roty, float rotz,
             OBJTexture model, float integratedRotation, 
             PhysicsContext physicContext) {
         this(box, size, size, size, rotx, roty, rotz, model,
                 integratedRotation, physicContext);
     }
-    public Instance(Box3f box, float sizex, float sizey, float sizez,
+    public Instance(PosHitBox3f box, float sizex, float sizey, float sizez,
             float rotx, float roty, float rotz, OBJTexture model,
             float integratedRotation, PhysicsContext physicContext) {
+        box.scaleHitBox(sizex, sizey, sizez);
         setState(new State(box, sizex, sizey, sizez, rotx, roty, rotz,
                 integratedRotation, 0, 0, 0));
         
         this.model = model;
         this.physicsContext = physicContext;
+        
         SwingUtilities.invokeLater(() -> {
             Locker.add(this);
         });
@@ -119,7 +122,6 @@ public abstract class Instance {
         rotx(3f);
     }
 
-    @Deprecated
     public void rotx(float rot) {
         State s = state; // For sync.
         setState(new State(s.box, s.sizex, s.sizey, s.sizez,
@@ -133,11 +135,23 @@ public abstract class Instance {
         roty(3f);
     }
     
-    @Deprecated
     public void roty(float rot) {
         State s = state; // For sync.
         setState(new State(s.box, s.sizex, s.sizey, s.sizez,
                 s.rotx, (s.roty + rot) % 360, s.rotz, s.integratedRotation,
+                s.velocity, s.collisionVelocity,
+                s.verticalVelocity));
+    }
+
+    @Deprecated
+    public void rotz() {
+        roty(3f);
+    }
+    
+    public void rotz(float rot) {
+        State s = state; // For sync.
+        setState(new State(s.box, s.sizex, s.sizey, s.sizez,
+                s.rotx, s.roty, (s.rotz + rot) % 360, s.integratedRotation,
                 s.velocity, s.collisionVelocity,
                 s.verticalVelocity));
     }
@@ -150,7 +164,7 @@ public abstract class Instance {
     @Deprecated
     public void moveup(float amt) {
         State s = state; // For sync.
-        Box3f newBox = s.box.clone();
+        PosHitBox3f newBox = s.box.clone();
         newBox.translate(new Vector3f(0, amt, 0));
         setState(new State(newBox, s.sizex, s.sizey, s.sizez,
                 s.rotx, s.roty, s.rotz, s.integratedRotation,
@@ -158,7 +172,13 @@ public abstract class Instance {
                 s.verticalVelocity));
     }
 
-    public void draw(GL3 gl, ShaderProgram shader){
+    /**
+     * Draws {@code this} using the given shader.
+     * 
+     * @param gl
+     * @param shader 
+     */
+    public void draw(GL3 gl, ShaderProgram shader) {
         shader.loadModelMatrix(gl, getTransformationMatrix());
         shader.loadTextureLightValues(gl, model.getTextureImg().getShininess(),
                 model.getTextureImg().getReflectivity());
@@ -201,7 +221,7 @@ public abstract class Instance {
      * When using more than this data from {@code this} instance,
      * use {@link #getState()} instead.
      */
-    public Box3f getBox() {
+    public PosHitBox3f getBox() {
         return state.box;
     }
     
@@ -274,6 +294,13 @@ public abstract class Instance {
         } else {
             Physics.calcPhysics(this, pStruct, physicsContext, state, null, progress);
         }
+    }
+    
+    /**
+     * Removes the instance and releases all resources connected to it.
+     */
+    public void destroy() {
+        // TODO
     }
     
     
