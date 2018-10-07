@@ -442,6 +442,10 @@ public class Physics {
                     (float)(s.box.pos().x + vFactor.x * distTravelled),
                     (float)(s.box.pos().y + vFactor.y * distTravelled), 
                     (float)(s.box.pos().z + vFactor.z * distTravelled));
+            
+            // TEMPORARY TO DETECT TELEPORT BUG FOR TURNING AT SMALL VELOCITIES
+            if (Math.sqrt(deltaX*deltaX + deltaY*deltaY) > 5)
+                System.err.println("TELEPORT: " + deltaX + "," + deltaY);
         }
         // </editor-fold>
         
@@ -477,9 +481,13 @@ public class Physics {
             s.verticalVelocity = 10;
         //Death barrier: reset
         if (ePos.z < -200) {
-            ePos = new Vector3f(0,0,2);
+            int resetInd = Math.round(points.length*(progress.checkPoint-1)
+                    /progress.cpAm);
+            ePos = new Vector3f(points[resetInd].x, points[resetInd].y
+                    , points[resetInd].z + 2);
             eV = 0;
-            eRot = (float)Math.PI;
+            eRot = (float)Math.atan2(-tangents[resetInd].x, -tangents[resetInd].y);/*Math.PI*/;
+            eRot = (float)((-(eRot - Math.PI/2) + Math.PI*2) % (Math.PI*2));
             s.collisionVelocity = 0;
             s.verticalVelocity = 0;
         }
@@ -531,8 +539,8 @@ public class Physics {
                 
         
         // <editor-fold defaultstate="collapsed" desc="COLLISION TEST"> 
-        //System.out.println(progress.checkPoint);
-        progress.ManageProgress(s.box.pos(), points.length, ind);
+        if (onTrack)
+            progress.ManageProgress(s.box.pos(), points.length, ind);
         // </editor-fold>
         
         // Update the state.

@@ -4,40 +4,26 @@ package src.Progress;
 import org.joml.Vector3f;
 
 public class ProgressManager {
-    public int checkPoint = 0;
+    public int checkPoint = 1;
     private int lap = 1;
     
+    public int cpAm = 16;
+    public boolean finished = false;
+    
     public void ManageProgress(Vector3f pos, int pointAmount, int curPoint) {
-        switch (checkPoint) {
-            case 0:
-                if (curPoint > pointAmount /4 && curPoint < pointAmount * 3/8)
-                    checkPoint++;
-                break;
-            case 1:
-                if (curPoint > pointAmount /2 && curPoint < pointAmount * 5/8)
-                    checkPoint++;
-                break;
-            case 2:
-                if (curPoint > pointAmount* 3/4 && curPoint < pointAmount * 7/8)
-                    checkPoint++;
-                break;
-            case 3:
-                if (curPoint > 0 && curPoint < pointAmount * 1 / 8) {
-                    if (lap == 3) {
-                        checkPoint++;
-                    } else {
-                        checkPoint = 0;
-                        lap++;
-                        System.out.println("LAP " + lap);
-                    }
-                }
-                break;
-            case 4:
-                System.out.println("GOAL");
-                break;
-            default:
-                System.err.println("WAIT WHY CHECKPOINT " + checkPoint);
-                break;      
+        if (curPoint > pointAmount * checkPoint / cpAm
+                && curPoint < pointAmount * (checkPoint + 1) / cpAm && !finished)
+            checkPoint++;
+        else if (checkPoint == cpAm) {
+            if (curPoint > 0 && curPoint < pointAmount / cpAm) {
+                lap++;
+                checkPoint = 1;
+                System.out.println("LAP " + lap);
+                if (lap == 4)
+                    finished = true;
+            }
         }
+        else if (finished)
+            System.out.println("FINISHED");
     }
 }
