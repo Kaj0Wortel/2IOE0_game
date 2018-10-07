@@ -222,7 +222,7 @@ public class Simulator
         }
         
 
-        Light light = new Light(new Vector3f(10000f, 50000f, -10000f),
+        Light light = new Light(new Vector3f(100f, 50f, -100f),
                 new Vector3f(1f, 1f, 1f));
         GS.addLight(light);
 
