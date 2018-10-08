@@ -2,8 +2,8 @@
 package src.tools;
 
 
-import javax.swing.SwingUtilities;
 import org.joml.Matrix3f;
+import org.joml.Planef;
 import org.joml.Vector3f;
 
 
@@ -50,7 +50,7 @@ public class PosHitBox3f
     }
     
     public PosHitBox3f(Vector3f pos, Vector3f relPos, Vector3f dim) {
-        this(pos, relPos, dim, 0);
+        this(pos, relPos, dim, 0, 0, 0);
     }
     
     /**
@@ -61,10 +61,12 @@ public class PosHitBox3f
      * @param dx the dimension of the box. Can be negative.
      */
     public PosHitBox3f(Vector3f pos, Vector3f relPos, Vector3f dim,
-            float roty) {
+            float rotx, float roty, float rotz) {
         super(pos, dim);
         this.relPos = relPos;
+        this.rotx = rotx;
         this.roty = roty;
+        this.rotz = rotz;
     }
     
     /**
@@ -243,6 +245,15 @@ public class PosHitBox3f
         return new PosHitBox3f(this);
     }
     
+    /**
+     * Calculates whether two hitboxes intersect, without rotation.
+     * 
+     * @param box the box to check whether it intersects with.
+     * @return {@code true} if {@code this} intersects with {@code box}.
+     * 
+     * Note hit boxes which only share one point, line or plane are
+     * NOT intersecting.
+     */
     public boolean intersects(PosHitBox3f box) {
         return
                 intersectsSegment(this.pos.x + this.relPos.x,
@@ -253,12 +264,59 @@ public class PosHitBox3f
                         box.pos.z + box.relPos.z, this.dz(), box.dz());
     }
     
+    /**
+     * Calculates whether two hitboxes intersect, with rotation.
+     * 
+     * @param box the box to check whether it intersects with.
+     * @return {@code true} if {@code this} intersects with {@code box}.
+     * 
+     * Uses the separate axis test theorem:
+     * <url>https://gamedevelopment.tutsplus.com/tutorials/collision-detection-
+     *      using-the-separating-axis-theorem--gamedev-169</url>
+     */
+    public boolean intersectsRot(PosHitBox3f box) {
+        Matrix3f rotMatThis = calcRotMatrix();
+        Matrix3f rotMatBox = box.calcRotMatrix();
+        Planef plane;
+        
+        Vector3f centerThis = this.calcHitBoxCenterViewSpace();
+        Vector3f centerBox = box.calcHitBoxCenterViewSpace();
+        return false;
+    }
+    
+    public Matrix3f calcRotMatrix() {
+        return new Matrix3f()
+                .rotate((float) Math.toRadians(rotx), 1, 0, 0)
+                .rotate((float) Math.toRadians(roty), 0, 1, 0)
+                .rotate((float) Math.toRadians(rotz), 0, 0, 1);
+    }
+    
+    public Vector3f calcHitBoxCenterViewSpace() {
+        Vector3f center = new Vector3f(
+                dim.x / 2 - relPos.x,
+                dim.y / 2 - relPos.y,
+                dim.z / 2 - relPos.z
+        );
+        return center.mul(calcRotMatrix()).add(pos);
+    }
+    
     @Override
     public String toString() {
         return getClass().getName() + "["
                 + "pos=[" + pos.x + "," + pos.y + "," + pos.z + "], "
                 + "relPos=[" + relPos.x + "," + relPos.y + "," + relPos.z + "], "
                 + "dim=[" + dim.x + "," + dim.y + "," + dim.z + "]]";
+    }
+    
+    
+    // tmp
+    public static void main(String[] args) {
+        PosHitBox3f box = new PosHitBox3f(
+                new Vector3f(1, 0, 5),
+                new Vector3f(0, 0, 0),
+                new Vector3f(2, 2, 2),
+                0, 0, 0);
+        System.out.println(box.calcHitBoxCenterViewSpace());
     }
     
     
