@@ -242,7 +242,7 @@ public class Simulator
         OBJTexture texturedCube = new OBJTexture(car,
                 new TextureImg(5, 0.5f));
         //box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
-        box = car2.get(0).createBoundingBox();
+        box = car.createBoundingBox();
         //box.setPosKeepHitBox();
         box.translate(new Vector3f(0f, 0f, 0f));
         Instance cubeInstance = new Car(box,
@@ -254,7 +254,7 @@ public class Simulator
         texturedCube = new OBJTexture(car2,
                 new TextureImg(5, 3f));
         //box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
-        box = car2.get(0).createBoundingBox();
+        box = car2.createBoundingBox();
         //box.setPosKeepHitBox();
         box.translate(new Vector3f(0f, 0f, 0f));
         cubeInstance = new Car(box,
