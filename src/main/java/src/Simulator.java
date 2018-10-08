@@ -257,7 +257,7 @@ public class Simulator
 
         // CAR
         texturedCube = new OBJTexture(car2,
-                new TextureImg(5, 0.5f));
+                new TextureImg(5, 3f));
         //box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
         box = car2.get(0).createBoundingBox();
         //box.setPosKeepHitBox();
