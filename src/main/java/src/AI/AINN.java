@@ -70,7 +70,7 @@ public class AINN {
     private boolean stopUpdateThread = false;
     
     // Update delay.
-    private long MILLIS_PER_UPDATE = 100L;
+    final private long MILLIS_PER_UPDATE = 100L;
     
     
     /**
