@@ -197,7 +197,7 @@ public abstract class Instance {
         shader.loadTextureLightValues(gl, model.getTextureImg().getShininess(),
                 model.getTextureImg().getReflectivity());
         
-        GraphicsObject obj = model.getAsset();
+        GraphicsObject obj = model.getAsset().get(0);
         for (int i = 0; i < obj.size(); i++) {
             if(shader.useMaterial()) shader.loadMaterial(gl,obj.getMaterials().get(i));
             gl.glBindVertexArray(obj.getVao(i));

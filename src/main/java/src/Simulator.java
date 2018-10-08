@@ -45,24 +45,28 @@ public class Simulator
     }
 
     public void initAssets() {
-       Terrain terrain = new Terrain(gl);
-        OBJTexture texturedTerrain = new OBJTexture(terrain,
-                new TextureImg(gl,"test.jpg",0, 0));
+        /*
+        //Terrain terrain = new Terrain(gl);
+        //OBJTexture texturedTerrain = new OBJTexture(terrain,
+          //      new TextureImg(gl,"test.jpg",0, 0));
         PosHitBox3f box = new PosHitBox3f(
                 new Vector3f(texturedTerrain.getAsset().getCenteredPosition())
                 .add(new Vector3f(0, -2, 0)), new Vector3f(), 2f, 2f, 6f);
         Instance terrainInstance = new TerrainInstance(box, 1f, 0f, 0f, 0f,
                 texturedTerrain, 0f, new PhysicsContext());
         GS.addTerrain(terrainInstance);
-       
+       */
+
+        PosHitBox3f box;
         
         OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "cube.obj");
         OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "dragon.obj");
         OBJCollection car = LoadOBJ.load(gl, GS.OBJ_DIR + "car.obj");
+        OBJCollection car2 = LoadOBJ.load(gl, GS.OBJ_DIR + "offroadcar.obj");
         
         // (0,0,0) REFERENCE
         for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj,
+            OBJTexture texturedCube = new OBJTexture(col,
                     new TextureImg(5, 0.5f));
             //box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
             box = obj.createBoundingBox();
@@ -75,7 +79,7 @@ public class Simulator
         
         // COLLISION TEST
         for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj,
+            OBJTexture texturedCube = new OBJTexture(col,
                     new TextureImg(5, 0.5f));
             //box = new Box3f(new Vector3f(-40f, 1f, 0.001f), 2f, 2f, 6f);
             box = obj.createBoundingBox();
@@ -89,7 +93,7 @@ public class Simulator
         
         // SPEEDBOOST TEST
         for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj,
+            OBJTexture texturedCube = new OBJTexture(col,
                     new TextureImg(5, 0.5f));
             //box = new Box3f(new Vector3f(0f, 1f, -40f), 2f, 2f, 6f);
             box = obj.createBoundingBox();
@@ -124,7 +128,7 @@ public class Simulator
         
         // ITEM PROP
         for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj,
+            OBJTexture texturedCube = new OBJTexture(col,
                     new TextureImg(5, 0.5f));
             //box = new Box3f(new Vector3f(0f, -115f, 540f), 2f, 2f, 6f);
             box = obj.createBoundingBox();
@@ -136,7 +140,7 @@ public class Simulator
         }
         // ITEM PROP
         for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj,
+            OBJTexture texturedCube = new OBJTexture(col,
                     new TextureImg(5, 0.5f));
             //box = new Box3f(new Vector3f(-40f, -52f, 30f), 2f, 2f, 2f);
             box = obj.createBoundingBox();
@@ -148,7 +152,7 @@ public class Simulator
         }
         // ITEM PROP
         for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj,
+            OBJTexture texturedCube = new OBJTexture(col,
                     new TextureImg(5, 0.5f));
             //box = new Box3f(new Vector3f(10f, -115f, 540f), 2f, 2f, 6f);
             box = obj.createBoundingBox();
@@ -161,7 +165,7 @@ public class Simulator
         
         // ITEM PROP
         for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj,
+            OBJTexture texturedCube = new OBJTexture(col,
                     new TextureImg(5, 0.5f));
             //box = new Box3f(new Vector3f(385f, -71f, 1015f), 2f, 2f, 6f);
             box = obj.createBoundingBox();
@@ -174,7 +178,7 @@ public class Simulator
         }
         // ITEM PROP
         for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj,
+            OBJTexture texturedCube = new OBJTexture(col,
                     new TextureImg(5, 0.5f));
             //box = new Box3f(new Vector3f(385f, -71f, 1025f), 2f, 2f, 6f);
             box = obj.createBoundingBox();
@@ -187,7 +191,7 @@ public class Simulator
         }
         // ITEM PROP
         for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj,
+            OBJTexture texturedCube = new OBJTexture(col,
                     new TextureImg(5, 0.5f));
             //box = new Box3f(new Vector3f(385f, -71f, 1035f), 2f, 2f, 6f);
             box = obj.createBoundingBox();
@@ -201,7 +205,7 @@ public class Simulator
         
         // ITEM PROP
         for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj,
+            OBJTexture texturedCube = new OBJTexture(col,
                     new TextureImg(5, 0.5f));
             //box = new Box3f(new Vector3f(80f, -52f, -5f), 2f, 2f, 2f);
             box = obj.createBoundingBox();
@@ -214,7 +218,7 @@ public class Simulator
         }
         // ITEM PROP
         for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj,
+            OBJTexture texturedCube = new OBJTexture(col,
                     new TextureImg(5, 0.5f));
             //box = new Box3f(new Vector3f(-40f, -52f, 30f), 2f, 2f, 2f);
             box = obj.createBoundingBox();
@@ -228,7 +232,7 @@ public class Simulator
         
         // ENVIRONMENT TEST
         for (OBJObject obj : sp) {
-            OBJTexture texturedCube = new OBJTexture(obj,
+            OBJTexture texturedCube = new OBJTexture(sp,
                     new TextureImg(5, 0.5f));
             //box = new Box3f(new Vector3f(0f, -60f, 500f));
             box = obj.createBoundingBox();
@@ -240,18 +244,28 @@ public class Simulator
         }
         
         // CAR
-        for (OBJObject obj : car){
-            OBJTexture texturedCube = new OBJTexture(obj,
-                    new TextureImg(5, 0.5f));
-            //box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
-            box = obj.createBoundingBox();
-            //box.setPosKeepHitBox();
-            box.translate(new Vector3f(0f, 0f, 0f));
-            Instance cubeInstance = new Car(box,
-                    5f, 0, -180, 0, texturedCube, 90, new PhysicsContext());
-            GS.player = cubeInstance;
-            GS.addMaterialAsset(cubeInstance);
-        }
+        OBJTexture texturedCube = new OBJTexture(car,
+                new TextureImg(5, 0.5f));
+        //box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
+        box = car2.get(0).createBoundingBox();
+        //box.setPosKeepHitBox();
+        box.translate(new Vector3f(0f, 0f, 0f));
+        Instance cubeInstance = new Car(box,
+                5f, 0, -180, 0, texturedCube, 90, new PhysicsContext());
+        //GS.player = cubeInstance;
+        GS.addMaterialAsset(cubeInstance);
+
+        // CAR
+        texturedCube = new OBJTexture(car2,
+                new TextureImg(5, 0.5f));
+        //box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
+        box = car2.get(0).createBoundingBox();
+        //box.setPosKeepHitBox();
+        box.translate(new Vector3f(0f, 0f, 0f));
+        cubeInstance = new Car(box,
+                3f, 0, -180, 0, texturedCube, -90, new PhysicsContext());
+        GS.player = cubeInstance;
+        GS.addMaterialAsset(cubeInstance);
         
 
         Light light = new Light(new Vector3f(10000f, 50000f, -10000f),
