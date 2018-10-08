@@ -51,9 +51,6 @@ public class Renderer implements GLEventListener {
         this.gl = glAutoDrawable.getGL().getGL3();
         this.glu = new GLU();
 
-        //gl.glEnable(GL3.GL_CULL_FACE);
-        //gl.glCullFace(GL3.GL_BACK);
-
         System.out.println(gl.glGetString(GL_SHADING_LANGUAGE_VERSION));
 
         simulator.setGL(gl);

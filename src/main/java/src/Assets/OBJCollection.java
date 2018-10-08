@@ -10,6 +10,7 @@ package src.Assets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import src.tools.PosHitBox3f;
 
 
 /**
@@ -43,6 +44,10 @@ public class OBJCollection
         
         objObjects.clear();
         objObjects = null;
+    }
+    
+    public PosHitBox3f createBoundingBox() {
+        return objObjects.get(objObjects.size() - 1).createBoundingBox();
     }
     
     
