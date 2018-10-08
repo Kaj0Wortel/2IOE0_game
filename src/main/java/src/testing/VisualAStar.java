@@ -94,14 +94,14 @@ public class VisualAStar
                 Vector3f point = getPoint(i,t);
                 Vector3f tangent = getTangent(i,t);
                 Vector3f addedTang = new Vector3f();
-                //point.add(tangent, addedTang);
+                point.add(tangent, addedTang);
                 
                 //addLine(new Point2D.Double(point.x,point.z), new Point2D.Double(addedTang.x,addedTang.z));
                 for(int j = 0; j < nr_segment_vertices_row; j++) {
                     Vector3f normal = new Vector3f(tangent);
                     normal.cross(UP).normalize().mul(1f).mul((float)j-1f);
                     Vector3f addedNormal = new Vector3f();
-                    //point.add(normal, addedNormal);
+                    point.add(normal, addedNormal);
 
                     /*if (j != 1) {
                         addPoint(new Point2D.Double(addedNormal.x, addedNormal.z));
