@@ -50,9 +50,6 @@ public class Renderer implements GLEventListener {
         this.gl = glAutoDrawable.getGL().getGL3();
         this.glu = new GLU();
 
-        //gl.glEnable(GL3.GL_CULL_FACE);
-        //gl.glCullFace(GL3.GL_BACK);
-
         System.out.println(gl.glGetString(GL_SHADING_LANGUAGE_VERSION));
 
         simulator.setGL(gl);
@@ -74,13 +71,17 @@ public class Renderer implements GLEventListener {
     public void dispose(GLAutoDrawable glAutoDrawable) {
 
     }
-
+    
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
         gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         gl.glClearColor(1f, 1f, 1f, 1f);
-
+        
+        gl.glEnable(GL3.GL_CULL_FACE);
+        gl.glCullFace(GL3.GL_BACK);
         objectRenderer.render(gl);
+        gl.glDisable(GL3.GL_CULL_FACE);
+        
         terrainRenderer.render(gl);
         GS.getTrack().draw(gl);
         GS.getSkybox().draw(gl, projectionMatrix);

@@ -151,7 +151,7 @@ public class Simulator
             //box = new Box3f(new Vector3f(-40f, -52f, 30f), 2f, 2f, 2f);
             box = obj.createBoundingBox();
             //box.setPosKeepHitBox();
-            box.translate(new Vector3f(-40f, -52f, 30f));
+            box.translate(new Vector3f(-10f, -115f, 540f));
             Instance cubeInstance = new PickupItem(box,
                     1f, 45, 45, 45, texturedCube, 0, new PhysicsContext());
             GS.addAsset(cubeInstance);
@@ -173,42 +173,38 @@ public class Simulator
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
                     new TextureImg(5, 0.5f));
-            //box = new Box3f(new Vector3f(385f, -71f, 1015f), 2f, 2f, 6f);
+            //box = new Box3f(new Vector3f(385f, -73f, 1015f), 2f, 2f, 6f);
             box = obj.createBoundingBox();
             //box.setPosKeepHitBox();
-            box.translate(new Vector3f(385f, -71f, 1015f));
-            Instance cubeInstance = new EnvironmentItem(box,
-                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext(),
-                    EnvironmentItem.Type.STATIC_OBSTACLE);
+            box.translate(new Vector3f(385f, -73f, 1015f));
+            Instance cubeInstance = new PickupItem(box,
+                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext());
             GS.addAsset(cubeInstance);
         }
         // ITEM PROP
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
                     new TextureImg(5, 0.5f));
-            //box = new Box3f(new Vector3f(385f, -71f, 1025f), 2f, 2f, 6f);
+            //box = new Box3f(new Vector3f(385f, -73f, 1025f), 2f, 2f, 6f);
             box = obj.createBoundingBox();
             //box.setPosKeepHitBox();
-            box.translate(new Vector3f(385f, -71f, 1025f));
-            Instance cubeInstance = new EnvironmentItem(box,
-                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext(),
-                    EnvironmentItem.Type.STATIC_OBSTACLE);
+            box.translate(new Vector3f(385f, -73f, 1025f));
+            Instance cubeInstance = new PickupItem(box,
+                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext());
             GS.addAsset(cubeInstance);
         }
         // ITEM PROP
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
                     new TextureImg(5, 0.5f));
-            //box = new Box3f(new Vector3f(385f, -71f, 1035f), 2f, 2f, 6f);
+            //box = new Box3f(new Vector3f(385f, -73f, 1035f), 2f, 2f, 6f);
             box = obj.createBoundingBox();
             //box.setPosKeepHitBox();
-            box.translate(new Vector3f(385f, -71f, 1035f));
-            Instance cubeInstance = new EnvironmentItem(box,
-                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext(),
-                    EnvironmentItem.Type.STATIC_OBSTACLE);
+            box.translate(new Vector3f(385f, -73f, 1035f));
+            Instance cubeInstance = new PickupItem(box,
+                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext());
             GS.addAsset(cubeInstance);
         }
-        
         // ITEM PROP
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
@@ -217,11 +213,11 @@ public class Simulator
             box = obj.createBoundingBox();
             //box.setPosKeepHitBox();
             box.translate(new Vector3f(80f, -52f, -5f));
-            Instance cubeInstance = new EnvironmentItem(box,
-                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext(),
-                    EnvironmentItem.Type.STATIC_OBSTACLE);
+            Instance cubeInstance = new PickupItem(box,
+                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext());
             GS.addAsset(cubeInstance);
         }
+        
         // ITEM PROP
         for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
@@ -230,9 +226,8 @@ public class Simulator
             box = obj.createBoundingBox();
             //box.setPosKeepHitBox();
             box.translate(new Vector3f(-40f, -52f, 30f));
-            Instance cubeInstance = new EnvironmentItem(box,
-                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext(),
-                    EnvironmentItem.Type.STATIC_OBSTACLE);
+            Instance cubeInstance = new PickupItem(box,
+                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext());
             GS.addAsset(cubeInstance);
         }
         
