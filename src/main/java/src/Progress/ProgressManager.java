@@ -6,9 +6,9 @@ import org.joml.Vector3f;
 public class ProgressManager {
     public int checkPoint = 1;
     private int lap = 1;
-    
-    public int cpAm = 16;
     public boolean finished = false;
+    public int cpAm = 16; // modifiable
+    public int lapTotal = 1; // modifiable
     
     public void ManageProgress(Vector3f pos, int pointAmount, int curPoint) {
         if (curPoint > pointAmount * checkPoint / cpAm
@@ -19,7 +19,7 @@ public class ProgressManager {
                 lap++;
                 checkPoint = 1;
                 System.out.println("LAP " + lap);
-                if (lap == 4)
+                if (lap == lapTotal + 1)
                     finished = true;
             }
         }
