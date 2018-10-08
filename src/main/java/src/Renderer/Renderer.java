@@ -29,7 +29,7 @@ public class Renderer implements GLEventListener {
 
     private final float FOV = 70;
     private final float NEAR = 0.1f;
-    private final float FAR = 1000f;
+    private final float FAR = 2000f;
     private float width = 1080;
     private float height = 720;
 
@@ -50,8 +50,8 @@ public class Renderer implements GLEventListener {
         this.gl = glAutoDrawable.getGL().getGL3();
         this.glu = new GLU();
 
-        gl.glEnable(GL3.GL_CULL_FACE);
-        gl.glCullFace(GL3.GL_BACK);
+        //gl.glEnable(GL3.GL_CULL_FACE);
+        //gl.glCullFace(GL3.GL_BACK);
 
         System.out.println(gl.glGetString(GL_SHADING_LANGUAGE_VERSION));
 
