@@ -312,7 +312,7 @@ public class Physics {
         Vector3f rN = normals[ind];
         Vector3f roadPos = new Vector3f(points[ind].x, points[ind].y, points[ind].z);
         // </editor-fold>
-        
+
         if (onTrack) {
             // <editor-fold defaultstate="collapsed" desc="AIR TIME DETECTION"> 
             //TODO:
@@ -331,8 +331,16 @@ public class Physics {
                 s.box.pos().z = gndZ;
             //System.out.println((gndZ - s.box.pos().z) +", "+ inAir);
             // </editor-fold>
+            
+        // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
+        progress.ManageProgress(s.box.pos(), points.length, ind);
+        if (progress.finished) {
+            pStruct.accel = 0;
+            pStruct.turn = 0;
         }
-        
+        // </editor-fold>
+        }
+
         // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
         // (ACCEL) Max speed regulation
         if ((pStruct.accel > 0 && s.velocity + linAccel*dt > pc.maxLinearVelocity) ||
@@ -341,14 +349,14 @@ public class Physics {
         // (ACCEL) Block manual acceleration when collision just happened
         if (s.collisionVelocity > pc.knockback / pc.accBlockDur)
             pStruct.accel = 0;
-        
+
         // (LINACCEL) Temporary slowdown after speedboost: not refined
         if (s.velocity + linAccel*dt > pc.maxLinearVelocity * 1.1 ||
                 s.velocity - linAccel*dt < -pc.maxLinearVelocity * 1.1)
             linAccel *= (Math.abs(s.velocity - pc.maxLinearVelocity*1.1) + 1)
                     * pc.frictionConstant * pc.largeSlowDown;
-        
-        
+
+
         // (LINACCEL)/(VEL) Friction: When acceleration is 0, abs(v) decreases
         if (pStruct.accel == 0) {
             if (s.velocity > linAccel * pc.frictionConstant * dt)
@@ -367,19 +375,19 @@ public class Physics {
             linAccel *= pStruct.accel;
         }
         // </editor-fold>
-        
+
         // <editor-fold defaultstate="collapsed" desc="ROTATIONAL IMPROVEMENTS"> 
         // (TURN)/(ROTVELOCITY) Turn correction for small velocities
         if (Math.abs(s.velocity) == 0)
             pStruct.turn = 0;
         else if (Math.abs(s.velocity) < pc.turnCorrection)
             rotationalVelocity *= (Math.abs(s.velocity) / pc.turnCorrection);
-        
+
         // (TURN) Turn correction for negative velocities
         if (s.velocity < 0)
             pStruct.turn = -pStruct.turn;
         // </editor-fold>
-        
+
         // <editor-fold defaultstate="collapsed" desc="OTHER IMPROVEMENTS"> 
         // (ROTVELOCITY)/(LINACCEL) Air movement
         if (inAir) {
@@ -387,8 +395,8 @@ public class Physics {
             linAccel *= (1.45 * pc.airControl);
         }
         // </editor-fold>
-        
-        
+
+
         // <editor-fold defaultstate="collapsed" desc="HORIZONTAL MOVEMENT CALCULATIONS"> 
         if (pStruct.turn == 0) { // Straight
             distTravelled = dt * (s.velocity + 0.5f * linAccel * dt);
@@ -405,13 +413,13 @@ public class Physics {
             vFactor = new Vector3f(rN.y*uNorm.z - rN.z*uNorm.y,
                     rN.z*uNorm.x - rN.x*uNorm.z,
                     rN.x*uNorm.y - rN.y*uNorm.x); // vFactor = roadTan
-            
+
             // Calculate the end position
             ePos = new Vector3f (
                     (float) (s.box.pos().x + vFactor.x * distTravelled),
                     (float) (s.box.pos().y + vFactor.y * distTravelled),
                     (float) (s.box.pos().z + vFactor.z * distTravelled));
-            
+
         } else { // Turn
             rotationalVelocity = pStruct.turn * rotationalVelocity;
             // Calculate end rotation and velocity
@@ -430,7 +438,7 @@ public class Physics {
             distTravelled = (float)Math.sqrt(deltaX*deltaX + deltaY*deltaY);
             double distAngle = Math.atan2(deltaX, deltaY);
             distAngle = (-(distAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
-            
+
             // Calculate the vFactor in the direction of XY movement
             carDir = new Vector3f ((float)Math.cos(distAngle), (float)Math.sin(distAngle), 0);
             u = new Vector3f(carDir.y*rN.z - carDir.z*rN.y,
@@ -446,21 +454,21 @@ public class Physics {
                     (float)(s.box.pos().x + vFactor.x * distTravelled),
                     (float)(s.box.pos().y + vFactor.y * distTravelled), 
                     (float)(s.box.pos().z + vFactor.z * distTravelled));
-            
+
             // TEMPORARY TO DETECT TELEPORT BUG FOR TURNING AT SMALL VELOCITIES
             if (Math.sqrt(deltaX*deltaX + deltaY*deltaY) > 5)
                 System.err.println("TELEPORT: " + deltaX + "," + deltaY);
         }
         // </editor-fold>
-        
-        
+
+
         // <editor-fold defaultstate="collapsed" desc="VERTICAL MOVEMENT CALCULATIONS"> 
         // Do not jump if already jumping
         if (s.verticalVelocity == 0 && !inAir)
             s.verticalVelocity += pStruct.verticalVelocity;
         // Change in height when falling
         double deltaZ = dt * (s.verticalVelocity + 0.5 * pc.gravity * dt);
-        
+
         // TEMPORARILY DISABLED if on track
         if (!onTrack) {
             // When in the air
@@ -479,7 +487,7 @@ public class Physics {
                 ePos.z = (float)gndZ;
             }
         }
-        
+
         // Limit upwards velocity
         if (s.verticalVelocity > 20)
             s.verticalVelocity = 10;
@@ -490,13 +498,13 @@ public class Physics {
             ePos = new Vector3f(points[resetInd].x, points[resetInd].y
                     , points[resetInd].z + 2);
             eV = 0;
-            eRot = (float)Math.atan2(-tangents[resetInd].x, -tangents[resetInd].y);// Math.PI
+            eRot = (float)Math.atan2(-tangents[resetInd].x, -tangents[resetInd].y);
             eRot = (float)((-(eRot - Math.PI/2) + Math.PI*2) % (Math.PI*2));
             s.collisionVelocity = 0;
             s.verticalVelocity = 0;
         }
         // </editor-fold>
-        
+
         // <editor-fold defaultstate="collapsed" desc="COLLISION CALCULATIONS"> 
         // Should be integrated into another class but still change pStruct
         Vector3f colPos = new Vector3f (0.0001f, 40, 1);
@@ -509,7 +517,7 @@ public class Physics {
                 colPos.y + colRange/2 > s.box.pos().y - carRange/2 &&
                 s.box.pos().z + carRange/2 > colPos.z - colRange/2 &&
                 colPos.z + colRange/2 > s.box.pos().z - carRange/2) {
-            
+
             double colAngle = Math.atan2( s.box.pos().x - colPos.x, s.box.pos().y - colPos.y);
             colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
             // Can only receive knockback once the last knockback is sufficiently small
@@ -521,7 +529,7 @@ public class Physics {
                     ePos.z);
                 s.verticalVelocity = 0.5f + Math.abs(s.velocity)/8;
             } 
-            
+
             // Moments after collision
         } else if (s.collisionVelocity > pc.knockback/1_000_000_000) {
             // Slowly diminish the knockback over time
@@ -533,20 +541,15 @@ public class Physics {
                    (float) (ePos.x + s.collisionVelocity * Math.cos(colAngle)), 
                    (float) (ePos.y + s.collisionVelocity * Math.sin(colAngle)),
                    ePos.z);
-            
+
         } else {
             // No collision happening.
             // Set collision velocity to 0 when it was already really small.
             s.collisionVelocity = 0;
         }
         // </editor-fold>
-                
-        
-        // <editor-fold defaultstate="collapsed" desc="COLLISION TEST"> 
-        if (onTrack)
-            progress.ManageProgress(s.box.pos(), points.length, ind);
-        // </editor-fold>
-        
+
+
         // Update the state.
         s.box.setPosition(ePos);
         s.velocity = eV;
