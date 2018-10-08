@@ -1,6 +1,7 @@
 package src.Assets;
 
 import org.joml.Vector3f;
+import src.OBJ.MTLObject;
 
 import java.nio.IntBuffer;
 import java.util.List;
@@ -16,6 +17,8 @@ public abstract class GraphicsObject {
 
     public abstract List<Integer> getNrV();
     public abstract int getNrV(int id);
+
+    public abstract List<MTLObject> getMaterials();
     
     public abstract int size();
 

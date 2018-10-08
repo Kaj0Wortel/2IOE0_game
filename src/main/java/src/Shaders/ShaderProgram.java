@@ -7,6 +7,7 @@ import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.Light;
+import src.OBJ.MTLObject;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -43,6 +44,10 @@ public abstract class ShaderProgram {
     public abstract void loadCameraPos(GL3 gl, Vector3f cameraPos);
 
     public abstract void loadLight(GL3 gl, Light light);
+
+    public abstract void loadMaterial(GL3 gl, MTLObject mtl);
+
+    public abstract boolean useMaterial();
 
     public int getUniformLocation(GL3 gl, String uni){
         return gl.glGetUniformLocation(ID,uni);

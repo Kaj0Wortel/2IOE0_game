@@ -6,7 +6,7 @@ import org.joml.Vector3f;
 import src.Assets.Light;
 import src.OBJ.MTLObject;
 
-public class RacetrackShader extends ShaderProgram {
+public class MaterialShader extends ShaderProgram {
 
     final public static String FS = System.getProperty("file.separator");
 
@@ -16,8 +16,8 @@ public class RacetrackShader extends ShaderProgram {
 
     final public static String SHADERS_DIR = WORKING_DIR + "Shaders" + FS + "ShaderFiles" + FS;
 
-    final private static String vertex = SHADERS_DIR + "racetrack_vertex.glsl";
-    final private static String fragment = SHADERS_DIR + "racetrack_fragment.glsl";
+    final private static String vertex = SHADERS_DIR + "material_vertex.glsl";
+    final private static String fragment = SHADERS_DIR + "material_fragment.glsl";
 
     private int projectionMatrixLocation;
     private int viewMatrixLocation;
@@ -28,10 +28,13 @@ public class RacetrackShader extends ShaderProgram {
     private int reflectivityLocation;
     private int timeLocation;
     private int cameraPosLocation;
-    private int bumpMapLocation;
-    private int textureLocation;
 
-    public RacetrackShader(GL3 gl) {
+    private int materialAmbientLocation;
+    private int materialDiffuseLocation;
+    private int materialSpecularLocation;
+    private int illuminationLocation;
+
+    public MaterialShader(GL3 gl) {
         super(gl, vertex, fragment);
     }
 
@@ -52,17 +55,26 @@ public class RacetrackShader extends ShaderProgram {
         shininessLocation = getUniformLocation(gl, "shininess");
         reflectivityLocation = getUniformLocation(gl, "reflectivity");
         timeLocation = getUniformLocation(gl, "time");
-        cameraPosLocation = getUniformLocation(gl, "cameraPos");
-        bumpMapLocation = getUniformLocation(gl, "bumpmap");
-        textureLocation = getUniformLocation(gl, "textureRoad");
+        cameraPosLocation = getUniformLocation(gl, "camera");
+
+        materialAmbientLocation = getUniformLocation(gl, "matAmbient");
+        materialDiffuseLocation = getUniformLocation(gl, "matDiffuse");
+        materialSpecularLocation = getUniformLocation(gl, "matSpecular");
+        illuminationLocation = getUniformLocation(gl, "illum");
+
 
         System.out.println("Projection location: " + projectionMatrixLocation);
         System.out.println("ViewMatrix Location: " + viewMatrixLocation);
         System.out.println("TransformationMatrix Location: " + modelMatrixLocation);
         System.out.println("Lightpos: " + lightPositionLocation);
         System.out.println("LightColor: " + lightColorLocation);
-        System.out.println("Bumpmap: " + bumpMapLocation);
-        System.out.println("Texture: " + textureLocation);
+        System.out.println("Shininess: " + shininessLocation);
+        System.out.println("Reflectivity: " + reflectivityLocation);
+        System.out.println("CameraPos: " + cameraPosLocation);
+        System.out.println("Ambient: " + materialAmbientLocation);
+        System.out.println("Diffuse: " + materialDiffuseLocation);
+        System.out.println("Specular: " + materialSpecularLocation);
+        System.out.println("Illumination: " + illuminationLocation);
     }
 
     @Override
@@ -87,12 +99,16 @@ public class RacetrackShader extends ShaderProgram {
 
     @Override
     public void loadMaterial(GL3 gl, MTLObject mtl) {
-
+        loadUniformFloat(gl, shininessLocation, mtl.shininess);
+        loadUniformVector(gl, materialAmbientLocation, mtl.ambiant);
+        loadUniformVector(gl, materialDiffuseLocation, mtl.diffuse);
+        loadUniformVector(gl, materialSpecularLocation, mtl.specular);
+        loadUniformInt(gl, illuminationLocation, mtl.illumination);
     }
 
     @Override
     public boolean useMaterial() {
-        return false;
+        return true;
     }
 
     public void loadTextureLightValues(GL3 gl, float shininess, float reflectivity){
@@ -107,10 +123,4 @@ public class RacetrackShader extends ShaderProgram {
     public void loadCameraPos(GL3 gl, Vector3f cameraPos){
         loadUniformVector(gl, cameraPosLocation, cameraPos);
     }
-
-    public void loadTextures(GL3 gl){
-        loadUniformInt(gl, textureLocation, 0);
-        loadUniformInt(gl, bumpMapLocation,1);
-    }
-
 }

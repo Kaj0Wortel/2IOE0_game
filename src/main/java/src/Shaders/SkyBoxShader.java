@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.Light;
+import src.OBJ.MTLObject;
 
 public class SkyBoxShader extends ShaderProgram {
 
@@ -76,6 +77,16 @@ public class SkyBoxShader extends ShaderProgram {
     @Override
     public void loadLight(GL3 gl, Light light) {
 
+    }
+
+    @Override
+    public void loadMaterial(GL3 gl, MTLObject mtl) {
+
+    }
+
+    @Override
+    public boolean useMaterial() {
+        return false;
     }
 
     public void loadTexture(GL3 gl){

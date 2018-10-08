@@ -6,33 +6,23 @@ package src;
 import com.jogamp.opengl.GL3;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-
-// Own imports
-import src.Assets.GUI;
-import src.Assets.Light;
-import src.Assets.OBJCollection;
-import src.Assets.OBJObject;
-import src.Assets.OBJTexture;
-import src.Assets.Terrain;
-import src.Assets.TextureImg;
-import src.Assets.instance.Car;
-import src.Assets.instance.EnvironmentItem;
-import src.Assets.instance.Instance;
-import src.Assets.instance.PickupItem;
-import src.Assets.instance.TerrainInstance;
+import src.Assets.*;
+import src.Assets.instance.*;
 import src.Assets.skybox.Skybox;
 import src.OBJ.LoadOBJ;
 import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
 import src.tools.Binder;
+import src.tools.PosHitBox3f;
 import src.tools.update.Updateable;
-import src.tools.update.Updateable.Priority;
-import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 import src.tools.update.Updater;
 
+import javax.swing.*;
+
+import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
+
+// Own imports
 // Java imports
-import javax.swing.SwingUtilities;
-import src.tools.PosHitBox3f;
 
 
 public class Simulator
@@ -260,7 +250,7 @@ public class Simulator
             Instance cubeInstance = new Car(box,
                     5f, 0, -180, 0, texturedCube, 90, new PhysicsContext());
             GS.player = cubeInstance;
-            GS.addAsset(cubeInstance);
+            GS.addMaterialAsset(cubeInstance);
         }
         
 

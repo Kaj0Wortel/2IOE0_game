@@ -119,6 +119,7 @@ public class GS {
     
     /** Assets and camera. */
     final private static List<Instance> assets = new ArrayList<>();
+    final private static List<Instance> materialAssets = new ArrayList();
     final private static List<Instance> terrain = new ArrayList<>();
     final private static List<Light> lights = new ArrayList<>();
     final private static List<GUI> guis = new ArrayList<>();
@@ -440,6 +441,10 @@ public class GS {
     public static List<GUI> getGUIs(){
         return guis;
     }
+
+    public static List<Instance> getMaterialAssets(){ return materialAssets; }
+
+    public static void addMaterialAsset(Instance asset) { materialAssets.add(asset);}
 
     public static void addGUI(GUI gui){
         guis.add(gui);

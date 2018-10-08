@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.Light;
+import src.OBJ.MTLObject;
 
 public class TerrainShader extends ShaderProgram {
 
@@ -78,6 +79,16 @@ public class TerrainShader extends ShaderProgram {
     public void loadLight(GL3 gl, Light light){
         loadUniformVector(gl, lightPositionLocation,light.getPosition());
         loadUniformVector(gl, lightColorLocation, light.getColor());
+    }
+
+    @Override
+    public void loadMaterial(GL3 gl, MTLObject mtl) {
+
+    }
+
+    @Override
+    public boolean useMaterial() {
+        return false;
     }
 
     public void loadTextureLightValues(GL3 gl, float shininess, float reflectivity){

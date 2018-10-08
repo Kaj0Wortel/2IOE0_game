@@ -5,18 +5,16 @@ package src.Assets;
 // Jogamp imports
 import com.jogamp.opengl.GL3;
 import org.joml.Vector3f;
-
-
-// Own imports
-import src.tools.Binder;
 import src.OBJ.MTLObject;
+import src.tools.Binder;
+import src.tools.PosHitBox3f;
 
-
-// Java imports
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import src.tools.PosHitBox3f;
+
+// Own imports
+// Java imports
 
 
 /**
@@ -69,7 +67,10 @@ public class OBJObject
         }
         return intar;
     }
-    
+
+
+
+
     /*
     public void addData(GL3 gl, List<Float> vertices, List<Float> tex,
                         List<Float> normals, List<Integer> indices,
@@ -100,6 +101,11 @@ public class OBJObject
     @Override
     public int getNrV(int id) {
         return getNrV().get(id);
+    }
+
+    @Override
+    public List<MTLObject> getMaterials() {
+        return mtlObjects;
     }
 
     @Override

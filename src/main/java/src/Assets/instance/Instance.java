@@ -1,8 +1,6 @@
 package src.Assets.instance;
 
 import com.jogamp.opengl.GL3;
-import java.util.Set;
-import javax.swing.SwingUtilities;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.GraphicsObject;
@@ -10,11 +8,14 @@ import src.Assets.OBJTexture;
 import src.GS;
 import src.Locker;
 import src.Physics.PStructAction;
-import src.Physics.PhysicsContext;
 import src.Physics.Physics;
+import src.Physics.PhysicsContext;
 import src.Progress.ProgressManager;
 import src.Shaders.ShaderProgram;
 import src.tools.PosHitBox3f;
+
+import javax.swing.*;
+import java.util.Set;
 
 
 public abstract class Instance {
@@ -198,6 +199,7 @@ public abstract class Instance {
         
         GraphicsObject obj = model.getAsset();
         for (int i = 0; i < obj.size(); i++) {
+            if(shader.useMaterial()) shader.loadMaterial(gl,obj.getMaterials().get(i));
             gl.glBindVertexArray(obj.getVao(i));
             gl.glEnableVertexAttribArray(0);
             gl.glEnableVertexAttribArray(1);

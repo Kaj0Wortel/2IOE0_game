@@ -36,12 +36,13 @@ public class MTLObject {
     
     final private String name;
     
-    Vector3f ambiant;
-    Vector3f diffuse;
-    Vector3f specular;
-    int illumination;
-    float dissolve;
-    float opticalDensity;
+    public Vector3f ambiant;
+    public Vector3f diffuse;
+    public Vector3f specular;
+    public int illumination;
+    public float dissolve;
+    public float opticalDensity;
+    public float shininess;
     
     
     MTLObject(String name) {

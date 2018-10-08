@@ -5,8 +5,12 @@ package src.OBJ;
 import com.jogamp.opengl.GL3;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import src.Assets.OBJCollection;
+import src.Assets.OBJObject;
+import src.GS;
+import src.tools.io.BufferedReaderPlus;
+import src.tools.log.Logger;
 
-// Java imports
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,14 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-// Own imports
-import src.Assets.OBJCollection;
-import src.Assets.OBJObject;
-import src.GS;
-import src.tools.io.BufferedReaderPlus;
-import src.tools.log.Logger;
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
+
+// Java imports
+// Own imports
 
 
 
@@ -187,7 +188,6 @@ public class LoadOBJ {
                         locCounter = 0;
                     }
                     mtl = mtlCol.get(data[0]);
-                    
                     
                 } else if (brp.fieldEquals("mtllib")) {
                     mtlCol = LoadMTL.load(GS.OBJ_DIR + data[0]);
