@@ -7,10 +7,11 @@ package src.Assets;
 
 // Java imports
 
+import src.tools.PosHitBox3f;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import src.tools.PosHitBox3f;
 
 
 /**
