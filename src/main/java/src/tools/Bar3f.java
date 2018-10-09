@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
+import org.joml.Matrix3f;
 import org.joml.Planef;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -38,6 +39,81 @@ public class Bar3f {
     }
     
     /**
+     * Rotates the bar on the given axis over the given angle.
+     * 
+     * @param angle
+     * @param xAxis
+     * @param yAxis
+     * @param zAxis 
+     */
+    public void rotate(float angle, float xAxis, float yAxis, float zAxis) {
+        mul(new Matrix3f().rotate(angle, xAxis, yAxis, zAxis));
+    }
+    
+    /**
+     * Translates the bar by the given vector.
+     * 
+     * @param vec 
+     */
+    public void translate(Vector3f vec) {
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 2; y++) {
+                for (int z = 0; z < 2; z++) {
+                    points[x][y][z].add(vec);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Scales all points with the given scalar.
+     * 
+     * @param scalar 
+     */
+    public void scale(float scalar) {
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 2; y++) {
+                for (int z = 0; z < 2; z++) {
+                    points[x][y][z].mul(scalar);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Multiplies a matrix to all points.
+     * 
+     * @param mat 
+     */
+    public void mul(Matrix3f mat) {
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 2; y++) {
+                for (int z = 0; z < 2; z++) {
+                    points[x][y][z].mul(mat);
+                }
+            }
+        }
+    }
+    
+    public Planef[] generatePlanes() {
+        return new Planef[] {
+            new Planef(points[0][0][0],
+                    new Vector3f().add(points[0][0][0]).sub(points[1][0][0])),
+            new Planef(points[0][0][0],
+                    new Vector3f().add(points[0][0][0]).sub(points[0][1][0])),
+            new Planef(points[0][0][0],
+                    new Vector3f().add(points[0][0][0]).sub(points[0][0][1]))
+        };
+    }
+    
+    public Polygon2f project(Planef plane) {
+        return project(plane, new Vector3f(
+                plane.c - plane.b,
+                plane.a - plane.c,
+                plane.b - plane.a));
+    }
+    
+    /**
      * 
      * @param plane
      * @param o
@@ -57,6 +133,7 @@ public class Bar3f {
                     // Polygon order
                     int i = y + z + (y == 0 && z == 1 ? 2 : 0);
                     if (x == 1) i = 4 + Math.abs(i - 3);
+                    
                     pointsOnPlane[i] =
                             p.sub(n.mul(p.sub(o, new Vector3f()).dot(n),
                                     new Vector3f()), new Vector3f()).sub(o);
@@ -64,96 +141,37 @@ public class Bar3f {
             }
         }
         
-        
-        
-        Vector2f targetNXYComp = new Vector2f(0, 1);
-        
-        // Rotation on the x-axis.
-        Vector2f nYComp = new Vector2f(n.y, n.z);
-        float cosAngleX;
-        if (n.y == 0) {
-            cosAngleX = 1f;
-            
-        } else {
-            cosAngleX = nYComp.dot(targetNXYComp) /
-                    (nYComp.length() * targetNXYComp.length());
-        }
-        
-        // Rotation on the y-axis.
-        Vector2f nXComp = new Vector2f(n.x, n.z);
-        float cosAngleY;
-        if (n.x == 0) {
-            cosAngleY = 1f;
-            
-        } else {
-            cosAngleY = nXComp.dot(targetNXYComp) /
-                    (nXComp.length() * targetNXYComp.length());
-        }
-        
-        
-        //float angleX = (float) Math.acos(cosAngleX);
-        //float angleY = (float) Math.acos(cosAngleY);
-        //System.out.println(angleX + ", " + angleY);
-        
-        System.out.println(cosAngleX + ", " + cosAngleY);
-        float xComp = (float) Math.sqrt(1 - cosAngleX * cosAngleX);
-        float yComp = (float) Math.sqrt(1 - cosAngleY * cosAngleY);
-        System.out.println(xComp + ", " + yComp);
-        
-        System.out.println(Arrays.toString(pointsOnPlane));
-        Vector2f[] polyPoints = new Vector2f[8];
-        for (int i = 0; i < pointsOnPlane.length; i++) {
-            Vector3f p = pointsOnPlane[i];
-            polyPoints[i] = new Vector2f(
-                    xComp * p.x + cosAngleX * p.z,
-                    yComp * p.y + cosAngleY * p.z);
-        }
-        
-        
-        /*
         // Translate and rotate all points to the plane with normal
         // {@code n = (0, 0, 1)} and has origin {@code o = (0, 0, 0)}.
+        Matrix3f mat = new Matrix3f();
+        Vector3f target = new Vector3f(0, 0, 1);
         
-        // Rotation matrix.
-        Matrix3f rotMat = new Matrix3f();
-        Vector2f targetNXYComp = new Vector2f(0, 1);
-        
-        // Rotation on the x-axis.
-        Vector2f nYComp = new Vector2f(n.y, n.z);
-        float cosAngleX;
-        if (n.y == 0) {
-            cosAngleX = 1f;
+        Vector3f rotVec = new Vector3f(n).cross(target);
+        if (rotVec.x != 0 || rotVec.y != 0 || rotVec.z != 0) {
+            rotVec.normalize();
+            Vector2f rotVecProj = new Vector2f(rotVec.x, rotVec.y);
+            Vector2f targetProj = new Vector2f(1, 0);
+
+            // Note that {@code target.length() == 1}, {@code n.length() == 1},
+            // and {@code rotVec.length() == 1}, hence no division by the multiple
+            // of their lengths is needed.
+            float angle = (float) Math.acos(n.dot(target));
+            float angle2d = (float) (Math.acos(
+                    rotVecProj.dot(targetProj)) % (0.5f*Math.PI));
+            mat.rotate(angle2d, 0, 0, 1).rotate(angle, rotVec);
             
-        } else {
-            cosAngleX = nYComp.dot(targetNXYComp) /
-                    (nYComp.length() * targetNXYComp.length());
+        } else if (n.z < 0) {
+            mat.rotate((float) Math.PI, 1, 0, 0);
         }
-        rotMat.rotate(-(float) Math.acos(cosAngleX), 1, 0, 0);
-        n.mul(rotMat);
         
-        // Rotation on the y-axis.
-        Vector2f nXComp = new Vector2f(n.x, n.z);
-        float cosAngleY;
-        if (n.x == 0) {
-            cosAngleY = 1f;
-            
-        } else {
-            cosAngleY = nXComp.dot(targetNXYComp) /
-                    (nXComp.length() * targetNXYComp.length());
-        }
-        rotMat.rotate(-(float) Math.acos(cosAngleY), 0, 1, 0);
-        
-        // Execute the translation and rotation.
         Vector2f[] polyPoints = new Vector2f[8];
-        for (int i = 0; i < 8; i++) {
-            Vector3f p = pointsOnPlane[i];
-            p.mul(rotMat);
-            polyPoints[i] = new Vector2f(p.x, p.y).sub(o);
+        for (int i = 0; i < pointsOnPlane.length; i++) {
+            Vector3f p = pointsOnPlane[i].mul(mat);
+            polyPoints[i] = new Vector2f(p.x, p.y);
         }
-        */
+        
         return new Polygon2f(polyPoints);
     }
-    
     
     
     @Override
@@ -198,23 +216,26 @@ public class Bar3f {
         panel.setForeground(Color.GREEN);
         panel.addLine(new Point2D.Double(0, -50), new Point2D.Double(0, 50));
         
+        //Vector3f origin = new Vector3f(1, 3, 6);
         Vector3f origin = new Vector3f(0, 0, 0);
-        Planef plane = new Planef(origin, new Vector3f(1, 1, 0));
+        Planef plane = new Planef(origin, new Vector3f(0, 0, -2));
         Polygon2f poly = bar.project(plane, origin);
         Color c = new Color(50, 100, 255);
         poly.visualizeDots(panel, c);
         poly.visualizeLines(panel, c);
         System.out.println(poly);
-        System.out.println(poly.getTangents());
+        System.out.println(Arrays.toString(poly.calcTangents()));
+        System.out.println(Arrays.toString(poly.calcNormals()));
         
-        origin = new Vector3f(1, 3, 6);
-       // plane = new Planef(origin, new Vector3f(1, 0, 0));
+        origin = new Vector3f(0.1f, 0, 0);
+        plane = new Planef(origin, new Vector3f(0, 0.1f, -2));
         poly = bar.project(plane, origin);
         c = Color.YELLOW;
         poly.visualizeDots(panel, c);
         poly.visualizeLines(panel, c);
         System.out.println(poly);
-        System.out.println(poly.getTangents());
+        System.out.println(Arrays.toString(poly.calcTangents()));
+        System.out.println(Arrays.toString(poly.calcNormals()));
     }
     
     

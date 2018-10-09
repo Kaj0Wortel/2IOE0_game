@@ -14,6 +14,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import org.joml.Vector2f;
 
 public class VisualAStar
         extends JPanel {
@@ -249,6 +250,15 @@ public class VisualAStar
 
         return new Vector3f().add(p0).add(p1).add(p2).add(p3).normalize();
         */
+    }
+    
+    /**
+     * @param vec 
+     * 
+     * @see #addPoint(Point2D.Double)
+     */
+    public void addPoint(Vector2f vec) {
+        addPoint(new Point2D.Double(vec.x, vec.y));
     }
     
     /**
