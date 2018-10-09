@@ -76,7 +76,9 @@ public class LoadMTL {
                     
                 } else if (brp.fieldEquals("illum")) {
                     mtl.illumination = Integer.parseInt(data[0]);
-                    
+                } else if (brp.fieldEquals("Ns")) {
+                    mtl.shininess = Float.parseFloat(data[0]);
+
                 } else if (brp.fieldEquals("d")) {
                     mtl.dissolve = Float.parseFloat(data[0]);
                     

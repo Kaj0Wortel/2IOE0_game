@@ -1,10 +1,10 @@
 package src.Shaders;
 
-import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.Light;
+import src.OBJ.MTLObject;
 
 public class DefaultShader extends ShaderProgram {
 
@@ -52,6 +52,7 @@ public class DefaultShader extends ShaderProgram {
         timeLocation = getUniformLocation(gl, "time");
         cameraPosLocation = getUniformLocation(gl, "camera");
 
+
         System.out.println("Projection location: " + projectionMatrixLocation);
         System.out.println("ViewMatrix Location: " + viewMatrixLocation);
         System.out.println("TransformationMatrix Location: " + modelMatrixLocation);
@@ -80,6 +81,16 @@ public class DefaultShader extends ShaderProgram {
     public void loadLight(GL3 gl, Light light){
         loadUniformVector(gl, lightPositionLocation,light.getPosition());
         loadUniformVector(gl, lightColorLocation, light.getColor());
+    }
+
+    @Override
+    public void loadMaterial(GL3 gl, MTLObject mtl) {
+
+    }
+
+    @Override
+    public boolean useMaterial() {
+        return false;
     }
 
     public void loadTextureLightValues(GL3 gl, float shininess, float reflectivity){

@@ -18,19 +18,27 @@ import java.util.List;
 public class VisualAStar
         extends JPanel {
     
-    //final private Rectangle SIZE = new Rectangle(-20,-20,40,40);//0, -5, 5, 5
-    final private Rectangle SIZE = new Rectangle(-40, -100, 200, 200);
-    final private int IMG_SIZE = 5000;
-    final private int CIRCLE_SIZE = 20;
+    //final private Rectangle SIZE = new Rectangle(0,-10,10,10);//0, -5, 5, 5
+    final private static Rectangle DEFAULT_SIZE = new Rectangle(-40, -100, 200, 200);
+    final private static int IMG_SIZE = 5000;
+    final private static int CIRCLE_SIZE = 50;//20
     final private Color BACK = Color.BLACK;
+    
+    final private Rectangle size;
     
     private JFrame frame;
     
     private BufferedImage img;
     private Vector3f[] controlPoints;
     
+    
     public VisualAStar() {
+        this(DEFAULT_SIZE);
+    }
+    
+    public VisualAStar(Rectangle size) {
         super(null);
+        this.size = size;
         setLayout(null);
         
         setForeground(Color.WHITE);
@@ -70,13 +78,7 @@ public class VisualAStar
                 new Vector3f(0f,0f,0f), new Vector3f(0f,0f,30f), new Vector3f(10f,0f,40f), new Vector3f(40f,0f,40f),
                 new Vector3f(40f,0f,40f), new Vector3f(70f,0f,40f), new Vector3f(80f,0f,80f), new Vector3f(80f,0f,40f),
                 new Vector3f(80f,0f,40f), new Vector3f(80f,0f,-20f), new Vector3f(80f,0f,-60f), new Vector3f(60f,0f,-60f),
-                new Vector3f(60f,0f,-60f), new Vector3f(-20f,0f,-60f), new Vector3f(0f,0f,-40f), new Vector3f(0f,0f,0f),
-           /*
-            new Vector3f(0,0,0+elevation),new Vector3f(10,0,0+elevation),new Vector3f(0,10,0+elevation),new Vector3f(10,10,0+elevation),
-            new Vector3f(10,10,0+elevation),new Vector3f(20,10,0+elevation),new Vector3f(20,-10,0+elevation),new Vector3f(0,-10,0+elevation),
-            new Vector3f(0,-10,0+elevation),new Vector3f(-20,-10,0+elevation),new Vector3f(-20,10,0+elevation),new Vector3f(-10,10,0+elevation),
-            new Vector3f(-10,10,0+elevation),new Vector3f(0,10,0+elevation),new Vector3f(-10,0,0+elevation),new Vector3f(0,0,0+elevation)
-            /**/
+                new Vector3f(60f,0f,-60f), new Vector3f(-20f,0f,-60f), new Vector3f(0f,0f,-40f), new Vector3f(0f,0f,0f),*/
         };
 
         Vector3f UP = new Vector3f(0,1,0);
@@ -90,7 +92,8 @@ public class VisualAStar
             addPoint(new Point2D.Double(point.x, point.z));
             addLine(new Point2D.Double(point.x,point.z), new Point2D.Double(addedTang.x,addedTang.z));
         }
-*/      int nr_segment_vertices_col = 30;
+*/      
+        int nr_segment_vertices_col = 30;
         int nr_segment_vertices_row = 3; //Must be odd
         int nr_of_segments = 4;
         for(int i = 0; i < nr_of_segments; i++){
@@ -100,22 +103,20 @@ public class VisualAStar
                 Vector3f tangent = getTangent(i,t);
                 Vector3f addedTang = new Vector3f();
                 point.add(tangent, addedTang);
-                //addPoint(new Point2D.Double(point.x, point.z));
-                addLine(new Point2D.Double(point.x,point.z), new Point2D.Double(addedTang.x,addedTang.z));
+                
+                //addLine(new Point2D.Double(point.x,point.z), new Point2D.Double(addedTang.x,addedTang.z));
                 for(int j = 0; j < nr_segment_vertices_row; j++) {
                     Vector3f normal = new Vector3f(tangent);
                     normal.cross(UP).normalize().mul(1f).mul((float)j-1f);
                     Vector3f addedNormal = new Vector3f();
                     point.add(normal, addedNormal);
-                    //addPoint(new Point2D.Double(addedNormal.x, addedNormal.z));
-/*
-                for(int row = 0; row < nr_segment_vertices_row; row ++){
-                    Vector3f extrude = new Vector3f(horNormal);
-                    extrude.mul((float)row-4.5f);
-                    Vector3f curPoint = new Vector3f(point).add(extrude);
 
-                }
-                */
+                    /*if (j != 1) {
+                        addPoint(new Point2D.Double(addedNormal.x, addedNormal.z));
+                        addLine(new Point2D.Double(addedNormal.x, addedNormal.z)
+                                , new Point2D.Double(addedNormal.x + 2*(addedTang.x - point.x)
+                                        , addedNormal.z + 2*(addedTang.z - point.z)));
+                    }*/
                 }
             }
 
@@ -255,8 +256,8 @@ public class VisualAStar
      * @param g2d the graphics to paint on.
      */
     private void addPoint(Point2D.Double point, Graphics2D g2d, int size) {
-        double x = (point.x - SIZE.x) * (IMG_SIZE / SIZE.width);
-        double y = (point.y - SIZE.y) * (IMG_SIZE / SIZE.height);
+        double x = (point.x - this.size.x) * (IMG_SIZE / this.size.width);
+        double y = (point.y - this.size.y) * (IMG_SIZE / this.size.height);
         g2d.fillOval((int) (x - size*CIRCLE_SIZE/2.0), (int) (y - size*CIRCLE_SIZE/2.0),
                 size*CIRCLE_SIZE, size*CIRCLE_SIZE);
     }
@@ -296,10 +297,10 @@ public class VisualAStar
      * @param g2d the graphics to paint on.
      */
     private void addLine(Point2D.Double point1, Point2D.Double point2, Graphics2D g2d) {
-        double x1 = (point1.x - SIZE.x) * (IMG_SIZE / SIZE.width);
-        double y1 = (point1.y - SIZE.y) * (IMG_SIZE / SIZE.height);
-        double x2 = (point2.x - SIZE.x) * (IMG_SIZE / SIZE.width);
-        double y2 = (point2.y - SIZE.y) * (IMG_SIZE / SIZE.height);
+        double x1 = (point1.x - size.x) * (IMG_SIZE / size.width);
+        double y1 = (point1.y - size.y) * (IMG_SIZE / size.height);
+        double x2 = (point2.x - size.x) * (IMG_SIZE / size.width);
+        double y2 = (point2.y - size.y) * (IMG_SIZE / size.height);
         g2d.drawLine((int) x1,(int) y1,(int) x2,(int) y2);
     }
     
@@ -320,10 +321,10 @@ public class VisualAStar
      * @param g2d the graphics to paint on.
      */
     private void addRec(Point2D.Double point1, Point2D.Double point2, Graphics2D g2d) {
-        double x1 = (Math.min(point1.x, point2.x) - SIZE.x) * (IMG_SIZE / SIZE.width);
-        double y1 = (Math.min(point1.y, point2.y) - SIZE.y) * (IMG_SIZE / SIZE.height);
-        double x2 = (Math.max(point1.x, point2.x) - SIZE.x) * (IMG_SIZE / SIZE.width);
-        double y2 = (Math.max(point1.y, point2.y) - SIZE.y) * (IMG_SIZE / SIZE.height);
+        double x1 = (Math.min(point1.x, point2.x) - size.x) * (IMG_SIZE / size.width);
+        double y1 = (Math.min(point1.y, point2.y) - size.y) * (IMG_SIZE / size.height);
+        double x2 = (Math.max(point1.x, point2.x) - size.x) * (IMG_SIZE / size.width);
+        double y2 = (Math.max(point1.y, point2.y) - size.y) * (IMG_SIZE / size.height);
         g2d.fillRect((int) x1,(int) y1,(int) (x2 -x1),(int) (y2 - y1));
     }
     
@@ -387,6 +388,6 @@ public class VisualAStar
         } catch (InterruptedException e) {
             System.err.println(e);
         }
-*/
+        */
     }
 }

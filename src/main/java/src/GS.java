@@ -121,6 +121,7 @@ public class GS {
 
     /** Assets and camera. */
     final private static List<Instance> assets = new ArrayList<>();
+    final private static List<Instance> materialAssets = new ArrayList();
     final private static List<Instance> terrain = new ArrayList<>();
     final private static List<Light> lights = new ArrayList<>();
     final private static List<GUI> guis = new ArrayList<>();
@@ -151,9 +152,11 @@ public class GS {
     public static List<Car> cars = new ArrayList<>();
     public static Instance player;
 
-
-    /**
-     * -------------------------------------------------------------------------
+    public static int width = 1080;
+    public static int height = 720;
+    
+    
+    /**-------------------------------------------------------------------------
      * Logger initialization.
      * -------------------------------------------------------------------------
      */
@@ -207,8 +210,7 @@ public class GS {
         GS.keyDet = new ControllerKeyDetector();
 
         reloadKeyMap();
-
-        grid = new Grid(0f, -1000f, 0f, 2f, 2f, 2f);
+        grid = new Grid(0f, 0f, -1000f, 4f, 4f, 2000f);
 
         animator = new FPSAnimator(canvas, 60, true);
 
@@ -217,7 +219,7 @@ public class GS {
         Locker.add(cameraController);
 
         simulator = new Simulator();
-        renderer = new Renderer(simulator, 1080, 720);
+        renderer = new Renderer(simulator, width, height);
 
         canvas.addGLEventListener(renderer);
         canvas.setSize(1080, 720);
@@ -439,6 +441,14 @@ public class GS {
 
     public static List<GUI> getGUIs() {
         return guis;
+    }
+
+    public static List<Instance> getMaterialAssets(){
+        return materialAssets;
+    }
+
+    public static void addMaterialAsset(Instance asset) { 
+        materialAssets.add(asset);
     }
 
     public static void addGUI(GUI gui) {

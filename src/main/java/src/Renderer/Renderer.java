@@ -29,7 +29,7 @@ public class Renderer implements GLEventListener {
 
     private final float FOV = 70;
     private final float NEAR = 0.1f;
-    private final float FAR = 1000f;
+    private final float FAR = 2000f;
     private float width = 1080;
     private float height = 720;
 
@@ -37,6 +37,7 @@ public class Renderer implements GLEventListener {
 
     private ObjectRenderer objectRenderer;
     private TerrainRenderer terrainRenderer;
+    private MaterialRenderer materialRenderer;
     private GUIRenderer guiRenderer;
 
     public Renderer(Simulator simulator, float width, float height){
@@ -50,9 +51,6 @@ public class Renderer implements GLEventListener {
         this.gl = glAutoDrawable.getGL().getGL3();
         this.glu = new GLU();
 
-        gl.glEnable(GL3.GL_CULL_FACE);
-        gl.glCullFace(GL3.GL_BACK);
-
         System.out.println(gl.glGetString(GL_SHADING_LANGUAGE_VERSION));
 
         simulator.setGL(gl);
@@ -61,6 +59,7 @@ public class Renderer implements GLEventListener {
 
         getProjectionMatrix();
         objectRenderer = new ObjectRenderer(gl,projectionMatrix);
+        materialRenderer = new MaterialRenderer(gl, projectionMatrix);
         terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
         guiRenderer = new GUIRenderer(gl);
 
@@ -80,8 +79,14 @@ public class Renderer implements GLEventListener {
         gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         gl.glClearColor(1f, 1f, 1f, 1f);
 
+        gl.glEnable(GL3.GL_CULL_FACE);
+        gl.glCullFace(GL3.GL_BACK);
+
         objectRenderer.render(gl);
+        materialRenderer.render(gl);
         terrainRenderer.render(gl);
+
+        gl.glDisable(gl.GL_CULL_FACE);
         GS.getTrack().draw(gl);
         GS.getSkybox().draw(gl, projectionMatrix);
         guiRenderer.render(gl);

@@ -1,6 +1,5 @@
 package src.racetrack;
 
-import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -12,8 +11,8 @@ import java.nio.IntBuffer;
 
 public abstract class Track {
 
-    protected Vector3f[] control_points;
-    protected int nr_of_segments;
+    protected Vector3f[] controlPoints;
+    protected int nrOfSegments;
 
     final protected Vector3f position;
     final protected float size;
@@ -47,12 +46,12 @@ public abstract class Track {
     public abstract int getSize();
     public abstract int getWidth();
 
-    public void setControl_points(Vector3f[] control_points){
-        this.control_points = control_points;
+    public void setControlPoints(Vector3f[] controlPoints){
+        this.controlPoints = controlPoints;
     }
 
     public void setSegments(int nr){
-        nr_of_segments = nr;
+        nrOfSegments = nr;
     }
 
     public void setVAOValues(IntBuffer vao, int nrV){
@@ -69,7 +68,7 @@ public abstract class Track {
     }
     
     public int getNrOfSegments() {
-        return nr_of_segments;
+        return nrOfSegments;
     }
 
     public void draw(GL3 gl){
@@ -79,8 +78,8 @@ public abstract class Track {
         gl.glEnableVertexAttribArray(0);
         gl.glEnableVertexAttribArray(1);
         gl.glEnableVertexAttribArray(2);
-        gl.glDrawElements(GL2.GL_TRIANGLES, nrV,
-                GL2.GL_UNSIGNED_INT, 0);
+        gl.glDrawElements(GL3.GL_TRIANGLES, nrV,
+                GL3.GL_UNSIGNED_INT, 0);
         gl.glDisableVertexAttribArray(0);
         gl.glDisableVertexAttribArray(1);
         gl.glDisableVertexAttribArray(2);
@@ -126,10 +125,10 @@ public abstract class Track {
         shader.loadTextures(gl);
 
         shader.loadModelMatrix(gl, getTransformationMatrix());
-        gl.glActiveTexture(gl.GL_TEXTURE0);
-        gl.glBindTexture(gl.GL_TEXTURE_2D, texture.getTexture());
-        gl.glActiveTexture(gl.GL_TEXTURE1);
-        gl.glBindTexture(gl.GL_TEXTURE_2D,bumpmap.getTexture());
+        gl.glActiveTexture(GL3.GL_TEXTURE0);
+        gl.glBindTexture(GL3.GL_TEXTURE_2D, texture.getTexture());
+        gl.glActiveTexture(GL3.GL_TEXTURE1);
+        gl.glBindTexture(GL3.GL_TEXTURE_2D,bumpmap.getTexture());
     }
     
     

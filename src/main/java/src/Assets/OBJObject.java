@@ -5,18 +5,16 @@ package src.Assets;
 // Jogamp imports
 import com.jogamp.opengl.GL3;
 import org.joml.Vector3f;
-
-
-// Own imports
-import src.tools.Binder;
-import src.tools.Box3f;
 import src.OBJ.MTLObject;
+import src.tools.Binder;
+import src.tools.PosHitBox3f;
 
-
-// Java imports
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+
+// Own imports
+// Java imports
 
 
 /**
@@ -69,7 +67,10 @@ public class OBJObject
         }
         return intar;
     }
-    
+
+
+
+
     /*
     public void addData(GL3 gl, List<Float> vertices, List<Float> tex,
                         List<Float> normals, List<Integer> indices,
@@ -100,6 +101,11 @@ public class OBJObject
     @Override
     public int getNrV(int id) {
         return getNrV().get(id);
+    }
+
+    @Override
+    public List<MTLObject> getMaterials() {
+        return mtlObjects;
     }
 
     @Override
@@ -148,8 +154,11 @@ public class OBJObject
         return maxZ;
     }
     
-    public Box3f createBoundingBox() {
-        return new Box3f(maxX - minX, maxY - minY, maxZ - minZ);
+    public PosHitBox3f createBoundingBox() {
+        return new PosHitBox3f(
+                new Vector3f(), // Pos
+                new Vector3f(minX, minY, minZ), // Rel pos
+                new Vector3f(maxX - minX, maxY - minY, maxZ - minZ)); // Dim
     }
     
     

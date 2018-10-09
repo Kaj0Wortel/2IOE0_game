@@ -5,8 +5,12 @@ package src.OBJ;
 import com.jogamp.opengl.GL3;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import src.Assets.OBJCollection;
+import src.Assets.OBJObject;
+import src.GS;
+import src.tools.io.BufferedReaderPlus;
+import src.tools.log.Logger;
 
-// Java imports
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,28 +18,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-// Own imports
-import src.Assets.OBJCollection;
-import src.Assets.OBJObject;
-import src.GS;
-import src.tools.io.BufferedReaderPlus;
-import src.tools.log.Logger;
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
+
+// Java imports
+// Own imports
 
 
 
 /**
  * 
- * 
- * @author Kaj Wortel (0991586)
  */
 public class LoadOBJ {
     final private static Map<String, OBJCollection> map
             = new ConcurrentHashMap<>();
     
-    // Private constructor for static singleton design.
+    // Private constructor for static singleton design pattern.
     private LoadOBJ() { }
+    
     
     @SuppressWarnings({"null", "UnusedAssignment"})
     public static OBJCollection load(GL3 gl, String fileName) {
@@ -163,6 +163,8 @@ public class LoadOBJ {
                     if (obj != null) {
                         obj.addData(gl, vertsBuf, texsBuf, normsBuf,
                                 facesBuf, mtl);
+                        obj.setMinMax(minX, maxX, minY, maxY, minZ, maxZ);
+                        
                         vertsBuf = new ArrayList<>();
                         texsBuf = new ArrayList<>();
                         normsBuf = new ArrayList<>();
@@ -176,6 +178,8 @@ public class LoadOBJ {
                     if (mtl != null) {
                         obj.addData(gl, vertsBuf, texsBuf, normsBuf,
                                 facesBuf, mtl);
+                        obj.setMinMax(minX, maxX, minY, maxY, minZ, maxZ);
+                        
                         vertsBuf = new ArrayList<>();
                         texsBuf = new ArrayList<>();
                         normsBuf = new ArrayList<>();
@@ -184,7 +188,6 @@ public class LoadOBJ {
                         locCounter = 0;
                     }
                     mtl = mtlCol.get(data[0]);
-                    
                     
                 } else if (brp.fieldEquals("mtllib")) {
                     mtlCol = LoadMTL.load(GS.OBJ_DIR + data[0]);
@@ -196,6 +199,7 @@ public class LoadOBJ {
             }
             if (obj != null) {
                 obj.addData(gl, vertsBuf, texsBuf, normsBuf, facesBuf, mtl);
+                obj.setMinMax(minX, maxX, minY, maxY, minZ, maxZ);
             }
             
         } catch (IOException e) {

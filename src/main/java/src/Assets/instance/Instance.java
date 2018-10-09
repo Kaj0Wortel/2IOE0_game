@@ -1,8 +1,6 @@
 package src.Assets.instance;
 
 import com.jogamp.opengl.GL3;
-import java.util.Set;
-import javax.swing.SwingUtilities;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.GraphicsObject;
@@ -10,10 +8,14 @@ import src.Assets.OBJTexture;
 import src.GS;
 import src.Locker;
 import src.Physics.PStructAction;
-import src.Physics.PhysicsContext;
 import src.Physics.Physics;
+import src.Physics.PhysicsContext;
+import src.Progress.ProgressManager;
 import src.Shaders.ShaderProgram;
-import src.tools.Box3f;
+import src.tools.PosHitBox3f;
+
+import javax.swing.*;
+import java.util.Set;
 
 
 public abstract class Instance {
@@ -27,22 +29,25 @@ public abstract class Instance {
      * to prevent intermediate state changes.
      */
     final public static class State {
-        final public Box3f box;
+        final public PosHitBox3f box;
         final public float sizex;
         final public float sizey;
         final public float sizez;
         final public float rotx;
         final public float roty;
         final public float rotz;
-        final public float integratedRotation;
+        final public float internRotx;
+        final public float internRoty;
+        final public float internRotz;
         
         final public float velocity;
         final public float collisionVelocity;
         final public float verticalVelocity;
         
         
-        public State(Box3f box, float sizex, float sizey, float sizez,
-                float rotx, float roty, float rotz, float integratedRotation,
+        public State(PosHitBox3f box, float sizex, float sizey, float sizez,
+                float rotx, float roty, float rotz,
+                float internRotx, float internRoty, float internRotz,
                 float velocity, float collisionVelocity,
                 float verticalVelocity) {
             this.box = box;
@@ -52,7 +57,9 @@ public abstract class Instance {
             this.rotx = rotx;
             this.roty = roty;
             this.rotz = rotz;
-            this.integratedRotation = integratedRotation;
+            this.internRotx = internRotx;
+            this.internRoty = internRoty;
+            this.internRotz = internRotz;
             this.velocity = velocity;
             this.collisionVelocity = collisionVelocity;
             this.verticalVelocity = verticalVelocity;
@@ -66,28 +73,34 @@ public abstract class Instance {
         
     }
     
+    ProgressManager progress = new ProgressManager();
     
     protected State state;
     protected PhysicsContext physicsContext;
     
     protected OBJTexture model;
+    protected long prevTimeStamp;
     
     
-    public Instance(Box3f box, float size,
+    public Instance(PosHitBox3f box, float size,
             float rotx, float roty, float rotz,
-            OBJTexture model, float integratedRotation, 
+            OBJTexture model, float internRoty, 
             PhysicsContext physicContext) {
         this(box, size, size, size, rotx, roty, rotz, model,
-                integratedRotation, physicContext);
+                0, internRoty, 0, physicContext);
     }
-    public Instance(Box3f box, float sizex, float sizey, float sizez,
+    public Instance(PosHitBox3f box, float sizex, float sizey, float sizez,
             float rotx, float roty, float rotz, OBJTexture model,
-            float integratedRotation, PhysicsContext physicContext) {
-        setState(new State(box, sizex, sizey, sizez, rotx, roty, rotz,
-                integratedRotation, 0, 0, 0));
+            float internRotx, float internRoty, float internRotz,
+            PhysicsContext physicContext) {
+        box.scaleHitBox(sizex, sizey, sizez);
+        setState(new State(box, sizex, sizey, sizez,
+                rotx, roty, rotz,
+                internRotx, internRoty, internRotz, 0, 0, 0));
         
         this.model = model;
         this.physicsContext = physicContext;
+        
         SwingUtilities.invokeLater(() -> {
             Locker.add(this);
         });
@@ -99,43 +112,59 @@ public abstract class Instance {
         Matrix4f transformationMatrix = new Matrix4f();
         transformationMatrix.identity();
         transformationMatrix.translate(s.box.pos());
-        transformationMatrix.rotate((float) Math.toRadians(s.rotx), 1, 0, 0);
-        transformationMatrix.rotate(
-                (float) Math.toRadians(s.roty + s.integratedRotation), 0, 1, 0);
-        transformationMatrix.rotate((float) Math.toRadians(s.rotz), 0, 0, 1);
+        transformationMatrix.rotate((float)
+                Math.toRadians(s.box.rotx()), 1, 0, 0);
+        transformationMatrix.rotate((float)
+                Math.toRadians(s.box.roty()), 0, 1, 0);
+        transformationMatrix.rotate((float)
+                Math.toRadians(s.box.rotz()), 0, 0, 1);
         transformationMatrix.scale(s.sizex, s.sizey, s.sizez);
         
         return transformationMatrix;
     }
-
+    
     public OBJTexture getModel() {
         return model;
     }
-
+    
     @Deprecated
     public void rotx() {
         rotx(3f);
     }
 
-    @Deprecated
     public void rotx(float rot) {
         State s = state; // For sync.
         setState(new State(s.box, s.sizex, s.sizey, s.sizez,
-                (s.rotx + rot) % 360, s.roty, s.rotz, s.integratedRotation,
+                (s.rotx + rot) % 360, s.roty, s.rotz,
+                s.internRotx, s.internRoty, s.internRotz,
                 s.velocity, s.collisionVelocity,
                 s.verticalVelocity));
     }
-
+    
     @Deprecated
     public void roty() {
         roty(3f);
     }
     
-    @Deprecated
     public void roty(float rot) {
         State s = state; // For sync.
         setState(new State(s.box, s.sizex, s.sizey, s.sizez,
-                s.rotx, (s.roty + rot) % 360, s.rotz, s.integratedRotation,
+                s.rotx, (s.roty + rot) % 360, s.rotz,
+                s.internRotx, s.internRoty, s.internRotz,
+                s.velocity, s.collisionVelocity,
+                s.verticalVelocity));
+    }
+
+    @Deprecated
+    public void rotz() {
+        roty(3f);
+    }
+    
+    public void rotz(float rot) {
+        State s = state; // For sync.
+        setState(new State(s.box, s.sizex, s.sizey, s.sizez,
+                s.rotx, s.roty, (s.rotz + rot) % 360,
+                s.internRotx, s.internRoty, s.internRotz,
                 s.velocity, s.collisionVelocity,
                 s.verticalVelocity));
     }
@@ -148,21 +177,29 @@ public abstract class Instance {
     @Deprecated
     public void moveup(float amt) {
         State s = state; // For sync.
-        Box3f newBox = s.box.clone();
+        PosHitBox3f newBox = s.box.clone();
         newBox.translate(new Vector3f(0, amt, 0));
         setState(new State(newBox, s.sizex, s.sizey, s.sizez,
-                s.rotx, s.roty, s.rotz, s.integratedRotation,
+                s.rotx, s.roty, s.rotz,
+                s.internRotx, s.internRoty, s.internRotz,
                 s.velocity, s.collisionVelocity,
                 s.verticalVelocity));
     }
 
-    public void draw(GL3 gl, ShaderProgram shader){
+    /**
+     * Draws {@code this} using the given shader.
+     * 
+     * @param gl
+     * @param shader 
+     */
+    public void draw(GL3 gl, ShaderProgram shader) {
         shader.loadModelMatrix(gl, getTransformationMatrix());
         shader.loadTextureLightValues(gl, model.getTextureImg().getShininess(),
                 model.getTextureImg().getReflectivity());
         
-        GraphicsObject obj = model.getAsset();
+        GraphicsObject obj = model.getAsset().get(0);
         for (int i = 0; i < obj.size(); i++) {
+            if(shader.useMaterial()) shader.loadMaterial(gl,obj.getMaterials().get(i));
             gl.glBindVertexArray(obj.getVao(i));
             gl.glEnableVertexAttribArray(0);
             gl.glEnableVertexAttribArray(1);
@@ -182,6 +219,9 @@ public abstract class Instance {
      * @param state the new state.
      */
     public void setState(State state) {
+        state.box.setRotx(state.rotx + state.internRotx);
+        state.box.setRoty(state.roty + state.internRoty);
+        state.box.setRotz(state.rotz + state.internRotz);
         this.state = state;
     }
     
@@ -199,7 +239,7 @@ public abstract class Instance {
      * When using more than this data from {@code this} instance,
      * use {@link #getState()} instead.
      */
-    public Box3f getBox() {
+    public PosHitBox3f getBox() {
         return state.box;
     }
     
@@ -267,11 +307,18 @@ public abstract class Instance {
         if (!isStatic()) {
             Set<Instance> collisions = GS.grid.getCollisions(this);
             Physics.calcPhysics(this, pStruct, physicsContext, state,
-                    collisions);
+                    collisions, progress);
             
         } else {
-            Physics.calcPhysics(this, pStruct, physicsContext, state, null);
+            Physics.calcPhysics(this, pStruct, physicsContext, state, null, progress);
         }
+    }
+    
+    /**
+     * Removes the instance and releases all resources connected to it.
+     */
+    public void destroy() {
+        // TODO
     }
     
     

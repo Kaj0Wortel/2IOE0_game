@@ -2,19 +2,19 @@ package src.Assets;
 
 public class OBJTexture {
 
-    private OBJObject asset;
+    private OBJCollection asset;
     private TextureImg textureImg;
 
-    public OBJTexture(OBJObject asset, TextureImg textureImg) {
+    public OBJTexture(OBJCollection asset, TextureImg textureImg) {
         this.asset = asset;
         this.textureImg = textureImg;
     }
 
-    public OBJObject getAsset() {
+    public OBJCollection getAsset() {
         return asset;
     }
 
-    public void setAsset(OBJObject asset) {
+    public void setAsset(OBJCollection asset) {
         this.asset = asset;
     }
 

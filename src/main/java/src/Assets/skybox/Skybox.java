@@ -7,11 +7,11 @@ import org.joml.Matrix4f;
 import src.GS;
 import src.Shaders.SkyBoxShader;
 import src.tools.Binder;
+import src.tools.log.Logger;
 
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import src.tools.log.Logger;
 
 public class Skybox {
 
@@ -23,7 +23,7 @@ public class Skybox {
     private SkyBoxShader skyBoxShader;
     private int texture;
 
-    private final float SIZE = 500f;
+    private final float SIZE = 1000f;
 
     private final float[] skyBoxVertices = {
             -SIZE,  SIZE, -SIZE,

@@ -22,6 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import src.Locker;
 import src.Physics.PStructAction;
 import src.tools.MultiTool;
+import src.Progress.ProgressManager;
 
 
 /**
@@ -33,6 +34,7 @@ import src.tools.MultiTool;
  */
 public class CollisionManager {
     
+    
     public static class Collision {
         final protected Entry e1;
         protected Entry e2;
@@ -40,8 +42,8 @@ public class CollisionManager {
         
         
         public Collision(Instance source, Instance other,
-                PStructAction pStruct, ModPhysicsContext mpc, ModState ms) {
-            this(new Entry(source, pStruct, mpc, ms), other);
+                PStructAction pStruct, ModPhysicsContext mpc, ModState ms, ProgressManager progress) {
+            this(new Entry(source, pStruct, mpc, ms, progress), other);
         }
         
         public Collision(Entry entry, Instance other) {
@@ -101,14 +103,16 @@ public class CollisionManager {
         final public PStructAction pStruct;
         final public ModPhysicsContext mpc;
         final public ModState ms;
+        final public ProgressManager progress;
         
         
         public Entry(Instance inst, PStructAction pStruct,
-                ModPhysicsContext mpc, ModState ms) {
+                ModPhysicsContext mpc, ModState ms, ProgressManager progress) {
             this.inst = inst;
             this.pStruct = pStruct;
             this.mpc = mpc;
             this.ms = ms;
+            this.progress = progress;
         }
         
         @Override
@@ -227,8 +231,8 @@ public class CollisionManager {
      * @param c the collision to add.
      */
     public static void addCollision(Instance source, Instance other,
-            PStructAction pStruct, ModPhysicsContext mpc, ModState ms) {
-        Entry entry = new Entry(source, pStruct, mpc, ms);
+            PStructAction pStruct, ModPhysicsContext mpc, ModState ms, ProgressManager progress) {
+        Entry entry = new Entry(source, pStruct, mpc, ms, progress);
         Collision col = new Collision(entry, other);
         lock.lock();
         try {

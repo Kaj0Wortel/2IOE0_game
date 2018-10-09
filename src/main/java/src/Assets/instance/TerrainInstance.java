@@ -8,7 +8,7 @@ import src.Assets.OBJTexture;
 
 // Java imports
 import src.Physics.PhysicsContext;
-import src.tools.Box3f;
+import src.tools.PosHitBox3f;
 
 
 /**
@@ -18,7 +18,7 @@ public class TerrainInstance
         extends Instance {
     
     
-    public TerrainInstance(Box3f box, float size,
+    public TerrainInstance(PosHitBox3f box, float size,
             float rotx, float roty, float rotz,
             OBJTexture model, float integratedRotation,
             PhysicsContext physicConst) {
