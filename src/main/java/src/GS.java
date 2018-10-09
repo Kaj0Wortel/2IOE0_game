@@ -199,7 +199,7 @@ public class GS {
         }
         
         GLProfile.initSingleton();
-        GLProfile profile = GLProfile.get(GLProfile.GL2);
+        GLProfile profile = GLProfile.get(GLProfile.GL3);
         GLCapabilities cap = new GLCapabilities(profile);
         canvas = new GLCanvas(cap);
         

@@ -2,6 +2,7 @@
   <library name="Maven: net.java.jinput:jinput:2.0.9">
     <CLASSES>
       <root url="jar://$MAVEN_REPOSITORY$/net/java/jinput/jinput/2.0.9/jinput-2.0.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/src/main/resources/libs/PNGDecoder.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$MAVEN_REPOSITORY$/net/java/jinput/jinput/2.0.9/jinput-2.0.9-javadoc.jar!/" />

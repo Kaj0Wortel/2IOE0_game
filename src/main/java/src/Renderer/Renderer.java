@@ -9,10 +9,13 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
+import src.Assets.GUI;
 import src.Controllers.PlayerController;
 import src.GS;
 import src.Shaders.RacetrackShader;
 import src.Simulator;
+import src.shadows.ShadowRenderer;
 
 import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
 import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
@@ -39,6 +42,7 @@ public class Renderer implements GLEventListener {
     private TerrainRenderer terrainRenderer;
     private MaterialRenderer materialRenderer;
     private GUIRenderer guiRenderer;
+    private ShadowRenderer shadowRenderer;
 
     public Renderer(Simulator simulator, float width, float height){
         this.simulator = simulator;
@@ -61,12 +65,19 @@ public class Renderer implements GLEventListener {
         objectRenderer = new ObjectRenderer(gl,projectionMatrix);
         materialRenderer = new MaterialRenderer(gl, projectionMatrix);
         terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
+        shadowRenderer = new ShadowRenderer(gl, FOV, NEAR, FAR, width, height);
         guiRenderer = new GUIRenderer(gl);
+
+        GUI test = new GUI(shadowRenderer.getDepthTexture(),
+                new Vector2f(-0.5f, -0.5f), new Vector2f(0.25f, 0.25f));
+        GS.addGUI(test);
+
 
         RacetrackShader racetrackShader = new RacetrackShader(gl);
         GS.getTrack().setShaderAndRenderMatrices(racetrackShader, projectionMatrix, GS.camera.getViewMatrix());
 
         gl.glEnable(GL3.GL_DEPTH_TEST);
+        gl.glViewport(0,0,(int)width,(int)height);
     }
 
     @Override
@@ -76,8 +87,10 @@ public class Renderer implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
+        gl.glClear(GL_DEPTH_BUFFER_BIT);
+        shadowRenderer.render(gl);
+
         gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-        gl.glClearColor(1f, 1f, 1f, 1f);
 
         gl.glEnable(GL3.GL_CULL_FACE);
         gl.glCullFace(GL3.GL_BACK);

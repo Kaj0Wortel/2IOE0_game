@@ -9,6 +9,7 @@ import src.Assets.GraphicsObject;
 import src.Assets.OBJTexture;
 import src.Physics.PhysicsContext;
 import src.Shaders.ShaderProgram;
+import src.shadows.ShadowShader;
 import src.tools.PosHitBox3f;
 
 // Java imports
@@ -55,7 +56,24 @@ public class Car
                 gl.glDisableVertexAttribArray(2);
             }
             gl.glBindVertexArray(0);
-}
+        }
+
+    }
+
+    @Override
+    public void draw(GL3 gl, ShadowShader shader) {
+        for(GraphicsObject obj : model.getAsset()){
+            shader.loadModelMatrix(gl, getTransformationMatrix());
+
+            for (int i = 0; i < obj.size(); i++) {
+                gl.glBindVertexArray(obj.getVao(i));
+                gl.glEnableVertexAttribArray(0);
+                gl.glDrawElements(GL3.GL_TRIANGLES, obj.getNrV(i),
+                        GL3.GL_UNSIGNED_INT, 0);
+                gl.glDisableVertexAttribArray(0);
+            }
+            gl.glBindVertexArray(0);
+        }
 
     }
 }

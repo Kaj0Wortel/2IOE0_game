@@ -19,11 +19,13 @@ public class ShadowFBO {
         this.height = height;
         generateFBO(gl);
         generateDepthAttachment(gl);
+        unbindFrameBuffer(gl);
     }
 
     private void generateFBO(GL3 gl){
         fbo = Buffers.newDirectIntBuffer(1);
         gl.glGenFramebuffers(1, fbo);
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, fbo.get(0));
         gl.glDrawBuffer(gl.GL_NONE);
         gl.glReadBuffer(gl.GL_NONE);
     }
@@ -40,14 +42,18 @@ public class ShadowFBO {
         gl.glFramebufferTexture(gl.GL_FRAMEBUFFER, gl.GL_DEPTH_ATTACHMENT, depthAttachment.get(0), 0);
     }
 
-    private void bindFrameBuffer(GL3 gl){
-        gl.glBindTexture(gl.GL_TEXTURE_2D, depthAttachment.get(0));
-        gl.glBindFramebuffer(gl.GL_DRAW_FRAMEBUFFER, fbo.get(0));
-        gl.glViewport(0,0,width,height);
+    public void bindFrameBuffer(GL3 gl){
+        gl.glBindTexture(gl.GL_TEXTURE_2D,0);
+        gl.glBindFramebuffer(gl.GL_DRAW_FRAMEBUFFER,fbo.get(0));
+        gl.glViewport(0,0, width, height);
     }
 
-    private void unbindFrameBuffer(GL3 gl){
+    public void unbindFrameBuffer(GL3 gl){
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER,0);
         gl.glViewport(0,0, GS.width, GS.height);
+    }
+
+    public IntBuffer getDepthAttachment() {
+        return depthAttachment;
     }
 }

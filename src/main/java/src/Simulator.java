@@ -4,10 +4,12 @@ package src;
 
 // Jogamp imports
 import com.jogamp.opengl.GL3;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 import src.Assets.*;
-import src.Assets.instance.*;
+import src.Assets.instance.Car;
+import src.Assets.instance.EnvironmentItem;
+import src.Assets.instance.Instance;
+import src.Assets.instance.PickupItem;
 import src.Assets.skybox.Skybox;
 import src.OBJ.LoadOBJ;
 import src.Physics.PhysicsContext;
@@ -266,10 +268,6 @@ public class Simulator
         Light light = new Light(new Vector3f(100f, 50f, -100f),
                 new Vector3f(1f, 1f, 1f));
         GS.addLight(light);
-
-        GUI test = new GUI(new TextureImg(gl,"test_icon.png").getTexture(),
-                new Vector2f(-0.5f, -0.5f), new Vector2f(0.25f, 0.25f));
-        GS.addGUI(test);
 
         BezierTrack testTrack = new BezierTrack(
                 new Vector3f(0, 1, -5), 3f, 0, 0, 0,
