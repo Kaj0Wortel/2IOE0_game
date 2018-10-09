@@ -27,10 +27,13 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.nativeblas.NativeOps;
 import org.nd4j.nativeblas.NativeOpsHolder;
 import org.nd4j.nativeblas.Nd4jBlas;
+import src.Assets.OBJTexture;
 import src.Assets.instance.GridItemInstance;
 import src.GS;
 import src.Physics.PStructAction;
+import src.Physics.PhysicsContext;
 import src.grid.GridItem;
+import src.tools.PosHitBox3f;
 import src.tools.log.Logger;
 
 /**
@@ -357,6 +360,23 @@ public class AINN {
         StatsStorage statsStorage = new InMemoryStatsStorage();
         uiServer.attach(statsStorage);
         network.setListeners(new StatsListener(statsStorage));
+    }
+    
+    
+    // TMP CLASS
+    public static class InstanceImpl
+            extends GridItemInstance {
+        
+        public InstanceImpl() {
+            super(new PosHitBox3f(), 1, 0, 0, 0, null, 0, new PhysicsContext());
+        }
+        
+        @Override
+        public boolean isStatic() {
+            return true;
+        }
+        
+        
     }
     
     
