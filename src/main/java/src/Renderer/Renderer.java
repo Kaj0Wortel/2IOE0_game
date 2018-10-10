@@ -27,7 +27,7 @@ public class Renderer implements GLEventListener {
     private GL3 gl;
     private GLU glu;
 
-    private final float FOV = 70;
+    private float fov = 70;
     private final float NEAR = 0.1f;
     private final float FAR = 2000f;
     private float width = 1080;
@@ -100,7 +100,7 @@ public class Renderer implements GLEventListener {
 
     private void getProjectionMatrix(){
         float ratio = width / height;
-        float y = (float) (1f / Math.tan(Math.toRadians(FOV/2f)));
+        float y = (float) (1f / Math.tan(Math.toRadians(fov/2f)));
         float x = y / ratio;
         float delta = FAR - NEAR;
 

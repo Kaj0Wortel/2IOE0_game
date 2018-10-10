@@ -224,7 +224,7 @@ public class Physics {
         // If the instance intersects with a car or an item, use collision
         // dependant collision handeling.
         // Ignore the current actions.
-        if (!collisions.isEmpty()) {
+        if (collisions != null && !collisions.isEmpty()) {
             ModPhysicsContext modPC = new ModPhysicsContext(pc);
             
             for (Instance instance : collisions) {
