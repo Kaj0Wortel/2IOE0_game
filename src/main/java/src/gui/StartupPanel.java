@@ -17,6 +17,8 @@ import src.GS;
 public class StartupPanel
         extends JPanel {
     
+    final private static int SPACING = 10;
+    
     final private RacingButton start;
     final private RacingButton keyBindings;
     
@@ -51,6 +53,10 @@ public class StartupPanel
     private void update() {
         start.setLocation(100, 100);
         start.setSize(getWidth() / 5, getHeight() / 5);
+        
+        keyBindings.setLocation(start.getX(),
+                start.getY() + start.getHeight() + SPACING);
+        keyBindings.setSize(getWidth() / 5, getHeight() / 5);
     }
     
     

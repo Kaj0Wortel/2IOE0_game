@@ -150,14 +150,14 @@ public abstract class ListingPanel<Item extends MenuItem,
         filter.setOpaque(false);
         add(filter);
         
-        nextPage = new RacingButton("▶");
+        nextPage = new RacingButton("?");
         nextPage.setSize(SMALL_BUTTON_WIDTH, SMALL_BUTTON_HEIGHT);
         nextPage.addActionListener((ActionEvent e) -> {
             if (lister.hasNextPage()) lister.nextPage();
         });
         add(nextPage);
         
-        prevPage = new RacingButton("◀");
+        prevPage = new RacingButton("?");
         prevPage.setSize(SMALL_BUTTON_WIDTH, SMALL_BUTTON_HEIGHT);
         prevPage.addActionListener((e) -> {
             if (lister.hasPrevPage()) lister.prevPage();
@@ -192,6 +192,7 @@ public abstract class ListingPanel<Item extends MenuItem,
                 int page = Integer.parseInt(pageSearch.getText());
                 if (page <= 0 || page > lister.getTotalPages()) {
                     pageSearch.setError();
+                    
                 } else {
                     lister.setPage(page);
                 }

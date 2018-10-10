@@ -1,9 +1,8 @@
 
 package src.gui.menuList;
 
-import java.util.Set;
-import javax.swing.SwingUtilities;
-import net.java.games.input.Component.Identifier;
+
+// Own imports
 import src.GS;
 import src.gui.RacingButton;
 import src.tools.MultiTool;
@@ -11,17 +10,20 @@ import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.KeyAction;
 
 
-// Own imports
-
-
 // Java imports
+import javax.swing.SwingUtilities;
+
+
+// JInput imports
+import net.java.games.input.Component.Identifier;
 
 
 /**
  * 
  */
 public class ConfigKeyMenuItem
-        extends MenuItem {
+        extends MenuItem
+        implements SelectableItem {
     
     /**-------------------------------------------------------------------------
      * Constants.
@@ -36,18 +38,18 @@ public class ConfigKeyMenuItem
      * -------------------------------------------------------------------------
      */
     private static class PlayerID
-            extends FormContents {
+            extends TextContents {
         
         private KeyAction action;
         
         public PlayerID(KeyAction action) {
-            super(SPACING, "" + action.getID());
+            super("" + action.getID());
             this.action = action;
         }
         
         @Override
         public void reload() {
-            comps[0].setText("" +  action.getID());
+            comp.setText("" +  action.getID());
         }
         
         /**
@@ -63,22 +65,22 @@ public class ConfigKeyMenuItem
     
     
     public static class ActionName
-            extends FormContents {
+            extends TextContents {
         
         private KeyAction action;
         
         
         public ActionName(KeyAction action) {
-            super(SPACING, (action == null
+            super(action == null
                     ? ""
-                    : action.getAction().toString()));
+                    : action.getAction().toString());
             this.action = action;
         }
         
         @Override
         public void reload() {
-            if (action == null) comps[0].setText("");
-            else comps[0].setText(action.getAction().toString());
+            if (action == null) comp.setText("");
+            else comp.setText(action.getAction().toString());
         }
         
         /**
@@ -110,18 +112,23 @@ public class ConfigKeyMenuItem
                 new Thread("Change-key-bindings-thread") {
                     @Override
                     public void run() {
-                        Set<ControllerKey> pressed;
-                        do {
-                            pressed = GS.keyDet.getKeysPressed();
-                            MultiTool.sleepThread(10);
+                        MultiTool.sleepThread(250); // Reaction time delay
+                        ControllerKey pressed = null;
+                        while (pressed == null) {
+                            for (ControllerKey key : GS.keyDet.getKeysPressed()) {
+                                if (!key.isCenter()) {
+                                    pressed = key;
+                                    break;
+                                }
+                            }
                             
-                        } while (pressed.isEmpty());
-
+                            MultiTool.sleepThread(40); // Polling delay.
+                        }
                         // Get the first key of those that were pressed.
                         // Note that the iterator next call is save as
                         // there is at least one item, and this set
                         // won't be modified.
-                        item.setKey(pressed.iterator().next());
+                        item.setKey(pressed);
                         item.reload();
                     }
                 }.start();
@@ -226,9 +233,9 @@ public class ConfigKeyMenuItem
         
         
         public ControllerButton(ControllerKey key) {
-            super(key.getComponent().getIdentifier() == null
+            super(key == null ? "" : (key.getComponent().getIdentifier() == null
                     ? UNKNOWN_NAME
-                    : key.getComponent().getIdentifier().getName());
+                    : key.getComponent().getIdentifier().getName()));
             this.key = key;
         }
         
@@ -269,6 +276,7 @@ public class ConfigKeyMenuItem
      */
     public ConfigKeyMenuItem(KeyAction action, ControllerKey key) {
         super(new Contents[] {
+            new SelectContents(),
             new PlayerID(action),
             new ActionName(action),
             new SetKeyButton(),
@@ -278,7 +286,7 @@ public class ConfigKeyMenuItem
         });
         
         SwingUtilities.invokeLater(() -> {
-            ((SetKeyButton) contents.get(1)).setMenuItem(this);
+            ((SetKeyButton) contents.get(3)).setMenuItem(this);
         });
         
         this.action = action;
@@ -305,10 +313,20 @@ public class ConfigKeyMenuItem
      */
     protected void setKey(ControllerKey key) {
         this.key = key;
-        ((ControllerType) contents.get(3)).setKey(key);
-        ((ControllerName) contents.get(4)).setKey(key);
-        ((ControllerButton) contents.get(5)).setKey(key);
+        ((ControllerType) contents.get(4)).setKey(key);
+        ((ControllerName) contents.get(5)).setKey(key);
+        ((ControllerButton) contents.get(6)).setKey(key);
         reload();
+    }
+    
+    @Override
+    public boolean isSelected() {
+        return ((SelectContents) contents.get(0)).isSelected();
+    }
+    
+    @Override
+    public void setSelected(boolean selected) {
+        ((SelectContents) contents.get(0)).setSelected(selected);
     }
     
     

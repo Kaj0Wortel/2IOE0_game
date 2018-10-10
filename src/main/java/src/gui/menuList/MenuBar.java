@@ -7,7 +7,7 @@ import src.GS;
 import src.gui.EditField;
 import src.gui.FixedJComboBox;
 import src.gui.RacingButton;
-import src.gui.GrepoInternalFrame;
+import src.gui.InternalFrame;
 import src.tools.MultiTool;
 import src.tools.observer.HashObservableInterface;
 import src.tools.observer.Observer;
@@ -603,7 +603,7 @@ public abstract class MenuBar
     public abstract static class FrameContents<C extends JComponent>
             extends Contents<C> {
         
-        final protected GrepoInternalFrame frame;
+        final protected InternalFrame frame;
         final protected RacingButton button;
         protected C comp;
         protected int spacing;
@@ -615,7 +615,7 @@ public abstract class MenuBar
         public FrameContents(String buttonText, C comp, int spacing) {
             this.spacing = spacing;
             
-            frame = new GrepoInternalFrame();
+            frame = new InternalFrame();
             frame.add(this.comp = comp);
             comp.addComponentListener(new ComponentAdapter() {
                 @Override
@@ -706,7 +706,7 @@ public abstract class MenuBar
         /**
          * @return the internal frame used for the separate actions.
          */
-        public GrepoInternalFrame getInternalFrame() {
+        public InternalFrame getInternalFrame() {
             return frame;
         }
         
@@ -821,7 +821,7 @@ public abstract class MenuBar
             throw new IllegalArgumentException(
                     "The amount of contents (" + contents.size()
                             + ") is not equal to the amount of offsets ("
-                            + offsets.size() + ") + 1.");
+                            + offsets.size() + " + 1).");
         
         if (clone) this.contents = new ArrayList<>(contents);
         else this.contents = contents;

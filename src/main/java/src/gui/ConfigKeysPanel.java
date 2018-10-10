@@ -1,6 +1,7 @@
 
 package src.gui;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,13 +34,13 @@ public class ConfigKeysPanel
         super("key config", new MenuLister<ConfigKeyMenuItem>(
                 new ConfigKeyMenuHeader(
                     new Integer[] {
-                        40, 40, 40, 80, 120, 40
+                        40, 120, 240, 390, 590, 800
                     })),
                 new KeySorter(),
                 new KeyFilter()
         );
         
-        
+        setBackground(Color.YELLOW);
     }
     
     
@@ -86,33 +87,28 @@ public class ConfigKeysPanel
     public void userAddItem() {
         List<Enum> actions = KeyAction.getAllActions();
         Enum[] options = actions.toArray(new Enum[actions.size()]);
-        Enum option = null;
-        do {
-            option = (Enum) JOptionPane.showInputDialog(this, 
-                    "Select action",
-                    "Adding new key binding",
-                    JOptionPane.QUESTION_MESSAGE, 
-                    null, 
-                    options, 
-                    options[0]);
-        } while (option == null);
+        Enum option = (Enum) JOptionPane.showInputDialog(this, 
+                "Select action",
+                "Adding new key binding",
+                JOptionPane.QUESTION_MESSAGE, 
+                null, 
+                options, 
+                options[0]);
+        if (option == null) return;
         
-        int id = 0;
         Integer[] players = new Integer[GS.MAX_PLAYERS];
         for (int i = 0; i < GS.MAX_PLAYERS; i++) {
             players[i] = i + 1;
         }
         
-        do {
-            id = (Integer) JOptionPane.showInputDialog(this, 
-                    "Select player",
-                    "Adding new key binding",
-                    JOptionPane.QUESTION_MESSAGE, 
-                    null, 
-                    players, 
-                    players[0]);
-            
-        } while (id != 0);
+        Integer id = (Integer) JOptionPane.showInputDialog(this, 
+                "Select player",
+                "Adding new key binding",
+                JOptionPane.QUESTION_MESSAGE, 
+                null, 
+                players, 
+                players[0]);
+        if (id == null) return;
         
         KeyAction keyAction = KeyAction.createKeyAction(id, option);
         lister.addItem(new ConfigKeyMenuItem(keyAction, null));

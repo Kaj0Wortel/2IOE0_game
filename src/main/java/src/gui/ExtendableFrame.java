@@ -29,7 +29,7 @@ public abstract class ExtendableFrame<V extends JComponent>
     final protected static int DEFAULT_SPACING = 20;
     
     final protected RacingButton button;
-    final protected GrepoInternalFrame frame;
+    final protected InternalFrame frame;
     
     protected V comp;
     protected int spacing = 10;
@@ -58,7 +58,7 @@ public abstract class ExtendableFrame<V extends JComponent>
         super(null);
         this.spacing = spacing;
         
-        frame = new GrepoInternalFrame();
+        frame = new InternalFrame();
         frame.add(this.comp = comp);
         comp.addComponentListener(new ComponentAdapter() {
             @Override

@@ -205,8 +205,15 @@ public class KeyFilter
      */
     public KeyFilter() {
         super(new ItemPanel[] {
-            
+            new PlayerIDPanel(),
+            new ActionPanel(),
+            new ControllerType(),
+            new ControllerName()
         });
+        
+        // Set size.
+        comp.setSize(4*SPACING + CHECK_BOX_WIDTH + LABEL_WIDTH + COMP_WIDTH,
+                6*SPACING + 5*GEN_HEIGHT);
     }
     
     

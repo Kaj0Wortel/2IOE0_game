@@ -336,8 +336,8 @@ public class MainPanel
             int h = getHeight() - in.top - in.bottom;
             
             for (Component comp : getComponents()) {
-                if (comp == exit || comp == fullScreen || comp == minimize)
-                    continue;
+                if ((comp instanceof JInternalFrame) || comp == exit ||
+                        comp == fullScreen || comp == minimize) continue;
                 comp.setBounds(in.left, in.top, w, h);
             }
 

@@ -19,10 +19,10 @@ import javax.swing.plaf.basic.BasicInternalFrameUI;
  * 
  * @author Kaj Wortel (0991586)
  */
-public class GrepoInternalFrame
+public class InternalFrame
         extends JInternalFrame {
     
-    public GrepoInternalFrame() {
+    public InternalFrame() {
         super(null, false, false, false, false);
         setLayout(null);
         
@@ -53,7 +53,7 @@ public class GrepoInternalFrame
     
     
     public static void main(String[] args) {
-        new GrepoInternalFrame();
+        new InternalFrame();
     }
     
 }

@@ -26,11 +26,16 @@ public abstract class KeyAction<V extends Enum<V>> {
         File[] files = new File(GS.WORKING_DIR + "tools" + GS.FS +
                 "event" + GS.FS + "keyAction" + GS.FS + "action").listFiles();
         for (File file : files) {
-            if (!file.getName().endsWith(".java")) continue;
+            String fileName = file.getName();
+            if (!fileName.endsWith(".java")) continue;
             
             try {
-                Class<?> c = Class.forName(KeyAction.class.getName()
-                        + "." + file.getName());
+                // Remove the ".java" part of the file.
+                String className = fileName.substring(0, fileName.length() - 5);
+                // Get the class.
+                Class<?> c = Class.forName(KeyAction.class.getPackage()
+                        .getName() + ".action." + className);
+                // If it is an enum, add it to the list.
                 if (Enum.class.isAssignableFrom(c)) {
                     Enum[] enums = ((Class<Enum>) c).getEnumConstants();
                     if (enums != null) ACTION_LIST.addAll(Arrays.asList(enums));
