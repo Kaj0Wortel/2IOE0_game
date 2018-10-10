@@ -1,7 +1,10 @@
 
 package src.gui;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import src.GS;
@@ -10,6 +13,7 @@ import src.gui.menuList.ConfigKeyMenuHeader;
 import src.gui.menuList.ConfigKeyMenuItem;
 import src.gui.menuList.MenuLister;
 import src.gui.sorter.KeySorter;
+import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.KeyAction;
 
 
@@ -42,6 +46,23 @@ public class ConfigKeysPanel
     private void init() {
         lister.removeAllItems();
         
+        List<ConfigKeyMenuItem> items = new ArrayList<>();
+        
+        Iterator<Map.Entry<KeyAction, List<ControllerKey>>> it
+                = GS.getKeyIterator();
+        while (it.hasNext()) {
+            Map.Entry<KeyAction, List<ControllerKey>> entry = it.next();
+            KeyAction action = entry.getKey();
+            for (ControllerKey key : entry.getValue()) {
+                items.add(new ConfigKeyMenuItem(action, key));
+            }
+        }
+        
+        lister.addAllItems(items);
+        lister.revalidate();
+        lister.repaint();
+        
+        if (filter != null) filter.updateContents();
     }
     
     @Override

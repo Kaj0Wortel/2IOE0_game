@@ -455,7 +455,8 @@ public class GS {
     /**
      * @return an iterator over all current keybindings.
      */
-    public static Iterator<Entry<KeyAction, List<ControllerKey>>> getKeyIterator() {
+    public static Iterator<Map.Entry<KeyAction, List<ControllerKey>>>
+            getKeyIterator() {
         return keyMap.entrySet().iterator();
     }
     

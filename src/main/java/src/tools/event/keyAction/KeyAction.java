@@ -42,6 +42,12 @@ public abstract class KeyAction<V extends Enum<V>> {
         }
     }
     
+    /**
+     * @return all available enum action.
+     * 
+     * Warning:
+     * Do NOT modify this list!
+     */
     public static List<Enum> getAllActions() {
         return ACTION_LIST;
     }

@@ -257,7 +257,8 @@ public class MainPanel
         add(switchPanel);
         
         JComponent[] panels = new JComponent[] {
-            new StartupPanel()
+            new StartupPanel(),
+            new ConfigKeysPanel()
         };
         
         for (JComponent panel : panels) {

@@ -18,6 +18,7 @@ public class StartupPanel
         extends JPanel {
     
     final private RacingButton start;
+    final private RacingButton keyBindings;
     
     public StartupPanel() {
         super(null);
@@ -27,6 +28,12 @@ public class StartupPanel
         add(start);
         start.addActionListener((e) -> {
             GS.startRendering();
+        });
+        
+        keyBindings = new RacingButton("Key bindings");
+        add(keyBindings);
+        keyBindings.addActionListener((e) -> {
+            GS.mainPanel.getSwitchPanel().setActivePanel("key config");
         });
         
         
