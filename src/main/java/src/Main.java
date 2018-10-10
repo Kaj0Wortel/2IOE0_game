@@ -13,6 +13,7 @@ import src.tools.update.Updateable;
 
 import java.util.List;
 import src.AI.AINN;
+import src.AI.AINN.InstanceImpl;
 
 // Java imports
 
@@ -28,7 +29,7 @@ public class Main {
         // TMP
         //Updateable up = new TmpUpdateable(1);
         //Updater.addTask(up);
-        new AINN(null);
+        new AINN(new InstanceImpl());
     }
     
     // BEGIN TMP
