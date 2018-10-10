@@ -55,7 +55,7 @@ public class Renderer implements GLEventListener {
 
         simulator.setGL(gl);
         simulator.initAssets();
-        GS.playerController = new PlayerController(GS.player);
+        GS.playerController = new PlayerController(GS.player, 1);
 
         getProjectionMatrix();
         objectRenderer = new ObjectRenderer(gl,projectionMatrix);

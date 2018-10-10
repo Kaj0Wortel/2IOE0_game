@@ -8,6 +8,7 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
+import java.awt.Rectangle;
 import net.java.games.input.ContrlEnv;
 import net.java.games.input.ControllerEnvironment;
 import org.joml.Vector3f;
@@ -42,6 +43,7 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
@@ -93,6 +95,8 @@ public class GS {
     
     /** Whether to disable the logging by {@link java.util.logging.Logger}. */
     final private static boolean DISABLE_JAVA_LOGGING = true;
+    
+    final public static int MAX_PLAYERS = 1;
     
     /** Handy file paths. */
     final public static String WORKING_DIR = System.getProperty("user.dir")
@@ -172,6 +176,9 @@ public class GS {
         
         // Initialize the fonts.
         FontLoader.init();
+        // Set the default font.
+        FontLoader.setDefaultFont(FontLoader.getLocalFont("source-sans-pro"
+                + GS.FS + "SourceSansPro-Black.ttf").deriveFont(16F));
         
         // Setup key map for the screen logger.
         Map<Key, Runnable> debugMap = new HashMap<>();
@@ -195,19 +202,26 @@ public class GS {
         if (DISABLE_JAVA_LOGGING) {
             LogManager.getLogManager().reset();
             Logger.write("Logging via \"java.util.logging.Logger\" has "
-                    + "now been disabled!");
+                    + "now been disabled!", Logger.Type.INFO);
         }
         
+        registerImageSheets();
+        reloadKeyMap();
+        
+        GS.keyDet = new ControllerKeyDetector();
         GLProfile.initSingleton();
-        GLProfile profile = GLProfile.get(GLProfile.GL2);
+        createGUI();
+    }
+    
+    /**
+     * Function to start running the actual game.
+     */
+    public static void startRendering() {
+        GLProfile profile = GLProfile.get(GLProfile.GL3);
         GLCapabilities cap = new GLCapabilities(profile);
         canvas = new GLCanvas(cap);
-        
-        registerImageSheets();
-        createGUI();
-        GS.keyDet = new ControllerKeyDetector();
-        
-        reloadKeyMap();
+        GS.mainPanel.showSwitchPanel(false);
+        GS.mainPanel.add(canvas);
         
         grid = new Grid(0f, 0f, -1000f, 4f, 4f, 2000f);
 
@@ -225,7 +239,7 @@ public class GS {
 
         animator.start();
         renderer.cleanup();
-
+        
         Updater.start();
     }
     
@@ -233,7 +247,82 @@ public class GS {
      * Registers all images that are neede in the application.
      */
     private static void registerImageSheets() {
+        Logger.write(new String[] {
+            "",
+            "======= BEGIN REGISTERING IMAGE SHEETS ======="
+        }, Logger.Type.INFO);
+        
         ImageManager.registerSheet("game_icon.png", GS.FRAME_ICON, -1, -1);
+        
+        final String GUI = "gui" + GS.FS;
+        
+        ImageManager.registerSheet(GUI + "window.png", "CORNERS",
+                new Rectangle[][] {
+                    new Rectangle[] {new Rectangle( 0,  0, 7, 36)},
+                    new Rectangle[] {new Rectangle(47,  0, 7, 36)},
+                    new Rectangle[] {new Rectangle(47, 56, 7,  7)},
+                    new Rectangle[] {new Rectangle( 0, 56, 7,  7)}
+                }
+        );
+        
+        ImageManager.registerSheet(GUI + "window.png", "BARS",
+                new Rectangle[][] {
+                    new Rectangle[] {new Rectangle( 7,  0, 40, 36)},
+                    new Rectangle[] {new Rectangle(47, 36,  7, 20)},
+                    new Rectangle[] {new Rectangle( 7, 56, 40,  7)},
+                    new Rectangle[] {new Rectangle( 0, 36,  7, 20)}
+                }
+        );
+        
+        ImageManager.registerSheet(GUI + "buttons.png", "BUTTONS_EXIT",
+                0, 0, 60, 20, 20, 20);
+        ImageManager.registerSheet(GUI + "buttons.png", "BUTTONS_MINIMIZE",
+                0, 20, 60, 40, 20, 20);
+        ImageManager.registerSheet(GUI + "buttons.png", "BUTTONS_FULL_SCREEN",
+                0, 40, 60, 60, 20, 20);
+        ImageManager.registerSheet(GUI + "buttons.png", "BUTTONS_WINDOWED",
+                0, 60, 60, 80, 20, 20);
+        
+        ImageManager.registerSheet(GUI + "window.png", "TABS",
+                new Rectangle[][] {
+                    new Rectangle[] {
+                        new Rectangle( 0, 63,  7, 23),
+                        new Rectangle( 7, 63,  2, 23),
+                        new Rectangle( 9, 63,  7, 23)
+                    },
+                    new Rectangle[] {
+                        new Rectangle(16, 63,  7, 23),
+                        new Rectangle(23, 63,  2, 23),
+                        new Rectangle(25, 63,  7, 23)
+                    },
+                    new Rectangle[] {
+                        new Rectangle(32, 63,  7, 23),
+                        new Rectangle(39, 63,  2, 23),
+                        new Rectangle(41, 63,  7, 23)
+                    },
+                    new Rectangle[] {new Rectangle(48, 63,  6, 23)}
+                }
+        );
+        
+        ImageManager.registerSheet(GUI + "IOBorder_img_TYPE_001.png",
+                "BUTTON_001_CORNERS", 0, 0, 64, 32, 16, 16);
+        ImageManager.registerSheet(GUI + "IOBorder_img_TYPE_001.png",
+                "BUTTON_001_BARS", 0, 32, 64, 64, 16, 16);
+        ImageManager.registerSheet(GUI + "IOBorder_img_TYPE_001.png",
+                "BUTTON_001_BACK", 0, 48, 64, 64, 16, 16);
+        
+        ImageManager.registerSheet(GUI + "IOBorder_img_TYPE_005.png",
+                "ERROR_CORNERS", 0, 0, 64, 32, 16, 16);
+        ImageManager.registerSheet(GUI + "IOBorder_img_TYPE_005.png",
+                "ERROR_BARS", 0, 32, 64, 64, 16, 16);
+        ImageManager.registerSheet(GUI + "IOBorder_img_TYPE_006.png",
+                "DEFAULT_CORNERS", 0, 0, 64, 32, 16, 16);
+        ImageManager.registerSheet(GUI + "IOBorder_img_TYPE_006.png",
+                "DEFAULT_BARS", 0, 32, 64, 64, 16, 16);
+        Logger.write(new String[] {
+            "======= END REGISTERING IMAGE SHEETS =======",
+            ""
+        }, Logger.Type.INFO);
     }
     
     /**
@@ -243,7 +332,6 @@ public class GS {
     private static void createGUI() {
         GS.mainPanel = new MainPanel();
 
-        GS.mainPanel.add(canvas);
         GS.mainPanel.setSize(1080, 720);
         
         // Add listeners.
@@ -258,9 +346,9 @@ public class GS {
     }
     
     /**
-     * Reloads the key map.
+     * Reloads the key bindings map.
      */
-    private static void reloadKeyMap() {
+    public static void reloadKeyMap() {
         Logger.write(new Object[] {
             "",
             "===== BEGIN RELOADING KEY MAP =====",
@@ -362,6 +450,13 @@ public class GS {
         } finally {
             Locker.unlock(ControllerKey.class);
         }
+    }
+    
+    /**
+     * @return an iterator over all current keybindings.
+     */
+    public static Iterator<Entry<KeyAction, List<ControllerKey>>> getKeyIterator() {
+        return keyMap.entrySet().iterator();
     }
     
     

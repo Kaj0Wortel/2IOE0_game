@@ -1,28 +1,32 @@
+
 package src.tools.event.keyAction;
 
+
+import src.tools.event.keyAction.action.CameraMovementAction;
 import src.tools.MultiTool;
 
+
+/**
+ * 
+ */
 public class CameraKeyAction
-        extends KeyAction {
+        extends KeyAction<CameraMovementAction> {
     
-    public static enum MovementAction {
-        FORWARD, BACKWARD, LEFT, RIGHT, OTHER;
-    }
-    
-    final private CameraKeyAction.MovementAction action;
+    final private CameraMovementAction action;
     
     
-    public CameraKeyAction(CameraKeyAction.MovementAction action) {
+    public CameraKeyAction(CameraMovementAction action) {
         super();
         this.action = action;
     }
     
-    public CameraKeyAction(int id, MovementAction action) {
+    public CameraKeyAction(int id, CameraMovementAction action) {
         super(id);
         this.action = action;
     }
     
-    public CameraKeyAction.MovementAction getAction() {
+    @Override
+    public CameraMovementAction getAction() {
         return action;
     }
     
@@ -43,8 +47,7 @@ public class CameraKeyAction
     public static KeyAction createFromString(String[] data)
         throws IllegalArgumentException {
         int id = Integer.parseInt(data[0]);
-        CameraKeyAction.MovementAction action = CameraKeyAction
-                .MovementAction.valueOf(data[1]);
+        CameraMovementAction action = CameraMovementAction.valueOf(data[1]);
         System.out.println("ACTION:" + action);
         return new CameraKeyAction(id, action);
     }

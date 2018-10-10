@@ -397,12 +397,12 @@ public class PosHitBox3f
                 new Vector3f(2, 2, 2),
                 new Vector3f(-2, -2, -2),
                 new Vector3f(4, 4, 4),
-                90, 90, 90);
+                0, 0, 0);
         PosHitBox3f box2 = new PosHitBox3f(
                 new Vector3f(2, 2, 2),
                 new Vector3f(-2, -2, -2),
                 new Vector3f(4, 4, 4),
-                130, 130, 130);
+                45, 45, 45);
         System.out.println(box1.intersectsRot(box2));
         System.out.println(box1.intersects(box2));
     }
