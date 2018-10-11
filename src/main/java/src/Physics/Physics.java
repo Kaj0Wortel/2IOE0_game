@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Set;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
-import src.Assets.instance.Car;
 import src.tools.PosHitBox3f;
+import src.tools.log.Logger;
 import src.tools.update.CollisionManager;
 
 
@@ -232,7 +232,7 @@ public class Physics {
             for (Instance instance : collisions) {
                 boolean isDynamic = !source.isStatic() && !instance.isStatic();
                 
-                if (!isDynamic) {
+                if (isDynamic) {
                     // Double non-static collisions are handled later.
                     calcPhysics = false;
                     CollisionManager.addCollision(source, instance,
@@ -359,13 +359,13 @@ public class Physics {
 //            s.rotx = (float) (-rotz * Math.sin(yz_ang - s.roty));
             // </editor-fold>
             
-        // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
-        progress.ManageProgress(s.box.pos(), points.length, ind);
-        if (progress.finished) {
-            pStruct.accel = 0;
-            pStruct.turn = 0;
-        }
-        // </editor-fold>
+            // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
+            progress.ManageProgress(s.box.pos(), points.length, ind);
+            if (progress.finished) {
+                pStruct.accel = 0;
+                pStruct.turn = 0;
+            }
+            // </editor-fold>
         }
 
         // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
