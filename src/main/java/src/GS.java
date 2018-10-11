@@ -44,6 +44,7 @@ import java.util.*;
 import java.util.List;
 import java.util.logging.LogManager;
 
+import src.Assets.instance.Item;
 import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
@@ -123,7 +124,7 @@ public class GS {
     final private static List<Instance> terrain = new ArrayList<>();
     final private static List<Light> lights = new ArrayList<>();
     final private static List<GUI> guis = new ArrayList<>();
-    final private static List<Instance> items = new ArrayList<>();
+    final private static List<Item> items = new ArrayList<>();
 
 
     /**-------------------------------------------------------------------------
@@ -552,13 +553,21 @@ public class GS {
         return guis;
     }
 
-    public static List<Instance> getMaterialAssets(){ return materialAssets; }
+    public static List<Instance> getMaterialAssets(){
+        return materialAssets;
+    }
 
-    public static List<Instance> getItems() { return items; }
+    public static List<Item> getItems() {
+        return items;
+    }
 
-    public static void addItem(Instance item){ items.add(item); }
+    public static void addItem(Item item){
+        items.add(item);
+    }
 
-    public static void addMaterialAsset(Instance asset) { materialAssets.add(asset);}
+    public static void addMaterialAsset(Instance asset) {
+        materialAssets.add(asset);
+    }
 
     public static void addGUI(GUI gui){
         guis.add(gui);
