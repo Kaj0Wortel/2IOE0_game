@@ -4,7 +4,6 @@ package src.Physics;
 // Own imports
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
-import src.Assets.instance.Car;
 import src.Assets.instance.Item;
 import src.racetrack.Track;
 import src.tools.update.CollisionManager.Collision;
@@ -17,7 +16,9 @@ import java.util.List;
 import java.util.Set;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
+import src.Assets.instance.Car;
 import src.tools.PosHitBox3f;
+import src.tools.update.CollisionManager;
 
 
 
@@ -52,9 +53,9 @@ public class Physics {
             sizex = state.sizez;
             sizey = state.sizex;
             sizez = state.sizey;
-            rotx = state.rotx;
+            this.rotx = (float) Math.toRadians(state.rotx);
             this.roty = (float) Math.toRadians(state.roty);
-            rotz = state.rotz;
+            this.rotz = (float) Math.toRadians(state.rotz);
             internRotx = state.internRotx;
             internRoty = state.internRoty;
             internRotz = state.internRotz;
@@ -73,7 +74,7 @@ public class Physics {
         public State createState() {
             // Convert back to instance space.
             return new State(box.convert(CONV_MAT_INV), sizey, sizez, sizex,
-                    rotx, (float) (Math.toDegrees(roty) % 360), rotz,
+                    (float) (Math.toDegrees(rotx) % 360), (float) (Math.toDegrees(roty) % 360), (float) (Math.toDegrees(rotz) % 360),
                     internRotx, internRoty, internRotz,
                     velocity, collisionVelocity,
                     verticalVelocity);
@@ -160,7 +161,7 @@ public class Physics {
     }
     
      // Necessary for determining if on track
-    final private static int POINTS_PER_SEGMENT = 50;
+    final private static int POINTS_PER_SEGMENT = 500;
     private static Vector3f[] points = new Vector3f[0];
     private static Vector3f[] normals = new Vector3f[0];
     private static Vector3f[] tangents = new Vector3f[0];
@@ -225,21 +226,32 @@ public class Physics {
         // dependant collision handeling.
         // Ignore the current actions.
         if (collisions != null && !collisions.isEmpty()) {
+            boolean calcPhysics = true;
             ModPhysicsContext modPC = new ModPhysicsContext(pc);
             
             for (Instance instance : collisions) {
-                if (instance instanceof Car) {
-                    calcPhysics(source, pStruct, pc, s, progress); // TODO
+                boolean isDynamic = !source.isStatic() && !instance.isStatic();
+                
+                if (!isDynamic) {
+                    // Double non-static collisions are handled later.
+                    calcPhysics = false;
+                    CollisionManager.addCollision(source, instance,
+                            pStruct, modPC, s, progress);
                     
-                } else if (instance instanceof Item) {
-                    System.out.println("hit item!");
-                    ((Item) instance).physicsAtCollision(
-                            source, pStruct, modPC, s);
+                } else {
+                    // Full or single static collisions are handled here.
+                    if (instance instanceof Item) {
+                        System.out.println("hit item!");
+                        ((Item) instance).physicsAtCollision(
+                                source, pStruct, modPC, s);
+                    }
                 }
             }
             
-            calcPhysics(source, pStruct, modPC.createContext(), s, progress);
-            source.setState(s.createState());
+            if (calcPhysics) {
+                calcPhysics(source, pStruct, modPC.createContext(), s, progress);
+                source.setState(s.createState());
+            }
             
         } else {
             calcPhysics(source, pStruct, pc, s, progress);
@@ -311,7 +323,7 @@ public class Physics {
         //        , (float)Math.sqrt(6)/3);
         Vector3f rN = normals[ind];
         Vector3f roadPos = new Vector3f(points[ind].x, points[ind].y, points[ind].z);
-        // </editor-fold>
+        // </editor-fold>w
 
         if (onTrack) {
             // <editor-fold defaultstate="collapsed" desc="AIR TIME DETECTION"> 
@@ -321,6 +333,8 @@ public class Physics {
             //- check at ePos if under GNDz: teleport up to gnd
             //(maybe also check at ePos if over  GNDz (airtime?))
             // re-organise air time and vertical movement parts
+            
+            
             gndZ = roadPos.z 
                     - (s.box.pos().x - roadPos.x) *rN.x / rN.z
                     - (s.box.pos().y - roadPos.y) *rN.y / rN.z;
@@ -330,6 +344,19 @@ public class Physics {
             if (s.box.pos().z < gndZ + (1 - rN.z)*(Math.abs(s.velocity) / 3))
                 s.box.pos().z = gndZ;
             //System.out.println((gndZ - s.box.pos().z) +", "+ inAir);
+            // </editor-fold>
+            
+            // <editor-fold defaultstate="collapsed" desc="HORIZONTAL ROTATION"> 
+            double y = normals[ind].y;
+            double x = normals[ind].x;
+            double z = normals[ind].z;
+            
+            double yz = Math.sqrt(Math.pow(y,2) + Math.pow(z,2));
+            double yz_ang = Math.atan2(y, z);
+            double rotz = Math.atan2(x, yz);
+            
+//            s.rotz = (float) (rotz * Math.cos(yz_ang - s.roty));            
+//            s.rotx = (float) (-rotz * Math.sin(yz_ang - s.roty));
             // </editor-fold>
             
         // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
@@ -605,7 +632,7 @@ public class Physics {
                 // positions
                 pointList.add(new Vector3f(-(track.getPoint(i, t).z - 1.5f) * trackSize,
                 -track.getPoint(i, t).x * trackSize, 
-                track.getPoint(i, t).y * trackSize + 1));
+                track.getPoint(i, t).y * trackSize + 0f));
                 // normals
                 normalList.add(new Vector3f(-Track.calcNormal(track.getTangent(i, t)).z,
                 -Track.calcNormal(track.getTangent(i, t)).x,

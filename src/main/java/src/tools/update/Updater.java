@@ -118,7 +118,7 @@ public class Updater {
                         
                     } finally {
                         Locker.unlock(col.e1.inst);
-                        Locker.unlock(col.e2.inst);
+                        Locker.unlock(col.other);
                     }
                 }
             });
