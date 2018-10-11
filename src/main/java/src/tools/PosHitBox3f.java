@@ -2,9 +2,15 @@
 package src.tools;
 
 
+import java.awt.Color;
+import java.awt.Rectangle;
+import java.awt.geom.Point2D;
+import java.util.Arrays;
 import org.joml.Matrix3f;
 import org.joml.Planef;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
+import src.testing.VisualAStar;
 
 
 /**
@@ -277,13 +283,86 @@ public class PosHitBox3f
     public boolean intersectsRot(PosHitBox3f box) {
         Matrix3f rotMatThis = calcRotMatrix();
         Matrix3f rotMatBox = box.calcRotMatrix();
-        Planef plane;
         
-        Vector3f centerThis = this.calcHitBoxCenterViewSpace();
-        Vector3f centerBox = box.calcHitBoxCenterViewSpace();
-        return false;
+        Bar3f thisBar = new Bar3f(new Vector3f(this.relPos),
+                new Vector3f(this.dim.x, 0, 0),
+                new Vector3f(0, this.dim.y, 0),
+                new Vector3f(0, 0, this.dim.z));
+        thisBar.mul(rotMatThis);
+        thisBar.translate(this.pos);
+        
+        Bar3f boxBar = new Bar3f(new Vector3f(box.relPos),
+                new Vector3f(box.dim.x, 0, 0),
+                new Vector3f(0, box.dim.y, 0),
+                new Vector3f(0, 0, box.dim.z));
+        boxBar.mul(rotMatBox);
+        boxBar.translate(box.pos);
+        
+        Planef[][] checkPlanes = new Planef[][] {
+            thisBar.generatePlanes(),
+            boxBar.generatePlanes()
+        };
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < checkPlanes[i].length; j++) {
+                
+                Polygon2f thisProj2d = thisBar.project(checkPlanes[i][j]);
+                Polygon2f boxProj2d = boxBar.project(checkPlanes[i][j]);
+                
+                /*
+                VisualAStar panel = new VisualAStar(new Rectangle(-20, -20, 40, 40));
+                panel.setForeground(Color.RED);
+                panel.addLine(new Point2D.Double(-50, 0), new Point2D.Double(50, 0));
+                panel.setForeground(Color.GREEN);
+                panel.addLine(new Point2D.Double(0, -50), new Point2D.Double(0, 50));
+                
+                Color c = new Color(40, 70, 255);
+                thisProj2d.visualizeDots(panel, c);
+                thisProj2d.visualizeLines(panel, c);
+                c = Color.YELLOW;
+                boxProj2d.visualizeDots(panel, c);
+                boxProj2d.visualizeLines(panel, c);
+                */
+                
+                Vector2f[][] checkNorms = new Vector2f[][] {
+                    thisProj2d.calcNormals(),
+                    boxProj2d.calcNormals()
+                };
+                for (int ii = 0; ii < 2; ii++) {
+                    for (int jj = 0; jj < checkNorms[ii].length; jj++) {
+                        float[] thisProj1d = thisProj2d.project(
+                                checkNorms[ii][jj]);
+                        float[] boxProj1d = boxProj2d.project(
+                                checkNorms[ii][jj]);
+                        if (!intersects(thisProj1d, boxProj1d)) return false;
+                    }
+                }
+            }
+        }
+        
+        return true;
     }
     
+    private boolean intersects(float[] ps1, float[] ps2) {
+        float min1 = Float.POSITIVE_INFINITY;
+        float max1 = Float.NEGATIVE_INFINITY;
+        float min2 = Float.POSITIVE_INFINITY;
+        float max2 = Float.NEGATIVE_INFINITY;
+        
+        for (int i = 0; i < ps1.length; i++) {
+            min1 = Math.min(min1, ps1[i]);
+            max1 = Math.max(max1, ps1[i]);
+        }
+        for (int i = 0; i < ps2.length; i++) {
+            min2 = Math.min(min2, ps2[i]);
+            max2 = Math.max(max2, ps2[i]);
+        }
+        
+        return intersectsSegment(min1, min2, max1 - min1, max2 - min2);
+    }
+    
+    /**
+     * @return the rotation matrix of this hitbox.
+     */
     public Matrix3f calcRotMatrix() {
         return new Matrix3f()
                 .rotate((float) Math.toRadians(rotx), 1, 0, 0)
@@ -291,6 +370,9 @@ public class PosHitBox3f
                 .rotate((float) Math.toRadians(rotz), 0, 0, 1);
     }
     
+    /**
+     * @return the center of the hit box in view space.
+     */
     public Vector3f calcHitBoxCenterViewSpace() {
         Vector3f center = new Vector3f(
                 dim.x / 2 - relPos.x,
@@ -311,12 +393,18 @@ public class PosHitBox3f
     
     // tmp
     public static void main(String[] args) {
-        PosHitBox3f box = new PosHitBox3f(
-                new Vector3f(1, 0, 5),
-                new Vector3f(0, 0, 0),
+        PosHitBox3f box1 = new PosHitBox3f(
                 new Vector3f(2, 2, 2),
+                new Vector3f(-2, -2, -2),
+                new Vector3f(4, 4, 4),
                 0, 0, 0);
-        System.out.println(box.calcHitBoxCenterViewSpace());
+        PosHitBox3f box2 = new PosHitBox3f(
+                new Vector3f(2, 2, 2),
+                new Vector3f(-2, -2, -2),
+                new Vector3f(4, 4, 4),
+                45, 45, 45);
+        System.out.println(box1.intersectsRot(box2));
+        System.out.println(box1.intersects(box2));
     }
     
     

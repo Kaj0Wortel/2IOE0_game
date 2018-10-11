@@ -84,7 +84,7 @@ public class ContrlEnv
                     // tmp
                     Logger.write("Update controller list");
                     
-                    // Kill the thread of the previous controller levent queue.
+                    // Kill the thread of the previous controller event queue.
                     final Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
                     for (final Thread thread : threadSet) {
                         final String name = thread.getClass().getName();

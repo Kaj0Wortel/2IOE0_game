@@ -75,9 +75,10 @@ public class Polygon2f {
                 new Point2D.Double(points[0].x, points[0].y));
     }
     
-    public Set<Vector2f> getTangents() {
+    public Vector2f[] calcTangents() {
+        if (points.length < 2) return new Vector2f[0];
         Set<Vector2f> tangents = new HashSet<>();
-        if (points.length < 2) return tangents;
+        Set<String> check = new HashSet<>();
         
         Vector2f prev = points[0];
         for (int i = 1; i < points.length; i++) {
@@ -91,13 +92,12 @@ public class Polygon2f {
             } else tang.normalize();
             
             // Trick to prevent {@code -0 != 0} errors.
-            Vector2f negTang = new Vector2f().add(tang.negate());
-            tang.negate();
+            Vector2f negTang = new Vector2f().add(tang.negate(new Vector2f()));
             
-            System.out.println("tang: " + tang + ", neg tang: " + negTang);
-            if (!tangents.contains(tang) &&
-                    !tangents.contains(negTang)) {
+            if (!check.contains(tang.toString()) &&
+                    !check.contains(negTang.toString())) {
                 tangents.add(tang);
+                check.add(tang.toString());
             }
             prev = p;
         }
@@ -106,14 +106,66 @@ public class Polygon2f {
         if (Math.abs(tang.x) != 0 || Math.abs(tang.y) != 0) {
             // Trick to prevent {@code -0 != 0} errors.
             Vector2f negTang = new Vector2f(tang.negate());
-            System.out.println("tang: " + tang + ", neg tang: " + negTang);
-            if (!tangents.contains(tang) &&
-                    !tangents.contains(negTang)) {
+            if (!check.contains(tang.toString()) &&
+                    !check.contains(negTang.toString())) {
                 tangents.add(tang);
             }
         }
         
-        return tangents;
+        return tangents.toArray(new Vector2f[tangents.size()]);
+    }
+    
+    public Vector2f[] calcNormals() {
+        Vector2f[] tangents = calcTangents();
+        Vector2f[] normals = new Vector2f[tangents.length];
+        
+        for (int i = 0; i < tangents.length; i++) {
+            Vector2f t = tangents[i];
+            normals[i] = new Vector2f(-t.y, t.x);
+        }
+        
+        return normals;
+    }
+    
+    /**
+     * 
+     * @param line
+     * @return 
+     */
+    public float[] project(Vector2f line) {
+        Vector2f n = new Vector2f(line.y, -line.x).normalize();
+        Vector2f[] pointsOnLine = new Vector2f[points.length];
+        for (int i = 0; i < points.length; i++) {
+            Vector2f p = points[i];
+            pointsOnLine[i] = p.sub(n.mul(p.sub(line, new Vector2f()).dot(n),
+                    new Vector2f()), new Vector2f());
+        }
+        float[] rtn = new float[pointsOnLine.length];
+        for (int i = 0; i < pointsOnLine.length; i++) {
+            Vector2f p = pointsOnLine[i];
+            if (Math.abs(line.x) == 0 || Math.abs(line.y) == 0) {
+                if (Math.abs(line.x) != 0) {
+                    rtn[i] = p.x / line.x;
+                    
+                } else if (Math.abs(line.y) != 0) {
+                    rtn[i] = p.y / line.y;
+                    
+                } else {
+                    throw new IllegalArgumentException(
+                            "Expected a line, but found (0, 0)!");
+                }
+                
+            } else {
+                if (Math.abs(line.x) > Math.abs(line.y)) {
+                    rtn[i] = p.x / line.x;
+                    
+                } else {
+                    rtn[i] = p.y / line.y;
+                }
+            }
+        }
+        
+        return rtn;
     }
     
     

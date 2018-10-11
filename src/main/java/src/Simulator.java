@@ -19,7 +19,7 @@ import src.tools.update.Updater;
 
 import javax.swing.*;
 
-import src.Controllers.PlayerController;
+import static src.Simulator.TYPE.*;
 import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
 // Own imports
@@ -28,6 +28,10 @@ import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
 public class Simulator
         implements Updateable {
+
+    enum TYPE {CAR, ITEM, TRACK, ENVIRONMENT_TYPE, PLAYER, OTHER
+
+    }
 
     private GL3 gl;
 
@@ -77,35 +81,16 @@ public class Simulator
                     1f, 0, 0, 0, texturedCube, 0, new PhysicsContext());
             GS.addAsset(cubeInstance);
         }
-        
-        // COLLISION TEST
-        for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(col,
-                    new TextureImg(5, 0.5f));
-            //box = new Box3f(new Vector3f(-40f, 1f, 0.001f), 2f, 2f, 6f);
-            box = obj.createBoundingBox();
-            //box.setPosKeepHitBox();
-            box.translate(new Vector3f(-40f, 1f, 0.001f));
-            Instance cubeInstance = new EnvironmentItem(box,
-                    2f, 0, 0, 0, texturedCube, 0, new PhysicsContext(),
-                    EnvironmentItem.Type.STATIC_OBSTACLE);
-            GS.addAsset(cubeInstance);
-        }
-        
-        // SPEEDBOOST TEST
-        for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(col,
-                    new TextureImg(5, 0.5f));
-            //box = new Box3f(new Vector3f(0f, 1f, -40f), 2f, 2f, 6f);
-            box = obj.createBoundingBox();
-            //box.setPosKeepHitBox();
-            box.translate(new Vector3f(0f, 1f, -40f));
-            Instance cubeInstance = new EnvironmentItem(box,
-                    1f, 0, 0, 0, texturedCube, 0, new PhysicsContext(),
-                    EnvironmentItem.Type.SPEED_BOOST);
-            GS.addAsset(cubeInstance);
-        }
-        
+
+
+        addToGamestate(ENVIRONMENT_TYPE, col, new Vector3f(-40f, 1f, 0.001f), 1, 0, 0, 0, 0,
+                new TextureImg(5, 0.5f), null, EnvironmentItem.Type.STATIC_OBSTACLE);
+
+        addToGamestate(ENVIRONMENT_TYPE, col, new Vector3f(0f, 1f, -40f), 1, 0, 0, 0, 0,
+                new TextureImg(5, 0.5f), null, EnvironmentItem.Type.SPEED_BOOST);
+
+
+
         // SLOWDOWN TEST
         /*for (OBJObject obj : col) {
             OBJTexture texturedCube = new OBJTexture(obj,
@@ -127,159 +112,39 @@ public class Simulator
             GS.addAsset(cubeInstance);
         }*/
         
-        // ITEM PROP
-        for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(col,
-                    new TextureImg(5, 0.5f));
-            //box = new Box3f(new Vector3f(0f, -115f, 540f), 2f, 2f, 6f);
-            box = obj.createBoundingBox();
-            //box.setPosKeepHitBox();
-            box.translate(new Vector3f(0f, -115f, 540f));
-            Instance cubeInstance = new PickupItem(box,
-                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext());
-            GS.addAsset(cubeInstance);
-        }
-        // ITEM PROP
-        for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(col,
-                    new TextureImg(5, 0.5f));
-            //box = new Box3f(new Vector3f(-40f, -52f, 30f), 2f, 2f, 2f);
-            box = obj.createBoundingBox();
-            //box.setPosKeepHitBox();
-            box.translate(new Vector3f(-10f, -115f, 540f));
-            Instance cubeInstance = new PickupItem(box,
-                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext());
-            GS.addAsset(cubeInstance);
-        }
-        // ITEM PROP
-        for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(col,
-                    new TextureImg(5, 0.5f));
-            //box = new Box3f(new Vector3f(10f, -115f, 540f), 2f, 2f, 6f);
-            box = obj.createBoundingBox();
-            //box.setPosKeepHitBox();
-            box.translate(new Vector3f(10f, -115f, 540f));
-            Instance cubeInstance = new PickupItem(box,
-                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext());
-            GS.addAsset(cubeInstance);
-        }
-        // ITEM PROP
-        for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(col,
-                    new TextureImg(5, 0.5f));
-            //box = new Box3f(new Vector3f(385f, -73f, 1015f), 2f, 2f, 6f);
-            box = obj.createBoundingBox();
-            //box.setPosKeepHitBox();
-            box.translate(new Vector3f(385f, -73f, 1015f));
-            Instance cubeInstance = new PickupItem(box,
-                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext());
-            GS.addAsset(cubeInstance);
-        }
-        // ITEM PROP
-        for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(col,
-                    new TextureImg(5, 0.5f));
-            //box = new Box3f(new Vector3f(385f, -73f, 1025f), 2f, 2f, 6f);
-            box = obj.createBoundingBox();
-            //box.setPosKeepHitBox();
-            box.translate(new Vector3f(385f, -73f, 1025f));
-            Instance cubeInstance = new PickupItem(box,
-                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext());
-            GS.addAsset(cubeInstance);
-        }
-        // ITEM PROP
-        for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(col,
-                    new TextureImg(5, 0.5f));
-            //box = new Box3f(new Vector3f(385f, -73f, 1035f), 2f, 2f, 6f);
-            box = obj.createBoundingBox();
-            //box.setPosKeepHitBox();
-            box.translate(new Vector3f(385f, -73f, 1035f));
-            Instance cubeInstance = new PickupItem(box,
-                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext());
-            GS.addAsset(cubeInstance);
-        }
-        // ITEM PROP
-        for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(col,
-                    new TextureImg(5, 0.5f));
-            //box = new Box3f(new Vector3f(80f, -52f, -5f), 2f, 2f, 2f);
-            box = obj.createBoundingBox();
-            //box.setPosKeepHitBox();
-            box.translate(new Vector3f(80f, -52f, -5f));
-            Instance cubeInstance = new PickupItem(box,
-                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext());
-            GS.addAsset(cubeInstance);
-        }
-        
-        // ITEM PROP
-        for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(col,
-                    new TextureImg(5, 0.5f));
-            //box = new Box3f(new Vector3f(-40f, -52f, 30f), 2f, 2f, 2f);
-            box = obj.createBoundingBox();
-            //box.setPosKeepHitBox();
-            box.translate(new Vector3f(-40f, -52f, 30f));
-            Instance cubeInstance = new PickupItem(box,
-                    1f, 45, 45, 45, texturedCube, 0, new PhysicsContext());
-            GS.addAsset(cubeInstance);
-        }
-        
-        // ENVIRONMENT TEST
-        for (OBJObject obj : sp) {
-            OBJTexture texturedCube = new OBJTexture(sp,
-                    new TextureImg(5, 0.5f));
-            //box = new Box3f(new Vector3f(0f, -60f, 500f));
-            box = obj.createBoundingBox();
-            //box.setPosKeepHitBox();
-            box.translate(new Vector3f(0f, -60f, 500f));
-            Instance cubeInstance = new Car(box,
-                    4, 0, -90, 0, texturedCube, 0, new PhysicsContext());
-            GS.addAsset(cubeInstance);
-        }
-        
-        // CAR
-        OBJTexture texturedCube = new OBJTexture(car,
-                new TextureImg(5, 0.5f));
-        //box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
-        box = car.createBoundingBox();
-        //box.setPosKeepHitBox();
-        box.translate(new Vector3f(0f, 0f, 0f));
-        Instance cubeInstance = new Car(box,
-                5f, 0, -180, 0, texturedCube, 90, new PhysicsContext());
-        //GS.player = cubeInstance;
-        GS.addMaterialAsset(cubeInstance);
 
-        // CAR
-        texturedCube = new OBJTexture(car2,
-                new TextureImg(5, 3f));
-        //box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
-        box = car2.createBoundingBox();
-        //box.setPosKeepHitBox();
-        box.translate(new Vector3f(0f, 0f, 0f));
-        cubeInstance = new Car(box,
-                3f, 0, -180, 0, texturedCube, -90, new PhysicsContext());
-        GS.player = cubeInstance;
-        GS.addMaterialAsset(cubeInstance);
-        
+        addToGamestate(ITEM, col, new Vector3f(0f, -115f, 540f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
 
-        Light light = new Light(new Vector3f(10000f, 50000f, -10000f),
+        addToGamestate(ITEM, col, new Vector3f(-10f, -115f, 540f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
+
+        addToGamestate(ITEM, col, new Vector3f(10f, -115f, 540f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
+
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1015f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
+
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1025f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
+
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1035f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
+        
+        addToGamestate(ITEM, col, new Vector3f(80f, -52f, -5f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
+
+        addToGamestate(ITEM, col, new Vector3f(-40f,-52f, 30f), 1, 45, 45, 45, 0, new TextureImg(5,0.5f), null, null);
+
+        addToGamestate(OTHER, sp, new Vector3f(0f, -60f, 500f), 4, 0, -90, 0, 0, new TextureImg(5, 0.5f), null, null);
+
+        addToGamestate(CAR, car, new Vector3f(0,0,0), 5,0,-180,0,90, new TextureImg(5,0.5f),null,null);
+
+        addToGamestate(PLAYER, car2, new Vector3f(0,0,0), 3, 0,-180, 0, -90, new TextureImg(5, 3f), null, null);
+
+        addLight(new Vector3f(10000f, 50000f, -10000f),
                 new Vector3f(1f, 1f, 1f));
-        GS.addLight(light);
 
-        GUI test = new GUI(new TextureImg(gl,"test_icon.png").getTexture(),
+        addGUI(new TextureImg(gl,"test_icon.png"),
                 new Vector2f(-0.5f, -0.5f), new Vector2f(0.25f, 0.25f));
-        GS.addGUI(test);
 
-        BezierTrack testTrack = new BezierTrack(
-                new Vector3f(0, 1, -5), 3f, 0, 0, 0,
-                new TextureImg(gl,"rainbow_road.png"),
-                new TextureImg(gl, "road_normal.png"));
-        testTrack.generateTrack(gl);
-        GS.setTrack(testTrack);
+        addToGamestate(TRACK, null, new Vector3f(0,1,-5), 3, 0,0,0, 0, new TextureImg(gl,"rainbow_road.png"),
+                new TextureImg(gl, "road_normal.png"), null);
 
-        Skybox skybox = new Skybox(gl);
-        GS.setSkybox(skybox);
+        addSkybox();
         
         System.out.println("Assets initialized");
 
@@ -307,6 +172,106 @@ public class Simulator
     public Priority getPriority() {
         return UPDATE_ALWAYS;
     }
-    
-    
+
+    public void addToGamestate(TYPE type, OBJCollection col, Vector3f position, int size, int rotx, int roty, int rotz,
+                               int integratedRotation, TextureImg texture, TextureImg normalMap, EnvironmentItem.Type envType){
+        switch(type){
+            case ITEM:{
+                for(OBJObject obj : col) {
+                    OBJTexture texturedCube = new OBJTexture(col,
+                            texture);
+                    //box = new Box3f(new Vector3f(-40f, -52f, 30f), 2f, 2f, 2f);
+                    PosHitBox3f box = obj.createBoundingBox();
+                    //box.setPosKeepHitBox();
+                    box.translate(position);
+                    Instance cubeInstance = new PickupItem(box,
+                            size, rotx, roty, rotz, texturedCube, integratedRotation, new PhysicsContext());
+                    GS.addItem(cubeInstance);
+                }
+                break;
+            }
+            case ENVIRONMENT_TYPE:{
+                for (OBJObject obj : col) {
+                    OBJTexture texturedCube = new OBJTexture(col,
+                            texture);
+                    //box = new Box3f(new Vector3f(0f, 1f, -40f), 2f, 2f, 6f);
+                    PosHitBox3f box = obj.createBoundingBox();
+                    //box.setPosKeepHitBox();
+                    box.translate(position);
+                    Instance cubeInstance = new EnvironmentItem(box,
+                            size, rotx, roty, rotz, texturedCube, integratedRotation, new PhysicsContext(),
+                            envType);
+                    GS.addAsset(cubeInstance);
+                }
+                break;
+            }
+            case TRACK:{
+                BezierTrack testTrack = new BezierTrack(
+                        position, size, rotx, roty, rotz,
+                        texture,
+                        normalMap);
+                testTrack.generateTrack(gl);
+                GS.setTrack(testTrack);
+                break;
+            }
+            case CAR:{
+                // CAR
+                OBJTexture texturedCube = new OBJTexture(col,
+                        texture);
+                //box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
+                PosHitBox3f box = col.createBoundingBox();
+                //box.setPosKeepHitBox();
+                box.translate(position);
+                Instance cubeInstance = new Car(box,
+                        size, rotx, roty, rotz, texturedCube, integratedRotation, new PhysicsContext());
+                GS.addMaterialAsset(cubeInstance);
+                break;
+            }
+            case PLAYER:{
+                // CAR
+                OBJTexture texturedCube = new OBJTexture(col,
+                        texture);
+                //box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
+                PosHitBox3f box = col.createBoundingBox();
+                //box.setPosKeepHitBox();
+                box.translate(position);
+                Instance cubeInstance = new Car(box,
+                        size, rotx, roty, rotz, texturedCube, integratedRotation, new PhysicsContext());
+                GS.player = cubeInstance;
+                GS.addMaterialAsset(cubeInstance);
+                break;
+            }
+            case OTHER:{
+                for (OBJObject obj : col) {
+                    OBJTexture texturedCube = new OBJTexture(col,
+                            texture);
+                    //box = new Box3f(new Vector3f(0f, -60f, 500f));
+                    PosHitBox3f box = obj.createBoundingBox();
+                    //box.setPosKeepHitBox();
+                    box.translate(position);
+                    Instance cubeInstance = new Car(box,
+                            size, rotx, roty, rotz, texturedCube, integratedRotation, new PhysicsContext());
+                    GS.addAsset(cubeInstance);
+                }
+                break;
+            }
+        }
+    }
+
+    public void addGUI(TextureImg texture, Vector2f topright, Vector2f size){
+        GUI test = new GUI(texture.getTexture(),
+                topright, size);
+        GS.addGUI(test);
+    }
+
+    public void addLight(Vector3f position, Vector3f color){
+        Light light = new Light(position,
+                color);
+        GS.addLight(light);
+    }
+
+    public void addSkybox(){
+        Skybox skybox = new Skybox(gl);
+        GS.setSkybox(skybox);
+    }
 }

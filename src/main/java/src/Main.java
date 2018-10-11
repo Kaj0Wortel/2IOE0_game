@@ -3,12 +3,11 @@ package src;
 
 
 // Own imports
-
 import net.java.games.input.Controller;
 import net.java.games.input.Rumbler;
 import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.CarKeyAction;
-import src.tools.event.keyAction.CarKeyAction.MovementAction;
+import src.tools.event.keyAction.action.CarMovementAction;
 import src.tools.update.Updateable;
 
 import java.util.List;
@@ -16,6 +15,7 @@ import src.AI.AINN;
 import src.AI.AINN.InstanceImpl;
 
 // Java imports
+import java.util.List;
 
 
 /**
@@ -23,8 +23,13 @@ import src.AI.AINN.InstanceImpl;
  */
 public class Main {
     
+    final private static boolean SKIP_INTRO = true;
+    
     public static void main(String[] args) {
         GS.init();
+        if (!SKIP_INTRO) {
+            GS.startRendering();
+        }
         
         // TMP
         //Updateable up = new TmpUpdateable(1);
@@ -40,8 +45,8 @@ public class Main {
         
         public TmpUpdateable(int id) {
             actions = new CarKeyAction[] {
-                new CarKeyAction(id, MovementAction.LEFT),
-                new CarKeyAction(id, MovementAction.RIGHT)
+                new CarKeyAction(id, CarMovementAction.LEFT),
+                new CarKeyAction(id, CarMovementAction.RIGHT)
             };
         }
         

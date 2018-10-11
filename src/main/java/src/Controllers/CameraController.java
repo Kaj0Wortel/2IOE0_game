@@ -8,6 +8,7 @@ import src.GS;
 import src.Renderer.Camera;
 import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.CameraKeyAction;
+import src.tools.event.keyAction.action.CameraMovementAction;
 
 
 public class CameraController
@@ -21,12 +22,11 @@ public class CameraController
         super(false);
         this.camera = camera;
         
-        cameraActions = new CameraKeyAction[] {
-                new CameraKeyAction(1, CameraKeyAction.MovementAction.LEFT),
-                new CameraKeyAction(1, CameraKeyAction.MovementAction.RIGHT),
-                new CameraKeyAction(1, CameraKeyAction.MovementAction.FORWARD),
-                new CameraKeyAction(1, CameraKeyAction.MovementAction.BACKWARD)
-        };
+        CameraMovementAction[] values = CameraMovementAction.values();
+        cameraActions = new CameraKeyAction[values.length];
+        for (int i = 0; i < values.length; i++) {
+            cameraActions[i] = new CameraKeyAction(1, values[i]);
+        }
     }
     
     @Override
@@ -37,16 +37,16 @@ public class CameraController
                 if (keys == null) continue;
                 
                 if (GS.keyDet.werePressed(keys)) {
-                    if (action.getAction() == CameraKeyAction.MovementAction.LEFT) {
+                    if (action.getAction() == CameraMovementAction.LEFT) {
                         camera.yaw(dt / 3f);
                     }
-                    if (action.getAction() == CameraKeyAction.MovementAction.RIGHT) {
+                    if (action.getAction() == CameraMovementAction.RIGHT) {
                         camera.yaw(dt / 3f);
                     }
-                    if (action.getAction() == CameraKeyAction.MovementAction.FORWARD) {
+                    if (action.getAction() == CameraMovementAction.FORWARD) {
                         camera.move(dt / 16f);
                     }
-                    if (action.getAction() == CameraKeyAction.MovementAction.BACKWARD) {
+                    if (action.getAction() == CameraMovementAction.BACKWARD) {
                         camera.move(dt / 16f);
                     }
                 }

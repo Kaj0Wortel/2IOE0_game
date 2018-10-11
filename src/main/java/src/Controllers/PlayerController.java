@@ -5,7 +5,10 @@ import src.Assets.instance.Instance;
 import src.GS;
 import src.Physics.PStructAction;
 import src.tools.event.ControllerKey;
+import src.tools.event.keyAction.CameraKeyAction;
 import src.tools.event.keyAction.PlayerKeyAction;
+import src.tools.event.keyAction.action.CameraMovementAction;
+import src.tools.event.keyAction.action.PlayerMovementAction;
 
 public class PlayerController
         extends Controller {
@@ -17,13 +20,11 @@ public class PlayerController
     public PlayerController(Instance player, int id) {
         this.player = player;
         
-        playerActions = new PlayerKeyAction[] {
-                new PlayerKeyAction(id, PlayerKeyAction.MovementAction.LEFT),
-                new PlayerKeyAction(id, PlayerKeyAction.MovementAction.RIGHT),
-                new PlayerKeyAction(id, PlayerKeyAction.MovementAction.FORWARD),
-                new PlayerKeyAction(id, PlayerKeyAction.MovementAction.BACKWARD),
-                new PlayerKeyAction(id, PlayerKeyAction.MovementAction.JUMP)
-        };
+        PlayerMovementAction[] values = PlayerMovementAction.values();
+        playerActions = new PlayerKeyAction[values.length];
+        for (int i = 0; i < values.length; i++) {
+            playerActions[i] = new PlayerKeyAction(1, values[i]);
+        }
     }
     
     @Override
@@ -38,19 +39,19 @@ public class PlayerController
             
             List<ControllerKey> pressed = GS.keyDet.getPressedFrom(keys);
             if (!pressed.isEmpty()) {
-                if (action.getAction() == PlayerKeyAction.MovementAction.LEFT) {
+                if (action.getAction() == PlayerMovementAction.LEFT) {
                     turn += Math.abs(pressed.get(0).getValue());
                 }
-                if (action.getAction() == PlayerKeyAction.MovementAction.RIGHT) {
+                if (action.getAction() == PlayerMovementAction.RIGHT) {
                     turn -= Math.abs(pressed.get(0).getValue());
                 }
-                if (action.getAction() == PlayerKeyAction.MovementAction.FORWARD) {
+                if (action.getAction() == PlayerMovementAction.FORWARD) {
                     acc += Math.abs(pressed.get(0).getValue());
                 }
-                if (action.getAction() == PlayerKeyAction.MovementAction.BACKWARD) {
+                if (action.getAction() == PlayerMovementAction.BACKWARD) {
                     acc -= Math.abs(pressed.get(0).getValue());
                 }
-                if (action.getAction() == PlayerKeyAction.MovementAction.JUMP) {
+                if (action.getAction() == PlayerMovementAction.JUMP) {
                     vertV = 10;
                 }
             }

@@ -55,15 +55,17 @@ public class NodeWriter implements Closeable {
      */
     public void writeNode(Node node) {
         StringBuilder sb = new StringBuilder();
-        String delim = GS.DELIM + "";               // Dirty convert from char to string
-        String writeData = 0 + delim                           // 0 := class
-                + node.pos.x + delim                // x positition
-                + node.pos.y + delim                // y positition
-                + node.v + delim                    // v (speed)
-                + node.a + delim                    // a (acceleration)
-                + node.rot + delim                  // x positition
-                + node.rotV + delim                 // x positition
-                + node.nextCP + GS.LS;              // next checkpoint
+        String delim = ";";
+        String writeData = node.pos.x + delim
+                + node.pos.y + delim
+                + node.v + delim
+                + node.a + delim
+                + node.rot + delim
+                + node.rotV + delim
+                + node.g + delim
+                + node.h + delim
+                + node.nextCP + GS.LS
+                + "1";
         writer.write(writeData);
     }
 
