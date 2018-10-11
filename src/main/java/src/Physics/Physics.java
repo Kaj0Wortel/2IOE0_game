@@ -355,8 +355,8 @@ public class Physics {
             double yz_ang = Math.atan2(y, z);
             double rotz = Math.atan2(x, yz);
             
-//            s.rotz = (float) (rotz * Math.cos(yz_ang - s.roty));            
-//            s.rotx = (float) (-rotz * Math.sin(yz_ang - s.roty));
+            s.rotz = (float) (rotz * Math.cos(yz_ang - s.roty));            
+            s.rotx = (float) (rotz * Math.sin(yz_ang - s.roty));
             // </editor-fold>
             
             // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
@@ -366,6 +366,10 @@ public class Physics {
                 pStruct.turn = 0;
             }
             // </editor-fold>
+        }
+        // </editor-fold>
+        else {
+            s.rotz += 0.01;
         }
 
         // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
