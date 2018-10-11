@@ -3,15 +3,14 @@ package src;
 
 
 // Jogamp imports
-
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
-import java.awt.Rectangle;
-import net.java.games.input.ContrlEnv;
-import net.java.games.input.ControllerEnvironment;
 import org.joml.Vector3f;
+
+
+// Own imports
 import src.Assets.GUI;
 import src.Assets.Light;
 import src.Assets.instance.Car;
@@ -37,7 +36,13 @@ import src.tools.io.BufferedReaderPlus;
 import src.tools.io.ImageManager;
 import src.tools.log.*;
 import src.tools.update.Updater;
+import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
+import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
+import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 
+
+// Java imports
+import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -48,13 +53,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
 
-import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
-import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
-import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
-
-// Own imports
-// Java imports
 // JInput imports
+import net.java.games.input.ContrlEnv;
+import net.java.games.input.ControllerEnvironment;
 
 
 /**
@@ -343,6 +344,23 @@ public class GS {
                 Locker.remove(keyDet);
             }
         });
+    }
+    
+    /**
+     * Sets the key map used for the global state.
+     * @param newKeyMap 
+     */
+    public static void setKeyMap(Map<KeyAction, List<ControllerKey>> newKeyMap) {
+        // Replace the key map.
+        Locker.lock(ControllerKey.class);
+        try {
+            keyMap.clear();
+            keyMap = newKeyMap;
+            System.out.println("key map:" + keyMap);
+            
+        } finally {
+            Locker.unlock(ControllerKey.class);
+        }
     }
     
     /**

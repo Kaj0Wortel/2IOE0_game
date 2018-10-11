@@ -47,15 +47,17 @@ public abstract class ListingPanel<Item extends MenuItem,
      * GUI.
      * -------------------------------------------------------------------------
      */
-    final private RacingButton add;
-    final private RacingButton delete;
+    final protected RacingButton back;
     
-    final private RacingButton nextPage;
-    final private RacingButton prevPage;
-    final private RacingButton goPage;
-    final private FixedJComboBox<Integer> itemsPerPage;
-    final private JLabel pages;
-    final private EditField pageSearch;
+    final protected RacingButton add;
+    final protected RacingButton delete;
+    
+    final protected RacingButton nextPage;
+    final protected RacingButton prevPage;
+    final protected RacingButton goPage;
+    final protected FixedJComboBox<Integer> itemsPerPage;
+    final protected JLabel pages;
+    final protected EditField pageSearch;
     
     final protected Lister lister;
     final protected Filter<Item> filter;
@@ -84,8 +86,13 @@ public abstract class ListingPanel<Item extends MenuItem,
         lister.setOpaque(false);
         lister.setBackground(new Color(255, 225, 160, 255));
         
+        back = new RacingButton("< Back");
+        back.setLocation(SPACING, SPACING);
+        back.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+        add(back);
+        
         add = new RacingButton("Add");
-        add.setLocation(SPACING, SPACING);
+        add.setLocation(back.getX() + back.getWidth() + SPACING, SPACING);
         add.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         add.addActionListener((ActionEvent e) -> {
             userAddItem();
@@ -93,7 +100,7 @@ public abstract class ListingPanel<Item extends MenuItem,
         add(add);
         
         delete = new RacingButton("Delete selection");
-        delete.setLocation(2*SPACING + BUTTON_WIDTH, SPACING);
+        delete.setLocation(add.getX() + add.getWidth() + SPACING, SPACING);
         delete.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         delete.addActionListener((ActionEvent e) -> {
             int amt = lister.countSelection();
@@ -120,12 +127,11 @@ public abstract class ListingPanel<Item extends MenuItem,
                     userDeletedAction(deleted);
                 }
             }
-            
         });
         add(delete);
         
         this.sorter = sorter;
-        sorter.setLocation(3*SPACING + 2*BUTTON_WIDTH, SPACING);
+        sorter.setLocation(delete.getX() + delete.getWidth() + SPACING, SPACING);
         sorter.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         
         sorter.getSortButton().addActionListener((ActionEvent e) -> {
@@ -137,7 +143,7 @@ public abstract class ListingPanel<Item extends MenuItem,
         add(sorter);
         
         this.filter = filter;
-        filter.setLocation(4*SPACING + 3*BUTTON_WIDTH, SPACING);
+        filter.setLocation(sorter.getX() + sorter.getWidth() + SPACING, SPACING);
         filter.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         filter.getGenerateButton().addActionListener((ActionEvent e) -> {
             SwingUtilities.invokeLater(() -> {
@@ -150,14 +156,14 @@ public abstract class ListingPanel<Item extends MenuItem,
         filter.setOpaque(false);
         add(filter);
         
-        nextPage = new RacingButton("?");
+        nextPage = new RacingButton(">");
         nextPage.setSize(SMALL_BUTTON_WIDTH, SMALL_BUTTON_HEIGHT);
         nextPage.addActionListener((ActionEvent e) -> {
             if (lister.hasNextPage()) lister.nextPage();
         });
         add(nextPage);
         
-        prevPage = new RacingButton("?");
+        prevPage = new RacingButton("<");
         prevPage.setSize(SMALL_BUTTON_WIDTH, SMALL_BUTTON_HEIGHT);
         prevPage.addActionListener((e) -> {
             if (lister.hasPrevPage()) lister.prevPage();

@@ -76,7 +76,7 @@ public class MainPanel
         frame.setIconImage(ImageManager.getImage(GS.FRAME_ICON, 0, 0));
         frame.getContentPane().setBackground(Color.GREEN);
         frame.setUndecorated(true);
-        frame.setSize(1000, 750);
+        frame.setSize(1250, 750);
         setOpaque(false);
         
         frame.addComponentListener(new ComponentAdapter() {

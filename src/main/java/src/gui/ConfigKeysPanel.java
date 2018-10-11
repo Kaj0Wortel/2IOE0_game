@@ -1,27 +1,35 @@
 
 package src.gui;
 
+
+// Java imports
 import java.awt.Color;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+
+
+// Own imports
 import src.GS;
+import src.Locker;
 import src.gui.filter.KeyFilter;
 import src.gui.menuList.ConfigKeyMenuHeader;
 import src.gui.menuList.ConfigKeyMenuItem;
 import src.gui.menuList.MenuLister;
 import src.gui.sorter.KeySorter;
 import src.tools.event.ControllerKey;
+import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
 import src.tools.event.keyAction.KeyAction;
-
-
-// Own imports
-
-
-// Java imports
+import src.tools.log.Logger;
 
 
 /**
@@ -29,6 +37,9 @@ import src.tools.event.keyAction.KeyAction;
  */
 public class ConfigKeysPanel
         extends ListingPanel<ConfigKeyMenuItem, MenuLister<ConfigKeyMenuItem>> {
+    
+    private Lock lock = new ReentrantLock();
+    
     
     public ConfigKeysPanel() {
         super("key config", new MenuLister<ConfigKeyMenuItem>(
@@ -39,6 +50,10 @@ public class ConfigKeysPanel
                 new KeySorter(),
                 new KeyFilter()
         );
+        
+        back.addActionListener((e) -> {
+            GS.mainPanel.getSwitchPanel().setActivePanel("startup panel");
+        });
         
         setBackground(Color.YELLOW);
     }
@@ -75,12 +90,66 @@ public class ConfigKeysPanel
     
     @Override
     public void saveAction() {
-        // TODO
+        new Thread("saving-key-bindings-trhead") {
+            @Override
+            public void run() {
+                try (BufferedWriter bw = new BufferedWriter(new FileWriter(
+                        GS.KEYS_CONFIG))) {
+                    writeKeys(bw);
+                    
+                } catch (IOException e) {
+                    Logger.write(e);
+                }
+            }
+        }.start();
+    }
+    
+    private void writeKeys(BufferedWriter bw)
+            throws IOException {
+        Map<KeyAction, List<ControllerKey>> map
+                = new HashMap<>();
+        
+        lock.lock();
+        try {
+            ConfigKeyMenuItem[] items = lister.getItemList().toArray(
+                    new ConfigKeyMenuItem[lister.length()]);
+            
+            for (ConfigKeyMenuItem item : items) {
+                KeyAction action = item.getAction();
+                ControllerKey key = item.getKey();
+                if (action == null || key == null) continue;
+                
+                ControllerKey.setCompMode(DEFAULT_GET_COMP_MODE);
+                List<ControllerKey> list = map.get(action);
+                if (list == null) {
+                    list = new ArrayList<>();
+                    map.put(action, list);
+                }
+                
+                list.add(key);
+            }
+            
+        } finally {
+            lock.unlock();
+        }
+        
+        for (Map.Entry<KeyAction, List<ControllerKey>> entry : map.entrySet()) {
+            KeyAction action = entry.getKey();
+            List<ControllerKey> keys = entry.getValue();
+            if (action == null || keys == null) continue;
+            for (ControllerKey key : keys) {
+                if (key == null) continue;
+                bw.write(key.toString() + GS.LS);
+            }
+            
+            bw.write(action.toString() + GS.LS + GS.LS);
+        }
+        
+        GS.setKeyMap(map);
     }
     
     @Override
     public void userDeletedAction(List deleted) {
-        // TODO
     }
     
     @Override

@@ -7,7 +7,6 @@ package src.gui;
 
 // Java imports
 import src.GS;
-import src.tools.MultiTool;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;

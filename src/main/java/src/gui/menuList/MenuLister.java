@@ -657,6 +657,13 @@ public class MenuLister<Item extends MenuItem>
         bar.setValue(Integer.MAX_VALUE);
     }
     
+    /**
+     * @return the amount of items.
+     */
+    public int length() {
+        return items.size();
+    }
+    
     
     /**-------------------------------------------------------------------------
      * Item controll functions.
