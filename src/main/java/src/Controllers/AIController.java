@@ -34,6 +34,7 @@ public class AIController
     
     @Override
     public void controlUpdate(long dt) {
+        if (ainn == null) return;
         if (ainn.isStopped()) ainn.start();
         instance.movement(ainn.createAction(dt));
     }
