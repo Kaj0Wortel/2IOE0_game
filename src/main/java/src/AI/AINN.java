@@ -83,6 +83,7 @@ public class AINN {
 
     private int in;                                                     // Number of input nodes
     private int out;                                                    // Number of output nodes
+    final private static int GRIDSIZE = 5;
 
     private PStructAction curAction = new PStructAction(0, 0, 0, 1);    // The current action.
     // List < Quartet < currentState, Action, Reward, nextState > >
@@ -92,13 +93,14 @@ public class AINN {
     private Thread updateThread = null;
     private Lock lock = new ReentrantLock();
     private boolean stopUpdateThread = false;
-    private long MILLIS_PER_UPDATE = 100L;
+    final private long MILLIS_PER_UPDATE = 100L;
 
     /* Static block for reading CSV once. */
-    private static String CSV;
-    private static List<Point2D.Float> coordinates = new ArrayList<>();
+    final private static String CSV;
+    final private static List<Point2D.Float> COORDINATES;
 
     static {
+        COORDINATES = new ArrayList<>();
         String fileName = "nodes.csv";
         String filePath = GS.RESOURCE_DIR + "A_star_data";
         StringBuilder sb = new StringBuilder();
@@ -113,7 +115,7 @@ public class AINN {
 
                 // coordinates file
                 String[] tokens = line.split(";");
-                coordinates.add(new Point2D.Float(Float.parseFloat(tokens[0]), Float.parseFloat(tokens[1])));
+                COORDINATES.add(new Point2D.Float(Float.parseFloat(tokens[0]), Float.parseFloat(tokens[1])));
             }
 
         } catch (IOException e) {
@@ -124,11 +126,10 @@ public class AINN {
 
         Logger.write(
                 new Object[]{"Reading CSV done.", CSV},
-                Logger.Type.ERROR
+                Logger.Type.DEBUG
         );
     }
 
-    final private static int GRIDSIZE = 5;
 
     /**
      * Listener for updating the values after an iteration of the AINN.
@@ -333,7 +334,7 @@ public class AINN {
         float minDist = Float.MAX_VALUE;
         Point2D.Float c = new Point2D.Float();
 
-        for (Point2D.Float p : coordinates) {
+        for (Point2D.Float p : COORDINATES) {
             float d = dist(p);
 
             if (d < minDist) {
@@ -342,7 +343,7 @@ public class AINN {
             }
         }
 
-        return coordinates.indexOf(c);
+        return COORDINATES.indexOf(c);
     }
 
 

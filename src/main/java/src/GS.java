@@ -134,7 +134,7 @@ public class GS {
      * Variables.
      * -------------------------------------------------------------------------
      */
-    private static GameState gameState = GameState.PLAYING;
+    private static GameState gameState = GameState.STOPPED;
     public static ControllerKeyDetector keyDet;
     public static MainPanel mainPanel;
     public static Camera camera;
@@ -241,6 +241,7 @@ public class GS {
         renderer.cleanup();
         
         Updater.start();
+        gameState = GameState.PLAYING;
     }
 
     /**

@@ -29,13 +29,13 @@ public class AIController
     public AIController(GridItemInstance instance) {
         this.instance = instance;
         ainn = new AINN(instance);
+        ainn.start();
     }
     
     
     @Override
     public void controlUpdate(long dt) {
-        if (ainn == null) return;
-        if (ainn.isStopped()) ainn.start();
+        if (ainn == null || ainn.isStopped()) return;
         instance.movement(ainn.createAction(dt));
     }
     
