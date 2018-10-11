@@ -3,6 +3,9 @@ package src.AI;
 // Own imports
 import src.testing.VisualAStar; // Debug visualization
 import src.Physics.PStructAction;
+import src.tools.Cloneable;
+
+
 // Java imports
 import java.awt.*; // 2D graphics helper
 import java.awt.geom.Point2D; // Point2D.Doubles
@@ -17,8 +20,6 @@ import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
 import src.tools.PosHitBox3f;
 
-import src.Assets.OBJTexture;
-import src.Assets.instance.GridItemInstance;
 
 public class FinalAStar {
   // <editor-fold defaultstate="collapsed" desc="NOTES"> 
@@ -138,28 +139,28 @@ public class FinalAStar {
         System.out.println("---------------A* Debug---------------");
         // <editor-fold defaultstate="collapsed" desc="VISUALS">
         // Visuals for obstacle/void locations
-            visual.setForeground(Color.DARK_GRAY);
-            Point2D.Double point1 = new Point2D.Double(6,-2);
-            Point2D.Double point2 = new Point2D.Double(6,-8);
-            Point2D.Double point3 = new Point2D.Double(8,-8);
-            Point2D.Double point4 = new Point2D.Double(8,-2);
-            visual.addRec(point1, point3);
-            point1 = new Point2D.Double(2,-2);
-            point2 = new Point2D.Double(2,-5);
-            point3 = new Point2D.Double(6,-5);
-            point4 = new Point2D.Double(6,-2);
-            visual.addRec(point1, point3);
-            point1 = new Point2D.Double(3,-6);
-            point2 = new Point2D.Double(3,-10);
-            point3 = new Point2D.Double(4,-10);
-            point4 = new Point2D.Double(4,-6);
-            visual.addRec(point1, point3);
+        visual.setForeground(Color.DARK_GRAY);
+        Point2D.Double point1 = new Point2D.Double(6,-2);
+        Point2D.Double point2 = new Point2D.Double(6,-8);
+        Point2D.Double point3 = new Point2D.Double(8,-8);
+        Point2D.Double point4 = new Point2D.Double(8,-2);
+        visual.addRec(point1, point3);
+        point1 = new Point2D.Double(2,-2);
+        point2 = new Point2D.Double(2,-5);
+        point3 = new Point2D.Double(6,-5);
+        point4 = new Point2D.Double(6,-2);
+        visual.addRec(point1, point3);
+        point1 = new Point2D.Double(3,-6);
+        point2 = new Point2D.Double(3,-10);
+        point3 = new Point2D.Double(4,-10);
+        point4 = new Point2D.Double(4,-6);
+        visual.addRec(point1, point3);
         // Visuals for checkpoint locations
-            visual.setForeground(Color.CYAN);
-            for (Point2D.Double cp : checkPoints){
-                if (checkPoints.indexOf(cp) < checkPoints.size() - 1)
-                    visual.addPointBig (new Point2D.Double(cp.x, -cp.y));
-            }
+        visual.setForeground(Color.CYAN);
+        for (Point2D.Double cp : checkPoints){
+            if (checkPoints.indexOf(cp) < checkPoints.size() - 1)
+                visual.addPointBig (new Point2D.Double(cp.x, -cp.y));
+        }
         // Visuals for finish location
             visual.setForeground(Color.CYAN);
             visual.addLine(new Point2D.Double(8,-5), new Point2D.Double(10,-5));
@@ -281,19 +282,21 @@ public class FinalAStar {
                         } else if (sPos.x > 3 && sPos.x < 4 && sPos.y > 6 && sPos.y < 10) {
                             sg = sg + 10;
                         }
-                    //TEST: reach physiscs
-                    float turn = i;
-                    float acceleration = j;
-                    float verticalVelocity = 0;
-                    long dt = 0;
-                    sVertV = 0;
-                    PStructAction pStruct = new PStructAction(turn, acceleration, verticalVelocity, dt);
-                    instance.movement(pStruct);
-                    System.out.println(instance.getState().velocity);
-                    //System.out.println(instance.getState().box);
-                    //sPos = new Point2D.Double(instance.getPosition().x, instance.getPosition().y);
-                    //System.out.println(instance.getPosition());
-                    // </editor-fold>
+                        //TEST: reach physiscs
+                        float turn = i;
+                        float acceleration = j;
+                        float verticalVelocity = 0;
+                        long dt = 16;
+                        sVertV = 0;
+                        System.out.println("turn: " + turn + ", acc: " + acceleration
+                                + ", vertV: " + verticalVelocity);
+                        PStructAction pStruct = new PStructAction(turn, acceleration, verticalVelocity, dt);
+                        instance.movement(pStruct);
+                        //System.out.println(instance.getState().velocity);
+                        //System.out.println(instance.getState().box);
+                        //sPos = new Point2D.Double(instance.getPosition().x, instance.getPosition().y);
+                        //System.out.println(instance.getPosition());
+                        // </editor-fold>
                         
                         // Determine h  
                         sh = 0;
@@ -424,29 +427,37 @@ public class FinalAStar {
         FinalAStar.runAlgorithm();
     }
     
-    public static class Instance2 extends Instance {
+    
+    
+    public static class Instance2
+            extends Instance
+            implements Cloneable {
+        final public Instance2 parent;
+        
+        
+        public Instance2() {
+            super(new PosHitBox3f(), 1f, 0, 0, 0, null, 0, new PhysicsContext());
+            parent = null;
+        }
+        
+        private Instance2(Instance2 inst) {
+            super(new PosHitBox3f(), 1f, 0, 0, 0, null, 0, inst.physicsContext);
+            setState(inst.getState());
+            this.parent = inst;
+        }
+        
         @Override
         public boolean isStatic() {
             return true;
         }
         
-        public Instance2() {
-            //super(new PosHitBox3f(),1f,0,0,0,null,0, new PhysicsContext());
-            super(new PosHitBox3f(),1f,0,0,0,null,0, new PhysicsContext());
-            /*Instance cubeInstance = new Car(box,
-                        size/1.7f, rotx, roty, rotz, texturedCube, 
-                        integratedRotation, new PhysicsContext());*/
+        @Override
+        public Instance2 clone() {
+            return new Instance2(this);
         }
         
-        /*
-        public Instance(PosHitBox3f box, float size,
-            float rotx, float roty, float rotz,
-            OBJTexture model, float internRoty, 
-            PhysicsContext physicContext) {
-        this(box, size, size, size, rotx, roty, rotz, model,
-                0, internRoty, 0, physicContext);
-    }
-        */
         
     } 
+    
+    
 }
