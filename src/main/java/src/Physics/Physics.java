@@ -161,7 +161,7 @@ public class Physics {
     }
     
      // Necessary for determining if on track
-    final private static int POINTS_PER_SEGMENT = 50;
+    final private static int POINTS_PER_SEGMENT = 500;
     private static Vector3f[] points = new Vector3f[0];
     private static Vector3f[] normals = new Vector3f[0];
     private static Vector3f[] tangents = new Vector3f[0];
@@ -355,8 +355,8 @@ public class Physics {
             double yz_ang = Math.atan2(y, z);
             double rotz = Math.atan2(x, yz);
             
-            s.rotz = (float) (-rotz * Math.cos(yz_ang - s.roty));            
-            s.rotx = (float) (-rotz * Math.sin(yz_ang - s.roty));
+//            s.rotz = (float) (rotz * Math.cos(yz_ang - s.roty));            
+//            s.rotx = (float) (-rotz * Math.sin(yz_ang - s.roty));
             // </editor-fold>
             
         // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
@@ -632,7 +632,7 @@ public class Physics {
                 // positions
                 pointList.add(new Vector3f(-(track.getPoint(i, t).z - 1.5f) * trackSize,
                 -track.getPoint(i, t).x * trackSize, 
-                track.getPoint(i, t).y * trackSize + 1));
+                track.getPoint(i, t).y * trackSize + 0f));
                 // normals
                 normalList.add(new Vector3f(-Track.calcNormal(track.getTangent(i, t)).z,
                 -Track.calcNormal(track.getTangent(i, t)).x,
