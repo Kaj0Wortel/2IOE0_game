@@ -40,6 +40,7 @@ public class Physics {
         public float collisionVelocity;
         public float verticalVelocity;
         public boolean onTrack;
+        public int rIndex;
         
         // Conversion matrix from model -> physics.
         final public static Matrix3f CONV_MAT = new Matrix3f(
@@ -64,6 +65,7 @@ public class Physics {
             collisionVelocity = state.collisionVelocity;
             verticalVelocity = state.verticalVelocity;
             onTrack = state.onTrack;
+            rIndex = state.rIndex;
         }
         
         /**
@@ -79,7 +81,7 @@ public class Physics {
                     (float) (Math.toDegrees(rotx) % 360), (float) (Math.toDegrees(roty) % 360), (float) (Math.toDegrees(rotz) % 360),
                     internRotx, internRoty, internRotz,
                     velocity, collisionVelocity,
-                    verticalVelocity, onTrack);
+                    verticalVelocity, onTrack, rIndex);
         }
         
         
@@ -286,7 +288,7 @@ public class Physics {
         // State description
         boolean inAir = true;
         // temp before complete track implementation
-        float gndZ = -1000;
+        float gndZ = -500;
         
         
         // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
@@ -305,6 +307,9 @@ public class Physics {
                 }
             }
         }
+        // Update the globally last reached road index
+        if (s.onTrack)
+            s.rIndex = ind;
         // Find distance from the middle road curve
         float t = ((points[ind].x - s.box.pos().x)*tangents[ind].x
                 + (points[ind].y - s.box.pos().y)*tangents[ind].y
@@ -323,6 +328,7 @@ public class Physics {
         //        , (float)Math.sqrt(6)/3);
         Vector3f rN = normals[ind];
         Vector3f roadPos = new Vector3f(points[ind].x, points[ind].y, points[ind].z);
+        
         // </editor-fold>
 
         if (s.onTrack) {
@@ -523,7 +529,7 @@ public class Physics {
         if (s.verticalVelocity > 20)
             s.verticalVelocity = 10;
         //Death barrier: reset
-        if (ePos.z < -200) {
+        if (ePos.z < points[s.rIndex].z - 50) {
             int resetInd = Math.round(points.length*(progress.checkPoint-1)
                     /progress.cpAm);
             ePos = new Vector3f(points[resetInd].x, points[resetInd].y
