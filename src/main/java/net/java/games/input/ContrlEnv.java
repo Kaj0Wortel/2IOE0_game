@@ -84,7 +84,7 @@ public class ContrlEnv
                     // tmp
                     Logger.write("Update controller list");
                     
-                    // Kill the thread of the previous controller levent queue.
+                    // Kill the thread of the previous controller event queue.
                     final Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
                     for (final Thread thread : threadSet) {
                         final String name = thread.getClass().getName();
@@ -163,11 +163,9 @@ public class ContrlEnv
                         if (autoUpdateEnabled) {
                             requestUpdate.await(updateInterval,
                                     TimeUnit.MILLISECONDS);
-                            System.out.println("02");
                             
                         } else {
                             requestUpdate.await();
-                            System.out.println("03");
                         }
                         
                     } catch (InterruptedException e) {

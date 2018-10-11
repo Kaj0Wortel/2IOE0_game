@@ -1,28 +1,33 @@
+
 package src.tools.event.keyAction;
 
+
 import src.tools.MultiTool;
+import src.tools.event.keyAction.action.PlayerMovementAction;
 
+
+/**
+ * 
+ */
 public class PlayerKeyAction
-        extends KeyAction {
-
-    public static enum MovementAction {
-        FORWARD, BACKWARD, LEFT, RIGHT, OTHER, JUMP;
-    }
-
-    final private PlayerKeyAction.MovementAction action;
+        extends KeyAction<PlayerMovementAction> {
+    
+    final private PlayerMovementAction action;
 
 
-    public PlayerKeyAction(PlayerKeyAction.MovementAction action) {
+    public PlayerKeyAction(PlayerMovementAction action) {
         super();
         this.action = action;
     }
 
-    public PlayerKeyAction(int id, MovementAction action) {
+    public PlayerKeyAction(int id, PlayerMovementAction action) {
         super(id);
         this.action = action;
     }
 
-    public PlayerKeyAction.MovementAction getAction() {
+    
+    @Override
+    public PlayerMovementAction getAction() {
         return action;
     }
 
@@ -43,8 +48,7 @@ public class PlayerKeyAction
     public static KeyAction createFromString(String[] data)
         throws IllegalArgumentException {
         int id = Integer.parseInt(data[0]);
-        PlayerKeyAction.MovementAction action = PlayerKeyAction
-                .MovementAction.valueOf(data[1]);
+        PlayerMovementAction action = PlayerMovementAction.valueOf(data[1]);
         System.out.println("ACTION:" + action);
         return new PlayerKeyAction(id, action);
     }

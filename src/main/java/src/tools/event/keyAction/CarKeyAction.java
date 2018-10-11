@@ -2,6 +2,7 @@
 package src.tools.event.keyAction;
 
 import src.tools.MultiTool;
+import src.tools.event.keyAction.action.CarMovementAction;
 
 
 // Own imports
@@ -14,26 +15,24 @@ import src.tools.MultiTool;
  * 
  */
 public class CarKeyAction
-        extends KeyAction{
-    
-    public static enum MovementAction {
-        FORWARD, BACKWARD, LEFT, RIGHT, OTHER;
-    }
-    
-    final private MovementAction action;
+        extends KeyAction<CarMovementAction> {
     
     
-    public CarKeyAction(MovementAction action) {
+    final private CarMovementAction action;
+    
+    
+    public CarKeyAction(CarMovementAction action) {
         super();
         this.action = action;
     }
     
-    public CarKeyAction(int id, MovementAction action) {
+    public CarKeyAction(int id, CarMovementAction action) {
         super(id);
         this.action = action;
     }
     
-    public MovementAction getAction() {
+    @Override
+    public CarMovementAction getAction() {
         return action;
     }
     
@@ -53,7 +52,7 @@ public class CarKeyAction
     public static KeyAction createFromString(String[] data)
             throws IllegalArgumentException {
         int id = Integer.parseInt(data[0]);
-        MovementAction action = MovementAction.valueOf(data[1]);
+        CarMovementAction action = CarMovementAction.valueOf(data[1]);
         
         return new CarKeyAction(id, action);   
     }

@@ -585,7 +585,7 @@ public class ControllerKey {
     @Override
     public String toString() {
         Identifier ident = comp.getIdentifier();
-        System.out.println(controller.getName());
+        //System.out.println(controller.getName());
         if (useTypeOnly) {
             return getClass().getName() + "="
                     + "true,"

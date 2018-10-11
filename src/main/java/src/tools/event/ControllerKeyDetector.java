@@ -53,7 +53,6 @@ public class ControllerKeyDetector {
      * device polling thread.
      */
     public ControllerKeyDetector() {
-        super();
         init();
     }
     
@@ -320,7 +319,7 @@ public class ControllerKeyDetector {
                     ControllerKey key = new ControllerKey(controller, id, comp,
                             comp.getPollData());
                     newState.add(key);
-                    //if (!key.isCenter()) System.out.println(key);
+                    //if (!key.isCenter()) System.out.println("Key: " + key.toString());
                     //Logger.write(comp.getPollData() + ", " + comp);
                 }
             }/**/
