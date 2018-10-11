@@ -4,7 +4,6 @@ package src.Physics;
 // Own imports
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
-import src.Assets.instance.Car;
 import src.Assets.instance.Item;
 import src.racetrack.Track;
 import src.tools.update.CollisionManager.Collision;
@@ -17,7 +16,9 @@ import java.util.List;
 import java.util.Set;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
+import src.Assets.instance.Car;
 import src.tools.PosHitBox3f;
+import src.tools.update.CollisionManager;
 
 
 
@@ -224,22 +225,33 @@ public class Physics {
         // If the instance intersects with a car or an item, use collision
         // dependant collision handeling.
         // Ignore the current actions.
-        if (!collisions.isEmpty()) {
+        if (collisions != null && !collisions.isEmpty()) {
+            boolean calcPhysics = true;
             ModPhysicsContext modPC = new ModPhysicsContext(pc);
             
             for (Instance instance : collisions) {
-                if (instance instanceof Car) {
-                    calcPhysics(source, pStruct, pc, s, progress); // TODO
+                boolean isDynamic = !source.isStatic() && !instance.isStatic();
+                
+                if (!isDynamic) {
+                    // Double non-static collisions are handled later.
+                    calcPhysics = false;
+                    CollisionManager.addCollision(source, instance,
+                            pStruct, modPC, s, progress);
                     
-                } else if (instance instanceof Item) {
-                    System.out.println("hit item!");
-                    ((Item) instance).physicsAtCollision(
-                            source, pStruct, modPC, s);
+                } else {
+                    // Full or single static collisions are handled here.
+                    if (instance instanceof Item) {
+                        System.out.println("hit item!");
+                        ((Item) instance).physicsAtCollision(
+                                source, pStruct, modPC, s);
+                    }
                 }
             }
             
-            calcPhysics(source, pStruct, modPC.createContext(), s, progress);
-            source.setState(s.createState());
+            if (calcPhysics) {
+                calcPhysics(source, pStruct, modPC.createContext(), s, progress);
+                source.setState(s.createState());
+            }
             
         } else {
             calcPhysics(source, pStruct, pc, s, progress);
