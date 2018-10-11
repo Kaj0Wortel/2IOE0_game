@@ -368,7 +368,7 @@ public class Physics {
             // </editor-fold>
         }
         // </editor-fold>
-        } else {
+        else {
             s.rotz += 0.01;
         }
 
