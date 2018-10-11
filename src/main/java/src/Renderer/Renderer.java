@@ -38,6 +38,7 @@ public class Renderer implements GLEventListener {
     private ObjectRenderer objectRenderer;
     private TerrainRenderer terrainRenderer;
     private MaterialRenderer materialRenderer;
+    private ItemRenderer itemRenderer;
     private GUIRenderer guiRenderer;
 
     public Renderer(Simulator simulator, float width, float height){
@@ -61,6 +62,7 @@ public class Renderer implements GLEventListener {
         objectRenderer = new ObjectRenderer(gl,projectionMatrix);
         materialRenderer = new MaterialRenderer(gl, projectionMatrix);
         terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
+        itemRenderer = new ItemRenderer(gl, projectionMatrix);
         guiRenderer = new GUIRenderer(gl);
 
         RacetrackShader racetrackShader = new RacetrackShader(gl);
@@ -85,6 +87,7 @@ public class Renderer implements GLEventListener {
         objectRenderer.render(gl);
         materialRenderer.render(gl);
         terrainRenderer.render(gl);
+        itemRenderer.render(gl);
 
         gl.glDisable(gl.GL_CULL_FACE);
         GS.getTrack().draw(gl);
