@@ -16,6 +16,7 @@ import javax.swing.SwingUtilities;
 
 // JInput imports
 import net.java.games.input.Component.Identifier;
+import src.gui.ListingPanel;
 
 
 /**
@@ -97,14 +98,15 @@ public class ConfigKeyMenuItem
     
     public static class SetKeyButton
             extends JComponentContents<RacingButton> {
-        
+        final private ListingPanel panel;
         private ConfigKeyMenuItem item;
         private int spacing = SPACING;
         
         
-        public SetKeyButton() {
+        public SetKeyButton(ListingPanel panel) {
             super(new RacingButton("Change key"));
             
+            this.panel = panel;
             comp.addActionListener((e) -> {
                 if (item == null) return;
                 item.setKey(null);
@@ -124,6 +126,16 @@ public class ConfigKeyMenuItem
                             
                             MultiTool.sleepThread(40); // Polling delay.
                         }
+                        
+                        if (panel.isTypeOnly()) {
+                            pressed = new ControllerKey(
+                                    pressed.getController(),
+                                    pressed.getComponent(),
+                                    pressed.getValue(),
+                                    true
+                            );
+                        }
+                        
                         // Get the first key of those that were pressed.
                         // Note that the iterator next call is save as
                         // there is at least one item, and this set
@@ -274,12 +286,13 @@ public class ConfigKeyMenuItem
      * Constructor.
      * -------------------------------------------------------------------------
      */
-    public ConfigKeyMenuItem(KeyAction action, ControllerKey key) {
+    public ConfigKeyMenuItem(KeyAction action, ControllerKey key,
+            ListingPanel listingPanel) {
         super(new Contents[] {
             new SelectContents(),
             new PlayerID(action),
             new ActionName(action),
-            new SetKeyButton(),
+            new SetKeyButton(listingPanel),
             new ControllerType(key),
             new ControllerName(key),
             new ControllerButton(key)

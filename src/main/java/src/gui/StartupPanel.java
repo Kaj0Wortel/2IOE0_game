@@ -30,12 +30,14 @@ public class StartupPanel
         add(start);
         start.addActionListener((e) -> {
             GS.startRendering();
+            start.reset();
         });
         
         keyBindings = new RacingButton("Key bindings");
         add(keyBindings);
         keyBindings.addActionListener((e) -> {
             GS.mainPanel.getSwitchPanel().setActivePanel("key config");
+            keyBindings.reset();
         });
         
         

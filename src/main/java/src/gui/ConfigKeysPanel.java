@@ -20,7 +20,6 @@ import javax.swing.SwingUtilities;
 
 // Own imports
 import src.GS;
-import src.Locker;
 import src.gui.filter.KeyFilter;
 import src.gui.menuList.ConfigKeyMenuHeader;
 import src.gui.menuList.ConfigKeyMenuItem;
@@ -70,7 +69,7 @@ public class ConfigKeysPanel
             Map.Entry<KeyAction, List<ControllerKey>> entry = it.next();
             KeyAction action = entry.getKey();
             for (ControllerKey key : entry.getValue()) {
-                items.add(new ConfigKeyMenuItem(action, key));
+                items.add(new ConfigKeyMenuItem(action, key, this));
             }
         }
         
@@ -180,7 +179,7 @@ public class ConfigKeysPanel
         if (id == null) return;
         
         KeyAction keyAction = KeyAction.createKeyAction(id, option);
-        lister.addItem(new ConfigKeyMenuItem(keyAction, null));
+        lister.addItem(new ConfigKeyMenuItem(keyAction, null, this));
         SwingUtilities.invokeLater(() -> {
             lister.setPage(lister.getTotalPages());
             lister.toBottom();

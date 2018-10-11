@@ -13,6 +13,7 @@ import src.gui.filter.Filter;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
@@ -63,6 +64,8 @@ public abstract class ListingPanel<Item extends MenuItem,
     final protected Filter<Item> filter;
     final protected Sorter<Item> sorter;
     
+    final protected JCheckBox typeOnlyBox;
+    
     
     /**-------------------------------------------------------------------------
      * Constructor.
@@ -88,12 +91,15 @@ public abstract class ListingPanel<Item extends MenuItem,
         
         back = new RacingButton("< Back");
         back.setLocation(SPACING, SPACING);
-        back.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+        back.setSize(100, BUTTON_HEIGHT);
         add(back);
+        back.addActionListener((e) -> {
+            back.reset();
+        });
         
         add = new RacingButton("Add");
         add.setLocation(back.getX() + back.getWidth() + SPACING, SPACING);
-        add.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+        add.setSize(80, BUTTON_HEIGHT);
         add.addActionListener((ActionEvent e) -> {
             userAddItem();
         });
@@ -155,6 +161,14 @@ public abstract class ListingPanel<Item extends MenuItem,
         });
         filter.setOpaque(false);
         add(filter);
+        
+        typeOnlyBox = new JCheckBox("Type only");
+        typeOnlyBox.setLocation(filter.getX() + filter.getWidth() + SPACING,
+                SPACING);
+        typeOnlyBox.setSize(100, BUTTON_HEIGHT);
+        add(typeOnlyBox);
+        typeOnlyBox.setHorizontalAlignment(SwingConstants.CENTER);
+        typeOnlyBox.setOpaque(false);
         
         nextPage = new RacingButton(">");
         nextPage.setSize(SMALL_BUTTON_WIDTH, SMALL_BUTTON_HEIGHT);
@@ -227,6 +241,14 @@ public abstract class ListingPanel<Item extends MenuItem,
         revalidate();
     }
     
+    
+    /**
+     * @return {@code true} if the type only box is pressed.
+     *     {@code false} otherwise.
+     */
+    public boolean isTypeOnly() {
+        return typeOnlyBox.isSelected();
+    }
     
     @Override
     public void setBounds(int x, int y, int width, int height) {
