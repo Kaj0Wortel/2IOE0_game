@@ -19,6 +19,7 @@ import src.tools.update.Updater;
 
 import javax.swing.*;
 
+import src.Controllers.AIController;
 import static src.Simulator.TYPE.*;
 import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
@@ -114,24 +115,18 @@ public class Simulator
         
 
         addToGamestate(ITEM, col, new Vector3f(0f, -115f, 540f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
-
         addToGamestate(ITEM, col, new Vector3f(-10f, -115f, 540f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
-
         addToGamestate(ITEM, col, new Vector3f(10f, -115f, 540f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
-
         addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1015f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
-
         addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1025f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
-
         addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1035f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
-        
         addToGamestate(ITEM, col, new Vector3f(80f, -52f, -5f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
-
         addToGamestate(ITEM, col, new Vector3f(-40f,-52f, 30f), 1, 45, 45, 45, 0, new TextureImg(5,0.5f), null, null);
 
         addToGamestate(OTHER, sp, new Vector3f(0f, -60f, 500f), 4, 0, -90, 0, 0, new TextureImg(5, 0.5f), null, null);
 
-        addToGamestate(CAR, car, new Vector3f(0,0,0), 5,0,-180,0,90, new TextureImg(5,0.5f),null,null);
+        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0,0,0), 5,0,-180,0,90, new TextureImg(5,0.5f),null,null);
+        new AIController(aiCar);
 
         addToGamestate(PLAYER, car2, new Vector3f(0,0,0), 3, 0,-180, 0, -90, new TextureImg(5, 3f), null, null);
 
@@ -173,8 +168,9 @@ public class Simulator
         return UPDATE_ALWAYS;
     }
 
-    public void addToGamestate(TYPE type, OBJCollection col, Vector3f position, int size, int rotx, int roty, int rotz,
+    public Instance addToGamestate(TYPE type, OBJCollection col, Vector3f position, int size, int rotx, int roty, int rotz,
                                int integratedRotation, TextureImg texture, TextureImg normalMap, EnvironmentItem.Type envType){
+        Instance cubeInstance = null;
         switch(type){
             case ITEM:{
                 for(OBJObject obj : col) {
@@ -184,9 +180,9 @@ public class Simulator
                     PosHitBox3f box = obj.createBoundingBox();
                     //box.setPosKeepHitBox();
                     box.translate(position);
-                    Instance cubeInstance = new PickupItem(box,
+                    cubeInstance = new PickupItem(box,
                             size, rotx, roty, rotz, texturedCube, integratedRotation, new PhysicsContext());
-                    GS.addItem(cubeInstance);
+                    GS.addItem((Item) cubeInstance);
                 }
                 break;
             }
@@ -198,7 +194,7 @@ public class Simulator
                     PosHitBox3f box = obj.createBoundingBox();
                     //box.setPosKeepHitBox();
                     box.translate(position);
-                    Instance cubeInstance = new EnvironmentItem(box,
+                    cubeInstance = new EnvironmentItem(box,
                             size, rotx, roty, rotz, texturedCube, integratedRotation, new PhysicsContext(),
                             envType);
                     GS.addAsset(cubeInstance);
@@ -222,7 +218,7 @@ public class Simulator
                 PosHitBox3f box = col.createBoundingBox();
                 //box.setPosKeepHitBox();
                 box.translate(position);
-                Instance cubeInstance = new Car(box,
+                cubeInstance = new Car(box,
                         size, rotx, roty, rotz, texturedCube, integratedRotation, new PhysicsContext());
                 GS.addMaterialAsset(cubeInstance);
                 break;
@@ -235,7 +231,7 @@ public class Simulator
                 PosHitBox3f box = col.createBoundingBox();
                 //box.setPosKeepHitBox();
                 box.translate(position);
-                Instance cubeInstance = new Car(box,
+                cubeInstance = new Car(box,
                         size, rotx, roty, rotz, texturedCube, integratedRotation, new PhysicsContext());
                 GS.player = cubeInstance;
                 GS.addMaterialAsset(cubeInstance);
@@ -249,13 +245,15 @@ public class Simulator
                     PosHitBox3f box = obj.createBoundingBox();
                     //box.setPosKeepHitBox();
                     box.translate(position);
-                    Instance cubeInstance = new Car(box,
+                    cubeInstance = new Car(box,
                             size, rotx, roty, rotz, texturedCube, integratedRotation, new PhysicsContext());
                     GS.addAsset(cubeInstance);
                 }
                 break;
             }
         }
+        
+        return cubeInstance;
     }
 
     public void addGUI(TextureImg texture, Vector2f topright, Vector2f size){

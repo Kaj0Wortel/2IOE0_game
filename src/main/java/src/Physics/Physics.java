@@ -161,7 +161,7 @@ public class Physics {
     }
     
      // Necessary for determining if on track
-    final private static int POINTS_PER_SEGMENT = 500;
+    final private static int POINTS_PER_SEGMENT = 50;
     private static Vector3f[] points = new Vector3f[0];
     private static Vector3f[] normals = new Vector3f[0];
     private static Vector3f[] tangents = new Vector3f[0];
@@ -355,8 +355,8 @@ public class Physics {
             double yz_ang = Math.atan2(y, z);
             double rotz = Math.atan2(x, yz);
             
-//            s.rotz = (float) (rotz * Math.cos(yz_ang - s.roty));            
-//            s.rotx = (float) (-rotz * Math.sin(yz_ang - s.roty));
+            s.rotz = (float) (rotz * Math.cos(yz_ang - s.roty));            
+            s.rotx = (float) (rotz * Math.sin(yz_ang - s.roty));
             // </editor-fold>
             
             // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
@@ -366,6 +366,10 @@ public class Physics {
                 pStruct.turn = 0;
             }
             // </editor-fold>
+        }
+        // </editor-fold>
+        else {
+            s.rotz += 0.01;
         }
 
         // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
