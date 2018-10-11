@@ -251,6 +251,10 @@ public class PosHitBox3f
         return new PosHitBox3f(this);
     }
     
+    public boolean intersects(PosHitBox3f box) {
+        return intersectsRot(box);
+    }
+    
     /**
      * Calculates whether two hitboxes intersect, without rotation.
      * 
@@ -260,7 +264,7 @@ public class PosHitBox3f
      * Note hit boxes which only share one point, line or plane are
      * NOT intersecting.
      */
-    public boolean intersects(PosHitBox3f box) {
+    public boolean intersectsNoRot(PosHitBox3f box) {
         return
                 intersectsSegment(this.pos.x + this.relPos.x,
                         box.pos.x + box.relPos.x, this.dx(), box.dx()) &&
