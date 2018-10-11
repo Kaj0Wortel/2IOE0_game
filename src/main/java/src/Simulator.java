@@ -30,8 +30,8 @@ import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 public class Simulator
         implements Updateable {
 
-    public static enum TYPE {
-        CAR, ITEM, TRACK, ENVIRONMENT_TYPE, PLAYER, OTHER;
+    enum TYPE {CAR, ITEM, TRACK, ENVIRONMENT_TYPE, PLAYER, OTHER
+
     }
 
     private GL3 gl;
