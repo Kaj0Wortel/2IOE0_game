@@ -39,6 +39,7 @@ public class Physics {
         public float velocity;
         public float collisionVelocity;
         public float verticalVelocity;
+        public boolean onTrack;
         
         // Conversion matrix from model -> physics.
         final public static Matrix3f CONV_MAT = new Matrix3f(
@@ -62,6 +63,7 @@ public class Physics {
             velocity = state.velocity;
             collisionVelocity = state.collisionVelocity;
             verticalVelocity = state.verticalVelocity;
+            onTrack = state.onTrack;
         }
         
         /**
@@ -77,7 +79,7 @@ public class Physics {
                     (float) (Math.toDegrees(rotx) % 360), (float) (Math.toDegrees(roty) % 360), (float) (Math.toDegrees(rotz) % 360),
                     internRotx, internRoty, internRotz,
                     velocity, collisionVelocity,
-                    verticalVelocity);
+                    verticalVelocity, onTrack);
         }
         
         
@@ -282,7 +284,6 @@ public class Physics {
         float eRot;
         Vector3f ePos;
         // State description
-        boolean onTrack = true;
         boolean inAir = true;
         // temp before complete track implementation
         float gndZ = -1000;
@@ -316,16 +317,15 @@ public class Physics {
                 points[ind].z - s.box.pos().z + tangents[ind].z*t);
         dist = (float)Math.sqrt(dDir.x*dDir.x + dDir.y*dDir.y + dDir.z*dDir.z);
         // If you are outside of the track
-        if (dist > trackWidth) {
-            onTrack = false;
-        }
+        if (dist > trackWidth)
+            s.onTrack = false;
         //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
         //        , (float)Math.sqrt(6)/3);
         Vector3f rN = normals[ind];
         Vector3f roadPos = new Vector3f(points[ind].x, points[ind].y, points[ind].z);
-        // </editor-fold>w
+        // </editor-fold>
 
-        if (onTrack) {
+        if (s.onTrack) {
             // <editor-fold defaultstate="collapsed" desc="AIR TIME DETECTION"> 
             //TODO:
             // check what current situation is (what is gndz compared to epos)
@@ -501,7 +501,7 @@ public class Physics {
         double deltaZ = dt * (s.verticalVelocity + 0.5 * pc.gravity * dt);
 
         // TEMPORARILY DISABLED if on track
-        if (!onTrack) {
+        if (!s.onTrack) {
             // When in the air
             if (s.box.pos().z + deltaZ > gndZ + (1 - rN.z)*(Math.abs(s.velocity) / 2)) {
                 s.verticalVelocity += pc.gravity * dt;
@@ -509,11 +509,11 @@ public class Physics {
                 System.out.println("Falling");
             }
             // When bouncing on the ground
-            else if (Math.abs(s.verticalVelocity) > 0.01 && onTrack) {
+            else if (Math.abs(s.verticalVelocity) > 0.01 && s.onTrack) {
             s.verticalVelocity = -s.verticalVelocity * pc.bounceFactor;
             }   
             // When on track on the ground
-            else if (onTrack) {
+            else if (s.onTrack) {
                 s.verticalVelocity = 0;
                 ePos.z = (float)gndZ;
             }
@@ -533,6 +533,7 @@ public class Physics {
             eRot = (float)((-(eRot - Math.PI/2) + Math.PI*2) % (Math.PI*2));
             s.collisionVelocity = 0;
             s.verticalVelocity = 0;
+            s.onTrack = true;
         }
         // </editor-fold>
 
@@ -636,7 +637,7 @@ public class Physics {
                 // positions
                 pointList.add(new Vector3f(-(track.getPoint(i, t).z - 1.5f) * trackSize,
                 -track.getPoint(i, t).x * trackSize, 
-                track.getPoint(i, t).y * trackSize + 0f));
+                track.getPoint(i, t).y * trackSize + 1.5f));
                 // normals
                 normalList.add(new Vector3f(-Track.calcNormal(track.getTangent(i, t)).z,
                 -Track.calcNormal(track.getTangent(i, t)).x,

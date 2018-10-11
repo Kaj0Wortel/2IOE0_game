@@ -232,7 +232,8 @@ public class Simulator
                 //box.setPosKeepHitBox();
                 box.translate(position);
                 cubeInstance = new Car(box,
-                        size, rotx, roty, rotz, texturedCube, integratedRotation, new PhysicsContext());
+                        size/1.7f, rotx, roty, rotz, texturedCube, 
+                        integratedRotation, new PhysicsContext());
                 GS.player = cubeInstance;
                 GS.addMaterialAsset(cubeInstance);
                 break;

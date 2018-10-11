@@ -19,9 +19,8 @@ import org.joml.Vector2f;
 public class VisualAStar
         extends JPanel {
     
-    //final private Rectangle SIZE = new Rectangle(0,-10,10,10);//0, -5, 5, 5
-    //final private Rectangle SIZE = new Rectangle(-40, -100, 200, 200);
-    final private Rectangle SIZE = new Rectangle(-200, -115, 460, 460);
+    //final static private Rectangle SIZE = new Rectangle(0,-10,10,10);
+    final static private Rectangle SIZE = new Rectangle(-200, -115, 460, 460);
     final private int IMG_SIZE = 5000;
     final private int CIRCLE_SIZE = 50;//20
     final private Color BACK = Color.BLACK;
@@ -35,7 +34,7 @@ public class VisualAStar
     
     
     public VisualAStar() {
-        this(DEFAULT_SIZE);
+        this(SIZE);
     }
     
     public VisualAStar(Rectangle size) {

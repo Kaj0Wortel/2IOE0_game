@@ -17,6 +17,9 @@ import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
 import src.tools.PosHitBox3f;
 
+import src.Assets.OBJTexture;
+import src.Assets.instance.GridItemInstance;
+
 public class FinalAStar {
   // <editor-fold defaultstate="collapsed" desc="NOTES"> 
     /* 
@@ -428,9 +431,22 @@ public class FinalAStar {
         }
         
         public Instance2() {
+            //super(new PosHitBox3f(),1f,0,0,0,null,0, new PhysicsContext());
             super(new PosHitBox3f(),1f,0,0,0,null,0, new PhysicsContext());
+            /*Instance cubeInstance = new Car(box,
+                        size/1.7f, rotx, roty, rotz, texturedCube, 
+                        integratedRotation, new PhysicsContext());*/
         }
         
+        /*
+        public Instance(PosHitBox3f box, float size,
+            float rotx, float roty, float rotz,
+            OBJTexture model, float internRoty, 
+            PhysicsContext physicContext) {
+        this(box, size, size, size, rotx, roty, rotz, model,
+                0, internRoty, 0, physicContext);
+    }
+        */
         
     } 
 }
