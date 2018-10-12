@@ -615,8 +615,9 @@ public class Physics {
             // Intermediate horizontal rotation
             float finalRot = (float)Math.atan2(-tangents[resetInd].x, -tangents[resetInd].y);
             finalRot = (float)((-(finalRot - Math.PI/2) + Math.PI*2) % (Math.PI*2));
-            float diffRot = (float)(finalRot - (s.roty%(Math.PI*2)));
+            float diffRot = (float)(finalRot - ((s.roty)%(Math.PI*2)));
             eRot = (float)(s.roty + 0.1*diffRot);
+            System.out.println(s.roty%(Math.PI*2));
             // Intermediate vertical
             double y = normals[resetInd].y;
             double x = normals[resetInd].x;
