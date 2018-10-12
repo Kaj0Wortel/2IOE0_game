@@ -231,8 +231,9 @@ public class Simulator
                 PosHitBox3f box = col.createBoundingBox();
                 //box.setPosKeepHitBox();
                 box.translate(position);
+                //box.pos().
                 cubeInstance = new Car(box,
-                        size/1.7f, rotx, roty, rotz, texturedCube, 
+                        size/1.75f, rotx, roty, rotz, texturedCube, 
                         integratedRotation, new PhysicsContext());
                 GS.player = cubeInstance;
                 GS.addMaterialAsset(cubeInstance);
