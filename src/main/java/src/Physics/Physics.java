@@ -4,7 +4,6 @@ package src.Physics;
 // Own imports
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
-import src.Assets.instance.Car;
 import src.Assets.instance.Item;
 import src.racetrack.Track;
 import src.tools.update.CollisionManager.Collision;
@@ -18,6 +17,8 @@ import java.util.Set;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 import src.tools.PosHitBox3f;
+import src.tools.log.Logger;
+import src.tools.update.CollisionManager;
 
 
 
@@ -38,6 +39,8 @@ public class Physics {
         public float velocity;
         public float collisionVelocity;
         public float verticalVelocity;
+        public boolean onTrack;
+        public int rIndex;
         
         // Conversion matrix from model -> physics.
         final public static Matrix3f CONV_MAT = new Matrix3f(
@@ -52,15 +55,17 @@ public class Physics {
             sizex = state.sizez;
             sizey = state.sizex;
             sizez = state.sizey;
-            rotx = state.rotx;
+            this.rotx = (float) Math.toRadians(state.rotx);
             this.roty = (float) Math.toRadians(state.roty);
-            rotz = state.rotz;
+            this.rotz = (float) Math.toRadians(state.rotz);
             internRotx = state.internRotx;
             internRoty = state.internRoty;
             internRotz = state.internRotz;
             velocity = state.velocity;
             collisionVelocity = state.collisionVelocity;
             verticalVelocity = state.verticalVelocity;
+            onTrack = state.onTrack;
+            rIndex = state.rIndex;
         }
         
         /**
@@ -73,10 +78,10 @@ public class Physics {
         public State createState() {
             // Convert back to instance space.
             return new State(box.convert(CONV_MAT_INV), sizey, sizez, sizex,
-                    rotx, (float) (Math.toDegrees(roty) % 360), rotz,
+                    (float) (Math.toDegrees(rotx) % 360), (float) (Math.toDegrees(roty) % 360), (float) (Math.toDegrees(rotz) % 360),
                     internRotx, internRoty, internRotz,
                     velocity, collisionVelocity,
-                    verticalVelocity);
+                    verticalVelocity, onTrack, rIndex);
         }
         
         
@@ -224,22 +229,33 @@ public class Physics {
         // If the instance intersects with a car or an item, use collision
         // dependant collision handeling.
         // Ignore the current actions.
-        if (!collisions.isEmpty()) {
+        if (collisions != null && !collisions.isEmpty()) {
+            boolean calcPhysics = true;
             ModPhysicsContext modPC = new ModPhysicsContext(pc);
             
             for (Instance instance : collisions) {
-                if (instance instanceof Car) {
-                    calcPhysics(source, pStruct, pc, s, progress); // TODO
+                boolean isDynamic = !source.isStatic() && !instance.isStatic();
+                
+                if (isDynamic) {
+                    // Double non-static collisions are handled later.
+                    calcPhysics = false;
+                    CollisionManager.addCollision(source, instance,
+                            pStruct, modPC, s, progress);
                     
-                } else if (instance instanceof Item) {
-                    System.out.println("hit item!");
-                    ((Item) instance).physicsAtCollision(
-                            source, pStruct, modPC, s);
+                } else {
+                    // Full or single static collisions are handled here.
+                    if (instance instanceof Item) {
+                        System.out.println("hit item!");
+                        ((Item) instance).physicsAtCollision(
+                                source, pStruct, modPC, s);
+                    }
                 }
             }
             
-            calcPhysics(source, pStruct, modPC.createContext(), s, progress);
-            source.setState(s.createState());
+            if (calcPhysics) {
+                calcPhysics(source, pStruct, modPC.createContext(), s, progress);
+                source.setState(s.createState());
+            }
             
         } else {
             calcPhysics(source, pStruct, pc, s, progress);
@@ -270,10 +286,9 @@ public class Physics {
         float eRot;
         Vector3f ePos;
         // State description
-        boolean onTrack = true;
         boolean inAir = true;
         // temp before complete track implementation
-        float gndZ = -1000;
+        float gndZ = -500;
         
         
         // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
@@ -292,6 +307,9 @@ public class Physics {
                 }
             }
         }
+        // Update the globally last reached road index
+        if (s.onTrack)
+            s.rIndex = ind;
         // Find distance from the middle road curve
         float t = ((points[ind].x - s.box.pos().x)*tangents[ind].x
                 + (points[ind].y - s.box.pos().y)*tangents[ind].y
@@ -304,16 +322,16 @@ public class Physics {
                 points[ind].z - s.box.pos().z + tangents[ind].z*t);
         dist = (float)Math.sqrt(dDir.x*dDir.x + dDir.y*dDir.y + dDir.z*dDir.z);
         // If you are outside of the track
-        if (dist > trackWidth) {
-            onTrack = false;
-        }
+        if (dist > trackWidth)
+            s.onTrack = false;
         //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
         //        , (float)Math.sqrt(6)/3);
         Vector3f rN = normals[ind];
         Vector3f roadPos = new Vector3f(points[ind].x, points[ind].y, points[ind].z);
+        
         // </editor-fold>
 
-        if (onTrack) {
+        if (s.onTrack) {
             // <editor-fold defaultstate="collapsed" desc="AIR TIME DETECTION"> 
             //TODO:
             // check what current situation is (what is gndz compared to epos)
@@ -321,6 +339,8 @@ public class Physics {
             //- check at ePos if under GNDz: teleport up to gnd
             //(maybe also check at ePos if over  GNDz (airtime?))
             // re-organise air time and vertical movement parts
+            
+            
             gndZ = roadPos.z 
                     - (s.box.pos().x - roadPos.x) *rN.x / rN.z
                     - (s.box.pos().y - roadPos.y) *rN.y / rN.z;
@@ -332,13 +352,30 @@ public class Physics {
             //System.out.println((gndZ - s.box.pos().z) +", "+ inAir);
             // </editor-fold>
             
-        // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
-        progress.ManageProgress(s.box.pos(), points.length, ind);
-        if (progress.finished) {
-            pStruct.accel = 0;
-            pStruct.turn = 0;
+            // <editor-fold defaultstate="collapsed" desc="HORIZONTAL ROTATION"> 
+            double y = normals[ind].y;
+            double x = normals[ind].x;
+            double z = normals[ind].z;
+            
+            double yz = Math.sqrt(Math.pow(y,2) + Math.pow(z,2));
+            double yz_ang = Math.atan2(y, z);
+            double rotz = Math.atan2(x, yz);
+            
+            s.rotz = (float) (rotz * Math.cos(yz_ang - s.roty));            
+            s.rotx = (float) (rotz * Math.sin(yz_ang - s.roty));
+            // </editor-fold>
+            
+            // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
+            progress.ManageProgress(s.box.pos(), points.length, ind);
+            if (progress.finished) {
+                pStruct.accel = 0;
+                pStruct.turn = 0;
+            }
+            // </editor-fold>
         }
         // </editor-fold>
+        else {
+            s.rotz += 0.01;
         }
 
         // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
@@ -470,7 +507,7 @@ public class Physics {
         double deltaZ = dt * (s.verticalVelocity + 0.5 * pc.gravity * dt);
 
         // TEMPORARILY DISABLED if on track
-        if (!onTrack) {
+        if (!s.onTrack) {
             // When in the air
             if (s.box.pos().z + deltaZ > gndZ + (1 - rN.z)*(Math.abs(s.velocity) / 2)) {
                 s.verticalVelocity += pc.gravity * dt;
@@ -478,11 +515,11 @@ public class Physics {
                 System.out.println("Falling");
             }
             // When bouncing on the ground
-            else if (Math.abs(s.verticalVelocity) > 0.01 && onTrack) {
+            else if (Math.abs(s.verticalVelocity) > 0.01 && s.onTrack) {
             s.verticalVelocity = -s.verticalVelocity * pc.bounceFactor;
             }   
             // When on track on the ground
-            else if (onTrack) {
+            else if (s.onTrack) {
                 s.verticalVelocity = 0;
                 ePos.z = (float)gndZ;
             }
@@ -492,7 +529,7 @@ public class Physics {
         if (s.verticalVelocity > 20)
             s.verticalVelocity = 10;
         //Death barrier: reset
-        if (ePos.z < -200) {
+        if (ePos.z < points[s.rIndex].z - 50) {
             int resetInd = Math.round(points.length*(progress.checkPoint-1)
                     /progress.cpAm);
             ePos = new Vector3f(points[resetInd].x, points[resetInd].y
@@ -502,6 +539,7 @@ public class Physics {
             eRot = (float)((-(eRot - Math.PI/2) + Math.PI*2) % (Math.PI*2));
             s.collisionVelocity = 0;
             s.verticalVelocity = 0;
+            s.onTrack = true;
         }
         // </editor-fold>
 
@@ -605,7 +643,7 @@ public class Physics {
                 // positions
                 pointList.add(new Vector3f(-(track.getPoint(i, t).z - 1.5f) * trackSize,
                 -track.getPoint(i, t).x * trackSize, 
-                track.getPoint(i, t).y * trackSize + 1));
+                track.getPoint(i, t).y * trackSize + 1.5f));
                 // normals
                 normalList.add(new Vector3f(-Track.calcNormal(track.getTangent(i, t)).z,
                 -Track.calcNormal(track.getTangent(i, t)).x,

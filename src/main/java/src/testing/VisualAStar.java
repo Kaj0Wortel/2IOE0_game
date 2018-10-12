@@ -14,14 +14,15 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import org.joml.Vector2f;
 
 public class VisualAStar
         extends JPanel {
     
-    //final private Rectangle SIZE = new Rectangle(0,-10,10,10);//0, -5, 5, 5
-    final private static Rectangle DEFAULT_SIZE = new Rectangle(-40, -100, 200, 200);
-    final private static int IMG_SIZE = 5000;
-    final private static int CIRCLE_SIZE = 50;//20
+    //final static private Rectangle SIZE = new Rectangle(0,-10,10,10);
+    final static private Rectangle SIZE = new Rectangle(-200, -115, 460, 460);
+    final private int IMG_SIZE = 5000;
+    final private int CIRCLE_SIZE = 50;//20
     final private Color BACK = Color.BLACK;
     
     final private Rectangle size;
@@ -33,7 +34,7 @@ public class VisualAStar
     
     
     public VisualAStar() {
-        this(DEFAULT_SIZE);
+        this(SIZE);
     }
     
     public VisualAStar(Rectangle size) {
@@ -70,15 +71,30 @@ public class VisualAStar
         int elevation = 0;
         
         controlPoints = new Vector3f[] {
-                new Vector3f(0f,0f,0f), new Vector3f(0f,0f,3f), new Vector3f(1f,0f,4f), new Vector3f(4f,0f,4f),
+            // downhill speeding
+                new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 0.5f), new Vector3f(0f, 0f, 1f), new Vector3f(0f, 0f, 2f),
+                new Vector3f(0f, 0f, 2f), new Vector3f(0f, 0f, 6f), new Vector3f(0f, -4f, 16f), new Vector3f(0f, -4f, 18f),
+                new Vector3f(0f, -4f, 18f), new Vector3f(0f, -4f, 20f), new Vector3f(0f, -3f, 22f), new Vector3f(0f, -2f, 24f),
+                //first jump
+                new Vector3f(0f, -2f, 24f), new Vector3f(0f, -1f, 26f), new Vector3f(0f, -1f, 26f), new Vector3f(0f, -2f, 28f),
+                //zigzag
+                new Vector3f(0f, -2f, 28f), new Vector3f(0f, -3f, 30f), new Vector3f(4f, -2.8f, 34f), new Vector3f(6f, -2.5f, 32f),
+                new Vector3f(6f, -2.5f, 32f), new Vector3f(8f, -2.2f, 30f), new Vector3f(10f, -2.2f, 32f), new Vector3f(12f, -2.5f, 34f),
+                new Vector3f(12f, -2.5f, 34f), new Vector3f(14f, -2.8f, 36f), new Vector3f(17f, -2.2f, 30f), new Vector3f(18f, -2f, 26f),
+                // upward slope and overpass
+                new Vector3f(18f, -2f, 26f), new Vector3f(19f, -1.8f, 22f), new Vector3f(14f, -1f, 21f), new Vector3f(10f, -0.8f, 20f),
+                new Vector3f(10f, -0.8f, 20f), new Vector3f(6f, -0.6f, 19f), new Vector3f(0f, -0.6f, 17f), new Vector3f(-4f, -0.8f, 16f),
+                // downward turn 1
+                new Vector3f(-4f, -0.8f, 16f), new Vector3f(-8f, -1f, 15f), new Vector3f(-8f, -1.8f, 3f), new Vector3f(-6f, -1.9f, 2f),
+                new Vector3f(-6f, -1.9f, 2f), new Vector3f(-4f, -2f, 1f), new Vector3f(4f, -2f, 0f), new Vector3f(6f, -1.9f, 0f),
+                // downward turn 2
+                new Vector3f(6f, -1.9f, 0f), new Vector3f(8f, -1.8f, 0f), new Vector3f(8f, -1f, -6f), new Vector3f(6f, -0.9f, -8f),
+                new Vector3f(6f, -0.9f, -8f), new Vector3f(4f, -0.8f, -10f), new Vector3f(0f, 0f, -4f), new Vector3f(0f, 0f, -2f),
+                new Vector3f(0f, 0f, -2f), new Vector3f(0f, 0f, -1.5f), new Vector3f(0f, 0f, -0.5f), new Vector3f(0f, 0f, 0f),
+            /*new Vector3f(0f,0f,0f), new Vector3f(0f,0f,3f), new Vector3f(1f,0f,4f), new Vector3f(4f,0f,4f),
             new Vector3f(4f,0f,4f), new Vector3f(7f,0f,4f), new Vector3f(8f,0f,8f), new Vector3f(8f,0f,4f),
             new Vector3f(8f,0f,4f), new Vector3f(8f,0f,-2f), new Vector3f(8f,0f,-6f), new Vector3f(6f,0f,-6f),
-            new Vector3f(6f,0f,-6f), new Vector3f(-2f,0f,-6f), new Vector3f(0f,0f,-4f), new Vector3f(0f,0f,0f),
-/*
-                new Vector3f(0f,0f,0f), new Vector3f(0f,0f,30f), new Vector3f(10f,0f,40f), new Vector3f(40f,0f,40f),
-                new Vector3f(40f,0f,40f), new Vector3f(70f,0f,40f), new Vector3f(80f,0f,80f), new Vector3f(80f,0f,40f),
-                new Vector3f(80f,0f,40f), new Vector3f(80f,0f,-20f), new Vector3f(80f,0f,-60f), new Vector3f(60f,0f,-60f),
-                new Vector3f(60f,0f,-60f), new Vector3f(-20f,0f,-60f), new Vector3f(0f,0f,-40f), new Vector3f(0f,0f,0f),*/
+            new Vector3f(6f,0f,-6f), new Vector3f(-2f,0f,-6f), new Vector3f(0f,0f,-4f), new Vector3f(0f,0f,0f),*/
         };
 
         Vector3f UP = new Vector3f(0,1,0);
@@ -93,9 +109,11 @@ public class VisualAStar
             addLine(new Point2D.Double(point.x,point.z), new Point2D.Double(addedTang.x,addedTang.z));
         }
 */      
-        int nr_segment_vertices_col = 30;
+        int nr_segment_vertices_col = 60;
         int nr_segment_vertices_row = 3; //Must be odd
-        int nr_of_segments = 4;
+        int nr_of_segments = 14;
+        Point2D.Double fPoint1  = new Point2D.Double(); 
+        Point2D.Double fPoint2 = new Point2D.Double();
         for(int i = 0; i < nr_of_segments; i++){
             for(int col = 0; col < nr_segment_vertices_col; col ++){
                 float t = (float)col/(float) nr_segment_vertices_col;
@@ -107,21 +125,27 @@ public class VisualAStar
                 //addLine(new Point2D.Double(point.x,point.z), new Point2D.Double(addedTang.x,addedTang.z));
                 for(int j = 0; j < nr_segment_vertices_row; j++) {
                     Vector3f normal = new Vector3f(tangent);
-                    normal.cross(UP).normalize().mul(1f).mul((float)j-1f);
+                    normal.cross(UP).normalize().mul(1f).mul((float)(j*7)-1f);
                     Vector3f addedNormal = new Vector3f();
                     point.add(normal, addedNormal);
-
-                    /*if (j != 1) {
-                        addPoint(new Point2D.Double(addedNormal.x, addedNormal.z));
+                    
+                    // for finish visualisation
+                    if (j == 0 && i == 0 && col == 0)
+                        fPoint1 = new Point2D.Double(addedNormal.x, addedNormal.z);
+                    if (j == 2 && i == 0 && col == 0)
+                        fPoint2 = new Point2D.Double(addedNormal.x, addedNormal.z);
+                    if (j != 1) {
+                        //addPoint(new Point2D.Double(addedNormal.x, addedNormal.z));
                         addLine(new Point2D.Double(addedNormal.x, addedNormal.z)
                                 , new Point2D.Double(addedNormal.x + 2*(addedTang.x - point.x)
                                         , addedNormal.z + 2*(addedTang.z - point.z)));
-                    }*/
+                    }
                 }
             }
-
         }
-
+        setForeground(Color.GREEN);
+        addLine(fPoint1, fPoint2);
+        setForeground(Color.WHITE);
     }
 
     
@@ -249,6 +273,15 @@ public class VisualAStar
 
         return new Vector3f().add(p0).add(p1).add(p2).add(p3).normalize();
         */
+    }
+    
+    /**
+     * @param vec 
+     * 
+     * @see #addPoint(Point2D.Double)
+     */
+    public void addPoint(Vector2f vec) {
+        addPoint(new Point2D.Double(vec.x, vec.y));
     }
     
     /**

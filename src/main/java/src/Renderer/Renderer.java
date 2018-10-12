@@ -9,13 +9,10 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import src.Assets.GUI;
 import src.Controllers.PlayerController;
 import src.GS;
 import src.Shaders.RacetrackShader;
 import src.Simulator;
-import src.shadows.ShadowRenderer;
 
 import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
 import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
@@ -30,7 +27,7 @@ public class Renderer implements GLEventListener {
     private GL3 gl;
     private GLU glu;
 
-    private final float FOV = 70;
+    private float fov = 70;
     private final float NEAR = 0.1f;
     private final float FAR = 2000f;
     private float width = 1080;
@@ -41,8 +38,8 @@ public class Renderer implements GLEventListener {
     private ObjectRenderer objectRenderer;
     private TerrainRenderer terrainRenderer;
     private MaterialRenderer materialRenderer;
+    private ItemRenderer itemRenderer;
     private GUIRenderer guiRenderer;
-    private ShadowRenderer shadowRenderer;
 
     public Renderer(Simulator simulator, float width, float height){
         this.simulator = simulator;
@@ -59,25 +56,19 @@ public class Renderer implements GLEventListener {
 
         simulator.setGL(gl);
         simulator.initAssets();
-        GS.playerController = new PlayerController(GS.player);
+        GS.playerController = new PlayerController(GS.player, 1);
 
         getProjectionMatrix();
         objectRenderer = new ObjectRenderer(gl,projectionMatrix);
         materialRenderer = new MaterialRenderer(gl, projectionMatrix);
         terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
-        shadowRenderer = new ShadowRenderer(gl, FOV, NEAR, FAR, width, height);
+        itemRenderer = new ItemRenderer(gl, projectionMatrix);
         guiRenderer = new GUIRenderer(gl);
-
-        GUI test = new GUI(shadowRenderer.getDepthTexture(),
-                new Vector2f(-0.5f, -0.5f), new Vector2f(0.25f, 0.25f));
-        GS.addGUI(test);
-
 
         RacetrackShader racetrackShader = new RacetrackShader(gl);
         GS.getTrack().setShaderAndRenderMatrices(racetrackShader, projectionMatrix, GS.camera.getViewMatrix());
 
         gl.glEnable(GL3.GL_DEPTH_TEST);
-        gl.glViewport(0,0,(int)width,(int)height);
     }
 
     @Override
@@ -87,10 +78,8 @@ public class Renderer implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
-        gl.glClear(GL_DEPTH_BUFFER_BIT);
-        shadowRenderer.render(gl);
-
         gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        gl.glClearColor(1f, 1f, 1f, 1f);
 
         gl.glEnable(GL3.GL_CULL_FACE);
         gl.glCullFace(GL3.GL_BACK);
@@ -98,6 +87,7 @@ public class Renderer implements GLEventListener {
         objectRenderer.render(gl);
         materialRenderer.render(gl);
         terrainRenderer.render(gl);
+        itemRenderer.render(gl);
 
         gl.glDisable(gl.GL_CULL_FACE);
         GS.getTrack().draw(gl);
@@ -113,7 +103,7 @@ public class Renderer implements GLEventListener {
 
     private void getProjectionMatrix(){
         float ratio = width / height;
-        float y = (float) (1f / Math.tan(Math.toRadians(FOV/2f)));
+        float y = (float) (1f / Math.tan(Math.toRadians(fov/2f)));
         float x = y / ratio;
         float delta = FAR - NEAR;
 

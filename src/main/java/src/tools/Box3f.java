@@ -242,10 +242,15 @@ public class Box3f
         float p21 = Math.min(v2, v2 + d2);
         float p22 = Math.max(v2, v2 + d2);
         
+        return (p11 <= p21 && p12 > p21) ||
+                (p11 < p22 && p12 >= p22) ||
+                (p21 <= p11 && p22 > p11) ||
+                (p21 < p12 && p22 >= p12);
+        /*
         return (p11 < p21 && p12 > p21) ||
                 (p21 < p11 && p22 > p11) ||
                 (p12 > p22 && p11 < p22) ||
-                (p22 > p12 && p21 < p12);
+                (p22 > p12 && p21 < p12);*/
     }
     
     @Override

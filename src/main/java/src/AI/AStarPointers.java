@@ -2,13 +2,15 @@ package src.AI;
 
 // Own imports
 import src.testing.VisualAStar; // Debug visualization
-import src.Physics.Physics;
 // Java imports
 import java.awt.*; // 2D graphics helper
 import java.awt.geom.Point2D; // Point2D.Doubles
+import java.io.IOException;
 import java.util.ArrayList; // Arralylists
 import java.util.Collections; // Reverse Arraylist
 import java.util.List; // ArrayLists
+import src.tools.io.NodeWriter;
+import src.tools.log.Logger;
 
 public class AStarPointers {
     // <editor-fold defaultstate="collapsed" desc="NOTES"> 
@@ -85,7 +87,7 @@ public class AStarPointers {
     */ // </editor-fold>
     public static void runAlgorithm () {
         // Project imports
-        VisualAStar visual = new VisualAStar();
+        VisualAStar visual = new VisualAStar(new Rectangle(-2, -12, 20, 12));
        // Physics physics = new Physics();
         
         // <editor-fold defaultstate="collapsed" desc="VARIABLES">
@@ -350,6 +352,16 @@ public class AStarPointers {
                 System.out.println(iter);
         }
         // </editor-fold>
+        
+        /*
+        try (NodeWriter nw = new NodeWriter("C:\\Users\\s155587\\Documents\\"
+                + "_university\\3_courses\\1_a1_2IOE0_DBL_Inter_intel\\"
+                + "software\\2IOE0_game\\nodes.cvs")) {
+            nw.writeNodeChain(curNode);
+            
+        } catch (IOException e) {
+            Logger.write(e);
+        }/**/
         
         // If goal could be reached, create a path to it.
         if (pathComplete) {

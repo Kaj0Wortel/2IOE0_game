@@ -14,6 +14,9 @@ public class Node {
     public double h;            // Distance to target (calculated)
     public int nextCP;          // currently travelling to CP(nextCP*2, nextCP*2 + 1)
     public Node parentNode;     // Parent node position
+    // extra
+    public double vertV;        // vertical velocity
+
        
     
     /**

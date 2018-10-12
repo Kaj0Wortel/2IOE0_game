@@ -44,13 +44,15 @@ public abstract class Instance {
         final public float velocity;
         final public float collisionVelocity;
         final public float verticalVelocity;
+        final public boolean onTrack;
+        final public int rIndex;
         
         
         public State(PosHitBox3f box, float sizex, float sizey, float sizez,
                 float rotx, float roty, float rotz,
                 float internRotx, float internRoty, float internRotz,
                 float velocity, float collisionVelocity,
-                float verticalVelocity) {
+                float verticalVelocity, boolean onTrack, int rIndex) {
             this.box = box;
             this.sizex = sizex;
             this.sizey = sizey;
@@ -64,6 +66,8 @@ public abstract class Instance {
             this.velocity = velocity;
             this.collisionVelocity = collisionVelocity;
             this.verticalVelocity = verticalVelocity;
+            this.onTrack = onTrack;
+            this.rIndex = rIndex;
         }
         
         @Override
@@ -97,7 +101,7 @@ public abstract class Instance {
         box.scaleHitBox(sizex, sizey, sizez);
         setState(new State(box, sizex, sizey, sizez,
                 rotx, roty, rotz,
-                internRotx, internRoty, internRotz, 0, 0, 0));
+                internRotx, internRoty, internRotz, 0, 0, 0, true, 0));
         
         this.model = model;
         this.physicsContext = physicContext;
@@ -139,7 +143,7 @@ public abstract class Instance {
                 (s.rotx + rot) % 360, s.roty, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity));
+                s.verticalVelocity, s.onTrack, s.rIndex));
     }
     
     @Deprecated
@@ -153,7 +157,7 @@ public abstract class Instance {
                 s.rotx, (s.roty + rot) % 360, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity));
+                s.verticalVelocity, s.onTrack, s.rIndex));
     }
 
     @Deprecated
@@ -167,7 +171,7 @@ public abstract class Instance {
                 s.rotx, s.roty, (s.rotz + rot) % 360,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity));
+                s.verticalVelocity, s.onTrack, s.rIndex));
     }
 
     @Deprecated
@@ -184,7 +188,7 @@ public abstract class Instance {
                 s.rotx, s.roty, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity));
+                s.verticalVelocity, s.onTrack, s.rIndex));
     }
 
     /**
