@@ -17,7 +17,6 @@ import org.deeplearning4j.optimize.api.BaseTrainingListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
-// import org.javatuples.Quartet;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.nd4j.linalg.activations.Activation;
@@ -46,7 +45,6 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -87,7 +85,7 @@ public class AINN {
 
     private PStructAction curAction = new PStructAction(0, 0, 0, 1);    // The current action.
     // List < Quartet < currentState, Action, Reward, nextState > >
-    // private List<Quartet<DataSet, Integer, Double, DataSet>> qMemory = new LinkedList<>();   // Memory for Q-learning
+//    private List<Quartet<DataSet, Integer, Double, DataSet>> qMemory = new LinkedList<>();   // Memory for Q-learning
 
     // Thread variables
     private Thread updateThread = null;
@@ -288,8 +286,7 @@ public class AINN {
         networks[0].addListeners(LISTENER);
         networks[1].addListeners(LISTENER);
 
-        // TODO decide if we want this here. Start execution.
-        execute();
+        start();
     }
 
     /**
@@ -646,7 +643,6 @@ public class AINN {
         public boolean isStatic() {
             return true;
         }
-
-
     }
+
 }
