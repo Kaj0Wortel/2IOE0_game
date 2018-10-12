@@ -9,6 +9,7 @@ import org.joml.Vector3f;
 import src.Assets.*;
 import src.Assets.instance.*;
 import src.Assets.skybox.Skybox;
+import src.Controllers.AIController;
 import src.OBJ.LoadOBJ;
 import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
@@ -19,7 +20,6 @@ import src.tools.update.Updater;
 
 import javax.swing.*;
 
-import src.Controllers.AIController;
 import static src.Simulator.TYPE.*;
 import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
@@ -130,7 +130,7 @@ public class Simulator
 
         addToGamestate(PLAYER, car2, new Vector3f(0,0,0), 3, 0,-180, 0, -90, new TextureImg(5, 3f), null, null);
 
-        addLight(new Vector3f(10000f, 50000f, -10000f),
+        addLight(new Vector3f(10000f, 50000f, 0f),
                 new Vector3f(1f, 1f, 1f));
 
         addGUI(new TextureImg(gl,"test_icon.png"),

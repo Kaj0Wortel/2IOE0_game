@@ -30,8 +30,8 @@ public class Light {
         yaw = lightdir.z > 0 ? yaw - 180 : yaw;
 
         Matrix4f rotationMatrix = new Matrix4f();
-        rotationMatrix.rotate(pitch, new Vector3f(1,0,0));
-        rotationMatrix.rotate(-yaw, new Vector3f(0,1,0));
+        rotationMatrix.rotate((float) Math.toRadians(pitch), new Vector3f(1,0,0));
+        rotationMatrix.rotate((float) -Math.toRadians(yaw), new Vector3f(0,1,0));
 
         return rotationMatrix;
     }

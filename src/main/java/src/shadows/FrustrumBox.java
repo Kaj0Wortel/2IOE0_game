@@ -10,7 +10,6 @@ public class FrustrumBox {
     private float width;
     private float height;
     private float depth;
-    public Vector3f eye;
     private Vector3f center;
 
     private float FOV;
@@ -102,12 +101,11 @@ public class FrustrumBox {
             }
         }
 
+        maxZ =+ 10;
+
         width = maxX - minX;
         height = maxY - minY;
         depth = maxZ - minZ;
-        Vector4f eyeInLightSpace = new Vector4f((minX + maxX)/2, (minY + maxY)/2, maxZ,1);
-        eyeInLightSpace.mul(GS.getLights().get(0).getRotatinMatrixInverse());
-        eye = new Vector3f(eyeInLightSpace.x,eyeInLightSpace.y,eyeInLightSpace.z);
 
         Vector4f centerInLightSpace = new Vector4f((minX + maxX)/2, (minY + maxY)/2, (maxZ + minZ)/2,1);
         centerInLightSpace.mul(GS.getLights().get(0).getRotatinMatrixInverse());
@@ -122,19 +120,15 @@ public class FrustrumBox {
         Matrix4f ortho = new Matrix4f();
         ortho.m00(2/width);
         ortho.m11(2/height);
-        ortho.m22(2/depth);
+        ortho.m22(-2/depth);
+        ortho.m33(1);
 
-        Matrix4f trans = new Matrix4f();
-        trans.translate(center);
-        trans.m22(-1);
-
-        Matrix4f result = new Matrix4f();
-        return ortho.mul(trans,result);
+        return ortho;
     }
 
     public Matrix4f getLightViewMatrix(){
         Matrix4f lightRotationMatrix = new Matrix4f(GS.getLights().get(0).getRotationMatrix());
-        lightRotationMatrix.translate(new Vector3f(-eye.x, -eye.y, -eye.z));
+        lightRotationMatrix.translate(new Vector3f(-center.x,-center.y,-center.z));
         return lightRotationMatrix;
     }
 }

@@ -1,5 +1,6 @@
 package src.shadows;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 import src.Assets.instance.Instance;
 import src.GS;
@@ -20,11 +21,12 @@ public class ShadowRenderer {
     }
 
     public void render(GL3 gl){
-        gl.glClearColor(0,0,0,0);
-        gl.glEnable(gl.GL_DEPTH_TEST);
         frustrumBox.calculateBoundingBox();
         shadowFBO.bindFrameBuffer(gl);
+        gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
         shadowShader.start(gl);
+
+        gl.glEnable(gl.GL_DEPTH_TEST);
 
         shadowShader.loadProjectionMatrix(gl,frustrumBox.getOrthographicProjectionMatrix());
         shadowShader.loadViewMatrix(gl, frustrumBox.getLightViewMatrix());
@@ -33,11 +35,15 @@ public class ShadowRenderer {
             asset.draw(gl, shadowShader);
         }
 
+        for(Instance item : GS.getItems()){
+            item.draw(gl, shadowShader);
+        }
+
         for(Instance asset : GS.getMaterialAssets()){
             asset.draw(gl, shadowShader);
         }
 
-        //GS.getTrack().draw(gl);
+        GS.getTrack().draw(gl, shadowShader);
 
         shadowShader.stop(gl);
         shadowFBO.unbindFrameBuffer(gl);

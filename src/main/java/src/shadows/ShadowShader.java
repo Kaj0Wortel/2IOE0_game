@@ -23,22 +23,15 @@ public class ShadowShader extends ShaderProgram {
     private int projectionMatrixLocation;
     private int viewMatrixLocation;
     private int modelMatrixLocation;
-    private int lightPositionLocation;
-    private int lightColorLocation;
-    private int shininessLocation;
-    private int reflectivityLocation;
-    private int timeLocation;
-    private int cameraPosLocation;
 
     public ShadowShader(GL3 gl) {
         super(gl, vertex, fragment);
+
     }
 
     @Override
     public void bindAttributes(GL3 gl) {
-        bindAttr(gl, 0,"position");
-        bindAttr(gl, 1, "tex");
-        bindAttr(gl, 2, "normal");
+
     }
 
     @Override
