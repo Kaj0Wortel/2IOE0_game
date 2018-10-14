@@ -45,7 +45,7 @@ void main() {
     tex.x -= floor(tex.x);
 
     vec2 normalTex = texPass;
-    bool normalMapping = true;
+    bool normalMapping = false;
     vec3 unitNormal;
     if(normalMapping){
         normalTex.x *= 30;
