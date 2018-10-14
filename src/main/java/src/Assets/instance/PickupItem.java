@@ -51,11 +51,14 @@ public class PickupItem
     @Override
     public void physicsAtCollision(Instance instance, PStructAction pStruct,
             ModPhysicsContext pc, ModState s) {
-        if (!isHit) {
-            System.out.println("Pickup-item!");
-            isHit = true;
-            hitTimeRemaining = INACTIVE_TIME;
-        }
+        if (isHit || !(instance instanceof Car)) return;
+        Car car = (Car) instance;
+        
+        System.out.println("Pickup-item!");
+        isHit = true;
+        hitTimeRemaining = INACTIVE_TIME;
+        
+        car.giveItem();
     }
     
     @Override

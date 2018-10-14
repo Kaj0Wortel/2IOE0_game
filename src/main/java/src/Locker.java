@@ -143,9 +143,25 @@ public class Locker {
      * @param obj the object to remove.
      */
     public static void remove(Object obj) {
-        synchronized(lockMap) {
-            if (lockMap.get(obj) != null) lockMap.remove(obj);
-        }
+        new Thread("Remove-lock-thread") {
+            @Override
+            public void run() {
+                Lock lock;
+                synchronized(lockMap) {
+                    lock = lockMap.get(obj);
+                }
+                if (lock == null) return;
+                
+                lock.lock();
+                try {
+                    synchronized(lockMap) {
+                        lockMap.remove(obj);
+                    }
+                } finally {
+                    lock.unlock();
+                }
+            }
+        }.start();
     }
     
     

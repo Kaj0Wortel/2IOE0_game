@@ -95,7 +95,7 @@ public class Renderer implements GLEventListener {
         terrainRenderer.render(gl);
         itemRenderer.render(gl);
 
-        gl.glDisable(gl.GL_CULL_FACE);
+        gl.glDisable(GL3.GL_CULL_FACE);
         GS.getTrack().draw(gl);
         GS.getSkybox().draw(gl, projectionMatrix);
         guiRenderer.render(gl);

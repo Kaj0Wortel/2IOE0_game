@@ -16,6 +16,7 @@ import src.tools.PosHitBox3f;
 
 import javax.swing.*;
 import java.util.Set;
+import src.tools.MultiTool;
 
 
 public abstract class Instance {
@@ -82,7 +83,8 @@ public abstract class Instance {
         
     }
     
-    ProgressManager progress = new ProgressManager();
+    protected ProgressManager progress = new ProgressManager();
+    protected boolean isDestroyed = false;
     
     protected State state;
     protected PhysicsContext physicsContext;
@@ -98,6 +100,7 @@ public abstract class Instance {
         this(box, size, size, size, rotx, roty, rotz, model,
                 0, internRoty, 0, physicContext);
     }
+    
     public Instance(PosHitBox3f box, float sizex, float sizey, float sizez,
             float rotx, float roty, float rotz, OBJTexture model,
             float internRotx, float internRoty, float internRotz,
@@ -302,6 +305,14 @@ public abstract class Instance {
         return state.box.intersects(other.state.box);
     }
     
+    public ProgressManager getProgressManager() {
+        return progress;
+    }
+    
+    public void setProgressManager(ProgressManager pm) {
+        this.progress = pm;
+    }
+    
     /**
      * @return {@code true} if the instance is static (i.e. not moveable).
      *     {@code false} otherwise.
@@ -314,13 +325,15 @@ public abstract class Instance {
      * @param pStruct the action to execute.
      */
     public void movement(PStructAction pStruct) {
+        if (isDestroyed()) return;
         if (!isStatic()) {
             Set<Instance> collisions = GS.grid.getCollisions(this);
             Physics.calcPhysics(this, pStruct, physicsContext, state,
                     collisions, progress);
             
         } else {
-            Physics.calcPhysics(this, pStruct, physicsContext, state, null, progress);
+            Physics.calcPhysics(this, pStruct, physicsContext, state,
+                    null, progress);
         }
     }
     
@@ -328,7 +341,17 @@ public abstract class Instance {
      * Removes the instance and releases all resources connected to it.
      */
     public void destroy() {
-        // TODO
+        System.out.println("destroyed: " + this);
+        isDestroyed = true;
+        Locker.remove(this);
+    }
+    
+    /**
+     * @return {@code true} if this object is destroyed.
+     *     {@code false} otherwise.
+     */
+    public boolean isDestroyed() {
+        return isDestroyed;
     }
     
     
