@@ -28,7 +28,8 @@ public class Renderer implements GLEventListener {
     private GL3 gl;
     private GLU glu;
 
-    private float fov = 70;
+    private static float fov = 70;
+    private static boolean fovChange = false;
     private final float NEAR = 0.1f;
     private final float FAR = 2000f;
     private float width = 1080;
@@ -90,6 +91,11 @@ public class Renderer implements GLEventListener {
         gl.glEnable(GL3.GL_CULL_FACE);
         gl.glCullFace(GL3.GL_BACK);
 
+        if (fovChange){
+            getProjectionMatrix();
+            fovChange = false;
+        }
+
         objectRenderer.render(gl);
         materialRenderer.render(gl);
         terrainRenderer.render(gl);
@@ -126,6 +132,12 @@ public class Renderer implements GLEventListener {
 
     public void cleanup(){
         simulator.cleanup();
+    }
+
+    public static void changeFOV(float fovOffset){
+        fov = 70 + fovOffset;
+        fovChange = true;
+        //System.out.println("fov Change " + fov);
     }
 
 }

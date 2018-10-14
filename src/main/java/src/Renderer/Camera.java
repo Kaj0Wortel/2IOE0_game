@@ -4,6 +4,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
+import src.Renderer.Renderer;
 
 import static java.lang.Float.max;
 import static java.lang.Math.signum;
@@ -33,6 +34,7 @@ public class Camera {
     private float rubberSpeed = 0.15f;
     private float minRubberDistance = 25f;
     private float rubberVelocityFactor = 0.5f;
+    private float fovVelocityFactor = 2.0f;
     
     public Camera (Vector3f position, float pitch, float yaw, float roll){
         this.position = position;
@@ -142,7 +144,16 @@ public class Camera {
             previousRotation = currentRotation;
             angleAroundAsset *=-1;
         }
+        float targetPitch = 20 + focusedOn.getRotz();
+        //System.out.println("targetPitch" + targetPitch);
+        if (Math.abs(targetPitch - pitch) > 0.01f)
+        pitch = targetPitch;
+        //System.out.println("pitch" + pitch);
 
+    }
+
+    public void speedFOV(){
+        Renderer.changeFOV(fovVelocityFactor * focusedOn.getState().velocity);
     }
     
     public void removeFocus() {
@@ -184,6 +195,7 @@ public class Camera {
     
     public void calculateInstanceValues() {
         rubberBand();
+        speedFOV();
         State state = focusedOn.getState();
         float angle = state.roty + angleAroundAsset;
         float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
