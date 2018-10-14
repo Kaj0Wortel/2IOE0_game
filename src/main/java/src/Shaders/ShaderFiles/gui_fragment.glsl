@@ -7,5 +7,5 @@ layout(location = 0) out vec4 color;
 uniform sampler2D gui;
 
 void main() {
-    color = texture(gui, texPass).rgba;
+    color = texture(gui, texPass);
 }
