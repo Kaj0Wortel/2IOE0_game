@@ -12,6 +12,7 @@ import src.Physics.Physics;
 import src.Physics.PhysicsContext;
 import src.Progress.ProgressManager;
 import src.Shaders.ShaderProgram;
+import src.shadows.ShadowShader;
 import src.tools.PosHitBox3f;
 
 import javax.swing.*;
@@ -209,7 +210,7 @@ public abstract class Instance {
         shader.loadModelMatrix(gl, getTransformationMatrix());
         shader.loadTextureLightValues(gl, model.getTextureImg().getShininess(),
                 model.getTextureImg().getReflectivity());
-        
+
         GraphicsObject obj = model.getAsset().get(0);
         for (int i = 0; i < obj.size(); i++) {
             if(shader.useMaterial()) shader.loadMaterial(gl,obj.getMaterials().get(i));
@@ -222,6 +223,21 @@ public abstract class Instance {
             gl.glDisableVertexAttribArray(0);
             gl.glDisableVertexAttribArray(1);
             gl.glDisableVertexAttribArray(2);
+        }
+        gl.glBindVertexArray(0);
+    }
+
+    public void draw(GL3 gl, ShadowShader shader) {
+        shader.loadModelMatrix(gl, getTransformationMatrix());
+
+        GraphicsObject obj = model.getAsset().get(0);
+        for (int i = 0; i < obj.size(); i++) {
+            gl.glBindVertexArray(obj.getVao(i));
+            gl.glEnableVertexAttribArray(0);
+            gl.glDrawElements(GL3.GL_TRIANGLES, obj.getNrV(i),
+                    GL3.GL_UNSIGNED_INT, 0);
+            gl.glDisableVertexAttribArray(0);
+
         }
         gl.glBindVertexArray(0);
     }
