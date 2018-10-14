@@ -9,8 +9,6 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import src.Assets.GUI;
 import src.Controllers.PlayerController;
 import src.GS;
 import src.Shaders.RacetrackShader;
@@ -69,8 +67,7 @@ public class Renderer implements GLEventListener {
         itemRenderer = new ItemRenderer(gl, projectionMatrix);
         guiRenderer = new GUIRenderer(gl);
         shadowRenderer = new ShadowRenderer(gl,fov,NEAR,FAR,width,height);
-
-        GS.addGUI(new GUI(shadowRenderer.getDepthTexture(), new Vector2f(-0.5f,0.5f), new Vector2f(0.25f,0.25f)));
+        GS.getTrack().setShadowMap(shadowRenderer.getDepthTexture());
 
         RacetrackShader racetrackShader = new RacetrackShader(gl);
         GS.getTrack().setShaderAndRenderMatrices(racetrackShader, projectionMatrix, GS.camera.getViewMatrix());
@@ -99,7 +96,7 @@ public class Renderer implements GLEventListener {
         itemRenderer.render(gl);
 
         gl.glDisable(gl.GL_CULL_FACE);
-        GS.getTrack().draw(gl);
+        GS.getTrack().draw(gl, shadowRenderer.getShadowMatrix());
         GS.getSkybox().draw(gl, projectionMatrix);
         guiRenderer.render(gl);
 

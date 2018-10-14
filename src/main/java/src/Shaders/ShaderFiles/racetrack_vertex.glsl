@@ -9,6 +9,7 @@ out vec3 normalVector;
 out vec3 toLight;
 out vec3 toCamera;
 out vec2 texPass;
+out vec4 shadowTextureCoords;
 
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
@@ -17,10 +18,15 @@ uniform vec3 lightPosition;
 uniform vec3 cameraPos;
 uniform int time;
 
+uniform mat4 shadowMatrix;
+
 
 void main(void) {
+
     texPass = tex;
     vec4 pos = modelMatrix * vec4(position,1.0);
+    shadowTextureCoords = shadowMatrix * pos;
+
     normalVector = (modelMatrix * vec4(normal,0.0)).xyz;
     toLight = lightPosition - pos.xyz;
     gl_Position = projectionMatrix * viewMatrix * pos;

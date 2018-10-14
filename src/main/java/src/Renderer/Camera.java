@@ -206,7 +206,7 @@ public class Camera {
         viewMatrixRotation.transpose();
 
         Matrix4f viewMatrixTranslation = new Matrix4f();
-        viewMatrixTranslation.translate(new Vector3f(-position.x, -position.y, -position.z));
+        viewMatrixTranslation.translate(new Vector3f(position.x, position.y, position.z));
 
         Matrix4f result = new Matrix4f();
         viewMatrixTranslation.mul(viewMatrixRotation, result);

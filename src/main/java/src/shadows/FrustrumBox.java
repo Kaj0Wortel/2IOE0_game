@@ -107,9 +107,9 @@ public class FrustrumBox {
         height = maxY - minY;
         depth = maxZ - minZ;
 
-        Vector4f centerInLightSpace = new Vector4f((minX + maxX)/2, (minY + maxY)/2, (maxZ + minZ)/2,1);
+        Vector4f centerInLightSpace = new Vector4f((minX + maxX)/2, (minY + maxY)/2, (maxZ+minZ)/2,1);
         centerInLightSpace.mul(GS.getLights().get(0).getRotatinMatrixInverse());
-        center = new Vector3f(centerInLightSpace.x,centerInLightSpace.y,centerInLightSpace.z).negate();
+        center = new Vector3f(centerInLightSpace.x,centerInLightSpace.y,centerInLightSpace.z);
     }
 
     private float getAspectRatio(){

@@ -2,6 +2,8 @@ package src.shadows;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import src.Assets.instance.Instance;
 import src.GS;
 
@@ -51,5 +53,20 @@ public class ShadowRenderer {
 
     public int getDepthTexture(){
         return shadowFBO.getDepthAttachment().get(0);
+    }
+
+    public Matrix4f getShadowMatrix(){
+        Matrix4f shadowMatrix = new Matrix4f();
+        shadowMatrix.mul(offsetMatrox());
+        shadowMatrix.mul(frustrumBox.getOrthographicProjectionMatrix());
+        shadowMatrix.mul(frustrumBox.getLightViewMatrix());
+        return shadowMatrix;
+    }
+
+    private Matrix4f offsetMatrox(){
+        Matrix4f offset = new Matrix4f();
+        offset.translate(new Vector3f(0.5f,0.5f,0.5f));
+        offset.scale(new Vector3f(0.5f,0.5f,0.5f));
+        return offset;
     }
 }

@@ -5,6 +5,7 @@ in vec3 normalVector;
 in vec3 toLight;
 in vec3 toCamera;
 in vec2 texPass;
+in vec4 shadowTextureCoords;
 
 layout(location = 0) out vec4 color;
 
@@ -14,9 +15,16 @@ uniform float reflectivity;
 
 uniform sampler2D textureRoad;
 uniform sampler2D bumpmap;
+uniform sampler2D shadowMap;
 uniform mat4 modelMatrix;
 
 void main() {
+
+    float depth = texture(shadowMap, shadowTextureCoords.xy).r;
+    float inShadow = 1.0;
+    if(shadowTextureCoords.z > depth){
+        inShadow = 1.0 - 0.4f;
+    }
 
     vec2 tex = texPass;
     tex.x *= 10;
@@ -45,5 +53,5 @@ void main() {
     d = max(d,0.3);
     vec3 change = d * lightColor;
 
-	color = vec4(change,1.0) * texture(textureRoad,tex);
+	color = vec4(change,1.0) * texture(textureRoad,tex) * inShadow;
 }

@@ -216,6 +216,11 @@ public class BezierTrack extends Track {
         return laneWidth;
     }
 
+    @Override
+    public void setShadowMap(int shadowMap) {
+        this.shadowMap = shadowMap;
+    }
+
     private float nMap(int i){
         float nr = (float) nrSegmentVerticesRow - 1;
         float half = nr / 2;
