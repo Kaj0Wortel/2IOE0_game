@@ -12,5 +12,5 @@ package src.tools.event.keyAction.action;
  * 
  */
 public enum PlayerMovementAction {
-    FORWARD, BACKWARD, LEFT, RIGHT, OTHER, JUMP, THROW_ITEM;
+    FORWARD, BACKWARD, LEFT, RIGHT, OTHER, JUMP;
 }

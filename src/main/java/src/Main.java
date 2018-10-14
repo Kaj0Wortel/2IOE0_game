@@ -25,7 +25,7 @@ public class Main {
     
     public static void main(String[] args) {
         GS.init();
-        if (SKIP_INTRO) {
+        if (!SKIP_INTRO) {
             GS.startRendering();
         }
         

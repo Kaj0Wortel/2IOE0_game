@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Set;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
-import src.Assets.instance.Car;
 import src.tools.PosHitBox3f;
+import src.tools.log.Logger;
 import src.tools.update.CollisionManager;
 
 
@@ -392,7 +392,7 @@ public class Physics {
                 // </editor-fold>
 
                 // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
-                progress.manageProgress(s.box.pos(), points.length, ind);
+                progress.ManageProgress(s.box.pos(), points.length, ind);
                 if (progress.finished) {
                     pStruct.accel = 0;
                     pStruct.turn = 0;

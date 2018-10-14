@@ -3,8 +3,6 @@
 package src.Controllers;
 
 import javax.swing.SwingUtilities;
-import src.Assets.instance.Instance;
-import src.Physics.PStructAction;
 import src.tools.update.Updateable;
 import src.tools.update.Updater;
 
@@ -15,18 +13,17 @@ import src.tools.update.Updater;
 /**
  * 
  */
-public abstract class Controller<I extends Instance>
+public abstract class Controller
         implements Updateable {
     
     protected long prevTimeStamp = -1;
-    protected I instance;
     
-    public Controller(I instance) {
-        this(instance, true);
+    
+    public Controller() {
+        this(true);
     }
     
-    public Controller(I instance, boolean add) {
-        this.instance = instance;
+    public Controller(boolean add) {
         if (add) {
             SwingUtilities.invokeLater(() -> {
                 Updater.addTask(this);
@@ -42,19 +39,7 @@ public abstract class Controller<I extends Instance>
             return;
         }
         
-        if (instance != null) {
-            if (instance.isDestroyed()) {
-                Updater.removeTask(this);
-                
-            } else {
-                PStructAction action = controlUpdate(time - prevTimeStamp);
-                if (action != null) instance.movement(action);
-            }
-            
-        } else {
-            controlUpdate(time - prevTimeStamp);
-        }
-        
+        controlUpdate(time - prevTimeStamp);
         prevTimeStamp = time;
     }
     
@@ -68,7 +53,7 @@ public abstract class Controller<I extends Instance>
      * 
      * @param dt the amount of elapsed time.
      */
-    public abstract PStructAction controlUpdate(long dt);
+    public abstract void controlUpdate(long dt);
     
     
 

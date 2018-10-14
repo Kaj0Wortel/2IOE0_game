@@ -4,9 +4,7 @@ package src.Controllers;
 
 // Own imports
 import java.util.List;
-import src.Assets.instance.Instance;
 import src.GS;
-import src.Physics.PStructAction;
 import src.Renderer.Camera;
 import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.CameraKeyAction;
@@ -14,14 +12,14 @@ import src.tools.event.keyAction.action.CameraMovementAction;
 
 
 public class CameraController
-        extends Controller<Instance> {
-    
+        extends Controller {
+
     Camera camera;
     
     final private CameraKeyAction[] cameraActions;
 
     public CameraController(Camera camera) {
-        super(null, false);
+        super(false);
         this.camera = camera;
         
         CameraMovementAction[] values = CameraMovementAction.values();
@@ -32,7 +30,7 @@ public class CameraController
     }
     
     @Override
-    public PStructAction controlUpdate(long dt) {
+    public void controlUpdate(long dt) {
         if (!GS.camera.isOnPlayer()) {
             for (CameraKeyAction action : cameraActions) {
                 List<ControllerKey> keys = GS.getKeys(action);
@@ -62,8 +60,6 @@ public class CameraController
         if (camera.isOnPlayer()) {
             camera.calculateInstanceValues();
         }
-        
-        return null;
     }
     
     

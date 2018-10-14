@@ -7,8 +7,6 @@ import javax.swing.SwingUtilities;
 
 // Own imports
 import src.Assets.OBJTexture;
-import src.GS;
-import src.Locker;
 import src.Physics.PStructAction;
 import src.Physics.Physics.ModPhysicsContext;
 import src.Physics.Physics.ModState;
@@ -27,9 +25,9 @@ public abstract class Item
     
     public Item(PosHitBox3f box, float size,
             float rotx, float roty, float rotz,
-            OBJTexture model, float internRotation,
+            OBJTexture model, float integratedRotation,
             PhysicsContext physicConst) {
-        this(box, size, rotx, roty, rotz, model, internRotation,
+        this(box, size, rotx, roty, rotz, model, integratedRotation,
                 physicConst, true);
     }
     
@@ -37,24 +35,8 @@ public abstract class Item
             float rotx, float roty, float rotz,
             OBJTexture model, float integratedRotation,
             PhysicsContext physicConst, boolean addToUpdater) {
-        this(box, size, size, size, rotx, roty, rotz, model,
-                0, integratedRotation, 0, physicConst, addToUpdater);
-    }
-    
-    public Item(PosHitBox3f box, float sizex, float sizey, float sizez,
-            float rotx, float roty, float rotz,
-            OBJTexture model, float integratedRotation,
-            PhysicsContext physicConst, boolean addToUpdater) {
-        this(box, sizex, sizey, sizez, rotx, roty, rotz, model,
-                0, integratedRotation, 0, physicConst, addToUpdater);
-    }
-    
-    public Item(PosHitBox3f box, float sizex, float sizey, float sizez,
-            float rotx, float roty, float rotz, OBJTexture model,
-            float internRotx, float internRoty, float internRotz,
-            PhysicsContext physicConst, boolean addToUpdater) {
-        super(box, sizex, sizey, sizez, rotx, roty, rotz, model,
-                internRotx, internRoty, internRotz, physicConst);
+        super(box, size, rotx, roty, rotz, model, integratedRotation,
+                physicConst);
         if (addToUpdater) {
             SwingUtilities.invokeLater(() -> {
                 Updater.addTask(this);
@@ -108,11 +90,5 @@ public abstract class Item
     
     public abstract void updateItem(long dt);
     
-    
-    @Override
-    public void destroy() {
-        super.destroy();
-        GS.removeItem(this);
-    }
     
 }

@@ -1,13 +1,6 @@
-
 package src.Assets;
 
-
-//Own imports
-import src.tools.Cloneable;
-
-
-public class OBJTexture
-        implements Cloneable {
+public class OBJTexture {
 
     private OBJCollection asset;
     private TextureImg textureImg;
@@ -32,10 +25,4 @@ public class OBJTexture
     public void setTextureImg(TextureImg textureImg) {
         this.textureImg = textureImg;
     }
-    
-    @Override
-    public OBJTexture clone() {
-        return new OBJTexture(asset, textureImg);
-    }
-    
 }

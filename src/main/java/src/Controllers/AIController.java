@@ -1,8 +1,7 @@
 
 package src.Controllers;
 
-import src.Assets.instance.Car;
-import src.Physics.PStructAction;
+import src.Assets.instance.Instance;
 
 
 // Own imports
@@ -15,23 +14,25 @@ import src.Physics.PStructAction;
  * 
  */
 public class AIController
-        extends Controller<Car> {
+        extends Controller {
+    
+    final private Instance instance;
     
     
     /**
      * The instance to be updated.
      * @param instance 
      */
-    public AIController(Car instance) {
-        super(instance);
+    public AIController(Instance instance) {
+        this.instance = instance;
         
         // Your initialization.
     }
     
     
     @Override
-    public PStructAction controlUpdate(long dt) {
-        return null;
+    public void controlUpdate(long dt) {
+        // Your update code.
     }
     
     

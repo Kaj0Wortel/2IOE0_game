@@ -1,24 +1,16 @@
 package src.Progress;
 
-
-// Own imports
-import src.tools.Cloneable;
-
-
 // Java imports
 import org.joml.Vector3f;
 
-
-public class ProgressManager
-        implements Cloneable {
+public class ProgressManager {
     public int checkPoint = 1;
     private int lap = 1;
     public boolean finished = false;
     public int cpAm = 16; // modifiable
     public int lapTotal = 1; // modifiable
     
-    
-    public void manageProgress(Vector3f pos, int pointAmount, int curPoint) {
+    public void ManageProgress(Vector3f pos, int pointAmount, int curPoint) {
         if (curPoint > pointAmount * checkPoint / cpAm
                 && curPoint < pointAmount * (checkPoint + 1) / cpAm && !finished)
             checkPoint++;
@@ -34,17 +26,4 @@ public class ProgressManager
         else if (finished)
             System.out.println("FINISHED");
     }
-    
-    @Override
-    public ProgressManager clone() {
-        ProgressManager clone = new ProgressManager();
-        clone.checkPoint = this.checkPoint;
-        clone.lap = this.lap;
-        clone.finished = false;
-        clone.cpAm = this.cpAm;
-        clone.lapTotal = this.lapTotal;
-        return clone;
-    }
-    
-    
 }
