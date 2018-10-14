@@ -1,26 +1,3 @@
-# old stuff (not working):
-#src.tools.event.Key=true,65,0,false
-
-# Registers the 2nd button of my ps2 controller (cross)
-# to the car key action enum LEFT with id 1.
-#src.tools.event.ControllerKey=false,Twin USB Joystick,Twin USB Joystick-0,2,1.0
-#src.tools.event.keyAction.CarKeyAction=1,LEFT
-
-# Registers the F10 key on my keyboard
-# to the car key action enum RIGHT with id 1.
-
-#src.tools.event.ControllerKey=false,PC/AT Enhanced PS/2 Keyboard (101/102-Key),PC/AT Enhanced PS/2 Keyboard (101/102-Key)-0,A,1.0
-#src.tools.event.keyAction.CameraKeyAction=1,LEFT
-
-#src.tools.event.ControllerKey=false,PC/AT Enhanced PS/2 Keyboard (101/102-Key),PC/AT Enhanced PS/2 Keyboard (101/102-Key)-0,D,1.0
-#src.tools.event.keyAction.CameraKeyAction=1,RIGHT
-
-#src.tools.event.ControllerKey=true,Keyboard,1,1.0
-#src.tools.event.keyAction.CameraKeyAction=1,RIGHT
-
-
-
-# ^^^^^^^^^ old stuff ^^^^^^^^^^^^
 src.tools.event.ControllerKey=false,0,Standard PS/2 Keyboard,F10,1.0
 src.tools.event.keyAction.CarKeyAction=1,RIGHT
 
@@ -64,3 +41,6 @@ src.tools.event.keyAction.PlayerKeyAction=1,BACKWARD
 src.tools.event.ControllerKey=false,0,Twin USB Joystick,2,1.0
 src.tools.event.ControllerKey=true,Keyboard, ,1.0
 src.tools.event.keyAction.PlayerKeyAction=1,JUMP
+
+src.tools.event.ControllerKey=true,Keyboard,E,1.0
+src.tools.event.keyAction.PlayerKeyAction=1,THROW_ITEM
