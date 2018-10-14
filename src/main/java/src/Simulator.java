@@ -3,6 +3,7 @@ package src;
 
 
 // Jogamp imports
+
 import com.jogamp.opengl.GL3;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -19,6 +20,9 @@ import src.tools.update.Updateable;
 import src.tools.update.Updater;
 
 import javax.swing.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 import static src.Simulator.TYPE.*;
 import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
@@ -71,6 +75,14 @@ public class Simulator
         OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "dragon.obj");
         OBJCollection car = LoadOBJ.load(gl, GS.OBJ_DIR + "car.obj");
         OBJCollection car2 = LoadOBJ.load(gl, GS.OBJ_DIR + "offroadcar.obj");
+        OBJCollection rock = LoadOBJ.load(gl, GS.OBJ_DIR + "Low-Poly_models.obj");
+
+        Map<Integer, OBJObject> rocks = new HashMap<Integer, OBJObject>();
+        rocks.put(0, rock.get(0));
+        rocks.put(1, rock.get(1));
+        rocks.put(2, rock.get(2));
+        rocks.put(3, rock.get(3));
+
         
         // (0,0,0) REFERENCE
         for (OBJObject obj : col) {
@@ -140,6 +152,12 @@ public class Simulator
 
         addToGamestate(TRACK, null, new Vector3f(0,1,-5), 3, 0,0,0, 0, new TextureImg(gl,"rainbow_road.png"),
                 new TextureImg(gl, "tileNormalMap.png"), null);
+
+        Random random = new Random();
+        int range = 1000;
+        for(int i = 0; i < 1000; i++){
+            addRock(rocks.get(getRandomNr(random,0,3)), new Vector3f(getRandomNr(random,-range,range), getRandomNr(random,-range,range), getRandomNr(random,-range,range)), getRandomNr(random,1,8), getRandomNr(random,0,90), getRandomNr(random,0,90), getRandomNr(random,0,90), 0, new TextureImg(5, 3f));
+        }
 
         addSkybox();
         
@@ -283,5 +301,25 @@ public class Simulator
     public void addSkybox(){
         Skybox skybox = new Skybox(gl);
         GS.setSkybox(skybox);
+    }
+
+    public void addRock(OBJObject rock, Vector3f position, int size, int rotx, int roty, int rotz, int integratedRotation, TextureImg texture){
+        OBJCollection temp = new OBJCollection();
+        temp.add(rock);
+        OBJObject obj = temp.get(0);
+        OBJTexture texturedCube = new OBJTexture(temp,
+                texture);
+        //box = new Box3f(new Vector3f(0f, -60f, 500f));
+        PosHitBox3f box = obj.createBoundingBox();
+        //box.setPosKeepHitBox();
+        box.translate(position);
+        Instance cubeInstance = new MaterialInstance(box,
+                size, rotx, roty, rotz, texturedCube,
+                integratedRotation, new PhysicsContext());
+        GS.addMaterialAsset(cubeInstance);
+    }
+
+    private int getRandomNr(Random random, int down, int up){
+        return random.nextInt(up-down+1) + down;
     }
 }
