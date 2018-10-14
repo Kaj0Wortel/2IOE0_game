@@ -114,7 +114,7 @@ public class ThrowingItemFactory {
         
         // Test item cube: green shell
         col = LoadOBJ.load(gl, GS.OBJ_DIR + "cube.obj");
-        texture = new OBJTexture(col, new TextureImg(5, 3f));
+        texture = new OBJTexture(col, new TextureImg(gl, "item_block.png", 5, 3f));
         box = col.createBoundingBox();
         item = new ThrowingItem(box, 1, 1, 1,
                 0, -180, 0, texture,
@@ -124,7 +124,7 @@ public class ThrowingItemFactory {
         
         // Test item cube.
         col = LoadOBJ.load(gl, GS.OBJ_DIR + "cube.obj");
-        texture = new OBJTexture(col, new TextureImg(5, 3f));
+        texture = new OBJTexture(col, new TextureImg(gl, "item_block.png", 5, 3f));
         box = col.createBoundingBox();
         item = new ThrowingItem(box, 1, 1, 1,
                 0, -180, 0, texture,

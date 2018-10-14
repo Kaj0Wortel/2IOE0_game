@@ -8,6 +8,7 @@ import src.GS;
 
 import java.io.File;
 import java.io.IOException;
+import src.tools.log.Logger;
 
 public class TextureImg {
 
@@ -15,31 +16,33 @@ public class TextureImg {
     private float reflectivity;
     private Texture texture;
 
-    public TextureImg(GL3 gl, String file_path, float shininess, float reflectivity) {
+    public TextureImg(GL3 gl, String filePath, float shininess, float reflectivity) {
         this.shininess = shininess;
         this.reflectivity = reflectivity;
 
         try {
-            texture = TextureIO.newTexture(new File(GS.TEX_DIR + file_path), false);
+            texture = TextureIO.newTexture(new File(GS.TEX_DIR + filePath), false);
             texture.setTexParameteri(gl, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
             texture.setTexParameteri(gl, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+            
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.write(e);
         }
 
         texture.enable(gl);
 
     }
 
-    public TextureImg(GL3 gl, String file_path) {
+    public TextureImg(GL3 gl, String filePath) {
         this.shininess = -1;
         this.reflectivity = -1;
         try {
-            texture = TextureIO.newTexture(new File(GS.TEX_DIR + file_path), false);
+            texture = TextureIO.newTexture(new File(GS.TEX_DIR + filePath), false);
             texture.setTexParameteri(gl, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
             texture.setTexParameteri(gl, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+            
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.write(e);
         }
 
         texture.enable(gl);
@@ -60,7 +63,7 @@ public class TextureImg {
     }
 
     public void bindTexture(GL3 gl){
-        gl.glActiveTexture(gl.GL_TEXTURE0);
+        gl.glActiveTexture(GL3.GL_TEXTURE0);
         texture.bind(gl);
     }
 
