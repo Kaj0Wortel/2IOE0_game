@@ -109,19 +109,33 @@ public class Camera
     }
     
     public void setFocus(Instance instance) {
-        if (focusedOn == instance) return;
-        
-        previousPosition = new Vector3f(position);
+        if (instance == null || instance.equals(focusedOn)) return;
+        if (focusedOn != null) {
+            focusedOn.deleteObserver(this);
+            previousPosition = new Vector3f(position);
+        }
         focusedOn = instance;
         onPlayer = true;
         position = new Vector3f(instance.getPosition());
         pitch = 20;
         instance.addObserver(this);
     }
+    
+    public void removeFocus() {
+        if (focusedOn != null) {
+            focusedOn.deleteObserver(this);
+            focusedOn = null;
+        }
+        onPlayer = false;
+        position = new Vector3f(previousPosition);
+        this.yaw = 0;
+        this.pitch = 0;
+        this.roll = 0;
+    }
 
     public void rubberBand(){
         boolean turned = false;
-        if(focusedOn == null && rubberBandEnabled){
+        if(focusedOn == null && rubberBandEnabled) {
 
         } else {
             angleAroundAsset *=-1;
@@ -160,15 +174,6 @@ public class Camera
 
     public void speedFOV(){
         Renderer.changeFOV(fovVelocityFactor * focusedOn.getState().velocity);
-    }
-    
-    public void removeFocus() {
-        focusedOn = null;
-        onPlayer = false;
-        position = new Vector3f(previousPosition);
-        this.yaw = 0;
-        this.pitch = 0;
-        this.roll = 0;
     }
     
     public boolean isOnPlayer() {
