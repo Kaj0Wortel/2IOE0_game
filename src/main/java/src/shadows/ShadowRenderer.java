@@ -23,7 +23,7 @@ public class ShadowRenderer {
     }
 
     public void render(GL3 gl){
-        frustrumBox.calculateBoundingBox2();
+        frustrumBox.calculateBoundingBox();
         shadowFBO.bindFrameBuffer(gl);
         gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
         shadowShader.start(gl);
