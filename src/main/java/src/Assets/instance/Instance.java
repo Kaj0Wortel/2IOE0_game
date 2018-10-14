@@ -45,14 +45,17 @@ public abstract class Instance {
         final public float collisionVelocity;
         final public float verticalVelocity;
         final public boolean onTrack;
+        final public boolean inAir;
         final public int rIndex;
+        final public boolean isResetting;
         
         
         public State(PosHitBox3f box, float sizex, float sizey, float sizez,
                 float rotx, float roty, float rotz,
                 float internRotx, float internRoty, float internRotz,
                 float velocity, float collisionVelocity,
-                float verticalVelocity, boolean onTrack, int rIndex) {
+                float verticalVelocity, boolean onTrack, boolean inAir, 
+                int rIndex, boolean isResetting) {
             this.box = box;
             this.sizex = sizex;
             this.sizey = sizey;
@@ -67,7 +70,9 @@ public abstract class Instance {
             this.collisionVelocity = collisionVelocity;
             this.verticalVelocity = verticalVelocity;
             this.onTrack = onTrack;
+            this.inAir = inAir;
             this.rIndex = rIndex;
+            this.isResetting = isResetting;
         }
         
         @Override
@@ -101,7 +106,8 @@ public abstract class Instance {
         box.scaleHitBox(sizex, sizey, sizez);
         setState(new State(box, sizex, sizey, sizez,
                 rotx, roty, rotz,
-                internRotx, internRoty, internRotz, 0, 0, 0, true, 0));
+                internRotx, internRoty, internRotz, 0, 0, 0, 
+                true, false, 0, true));
         
         this.model = model;
         this.physicsContext = physicContext;
@@ -143,7 +149,7 @@ public abstract class Instance {
                 (s.rotx + rot) % 360, s.roty, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity, s.onTrack, s.rIndex));
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
     }
     
     @Deprecated
@@ -157,7 +163,7 @@ public abstract class Instance {
                 s.rotx, (s.roty + rot) % 360, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity, s.onTrack, s.rIndex));
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
     }
 
     @Deprecated
@@ -171,7 +177,7 @@ public abstract class Instance {
                 s.rotx, s.roty, (s.rotz + rot) % 360,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity, s.onTrack, s.rIndex));
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
     }
 
     @Deprecated
@@ -188,7 +194,7 @@ public abstract class Instance {
                 s.rotx, s.roty, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity, s.onTrack, s.rIndex));
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
     }
 
     /**
