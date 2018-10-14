@@ -20,6 +20,8 @@ uniform int time;
 
 uniform mat4 shadowMatrix;
 
+const float shadowDistance = 300;
+const float dist = 10;
 
 void main(void) {
 
@@ -30,4 +32,10 @@ void main(void) {
     normalVector = (modelMatrix * vec4(normal,0.0)).xyz;
     toLight = lightPosition - pos.xyz;
     gl_Position = projectionMatrix * viewMatrix * pos;
+
+    vec4 viewPos = viewMatrix * pos;
+    float lengthToCamera = length(viewPos.xyz);
+    lengthToCamera = lengthToCamera - (shadowDistance - dist);
+    lengthToCamera = lengthToCamera / dist;
+    shadowTextureCoords.w = clamp(1.0-lengthToCamera, 0.0, 1.0);
 }

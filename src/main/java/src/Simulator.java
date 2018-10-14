@@ -130,7 +130,7 @@ public class Simulator
 
         addToGamestate(PLAYER, car2, new Vector3f(0,2,-4), 3, 0, 180, 0, -90, new TextureImg(5, 3f), null, null);
 
-        addLight(new Vector3f(10000f, 50000f, 0f),
+        addLight(new Vector3f(30000f, 50000f, 1f),
                 new Vector3f(1f, 1f, 1f));
 
         addGUI(new TextureImg(gl,"test_icon.png"),

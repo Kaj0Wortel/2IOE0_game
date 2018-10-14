@@ -9,7 +9,7 @@ import src.GS;
 
 public class ShadowRenderer {
 
-    private static final int shadowMapSize = 2048;
+    private static final int shadowMapSize = 4096;
 
     private ShadowShader shadowShader;
     public FrustrumBox frustrumBox;
@@ -23,7 +23,7 @@ public class ShadowRenderer {
     }
 
     public void render(GL3 gl){
-        frustrumBox.calculateBoundingBox();
+        frustrumBox.calculateBoundingBox2();
         shadowFBO.bindFrameBuffer(gl);
         gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
         shadowShader.start(gl);
