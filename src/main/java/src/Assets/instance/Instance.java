@@ -1,6 +1,7 @@
 package src.Assets.instance;
 
 import com.jogamp.opengl.GL3;
+import java.util.Observable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.GraphicsObject;
@@ -17,10 +18,10 @@ import src.tools.PosHitBox3f;
 
 import javax.swing.*;
 import java.util.Set;
-import src.tools.MultiTool;
 
 
-public abstract class Instance {
+public abstract class Instance
+        extends Observable {
     
     /**
      * State class for instance variables.
@@ -252,6 +253,9 @@ public abstract class Instance {
         state.box.setRoty(state.roty + state.internRoty);
         state.box.setRotz(state.rotz + state.internRotz);
         this.state = state;
+        
+        setChanged();
+        notifyObservers(state);
     }
     
     /**

@@ -255,6 +255,7 @@ public class Simulator
                 GS.player = (Car) cubeInstance;
                 GS.cars.add((Car) cubeInstance);
                 GS.addMaterialAsset(cubeInstance);
+                GS.camera.setFocus(GS.player);
                 break;
             }
             case OTHER:{
