@@ -15,14 +15,13 @@ import src.Shaders.RacetrackShader;
 import src.Simulator;
 import src.shadows.ShadowRenderer;
 
-import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
-import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
 import static com.jogamp.opengl.GL2ES2.GL_SHADING_LANGUAGE_VERSION;
 
 // Own imports
 
 
-public class Renderer implements GLEventListener {
+public class Renderer
+        implements GLEventListener {
 
     private Simulator simulator;
     private GL3 gl;
@@ -54,6 +53,8 @@ public class Renderer implements GLEventListener {
     public void init(GLAutoDrawable glAutoDrawable) {
         this.gl = glAutoDrawable.getGL().getGL3();
         this.glu = new GLU();
+        
+        gl.glViewport(0, 0, GS.WIDTH, GS.HEIGHT);
 
         System.out.println(gl.glGetString(GL_SHADING_LANGUAGE_VERSION));
 
@@ -67,11 +68,12 @@ public class Renderer implements GLEventListener {
         terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
         itemRenderer = new ItemRenderer(gl, projectionMatrix);
         guiRenderer = new GUIRenderer(gl);
-        shadowRenderer = new ShadowRenderer(gl,fov,NEAR,FAR,width,height);
+        shadowRenderer = new ShadowRenderer(gl, fov, NEAR, FAR, width, height);
         GS.getTrack().setShadowMap(shadowRenderer.getDepthTexture());
 
         RacetrackShader racetrackShader = new RacetrackShader(gl);
-        GS.getTrack().setShaderAndRenderMatrices(racetrackShader, projectionMatrix, GS.camera.getViewMatrix());
+        GS.getTrack().setShaderAndRenderMatrices(racetrackShader, projectionMatrix,
+                GS.camera.getViewMatrix());
 
         gl.glEnable(GL3.GL_DEPTH_TEST);
     }
@@ -83,9 +85,10 @@ public class Renderer implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
+        //gl.glViewport(0, 0, GS.canvas.getWidth(), GS.canvas.getHeight());
         shadowRenderer.render(gl);
 
-        gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        gl.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_COLOR_BUFFER_BIT);
         gl.glClearColor(1f, 1f, 1f, 1f);
 
         gl.glEnable(GL3.GL_CULL_FACE);
@@ -109,8 +112,9 @@ public class Renderer implements GLEventListener {
     }
 
     @Override
-    public void reshape(GLAutoDrawable glAutoDrawable, int i, int i1, int i2, int i3) {
-
+    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y,
+            int width, int height) {
+        
     }
 
     private void getProjectionMatrix(){

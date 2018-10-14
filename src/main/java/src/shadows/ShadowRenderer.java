@@ -9,39 +9,42 @@ import src.GS;
 
 public class ShadowRenderer {
 
-    private static final int shadowMapSize = 4096;
+    final private static int SHADOW_MAP_SIZE = 4096;
 
     private ShadowShader shadowShader;
     public FrustrumBox frustrumBox;
     private ShadowFBO shadowFBO;
-
-    public ShadowRenderer(GL3 gl, float FOV, float NEAR, float FAR, float width, float height){
+    
+    
+    public ShadowRenderer(GL3 gl, float fov, float near, float far,
+            float width, float height) {
         shadowShader = new ShadowShader(gl);
-        shadowFBO = new ShadowFBO(gl, shadowMapSize, shadowMapSize);
-        frustrumBox = new FrustrumBox(FOV, NEAR, FAR, width, height);
+        shadowFBO = new ShadowFBO(gl, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
+        frustrumBox = new FrustrumBox(fov, near, far, width, height);
 
     }
-
-    public void render(GL3 gl){
+    
+    
+    public void render(GL3 gl) {
         frustrumBox.calculateBoundingBox();
         shadowFBO.bindFrameBuffer(gl);
         gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
         shadowShader.start(gl);
 
-        gl.glEnable(gl.GL_DEPTH_TEST);
+        gl.glEnable(GL3.GL_DEPTH_TEST);
 
         shadowShader.loadProjectionMatrix(gl,frustrumBox.getOrthographicProjectionMatrix());
         shadowShader.loadViewMatrix(gl, frustrumBox.getLightViewMatrix());
 
-        for(Instance asset : GS.getAssets()){
+        for(Instance asset : GS.getAssets()) {
             asset.draw(gl, shadowShader);
         }
 
-        for(Instance item : GS.getItems()){
+        for(Instance item : GS.getItems()) {
             item.draw(gl, shadowShader);
         }
 
-        for(Instance asset : GS.getMaterialAssets()){
+        for(Instance asset : GS.getMaterialAssets()) {
             asset.draw(gl, shadowShader);
         }
 
@@ -51,11 +54,11 @@ public class ShadowRenderer {
         shadowFBO.unbindFrameBuffer(gl);
     }
 
-    public int getDepthTexture(){
+    public int getDepthTexture() {
         return shadowFBO.getDepthAttachment().get(0);
     }
 
-    public Matrix4f getShadowMatrix(){
+    public Matrix4f getShadowMatrix() {
         Matrix4f shadowMatrix = new Matrix4f();
         shadowMatrix.mul(offsetMatrox());
         shadowMatrix.mul(frustrumBox.getOrthographicProjectionMatrix());
@@ -65,8 +68,8 @@ public class ShadowRenderer {
 
     private Matrix4f offsetMatrox(){
         Matrix4f offset = new Matrix4f();
-        offset.translate(new Vector3f(0.5f,0.5f,0.5f));
-        offset.scale(new Vector3f(0.5f,0.5f,0.5f));
+        offset.translate(new Vector3f(0.5f, 0.5f, 0.5f));
+        offset.scale(new Vector3f(0.5f, 0.5f, 0.5f));
         return offset;
     }
 }

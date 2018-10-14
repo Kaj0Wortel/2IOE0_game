@@ -59,6 +59,7 @@ import java.util.logging.LogManager;
 // JInput imports
 import net.java.games.input.ContrlEnv;
 import net.java.games.input.ControllerEnvironment;
+import src.gui.ScaleCanvas;
 
 
 /**
@@ -154,16 +155,16 @@ public class GS {
     private static Map<KeyAction, List<ControllerKey>> keyMap = new HashMap<>();
     private static Simulator simulator;
     private static Renderer renderer;
-    private static GLCanvas canvas;
+    public static GLCanvas canvas;
     private static FPSAnimator animator;
     private static Track raceTrack;
     private static Skybox skybox;
-
+    
     public static List<Car> cars = new ArrayList<>();
     public static Car player;
-
-    public static int width = 1080;
-    public static int height = 720;
+    
+    public static int WIDTH = 1080;
+    public static int HEIGHT = 720;
     
     
     
@@ -241,10 +242,10 @@ public class GS {
         Locker.add(cameraController);
 
         simulator = new Simulator();
-        renderer = new Renderer(simulator, width, height);
+        renderer = new Renderer(simulator, WIDTH, HEIGHT);
 
         canvas.addGLEventListener(renderer);
-        canvas.setSize(1080, 720);
+        canvas.setSize(WIDTH, HEIGHT);
 
         animator.start();
         renderer.cleanup();
