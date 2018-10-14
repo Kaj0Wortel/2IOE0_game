@@ -21,11 +21,11 @@ import java.util.List;
  */
 public class Main {
     
-    final private static boolean SKIP_INTRO = true;
+    final private static boolean SKIP_INTRO = false;
     
     public static void main(String[] args) {
         GS.init();
-        if (!SKIP_INTRO) {
+        if (SKIP_INTRO) {
             GS.startRendering();
         }
         

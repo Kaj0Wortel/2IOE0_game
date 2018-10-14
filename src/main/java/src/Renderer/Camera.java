@@ -209,5 +209,21 @@ public class Camera {
         this.yaw %= 360;
 
     }
+
+    public Matrix4f getViewMatrixInverse(){
+        Matrix4f viewMatrixRotation = new Matrix4f();
+        viewMatrixRotation.rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0));
+        viewMatrixRotation.rotate((float) Math.toRadians(yaw), new Vector3f(0, 1, 0));
+        viewMatrixRotation.rotate((float) Math.toRadians(roll), new Vector3f(0, 0, 1));
+        viewMatrixRotation.transpose();
+
+        Matrix4f viewMatrixTranslation = new Matrix4f();
+        viewMatrixTranslation.translate(new Vector3f(position.x, position.y, position.z));
+
+        Matrix4f result = new Matrix4f();
+        viewMatrixTranslation.mul(viewMatrixRotation, result);
+
+        return result;
+    }
     
 }

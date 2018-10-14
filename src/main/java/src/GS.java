@@ -7,13 +7,15 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
-import net.java.games.input.ContrlEnv;
-import net.java.games.input.ControllerEnvironment;
 import org.joml.Vector3f;
+
+
+// Own imports
 import src.Assets.GUI;
 import src.Assets.Light;
 import src.Assets.instance.Car;
 import src.Assets.instance.Instance;
+import src.Assets.instance.Item;
 import src.Assets.skybox.Skybox;
 import src.Controllers.CameraController;
 import src.Controllers.PlayerController;
@@ -24,6 +26,7 @@ import src.grid.Grid;
 import src.gui.MainPanel;
 import src.racetrack.Track;
 import src.tools.event.ControllerKey;
+import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
 import src.tools.event.ControllerKeyDetector;
 import src.tools.event.Key;
 import src.tools.event.keyAction.CameraKeyAction;
@@ -32,10 +35,18 @@ import src.tools.event.keyAction.KeyAction;
 import src.tools.event.keyAction.PlayerKeyAction;
 import src.tools.font.FontLoader;
 import src.tools.io.BufferedReaderPlus;
+import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
+import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 import src.tools.io.ImageManager;
-import src.tools.log.*;
+import src.tools.log.FileLogger;
+import src.tools.log.Logger;
+import src.tools.log.MultiLogger;
+import src.tools.log.ScreenLogger;
+import src.tools.log.ThreadLogger;
 import src.tools.update.Updater;
 
+
+// Java imports
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -44,14 +55,10 @@ import java.util.*;
 import java.util.List;
 import java.util.logging.LogManager;
 
-import src.Assets.instance.Item;
-import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
-import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
-import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 
-// Own imports
-// Java imports
 // JInput imports
+import net.java.games.input.ContrlEnv;
+import net.java.games.input.ControllerEnvironment;
 
 
 /**
@@ -93,7 +100,11 @@ public class GS {
     /** Whether to disable the logging by {@link java.util.logging.Logger}. */
     final private static boolean DISABLE_JAVA_LOGGING = true;
     
+    /** The amount of user controlled players. */
     final public static int MAX_PLAYERS = 1;
+    
+    /** Random number generator. */
+    final public static Random r = new Random();
     
     /** Handy file paths. */
     final public static String WORKING_DIR = System.getProperty("user.dir")
@@ -125,8 +136,8 @@ public class GS {
     final private static List<Light> lights = new ArrayList<>();
     final private static List<GUI> guis = new ArrayList<>();
     final private static List<Item> items = new ArrayList<>();
-
-
+    
+    
     /**-------------------------------------------------------------------------
      * Variables.
      * -------------------------------------------------------------------------
@@ -149,7 +160,7 @@ public class GS {
     private static Skybox skybox;
 
     public static List<Car> cars = new ArrayList<>();
-    public static Instance player;
+    public static Car player;
 
     public static int width = 1080;
     public static int height = 720;
@@ -221,7 +232,7 @@ public class GS {
         GS.mainPanel.showSwitchPanel(false);
         GS.mainPanel.add(canvas);
         
-        grid = new Grid(0f, 0f, -1000f, 4f, 4f, 2000f);
+        grid = new Grid(0f, 0f, -10_000f, 20f, 20f, 20_000f);
 
         animator = new FPSAnimator(canvas, 60, true);
 
@@ -563,6 +574,10 @@ public class GS {
 
     public static void addItem(Item item){
         items.add(item);
+    }
+    
+    public static void removeItem(Item item) {
+        items.remove(item);
     }
 
     public static void addMaterialAsset(Instance asset) {

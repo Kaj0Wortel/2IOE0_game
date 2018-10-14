@@ -6,6 +6,7 @@ import org.joml.Vector3f;
 import src.Assets.TextureImg;
 import src.GS;
 import src.Shaders.RacetrackShader;
+import src.shadows.ShadowShader;
 
 import java.nio.IntBuffer;
 
@@ -24,6 +25,7 @@ public abstract class Track {
     protected int nrV;
     protected TextureImg texture;
     protected TextureImg bumpmap;
+    protected int shadowMap;
 
     protected RacetrackShader shader;
     protected Matrix4f projectionMatrix;
@@ -45,6 +47,7 @@ public abstract class Track {
     public abstract Vector3f getTangent(int segment, float t);
     public abstract int getSize();
     public abstract int getWidth();
+    public abstract void setShadowMap(int shadowMap);
 
     public void setControlPoints(Vector3f[] controlPoints){
         this.controlPoints = controlPoints;
@@ -71,8 +74,9 @@ public abstract class Track {
         return nrOfSegments;
     }
 
-    public void draw(GL3 gl){
+    public void draw(GL3 gl, Matrix4f shadowMatrix){
         prepare(gl);
+        shader.loadShadowMatrix(gl, shadowMatrix);
 
         gl.glBindVertexArray(vao.get(0));
         gl.glEnableVertexAttribArray(0);
@@ -128,8 +132,24 @@ public abstract class Track {
         gl.glActiveTexture(GL3.GL_TEXTURE0);
         gl.glBindTexture(GL3.GL_TEXTURE_2D, texture.getTexture());
         gl.glActiveTexture(GL3.GL_TEXTURE1);
-        gl.glBindTexture(GL3.GL_TEXTURE_2D,bumpmap.getTexture());
+        gl.glBindTexture(GL3.GL_TEXTURE_2D, bumpmap.getTexture());
+        gl.glActiveTexture(GL3.GL_TEXTURE2);
+        gl.glBindTexture(GL3.GL_TEXTURE_2D, shadowMap);
     }
-    
-    
+
+    public void draw(GL3 gl, ShadowShader shader){
+        prepare(gl, shader);
+
+        gl.glBindVertexArray(vao.get(0));
+        gl.glEnableVertexAttribArray(0);
+        gl.glDrawElements(GL3.GL_TRIANGLES, nrV,
+                GL3.GL_UNSIGNED_INT, 0);
+        gl.glDisableVertexAttribArray(0);
+
+        gl.glBindVertexArray(0);
+    }
+
+    private void prepare(GL3 gl, ShadowShader shader){
+        shader.loadModelMatrix(gl, getTransformationMatrix());
+    }
 }

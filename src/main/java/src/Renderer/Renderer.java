@@ -13,6 +13,7 @@ import src.Controllers.PlayerController;
 import src.GS;
 import src.Shaders.RacetrackShader;
 import src.Simulator;
+import src.shadows.ShadowRenderer;
 
 import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
 import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
@@ -41,6 +42,7 @@ public class Renderer implements GLEventListener {
     private MaterialRenderer materialRenderer;
     private ItemRenderer itemRenderer;
     private GUIRenderer guiRenderer;
+    private ShadowRenderer shadowRenderer;
 
     public Renderer(Simulator simulator, float width, float height){
         this.simulator = simulator;
@@ -65,6 +67,8 @@ public class Renderer implements GLEventListener {
         terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
         itemRenderer = new ItemRenderer(gl, projectionMatrix);
         guiRenderer = new GUIRenderer(gl);
+        shadowRenderer = new ShadowRenderer(gl,fov,NEAR,FAR,width,height);
+        GS.getTrack().setShadowMap(shadowRenderer.getDepthTexture());
 
         RacetrackShader racetrackShader = new RacetrackShader(gl);
         GS.getTrack().setShaderAndRenderMatrices(racetrackShader, projectionMatrix, GS.camera.getViewMatrix());
@@ -79,6 +83,8 @@ public class Renderer implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
+        shadowRenderer.render(gl);
+
         gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         gl.glClearColor(1f, 1f, 1f, 1f);
 
@@ -95,8 +101,8 @@ public class Renderer implements GLEventListener {
         terrainRenderer.render(gl);
         itemRenderer.render(gl);
 
-        gl.glDisable(gl.GL_CULL_FACE);
-        GS.getTrack().draw(gl);
+        gl.glDisable(GL3.GL_CULL_FACE);
+        GS.getTrack().draw(gl, shadowRenderer.getShadowMatrix());
         GS.getSkybox().draw(gl, projectionMatrix);
         guiRenderer.render(gl);
 
