@@ -45,16 +45,16 @@ void main() {
     tex.x -= floor(tex.x);
 
     vec2 normalTex = texPass;
-    bool normalMapping = false;
+    bool normalMapping = true;
     vec3 unitNormal;
     if(normalMapping){
-        normalTex.x *= 30;
+        normalTex.x *= 10;
         normalTex.x -= floor(normalTex.x);
-        normalTex.y *= 3;
+        normalTex.y *= 2;
         normalTex.y -= floor(normalTex.y);
 
-        if(0.1 < tex.y && tex.y < 0.9){
-            unitNormal = normalize(texture(bumpmap,normalTex).rgb * 2.0 - 1.0);
+        if(0.15 < tex.y && tex.y < 0.85){
+            unitNormal = reflect(normalize(texture(bumpmap,normalTex).rgb * 2.0 - 1.0), normalize(normalVector));
         }else{
             unitNormal = normalize(normalVector);
         }

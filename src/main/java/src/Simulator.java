@@ -139,7 +139,7 @@ public class Simulator
                 new Vector2f(-0.5f, -0.5f), new Vector2f(0.25f, 0.25f));
 
         addToGamestate(TRACK, null, new Vector3f(0,1,-5), 3, 0,0,0, 0, new TextureImg(gl,"rainbow_road.png"),
-                new TextureImg(gl, "road_normal.png"), null);
+                new TextureImg(gl, "tileNormalMap.png"), null);
 
         addSkybox();
         
