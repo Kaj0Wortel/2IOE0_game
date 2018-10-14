@@ -4,12 +4,15 @@
 in vec3 normalVector;
 in vec3 toLight;
 in vec3 toCamera;
+in vec2 texPass;
 
 layout(location = 0) out vec4 color;
 
 uniform vec3 lightColor;
 uniform float shininess;
 uniform float reflectivity;
+
+uniform sampler2D itemTexture;
 
 void main() {
     vec3 unitNormal = normalize(normalVector);
@@ -27,5 +30,5 @@ void main() {
     vec3 specular = dotSpec * reflectivity * lightColor;
 
 
-	color = vec4(change,1.0) * vec4(1.0,0.0,0.0,1.0) + vec4(specular,1.0);
+	color = vec4(change,1.0) * texture(itemTexture, texPass) + vec4(specular,1.0);
 }

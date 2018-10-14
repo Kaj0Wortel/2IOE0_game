@@ -116,14 +116,14 @@ public class Simulator
         }*/
         
 
-        addToGamestate(ITEM, col, new Vector3f(0f, -115f, 540f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(-10f, -115f, 540f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(10f, -115f, 540f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1015f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1025f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1035f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(80f, -52f, -5f), 1, 45, 45, 45, 0, new TextureImg(5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(-40f,-52f, 30f), 1, 45, 45, 45, 0, new TextureImg(5,0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(0f, -115f, 540f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(-10f, -115f, 540f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(10f, -115f, 540f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1015f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1025f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1035f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(80f, -52f, -5f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(-40f,-52f, 30f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
 
         addToGamestate(OTHER, sp, new Vector3f(0f, -60f, 500f), 4, 0, -90, 0, 0, new TextureImg(5, 0.5f), null, null);
 
@@ -185,7 +185,7 @@ public class Simulator
                     //box.setPosKeepHitBox();
                     box.translate(position);
                     cubeInstance = new PickupItem(box,
-                            size, rotx, roty, rotz, texturedCube,
+                            5*size, rotx, roty, rotz, texturedCube,
                             integratedRotation, new PhysicsContext());
                     GS.addItem((Item) cubeInstance);
                 }

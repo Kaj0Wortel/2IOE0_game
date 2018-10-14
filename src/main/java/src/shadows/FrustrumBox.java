@@ -19,7 +19,6 @@ public class FrustrumBox {
     private float windowHeight;
 
     private float SHADOW_DISTANCE = 300;
-    private float nearHeight, nearWidth, farHeight, farWidth;
 
     public FrustrumBox(float FOV, float NEAR, float FAR, float windowWidth, float windowHeight){
         this.FOV = FOV;
