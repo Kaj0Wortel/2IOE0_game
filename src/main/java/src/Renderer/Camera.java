@@ -4,12 +4,15 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
-import src.Renderer.Renderer;
 
 import static java.lang.Float.max;
 import static java.lang.Math.signum;
+import java.util.Observable;
+import java.util.Observer;
+import src.GS;
 
-public class Camera {
+public class Camera
+        implements Observer {
     private Vector3f position;
     private float pitch;
     private float yaw;
@@ -66,12 +69,12 @@ public class Camera {
     }
     
     @Deprecated
-    public void yawLeft(){
+    public void yawLeft() {
         yaw(-5f);
     }
     
     @Deprecated
-    public void yawRight(){
+    public void yawRight() {
         yaw(5f);
     }
     
@@ -93,7 +96,7 @@ public class Camera {
     }
         
     @Deprecated
-    public void moveBackwards(){
+    public void moveBackwards() {
         move(-1.0f);
     }
     
@@ -105,17 +108,34 @@ public class Camera {
         this.position = new Vector3f(position);
     }
     
-    public void setFocus(Instance instance){
-        previousPosition = new Vector3f(position);
+    public void setFocus(Instance instance) {
+        if (instance == null || instance.equals(focusedOn)) return;
+        if (focusedOn != null) {
+            focusedOn.deleteObserver(this);
+            previousPosition = new Vector3f(position);
+        }
         focusedOn = instance;
         onPlayer = true;
         position = new Vector3f(instance.getPosition());
         pitch = 20;
+        instance.addObserver(this);
+    }
+    
+    public void removeFocus() {
+        if (focusedOn != null) {
+            focusedOn.deleteObserver(this);
+            focusedOn = null;
+        }
+        onPlayer = false;
+        position = new Vector3f(previousPosition);
+        this.yaw = 0;
+        this.pitch = 0;
+        this.roll = 0;
     }
 
     public void rubberBand(){
         boolean turned = false;
-        if(focusedOn == null && rubberBandEnabled){
+        if(focusedOn == null && rubberBandEnabled) {
 
         } else {
             angleAroundAsset *=-1;
@@ -154,15 +174,6 @@ public class Camera {
 
     public void speedFOV(){
         Renderer.changeFOV(fovVelocityFactor * focusedOn.getState().velocity);
-    }
-    
-    public void removeFocus() {
-        focusedOn = null;
-        onPlayer = false;
-        position = new Vector3f(previousPosition);
-        this.yaw = 0;
-        this.pitch = 0;
-        this.roll = 0;
     }
     
     public boolean isOnPlayer() {
@@ -225,5 +236,15 @@ public class Camera {
 
         return result;
     }
+    
+    @Override
+    public void update(Observable o, Object arg) {
+        if (!(o instanceof Instance) ||
+                !(arg instanceof State)) return;
+        Instance source = (Instance) o;
+        State s = (State) arg;
+        calculateInstanceValues();
+    }
+    
     
 }

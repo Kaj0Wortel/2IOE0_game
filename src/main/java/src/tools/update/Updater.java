@@ -26,10 +26,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.SwingUtilities;
-import src.Assets.instance.Instance;
 import src.Controllers.CameraController;
 import src.GS;
 import src.Physics.Physics;
+import src.tools.MultiTool;
 import src.tools.MultiTool.RandomIterator;
 import src.tools.update.CollisionManager.Collision;
 import src.tools.update.CollisionManager.Entry;
@@ -44,8 +44,8 @@ public class Updater {
     // The number of available threads. The {@code -1} is because the
     // graphics part also needs one thread. Other (mainly sleeping or waiting)
     // scheduleTask threads from other classes are ignored.
-    final private static int NUM_THREADS = Runtime.getRuntime()
-            .availableProcessors() - 1;
+    final private static int NUM_THREADS = Math.max(1, Runtime.getRuntime()
+            .availableProcessors() - 1);
     final private static Set<Updateable> updateSet = new HashSet<>();
     final private static List<UpdateThread> updateThreads = new ArrayList<>();
     
@@ -156,10 +156,10 @@ public class Updater {
 
                 } else {
                     Logger.write(
-                            "Wrong distribution amoung update threads!",
+                            "Wrong distribution among update threads!",
                             Logger.Type.WARNING);
                 }
-
+                
                 // Reset counter and scheduleTask list for
                 // the next iteration.
                 tasks = new ArrayList<>();
@@ -179,7 +179,6 @@ public class Updater {
         for (UpdateThread thread : updateThreads) {
             thread.waitUntilDone();
         }
-        
         
         /** Update Camera. */
         CameraController camContr = GS.cameraController;

@@ -33,34 +33,26 @@ public class CameraController
     
     @Override
     public PStructAction controlUpdate(long dt) {
-        if (!GS.camera.isOnPlayer()) {
-            for (CameraKeyAction action : cameraActions) {
-                List<ControllerKey> keys = GS.getKeys(action);
-                if (keys == null) continue;
-                
-                if (GS.keyDet.werePressed(keys)) {
-                    if (action.getAction() == CameraMovementAction.LEFT) {
-                        camera.yaw(dt / 3f);
-                    }
-                    if (action.getAction() == CameraMovementAction.RIGHT) {
-                        camera.yaw(dt / 3f);
-                    }
-                    if (action.getAction() == CameraMovementAction.FORWARD) {
-                        camera.move(dt / 16f);
-                    }
-                    if (action.getAction() == CameraMovementAction.BACKWARD) {
-                        camera.move(dt / 16f);
-                    }
+        if (camera.isOnPlayer()) return null;
+        
+        for (CameraKeyAction action : cameraActions) {
+            List<ControllerKey> keys = GS.getKeys(action);
+            if (keys == null) continue;
+
+            if (GS.keyDet.werePressed(keys)) {
+                if (action.getAction() == CameraMovementAction.LEFT) {
+                    camera.yaw(dt / 3f);
+                }
+                if (action.getAction() == CameraMovementAction.RIGHT) {
+                    camera.yaw(dt / 3f);
+                }
+                if (action.getAction() == CameraMovementAction.FORWARD) {
+                    camera.move(dt / 16f);
+                }
+                if (action.getAction() == CameraMovementAction.BACKWARD) {
+                    camera.move(dt / 16f);
                 }
             }
-        }
-        
-        if (!camera.isOnPlayer() && GS.player != null) {
-            camera.setFocus(GS.player);
-        }
-        
-        if (camera.isOnPlayer()) {
-            camera.calculateInstanceValues();
         }
         
         return null;

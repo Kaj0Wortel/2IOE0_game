@@ -249,7 +249,6 @@ public class Physics {
                 } else {
                     // Full or single static collisions are handled here.
                     if (instance instanceof Item) {
-                        System.out.println("hit item!");
                         ((Item) instance).physicsAtCollision(
                                 source, pStruct, modPC, s);
                     }
@@ -534,7 +533,6 @@ public class Physics {
             if (s.inAir || !s.onTrack)  {
                 s.verticalVelocity += pc.gravity * dt;
                 ePos.z += deltaZ;
-                System.out.println("Falling");
             }
             // When bouncing on the ground
             else if (Math.abs(s.verticalVelocity) > 0.01 && s.onTrack) {
@@ -617,7 +615,6 @@ public class Physics {
             finalRot = (float)((-(finalRot - Math.PI/2) + Math.PI*2) % (Math.PI*2));
             float diffRot = (float)(finalRot - ((s.roty)%(Math.PI*2)));
             eRot = (float)(s.roty + 0.1*diffRot);
-            System.out.println(s.roty%(Math.PI*2));
             // Intermediate vertical
             double y = normals[resetInd].y;
             double x = normals[resetInd].x;
@@ -659,7 +656,7 @@ public class Physics {
         Entry e2 = col.getEntry2();
         
         // TODO: do stuff with the entries.
-        System.out.println("Collision occured");
+        //System.out.println("Collision occured");
     }
     
     /**
@@ -677,7 +674,7 @@ public class Physics {
         calcPhysics(entry.inst, entry.pStruct, entry.mpc.createContext(),
                 entry.ms, entry.progress);
         entry.inst.setState(entry.ms.createState());
-        System.out.println("Entry wants to calculate physics");
+        //System.out.println("Entry wants to calculate physics");
     }
     
     /**

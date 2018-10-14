@@ -41,7 +41,7 @@ public class ItemController
         Vector3f p1 = is.box.pos();
         Vector3f p2 = ts.box.pos();
         Vector2f targetDir = new Vector2f(p2.x - p1.x, p2.z - p1.z);
-        Vector2f defaultDir = new Vector2f(0, 1);
+        Vector2f defaultDir = new Vector2f(0, -1);
         float targetRot = (float) Math.acos(targetDir.dot(defaultDir) /
                 (targetDir.length() * defaultDir.length()));
         if (targetDir.x < 0) targetRot = -targetRot;

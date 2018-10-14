@@ -15,6 +15,7 @@ import src.Shaders.ShaderProgram;
 import src.shadows.ShadowShader;
 import src.tools.PosHitBox3f;
 import src.tools.log.Logger;
+import tools.observer.HashObservableInterface;
 
 // Java imports
 
@@ -63,7 +64,7 @@ public class Car
             gl.glBindVertexArray(0);
         }
     }
-
+    
     @Override
     public void draw(GL3 gl, ShadowShader shader) {
         for(GraphicsObject obj : model.getAsset()){
