@@ -493,6 +493,30 @@ public class GS {
      * -------------------------------------------------------------------------
      */
     /**
+     * Generates a random integer.
+     * 
+     * @param down the lowest value that might be returned.
+     * @param up the highest value that might be returned.
+     * @return a random integer between {@code down} (inclusive) and
+     *     {@code up} (inclusive).
+     */
+    public static int rani(int down, int up) {
+        return GS.R.nextInt(up - down+1) + down;
+    }
+    
+    /**
+     * Generates a random number.
+     * 
+     * @param down the lowest value that might be returned.
+     * @param up the highest value that might be returned.
+     * @return a random float between {@code down} (inclusive) and
+     *     {@code up} (inclusive).
+     */
+    public static float ranf(float down, float up) {
+        return GS.R.nextFloat() * (up - down) - down;
+    }
+    
+    /**
      * @return the current fps rate.
      */
     public static double getFPS() {

@@ -183,11 +183,11 @@ public class Simulator
 
         int range = 1000;
         for(int i = 0; i < 1000; i++){
-            addRock(rocks.get(ran(0, 3)), new Vector3f(
-                    ran(-range, range),
-                    ran(-range, range),
-                    ran(-range, range)
-            ), ran(1, 8), ran(0, 90), ran(0, 90), ran(0, 90), 0,
+            addRock(rocks.get(GS.rani(0, 3)), new Vector3f(
+                    GS.rani(-range, range),
+                    GS.rani(-range, range),
+                    GS.rani(-range, range)
+            ), GS.rani(1, 8), GS.rani(0, 90), GS.rani(0, 90), GS.rani(0, 90), 0,
             new TextureImg(5, 3f));
         }
 
@@ -348,20 +348,9 @@ public class Simulator
         box.translate(position);
         Instance cubeInstance = new MaterialInstance(box,
                 size, rotx, roty, rotz, texturedCube,
-                integratedRotation, new PhysicsContext());
+                integratedRotation, new PhysicsContext(),
+                MaterialInstance.Type.SPACE_ROCK);
         GS.addMaterialAsset(cubeInstance);
-    }
-
-    /**
-     * Generates a random number using the random generator i@link GS}.
-     * 
-     * @param down the lowest value that might be returned.
-     * @param up the highest value that might be returned.
-     * @return a random integer between {@code down} (inclusive) and
-     *     {@code up} (inclusive).
-     */
-    private int ran(int down, int up) {
-        return GS.R.nextInt(up - down+1) + down;
     }
     
     
