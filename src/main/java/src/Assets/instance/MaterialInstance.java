@@ -20,7 +20,7 @@ import src.tools.update.Updater;
  * 
  */
 public class MaterialInstance
-        extends GridItemInstance
+        extends Instance
         implements Updateable {
     
     public static enum Type {
@@ -40,11 +40,11 @@ public class MaterialInstance
                 physicConst);
         this.type = type;
         
-        if (GS.R.nextFloat() < 0.5) {
+        //if (GS.R.nextFloat() < 0.5) {
             SwingUtilities.invokeLater(() -> {
                 Updater.addTask(this);
             });
-        }
+        //}
     }
     
     @Override

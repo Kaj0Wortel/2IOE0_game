@@ -139,7 +139,7 @@ public class Renderer
     }
 
     public static void changeFOV(float fovOffset){
-        fov = 70 + fovOffset;
+        fov = 70 + fovOffset/1.3f;
         fovChange = true;
         //System.out.println("fov Change " + fov);
     }

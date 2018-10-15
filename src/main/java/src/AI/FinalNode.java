@@ -2,19 +2,21 @@ package src.AI;
 
 // Java imports
 import java.awt.geom.Point2D;
+import src.Assets.instance.Instance.State;
 import src.tools.MultiTool;
 
 public class FinalNode {
     
         public Point2D.Double pos;  // Node position
-    public double v;            // position velocity
-    public double a;            // position acceleration: -max, 0, max
-    public double rot;          // Rotation: east = 0, north = pi/2
-    public double rotV;         // Rotation velocity: -max,0,max
-    public double vertV;        // vertical velocity
+    //public double v;            // position velocity
+    //public double a;            // position acceleration: -max, 0, max
+    //public double rot;          // Rotation: east = 0, north = pi/2
+    //public double rotV;         // Rotation velocity: -max,0,max
+    //public double vertV;        // vertical velocity
     public double g;            // Distance from start (known)
     public double h;            // Distance to target (calculated)
     public int nextCP;          // currently travelling to CP(nextCP*2, nextCP*2 + 1)
+    public State state;         // 
     public FinalNode parentNode;// Parent node position
 
        
@@ -32,18 +34,19 @@ public class FinalNode {
      * @param newNextCP
      * @param newParentNode 
      */
-    public FinalNode (Point2D.Double newPos, double newV, double newA,
-            double newRot, double newRotV, double newVertV, double newG, 
-            double newH, int newNextCP, FinalNode newParentNode) {
+    public FinalNode (Point2D.Double newPos, /*double newV, double newA,
+            double newRot, double newRotV, double newVertV,*/ double newG, 
+            double newH, int newNextCP, State newState, FinalNode newParentNode) {
         pos = newPos;
-        v = newV;
-        a = newA;
-        rot  = newRot;
-        rotV = newRotV;
-        vertV = newVertV;
+        //v = newV;
+        //a = newA;
+        //rot  = newRot;
+        //rotV = newRotV;
+        //vertV = newVertV;
         g = newG;
         h = newH;
         nextCP = newNextCP;
+        state = newState;
         parentNode = newParentNode;
     }
     
@@ -64,11 +67,11 @@ public class FinalNode {
                             + arr.length + "!");
         
         pos = new Point2D.Double(arr[0], arr[1]);
-        v = arr[2];
-        a = arr[3];
-        rot = arr[4];
-        rotV = arr[5];
-        vertV = arr[6];
+        //v = arr[2];
+        //a = arr[3];
+        //rot = arr[4];
+        //rotV = arr[5];
+        //vertV = arr[6];
         g = arr[7];
         h = arr[8];
         nextCP = (int) arr[9];
@@ -85,11 +88,11 @@ public class FinalNode {
         return new double[] {
             pos.x,
             pos.y,
-            v,
-            a,
-            rot,
-            rotV,
-            vertV,
+            //v,
+            //a,
+            //rot,
+            //rotV,
+            //vertV,
             g,
             h,
             nextCP
@@ -102,11 +105,11 @@ public class FinalNode {
         if (!(obj instanceof FinalNode)) return false;
         FinalNode node = (FinalNode) obj;
         return pos.equals(node.pos) &&
-                v == node.v &&
-                a == node.a &&
-                rot == node.rot &&
-                rotV == node.rotV &&
-                vertV == node.vertV &&
+                //v == node.v &&
+                //a == node.a &&
+                //rot == node.rot &&
+                //rotV == node.rotV &&
+                //vertV == node.vertV &&
                 g == node.g &&
                 h == node.h &&
                 nextCP == node.nextCP;
@@ -116,11 +119,11 @@ public class FinalNode {
     public String toString() {
         return getClass().getSimpleName() + "["
                 + "pos=(" + pos.x + "," + pos.y + "),"
-                + "v=" + v
-                + "a=" + a
-                + "rot=" + rot
-                + "rotv=" + rotV
-                + "vertV=" + vertV
+                //+ "v=" + v
+                //+ "a=" + a
+                //+ "rot=" + rot
+                //+ "rotv=" + rotV
+                //+ "vertV=" + vertV
                 + "g=" + g
                 + "h=" + h
                 + "nextCP=" + nextCP
@@ -139,6 +142,6 @@ public class FinalNode {
      */
     @Override
     public int hashCode() {
-        return MultiTool.calcHashCode(pos, v, a, rot, rotV, vertV, g, h, nextCP);
+        return MultiTool.calcHashCode(pos, /*v, a, rot, rotV, vertV,*/ g, h, nextCP);
     }
 }

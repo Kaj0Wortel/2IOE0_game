@@ -127,12 +127,18 @@ public abstract class Instance
         Matrix4f transformationMatrix = new Matrix4f();
         transformationMatrix.identity();
         transformationMatrix.translate(s.box.pos());
-        transformationMatrix.rotate((float)
-                Math.toRadians(s.box.rotx()), 1, 0, 0);
-        transformationMatrix.rotate((float)
-                Math.toRadians(s.box.roty()), 0, 1, 0);
-        transformationMatrix.rotate((float)
-                Math.toRadians(s.box.rotz()), 0, 0, 1);
+        transformationMatrix
+                /*
+                .rotate((float) Math.toRadians(s.box.rotx()), 1, 0, 0)
+                .rotate((float) Math.toRadians(s.box.roty()), 0, 1, 0)
+                .rotate((float) Math.toRadians(s.box.rotz()), 0, 0, 1);
+                */
+                .rotate((float) Math.toRadians(s.rotx), 1, 0, 0)
+                .rotate((float) Math.toRadians(s.roty), 0, 1, 0)
+                .rotate((float) Math.toRadians(s.rotz), 0, 0, 1)
+                .rotate((float) Math.toRadians(s.internRotx), 1, 0, 0)
+                .rotate((float) Math.toRadians(s.internRoty), 0, 1, 0)
+                .rotate((float) Math.toRadians(s.internRotz), 0, 0, 1);
         transformationMatrix.scale(s.sizex, s.sizey, s.sizez);
         
         return transformationMatrix;
