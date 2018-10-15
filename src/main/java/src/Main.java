@@ -10,10 +10,6 @@ import src.tools.event.keyAction.CarKeyAction;
 import src.tools.event.keyAction.action.CarMovementAction;
 import src.tools.update.Updateable;
 
-import java.util.List;
-import src.AI.AINN;
-import src.AI.AINN.InstanceImpl;
-import src.tools.update.Updater;
 
 // Java imports
 import java.util.List;
@@ -33,8 +29,8 @@ public class Main {
         }
         
         // TMP
-        Updateable up = new TmpUpdateable(1);
-        Updater.addTask(up);
+        //Updateable up = new TmpUpdateable(1);
+        //Updater.addTask(up);
         //new AINN(new InstanceImpl());
     }
     
