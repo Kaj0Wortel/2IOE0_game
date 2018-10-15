@@ -142,6 +142,7 @@ public class FinalAStar {
         System.out.println("---------------A* Debug---------------");
         // <editor-fold defaultstate="collapsed" desc="VISUALS">
         // Visuals for obstacle/void locations
+        /*
         visual.setForeground(Color.DARK_GRAY);
         Point2D.Double point1 = new Point2D.Double(6,-2);
         Point2D.Double point2 = new Point2D.Double(6,-8);
@@ -168,7 +169,7 @@ public class FinalAStar {
             visual.setForeground(Color.CYAN);
             visual.addLine(new Point2D.Double(8,-5), new Point2D.Double(10,-5));
         // </editor-fold>
-            
+        */
         // Initialize open- and closed-list
         ArrayList<FinalNode> openlist = new ArrayList<>();
         ArrayList<FinalNode> closedlist = new ArrayList<>();
@@ -293,26 +294,19 @@ public class FinalAStar {
                         float acceleration = j;
                         float verticalVelocity = 0;
                         long dt = 16;
-                        float sVertV = 0;
                         System.out.println("turn: " + turn + ", acc: " + acceleration);
                         System.out.println("pos: " + instance.getState().box.pos());
                         //System.out.println("on track?: " + instance.getState().onTrack);
                         PStructAction pStruct = new PStructAction(turn, acceleration, verticalVelocity, dt);
                         
-                        //ModState ms = new ModState(instance.getState());
                         instance.setState(curNode.state);
-                        
                         instance.movement(pStruct);
                         
                         Point2D.Double sPos;
-                        double sV, sA, sRot, sRotV, sg, sh;
+                        double sg, sh;
                         System.out.println("--"+instance.getState().box.pos()+"--");
                         sPos = new Point2D.Double (instance.getState().box.pos().x,
                                 instance.getState().box.pos().y);
-                        sV = instance.getState().velocity;
-                        sA = 0;
-                        sRot = 0;
-                        sRotV = 0;
                         sg = curNode.g + curNode.state.velocity * tInt;
                         
                         // </editor-fold>
@@ -331,7 +325,7 @@ public class FinalAStar {
                             } else if (sNextCP + 1 == k) {
                                 sh = sh + 0.2*Math.sqrt(Math.pow(curHPos.x - CP.x, 2)
                                     + Math.pow(curHPos.y - CP.y, 2));
-                            }                            
+                            }
                             // Check if close to currently closest checkpoint
                             if (sh < 1.75) {
                                 sNextCP++;
@@ -363,12 +357,10 @@ public class FinalAStar {
                                     sVertV,*/ sg, sh, sNextCP, instance.getState(), curNode));
                             // Debug succesor logs
                             if(iter == 0) {
-                                System.out.println("-"+(iter+1)+"->a: " + sA 
-                                        + ", rotV: " + sRotV 
+                                System.out.println("-"+(iter+1)
                                         + ", h: " + sh
                                         + ", g: " + sg
-                                        + ", X: " + sPos.x + ", Y: " + sPos.y
-                                        + ", Rot: "+sRot);
+                                        + ", X: " + sPos.x + ", Y: " + sPos.y);
                             }
                             // Debug visuals
                             if (iter < 50000 /*&& false*/) {
