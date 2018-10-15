@@ -105,7 +105,7 @@ public class GS {
     final public static int MAX_PLAYERS = 1;
     
     /** Random number generator. */
-    final public static Random r = new Random();
+    final public static Random R = new Random();
     
     /** Handy file paths. */
     final public static String WORKING_DIR = System.getProperty("user.dir")

@@ -85,7 +85,7 @@ public class Car
         if (inventoryItem != null) return;
         
         ItemType[] types = ItemType.values();
-        inventoryItem = types[GS.r.nextInt(types.length)];
+        inventoryItem = types[GS.R.nextInt(types.length)];
         Logger.write("GOT ITEM: " + inventoryItem);
     }
     

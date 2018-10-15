@@ -22,7 +22,6 @@ import src.tools.update.Updater;
 import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import static src.Simulator.TYPE.*;
 import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
@@ -128,30 +127,49 @@ public class Simulator
         }*/
         
         /*
-        addToGamestate(ITEM, col, new Vector3f(0f, -115f, 540f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(-10f, -115f, 540f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(10f, -115f, 540f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1015f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1025f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1035f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(80f, -52f, -5f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(-40f,-52f, 30f), 1, 45, 45, 45, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(0f, -115f, 540f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(-10f, -115f, 540f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(10f, -115f, 540f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1015f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1025f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1035f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(80f, -52f, -5f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(-40f,-52f, 30f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
         */
-        addToGamestate(ITEM, col, new Vector3f(0f, -115f, 540f), 1, 0, 0, 0, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(-10f, -115f, 540f), 1, 0, 0, 0, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(10f, -115f, 540f), 1, 0, 0, 0, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1015f), 1, 0, 0, 0, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1025f), 1, 0, 0, 0, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1035f), 1, 0, 0, 0, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(80f, -52f, -5f), 1, 0, 0, 0, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
-        addToGamestate(ITEM, col, new Vector3f(-40f,-52f, 30f), 1, 0, 0, 0, 0, new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(0f, -115f, 540f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(-10f, -115f, 540f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(10f, -115f, 540f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1015f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1025f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1035f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(80f, -52f, -5f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(-40f,-52f, 30f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
         
-        addToGamestate(OTHER, sp, new Vector3f(0f, -60f, 500f), 4, 0, -90, 0, 0, new TextureImg(5, 0.5f), null, null);
+        addToGamestate(OTHER, sp, new Vector3f(0f, -60f, 500f), 4, 0, -90, 0, 0,
+                new TextureImg(5, 0.5f), null, null);
 
-        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0,2,0), 5,0,180,0,90, new TextureImg(5,0.5f),null,null);
+        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0,2,0), 5,0,180,0,90,
+                new TextureImg(5,0.5f),null,null);
         new AIController((Car) aiCar);
 
-        addToGamestate(PLAYER, car2, new Vector3f(0,2,-4), 3, 0, 180, 0, -90, new TextureImg(5, 3f), null, null);
+        addToGamestate(PLAYER, car2, new Vector3f(0,2,-4), 3, 0, 180, 0, -90,
+                new TextureImg(5, 3f), null, null);
 
         addLight(new Vector3f(30000f, 50000f, 1f),
                 new Vector3f(1f, 1f, 1f));
@@ -159,13 +177,18 @@ public class Simulator
         addGUI(new TextureImg(gl,"test_icon.png"),
                 new Vector2f(-0.5f, -0.5f), new Vector2f(0.25f, 0.25f));
 
-        addToGamestate(TRACK, null, new Vector3f(0,1,-5), 3, 0,0,0, 0, new TextureImg(gl,"rainbow_road.png"),
+        addToGamestate(TRACK, null, new Vector3f(0,1,-5), 3, 0,0,0, 0,
+                new TextureImg(gl,"rainbow_road.png"),
                 new TextureImg(gl, "tileNormalMap.png"), null);
 
-        Random random = new Random();
         int range = 1000;
         for(int i = 0; i < 1000; i++){
-            addRock(rocks.get(getRandomNr(random,0,3)), new Vector3f(getRandomNr(random,-range,range), getRandomNr(random,-range,range), getRandomNr(random,-range,range)), getRandomNr(random,1,8), getRandomNr(random,0,90), getRandomNr(random,0,90), getRandomNr(random,0,90), 0, new TextureImg(5, 3f));
+            addRock(rocks.get(ran(0, 3)), new Vector3f(
+                    ran(-range, range),
+                    ran(-range, range),
+                    ran(-range, range)
+            ), ran(1, 8), ran(0, 90), ran(0, 90), ran(0, 90), 0,
+            new TextureImg(5, 3f));
         }
 
         addSkybox();
@@ -296,24 +319,26 @@ public class Simulator
         return cubeInstance;
     }
 
-    public void addGUI(TextureImg texture, Vector2f topright, Vector2f size){
+    public void addGUI(TextureImg texture, Vector2f topright, Vector2f size) {
         GUI test = new GUI(texture.getTexture(),
                 topright, size);
         GS.addGUI(test);
     }
 
-    public void addLight(Vector3f position, Vector3f color){
+    public void addLight(Vector3f position, Vector3f color) {
         Light light = new Light(position,
                 color);
         GS.addLight(light);
     }
 
-    public void addSkybox(){
+    public void addSkybox() {
         Skybox skybox = new Skybox(gl);
         GS.setSkybox(skybox);
     }
-
-    public void addRock(OBJObject rock, Vector3f position, int size, int rotx, int roty, int rotz, int integratedRotation, TextureImg texture){
+    
+    public void addRock(OBJObject rock, Vector3f position, int size,
+            int rotx, int roty, int rotz, int integratedRotation,
+            TextureImg texture) {
         OBJCollection temp = new OBJCollection();
         temp.add(rock);
         OBJObject obj = temp.get(0);
@@ -329,7 +354,17 @@ public class Simulator
         GS.addMaterialAsset(cubeInstance);
     }
 
-    private int getRandomNr(Random random, int down, int up){
-        return random.nextInt(up-down+1) + down;
+    /**
+     * Generates a random number using the random generator i@link GS}.
+     * 
+     * @param down the lowest value that might be returned.
+     * @param up the highest value that might be returned.
+     * @return a random integer between {@code down} (inclusive) and
+     *     {@code up} (inclusive).
+     */
+    private int ran(int down, int up) {
+        return GS.R.nextInt(up - down+1) + down;
     }
+    
+    
 }
