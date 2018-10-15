@@ -71,8 +71,8 @@ public abstract class Item
     @Override
     final public void performUpdate(long timeStamp) {
         long dt = timeStamp - prevTimeStamp;
-        prevTimeStamp = timeStamp;
         updateItem(dt);
+        prevTimeStamp = timeStamp;
     }
     
     /**

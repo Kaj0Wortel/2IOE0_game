@@ -183,6 +183,15 @@ public abstract class Instance
                 s.velocity, s.collisionVelocity,
                 s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
     }
+    
+    public void rotate(float rotx, float roty, float rotz) {
+        State s = state; // For sync.
+        setState(new State(s.box, s.sizex, s.sizey, s.sizez,
+                (s.rotx + rotx) % 360, (s.roty + roty) % 360, (s.rotz + rotz) % 360,
+                s.internRotx, s.internRoty, s.internRotz,
+                s.velocity, s.collisionVelocity,
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
+    }
 
     @Deprecated
     public void moveup() {
