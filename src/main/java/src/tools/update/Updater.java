@@ -323,15 +323,7 @@ public class Updater {
         }
         
         tt.start();
-        
-        // tmp
-        fpsTracker.start();
     }
-    
-    // tmp
-    private static TimerTool fpsTracker = new TimerTool(1000, 1000, () -> {
-        Logger.write("Fps = " + getFPS());
-    });
     
     /**
      * @see AccurateTimerTool#pause()
