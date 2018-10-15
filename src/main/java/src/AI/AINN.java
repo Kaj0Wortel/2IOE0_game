@@ -48,6 +48,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.swing.SwingUtilities;
 
 /**
  * Creates a neural network array for driving.
@@ -299,7 +300,9 @@ public class AINN {
                 "NN initialised"
         );
 
-        start();
+        SwingUtilities.invokeLater(() -> {
+            start();
+        });
     }
 
     /**
