@@ -31,11 +31,10 @@ public class FrustrumBox {
         height = 0;
         depth = 0;
 
-        calculateBoundingBox();
+        update();
     }
 
-
-    public void calculateBoundingBox(){
+    public void update(){
         float hhn = (float) Math.tan(Math.toRadians(FOV/2)) * NEAR;
         float hwn = getAspectRatio() * hhn;
         float hhf = (float) Math.tan(Math.toRadians(FOV/2)) * SHADOW_DISTANCE;

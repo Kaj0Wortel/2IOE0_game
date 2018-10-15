@@ -26,7 +26,7 @@ public class ShadowRenderer {
     
     
     public void render(GL3 gl) {
-        frustrumBox.calculateBoundingBox();
+        frustrumBox.update();
         shadowFBO.bindFrameBuffer(gl);
         gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
         shadowShader.start(gl);
@@ -71,5 +71,9 @@ public class ShadowRenderer {
         offset.translate(new Vector3f(0.5f, 0.5f, 0.5f));
         offset.scale(new Vector3f(0.5f, 0.5f, 0.5f));
         return offset;
+    }
+
+    public FrustrumBox getFrustrumBox() {
+        return frustrumBox;
     }
 }
