@@ -62,7 +62,7 @@ public abstract class GridItemInstance
     
     @Override
     public char getSimpleRepr() {
-        return '-';
+        return 0;
     }
     
     @Override

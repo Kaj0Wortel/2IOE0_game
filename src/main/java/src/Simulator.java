@@ -339,14 +339,12 @@ public class Simulator
     public void addRock(OBJObject rock, Vector3f position, int size,
             int rotx, int roty, int rotz, int integratedRotation,
             TextureImg texture) {
-        OBJCollection temp = new OBJCollection();
-        temp.add(rock);
-        OBJObject obj = temp.get(0);
-        OBJTexture texturedCube = new OBJTexture(temp,
+        OBJCollection col = new OBJCollection();
+        col.add(rock);
+        OBJTexture texturedCube = new OBJTexture(col,
                 texture);
         //box = new Box3f(new Vector3f(0f, -60f, 500f));
-        PosHitBox3f box = obj.createBoundingBox();
-        //box.setPosKeepHitBox();
+        PosHitBox3f box = col.createBoundingBox();
         box.translate(position);
         Instance cubeInstance = new MaterialInstance(box,
                 size, rotx, roty, rotz, texturedCube,
