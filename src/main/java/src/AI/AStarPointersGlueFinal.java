@@ -11,7 +11,6 @@ import java.util.Collections; // Reverse Arraylist
 import java.util.List; // ArrayLists
 import org.joml.Vector3f;
 import src.Assets.TextureImg;
-import src.Physics.Physics;
 import src.Progress.ProgressManager;
 import src.racetrack.BezierTrack;
 import src.racetrack.Track;
