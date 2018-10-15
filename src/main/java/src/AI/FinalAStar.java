@@ -16,6 +16,7 @@ import org.joml.Vector3f;
 import src.Assets.TextureImg;
 import src.Assets.instance.Instance;
 import src.Physics.Physics;
+import src.Physics.Physics.ModState;
 import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
 import src.tools.PosHitBox3f;
@@ -106,7 +107,9 @@ public class FinalAStar {
         // Checkpoints and start position
         List<Point2D.Double> checkPoints = new ArrayList<Point2D.Double>();        
         for (int i = 0; i < 1; i++) {
-            checkPoints.add(new Point2D.Double(8.5, 8.5));
+            checkPoints.add(new Point2D.Double(0, -100));
+            
+            //checkPoints.add(new Point2D.Double(8.5, 8.5));
             //checkPoints.add(new Point2D.Double(5.5, 8.5));
             //checkPoints.add(new Point2D.Double(5, 5.5));
             //checkPoints.add(new Point2D.Double(1.1, 5.3));
@@ -182,8 +185,9 @@ public class FinalAStar {
             curHPos = CP;
         }
 
-        FinalNode start = new FinalNode(startPos, 0, 0, Math.PI/2, 0, 0, 0, h, 0, null);
+        FinalNode start = new FinalNode(startPos, 0, h, 0, instance.getState(), null);
         openlist.add(start);
+        
         
         // LOOP: until openlist is empty left OR when the goal is reached.
         // <editor-fold defaultstate="collapsed" desc="LOOP">
@@ -219,12 +223,14 @@ public class FinalAStar {
                 System.out.println("Checkpoint reached: " + curNode.nextCP);
             }
             
+            
+            
             // i > turning: right, straight or left
             for (int i = -1; i <= 1; i++) {
                 // j > Velocity: decelerate, constant, accelerate
                 for (int j = -1; j <= 1; j++) {
                     // <editor-fold defaultstate="collapsed" desc="PHYSICS">
-                    if (!(j == 1 && curNode.v + a*tInt > vMax)) {
+                    /*if (!(j == 1 && curNode.v + a*tInt > vMax)) {
                         // Calculate succesor node variables
                         Point2D.Double sPos;
                         // Used in Node
@@ -281,21 +287,34 @@ public class FinalAStar {
                             sg = sg + 10;
                         } else if (sPos.x > 3 && sPos.x < 4 && sPos.y > 6 && sPos.y < 10) {
                             sg = sg + 10;
-                        }
-                        //TEST: reach physiscs
+                        }*/
+                        //TEST: reach physiscs                        
                         float turn = i;
                         float acceleration = j;
                         float verticalVelocity = 0;
                         long dt = 16;
-                        sVertV = 0;
-                        System.out.println("turn: " + turn + ", acc: " + acceleration
-                                + ", vertV: " + verticalVelocity);
+                        float sVertV = 0;
+                        System.out.println("turn: " + turn + ", acc: " + acceleration);
+                        System.out.println("pos: " + instance.getState().box.pos());
+                        //System.out.println("on track?: " + instance.getState().onTrack);
                         PStructAction pStruct = new PStructAction(turn, acceleration, verticalVelocity, dt);
+                        
+                        //ModState ms = new ModState(instance.getState());
+                        instance.setState(curNode.state);
+                        
                         instance.movement(pStruct);
-                        //System.out.println(instance.getState().velocity);
-                        //System.out.println(instance.getState().box);
-                        //sPos = new Point2D.Double(instance.getPosition().x, instance.getPosition().y);
-                        //System.out.println(instance.getPosition());
+                        
+                        Point2D.Double sPos;
+                        double sV, sA, sRot, sRotV, sg, sh;
+                        System.out.println("--"+instance.getState().box.pos()+"--");
+                        sPos = new Point2D.Double (instance.getState().box.pos().x,
+                                instance.getState().box.pos().y);
+                        sV = instance.getState().velocity;
+                        sA = 0;
+                        sRot = 0;
+                        sRotV = 0;
+                        sg = curNode.g + curNode.state.velocity * tInt;
+                        
                         // </editor-fold>
                         
                         // Determine h  
@@ -340,10 +359,10 @@ public class FinalAStar {
                         }
                         //CASE III: not in any list
                         if (!alreadyInList) {
-                            openlist.add(new FinalNode(sPos, sV, sA, sRot, sRotV,
-                                    sVertV, sg, sh, sNextCP, curNode));
+                            openlist.add(new FinalNode(sPos, /*sV, sA, sRot, sRotV,
+                                    sVertV,*/ sg, sh, sNextCP, instance.getState(), curNode));
                             // Debug succesor logs
-                            if(iter == 22) {
+                            if(iter == 0) {
                                 System.out.println("-"+(iter+1)+"->a: " + sA 
                                         + ", rotV: " + sRotV 
                                         + ", h: " + sh
@@ -352,7 +371,7 @@ public class FinalAStar {
                                         + ", Rot: "+sRot);
                             }
                             // Debug visuals
-                            if (iter < 50000 && false) {
+                            if (iter < 50000 /*&& false*/) {
                                 visual.setForeground(Color.LIGHT_GRAY);
                                 visual.addPoint(new Point2D.Double(sPos.x, -sPos.y));
                                 visual.setForeground(Color.WHITE);
@@ -361,7 +380,7 @@ public class FinalAStar {
                         }
                         // Reset flag.
                         alreadyInList = false;
-                    }
+                    //}
                 }
             }
             
@@ -370,9 +389,9 @@ public class FinalAStar {
                 System.out.println(iter + ": (" + curNode.pos.x + ", "
                     + curNode.pos.y + ")->" 
                     + curNode.h
-                    + ", a = " + curNode.a 
-                    + ", rotV = " + curNode.rotV
-                    + ", v = " + curNode.v
+                    //+ ", a = " + curNode.a 
+                    //+ ", rotV = " + curNode.rotV
+                    //+ ", v = " + curNode.v
                     //+ ", rot = " + curNode.rot
                     + ", g = " + curNode.g
                     //+", parent: ("+curNode.parentNode.pos.x+","+curNode.parentNode.pos.y+")"
@@ -397,9 +416,9 @@ public class FinalAStar {
             System.out.print (test + " nodes");
             // The path is greener the more it accelerates  
             for (FinalNode p : pathList) {
-                if (p.a > 0) {
+                if (p.state.velocity > 0) {
                     visual.setForeground(Color.GREEN);
-                } else if (p.a < 0) {
+                } else if (p.state.velocity < 0) {
                     visual.setForeground(Color.RED);
                 } else {
                     visual.setForeground(Color.YELLOW);
@@ -455,9 +474,5 @@ public class FinalAStar {
         public Instance2 clone() {
             return new Instance2(this);
         }
-        
-        
     } 
-    
-    
 }

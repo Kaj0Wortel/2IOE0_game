@@ -20,7 +20,8 @@ public class VisualAStar
         extends JPanel {
     
     //final static private Rectangle SIZE = new Rectangle(0,-10,10,10);
-    final static private Rectangle SIZE = new Rectangle(-200, -115, 460, 460);
+    //final static private Rectangle SIZE = new Rectangle(-200, -115, 460, 460);
+    final static private Rectangle SIZE = new Rectangle(-100, -15, 160, 160);
     final private int IMG_SIZE = 5000;
     final private int CIRCLE_SIZE = 50;//20
     final private Color BACK = Color.BLACK;

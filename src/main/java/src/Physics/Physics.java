@@ -303,7 +303,7 @@ public class Physics {
             float dist;
             int ind = 0; // Current road point index
             // Check from checkpoint up until current point
-            for (int i = (int)Math.floor(points.length * (progress.checkPoint / progress.cpAm)); i < Math.min(s.rIndex + 10, points.length); i++) {
+            for (int i = Math.max((int)Math.floor(points.length * (progress.checkPoint / progress.cpAm)) - 5, (int)Math.floor(points.length * (progress.checkPoint / progress.cpAm))); i < Math.min(s.rIndex + 10, points.length); i++) {
                 if (Math.abs(s.box.pos().z - points[i].z) < 50) {
                     dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
                             + (float)Math.pow(s.box.pos().y - points[i].y, 2)
