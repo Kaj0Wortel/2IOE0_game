@@ -80,7 +80,7 @@ public class Renderer
             gl.glEnable(GL3.GL_DEPTH_TEST);
             
         } catch (Exception e) {
-            Logger.write(e);
+            e.printStackTrace();
         }
     }
 
@@ -117,7 +117,7 @@ public class Renderer
             guiRenderer.render(gl);
             
         } catch (Exception e) {
-            Logger.write(e);
+            e.printStackTrace();
         }
     }
 
