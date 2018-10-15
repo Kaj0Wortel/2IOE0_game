@@ -127,18 +127,26 @@ public abstract class Instance
         Matrix4f transformationMatrix = new Matrix4f();
         transformationMatrix.identity();
         transformationMatrix.translate(s.box.pos());
+        Vector3f rotVec = new Vector3f(
+                (float) Math.sin(Math.toRadians(s.box.rotx())),
+                0,
+                (float) Math.sin(Math.toRadians(s.box.rotz())));
+        
         transformationMatrix
-                /*
-                .rotate((float) Math.toRadians(s.box.rotx()), 1, 0, 0)
+                /**/
                 .rotate((float) Math.toRadians(s.box.roty()), 0, 1, 0)
-                .rotate((float) Math.toRadians(s.box.rotz()), 0, 0, 1);
-                */
+                .rotate(rotVec.length(), rotVec);
+                //.rotate((float) Math.toRadians(s.box.rotx()), 1, 0, 0)
+                //.rotate((float) Math.toRadians(s.box.rotz()), 0, 0, 1);
+                /**/
+                /*
                 .rotate((float) Math.toRadians(s.rotx), 1, 0, 0)
                 .rotate((float) Math.toRadians(s.roty), 0, 1, 0)
                 .rotate((float) Math.toRadians(s.rotz), 0, 0, 1)
                 .rotate((float) Math.toRadians(s.internRotx), 1, 0, 0)
                 .rotate((float) Math.toRadians(s.internRoty), 0, 1, 0)
                 .rotate((float) Math.toRadians(s.internRotz), 0, 0, 1);
+                */
         transformationMatrix.scale(s.sizex, s.sizey, s.sizez);
         
         return transformationMatrix;
