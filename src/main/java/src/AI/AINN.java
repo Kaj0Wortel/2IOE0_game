@@ -205,9 +205,18 @@ public class AINN {
      * @param instance GridItemInstance to be set.
      */
     public AINN(@NotNull GridItemInstance instance) {
+
+        Logger.write(
+                "Entering AINN()..."
+        );
+
         this.instance = instance;
 
         limitThreadsToOne();
+
+        Logger.write(
+                "Limiting threads done."
+        );
 
         // <editor-fold defaultstate="collapsed" desc="Configuration for network responsible for turning">
         MultiLayerConfiguration turnConfig = new NeuralNetConfiguration.Builder()
@@ -285,6 +294,10 @@ public class AINN {
         // Add listeners.
         networks[0].addListeners(LISTENER);
         networks[1].addListeners(LISTENER);
+
+        Logger.write(
+                "NN initialised"
+        );
 
         start();
     }
@@ -403,7 +416,6 @@ public class AINN {
         // Add Data To DataSet
         DataSet DS = it.next();
 
-
         for (float[][] aGridData : gridData) {
             for (float[] anAGridData : aGridData) {
                 Logger.write(
@@ -432,6 +444,9 @@ public class AINN {
      * 3. Train using {@code fit()} function.
      */
     protected void execute() {
+        Logger.write(
+                "Entering execute()"
+        );
         GridItem[][][][] G = GS.grid.getItemsAround(instance, 2, 2, 2);
         DataSet nextSet = getNextDataSet(G);
 
@@ -504,6 +519,11 @@ public class AINN {
      */
     public void start() {
         lock.lock();
+
+        Logger.write(
+                "Opening start()..."
+        );
+
         try {
             stopUpdateThread = false;
 
