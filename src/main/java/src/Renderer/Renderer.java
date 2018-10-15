@@ -70,7 +70,6 @@ public class Renderer
         guiRenderer = new GUIRenderer(gl);
         shadowRenderer = new ShadowRenderer(gl, fov, NEAR, FAR, width, height);
         GS.getTrack().setShadowMap(shadowRenderer.getDepthTexture());
-        GS.player.addObserver(shadowRenderer.getFrustrumBox());
 
         RacetrackShader racetrackShader = new RacetrackShader(gl);
         GS.getTrack().setShaderAndRenderMatrices(racetrackShader, projectionMatrix,
