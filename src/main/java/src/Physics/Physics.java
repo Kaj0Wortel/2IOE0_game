@@ -168,7 +168,7 @@ public class Physics {
         
     }
     
-     // Necessary for determining if on track
+    // Necessary for determining if on track
     final private static int POINTS_PER_SEGMENT = 500;
     private static Vector3f[] points = new Vector3f[0];
     private static Vector3f[] normals = new Vector3f[0];
@@ -304,21 +304,17 @@ public class Physics {
             int ind = 0; // Current road point index
             // Check from checkpoint up until current point
             for (int i = Math.max((int)Math.floor(points.length * (progress.checkPoint / progress.cpAm)) - 5, (int)Math.floor(points.length * (progress.checkPoint / progress.cpAm))); i < Math.min(s.rIndex + 10, points.length); i++) {
-            //for (int i = (int)Math.floor(points.length * (progress.checkPoint / progress.cpAm));
-                    //i < Math.min(s.rIndex + 10, points.length); i++) {
-                if (Math.abs(s.box.pos().z - points[i].z) < 50) {
-                    dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
-                            + (float)Math.pow(s.box.pos().y - points[i].y, 2)
-                            /*+ (float)Math.pow(s.box.pos().z - points[i].z, 2)*/);
-                    if (dist < shortestDist) {
-                        shortestDist = dist;
-                        ind = i;
-                    }
+                dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
+                        + (float)Math.pow(s.box.pos().y - points[i].y, 2)
+                        /*+ (float)Math.pow(s.box.pos().z - points[i].z, 2)*/);
+                if (dist < shortestDist) {
+                    shortestDist = dist;
+                    ind = i;
                 }
             }
             if (s.rIndex > points.length - 10) { // Early on track: check end points
                 for (int i = 0; i < 10; i++) {
-                    if (Math.abs(s.box.pos().z - points[i].z) < 5) {
+                    if (Math.abs(s.box.pos().z - points[i].z) < 20) {
                         dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
                                 + (float)Math.pow(s.box.pos().y - points[i].y, 2)
                                 /*+ (float)Math.pow(s.box.pos().z - points[i].z, 2)*/);
@@ -330,7 +326,7 @@ public class Physics {
                 }
             } else if (s.rIndex < 10) { // Late on track: check start points
                 for (int i = points.length - 10; i < points.length; i++) {
-                    if (Math.abs(s.box.pos().z - points[i].z) < 5) {
+                    if (Math.abs(s.box.pos().z - points[i].z) < 20) {
                         dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
                                 + (float)Math.pow(s.box.pos().y - points[i].y, 2)
                                 /*+ (float)Math.pow(s.box.pos().z - points[i].z, 2)*/);
