@@ -7,8 +7,12 @@ import src.Assets.instance.Instance.State;
 
 import static java.lang.Float.max;
 import static java.lang.Math.signum;
+import java.util.Observable;
+import java.util.Observer;
+import src.GS;
 
-public class Camera {
+public class Camera
+        implements Observer {
     private Vector3f position;
     private float pitch;
     private float yaw;
@@ -33,6 +37,7 @@ public class Camera {
     private float rubberSpeed = 0.15f;
     private float minRubberDistance = 25f;
     private float rubberVelocityFactor = 0.5f;
+    private float fovVelocityFactor = 2.0f;
     
     public Camera (Vector3f position, float pitch, float yaw, float roll){
         this.position = position;
@@ -64,12 +69,12 @@ public class Camera {
     }
     
     @Deprecated
-    public void yawLeft(){
+    public void yawLeft() {
         yaw(-5f);
     }
     
     @Deprecated
-    public void yawRight(){
+    public void yawRight() {
         yaw(5f);
     }
     
@@ -91,7 +96,7 @@ public class Camera {
     }
         
     @Deprecated
-    public void moveBackwards(){
+    public void moveBackwards() {
         move(-1.0f);
     }
     
@@ -103,17 +108,34 @@ public class Camera {
         this.position = new Vector3f(position);
     }
     
-    public void setFocus(Instance instance){
-        previousPosition = new Vector3f(position);
+    public void setFocus(Instance instance) {
+        if (instance == null || instance.equals(focusedOn)) return;
+        if (focusedOn != null) {
+            focusedOn.deleteObserver(this);
+            previousPosition = new Vector3f(position);
+        }
         focusedOn = instance;
         onPlayer = true;
         position = new Vector3f(instance.getPosition());
         pitch = 20;
+        instance.addObserver(this);
+    }
+    
+    public void removeFocus() {
+        if (focusedOn != null) {
+            focusedOn.deleteObserver(this);
+            focusedOn = null;
+        }
+        onPlayer = false;
+        position = new Vector3f(previousPosition);
+        this.yaw = 0;
+        this.pitch = 0;
+        this.roll = 0;
     }
 
     public void rubberBand(){
         boolean turned = false;
-        if(focusedOn == null && rubberBandEnabled){
+        if(focusedOn == null && rubberBandEnabled) {
 
         } else {
             angleAroundAsset *=-1;
@@ -142,16 +164,16 @@ public class Camera {
             previousRotation = currentRotation;
             angleAroundAsset *=-1;
         }
+        float targetPitch = 20 + focusedOn.getRotz();
+        //System.out.println("targetPitch" + targetPitch);
+        if (Math.abs(targetPitch - pitch) > 0.01f)
+        pitch = targetPitch;
+        //System.out.println("pitch" + pitch);
 
     }
-    
-    public void removeFocus() {
-        focusedOn = null;
-        onPlayer = false;
-        position = new Vector3f(previousPosition);
-        this.yaw = 0;
-        this.pitch = 0;
-        this.roll = 0;
+
+    public void speedFOV(){
+        Renderer.changeFOV(fovVelocityFactor * focusedOn.getState().velocity);
     }
     
     public boolean isOnPlayer() {
@@ -184,6 +206,7 @@ public class Camera {
     
     public void calculateInstanceValues() {
         rubberBand();
+        speedFOV();
         State state = focusedOn.getState();
         float angle = state.roty + angleAroundAsset;
         float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
@@ -197,5 +220,31 @@ public class Camera {
         this.yaw %= 360;
 
     }
+
+    public Matrix4f getViewMatrixInverse(){
+        Matrix4f viewMatrixRotation = new Matrix4f();
+        viewMatrixRotation.rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0));
+        viewMatrixRotation.rotate((float) Math.toRadians(yaw), new Vector3f(0, 1, 0));
+        viewMatrixRotation.rotate((float) Math.toRadians(roll), new Vector3f(0, 0, 1));
+        viewMatrixRotation.transpose();
+
+        Matrix4f viewMatrixTranslation = new Matrix4f();
+        viewMatrixTranslation.translate(new Vector3f(position.x, position.y, position.z));
+
+        Matrix4f result = new Matrix4f();
+        viewMatrixTranslation.mul(viewMatrixRotation, result);
+
+        return result;
+    }
+    
+    @Override
+    public void update(Observable o, Object arg) {
+        if (!(o instanceof Instance) ||
+                !(arg instanceof State)) return;
+        Instance source = (Instance) o;
+        State s = (State) arg;
+        calculateInstanceValues();
+    }
+    
     
 }

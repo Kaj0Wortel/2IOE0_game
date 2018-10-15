@@ -51,5 +51,7 @@ public class OBJCollection
         return objObjects.get(objObjects.size() - 1).createBoundingBox();
     }
     
-    
+    public int getSize(){
+        return objObjects.size();
+    }
 }

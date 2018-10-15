@@ -31,7 +31,6 @@ import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
 import src.tools.event.Key;
 import tools.ModCursors;
 import tools.swing.Button;

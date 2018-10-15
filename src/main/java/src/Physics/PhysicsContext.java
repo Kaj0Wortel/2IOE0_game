@@ -3,6 +3,7 @@ package src.Physics;
 
 
 // Own imports
+import src.tools.Cloneable;
 
 
 // Java imports
@@ -11,7 +12,8 @@ package src.Physics;
 /**
  * 
  */
-public class PhysicsContext {
+public class PhysicsContext
+        implements Cloneable {
     final public float linAccel;
     final public float rotationalVelocity;
     final public float maxLinearVelocity;
@@ -73,9 +75,17 @@ public class PhysicsContext {
         this.knockbackDur = 0.9f;
         this.accBlockDur = 5f;
         this.largeSlowDown = 4f;
-        this.bounceFactor = 0.1f;//0.5
+        this.bounceFactor = 0.5f;//0.5
         this.airControl = 0.6f;
         this.brakeAccel = 2;
+    }
+    
+    @Override
+    public PhysicsContext clone() {
+        return new PhysicsContext(linAccel, rotationalVelocity,
+                maxLinearVelocity, frictionConstant, gravity, turnCorrection,
+                knockback, knockbackDur, accBlockDur, largeSlowDown,
+                bounceFactor, airControl, brakeAccel);
     }
     
     

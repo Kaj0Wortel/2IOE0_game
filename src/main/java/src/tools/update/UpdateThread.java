@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package src.tools.update;
 
@@ -22,7 +17,6 @@ import src.tools.log.Logger;
 /**
  * Updating thread.
  * Use {@link scheduleTask(Runnable)} to schedule a task.
- * If 
  */
 public class UpdateThread
         extends Thread {

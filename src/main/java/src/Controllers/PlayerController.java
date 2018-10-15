@@ -1,24 +1,23 @@
 package src.Controllers;
 
 import java.util.List;
+import src.Assets.instance.Car;
 import src.Assets.instance.Instance;
 import src.GS;
 import src.Physics.PStructAction;
 import src.tools.event.ControllerKey;
-import src.tools.event.keyAction.CameraKeyAction;
 import src.tools.event.keyAction.PlayerKeyAction;
-import src.tools.event.keyAction.action.CameraMovementAction;
 import src.tools.event.keyAction.action.PlayerMovementAction;
 
 public class PlayerController
-        extends Controller {
+        extends Controller<Car> {
 
     Instance player;
     
     final private PlayerKeyAction[] playerActions;
 
-    public PlayerController(Instance player, int id) {
-        this.player = player;
+    public PlayerController(Car player, int id) {
+        super(player);
         
         PlayerMovementAction[] values = PlayerMovementAction.values();
         playerActions = new PlayerKeyAction[values.length];
@@ -28,10 +27,11 @@ public class PlayerController
     }
     
     @Override
-    public void controlUpdate(long dt) {
+    public PStructAction controlUpdate(long dt) {
         float turn = 0;
         float acc = 0;
         float vertV = 0;
+        boolean throwItem = false;
         
         for (PlayerKeyAction action : playerActions) {
             List<ControllerKey> keys = GS.getKeys(action);
@@ -54,11 +54,14 @@ public class PlayerController
                 if (action.getAction() == PlayerMovementAction.JUMP) {
                     vertV = 10;
                 }
+                if (action.getAction() == PlayerMovementAction.THROW_ITEM) {
+                    throwItem = true;
+                }
             }
         }
         
         // Movement physics determine new position, rotation and velocity
-        player.movement(new PStructAction(turn, acc, vertV, dt));
+        return new PStructAction(turn, acc, vertV, throwItem, dt);
     }
     
     

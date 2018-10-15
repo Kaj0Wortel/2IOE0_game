@@ -2,8 +2,8 @@
 package src.Controllers;
 
 import src.AI.AINN;
-import src.Assets.instance.GridItemInstance;
-import src.Assets.instance.Instance;
+import src.Assets.instance.Car;
+import src.Physics.PStructAction;
 
 
 // Own imports
@@ -16,27 +16,25 @@ import src.Assets.instance.Instance;
  * 
  */
 public class AIController
-        extends Controller {
+        extends Controller<Car> {
     
-    final private GridItemInstance instance;
     final private AINN ainn;
-    
     
     /**
      * The instance to be updated.
      * @param instance 
      */
-    public AIController(GridItemInstance instance) {
-        this.instance = instance;
+    public AIController(Car instance) {
+        super(instance);
         ainn = new AINN(instance);
         ainn.start();
     }
     
     
     @Override
-    public void controlUpdate(long dt) {
-        if (ainn == null || ainn.isStopped()) return;
-        instance.movement(ainn.createAction(dt));
+    public PStructAction controlUpdate(long dt) {
+        if (ainn == null || ainn.isStopped()) return null;
+        return ainn.createAction(dt);
     }
     
     @Override

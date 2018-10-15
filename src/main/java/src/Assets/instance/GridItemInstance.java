@@ -24,13 +24,26 @@ public abstract class GridItemInstance
         implements GridItem {
     
     protected Vector3f prevPosition = null;
-
+    
+    
     public GridItemInstance(PosHitBox3f box, float size,
             float rotx, float roty, float rotz,
             OBJTexture model, float integratedRotation,
             PhysicsContext physicConst) {
         super(box, size, rotx, roty, rotz, model, integratedRotation, 
                 physicConst);
+        SwingUtilities.invokeLater(() -> {
+            GS.grid.update(this);
+        });
+    }
+    
+    public GridItemInstance(PosHitBox3f box,
+            float sizex, float sizey, float sizez,
+            float rotx, float roty, float rotz, OBJTexture model,
+            float internRotx, float internRoty, float internRotz,
+            PhysicsContext physicConst) {
+        super(box, sizex, sizey, sizez, rotx, roty, rotz, model,
+                internRotx, internRoty, internRotz, physicConst);
         SwingUtilities.invokeLater(() -> {
             GS.grid.update(this);
         });
@@ -49,7 +62,7 @@ public abstract class GridItemInstance
     
     @Override
     public char getSimpleRepr() {
-        return '-';
+        return 0;
     }
     
     @Override

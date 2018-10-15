@@ -28,6 +28,7 @@ public class ItemShader extends ShaderProgram {
     private int reflectivityLocation;
     private int timeLocation;
     private int cameraPosLocation;
+    private int textureLocation;
 
     public ItemShader(GL3 gl) {
         super(gl, vertex, fragment);
@@ -51,6 +52,7 @@ public class ItemShader extends ShaderProgram {
         reflectivityLocation = getUniformLocation(gl, "reflectivity");
         timeLocation = getUniformLocation(gl, "time");
         cameraPosLocation = getUniformLocation(gl, "camera");
+        textureLocation = getUniformLocation(gl, "itemTexture");
 
 
         System.out.println("Projection location: " + projectionMatrixLocation);
@@ -61,6 +63,7 @@ public class ItemShader extends ShaderProgram {
         System.out.println("Shininess: " + shininessLocation);
         System.out.println("Reflectivity: " + reflectivityLocation);
         System.out.println("CameraPos: " + cameraPosLocation);
+        System.out.println("TextureLocation: " + textureLocation);
     }
 
     @Override
@@ -96,6 +99,10 @@ public class ItemShader extends ShaderProgram {
     public void loadTextureLightValues(GL3 gl, float shininess, float reflectivity){
         loadUniformFloat(gl, shininessLocation, shininess);
         loadUniformFloat(gl, reflectivityLocation, reflectivity);
+    }
+
+    public void loadTextures(GL3 gl){
+        loadUniformInt(gl, textureLocation, 0);
     }
 
     public void loadTime(GL3 gl, int time){

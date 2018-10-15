@@ -19,7 +19,7 @@ void main() {
     vec3 unitNormal = normalize(normalVector);
     vec3 unitLight = normalize(toLight);
     float d = dot(unitNormal, unitLight);
-    d = max(d,0.1);
+    d = max(d,0.2);
     vec3 change = d * lightColor * matDiffuse;
 
     vec3 unitCamera = normalize(toCamera);

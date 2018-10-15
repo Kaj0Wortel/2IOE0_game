@@ -1,6 +1,7 @@
 package src.Assets.instance;
 
 import com.jogamp.opengl.GL3;
+import java.util.Observable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.GraphicsObject;
@@ -12,13 +13,15 @@ import src.Physics.Physics;
 import src.Physics.PhysicsContext;
 import src.Progress.ProgressManager;
 import src.Shaders.ShaderProgram;
+import src.shadows.ShadowShader;
 import src.tools.PosHitBox3f;
 
 import javax.swing.*;
 import java.util.Set;
 
 
-public abstract class Instance {
+public abstract class Instance
+        extends Observable {
     
     /**
      * State class for instance variables.
@@ -43,13 +46,18 @@ public abstract class Instance {
         final public float velocity;
         final public float collisionVelocity;
         final public float verticalVelocity;
+        final public boolean onTrack;
+        final public boolean inAir;
+        final public int rIndex;
+        final public boolean isResetting;
         
         
         public State(PosHitBox3f box, float sizex, float sizey, float sizez,
                 float rotx, float roty, float rotz,
                 float internRotx, float internRoty, float internRotz,
                 float velocity, float collisionVelocity,
-                float verticalVelocity) {
+                float verticalVelocity, boolean onTrack, boolean inAir, 
+                int rIndex, boolean isResetting) {
             this.box = box;
             this.sizex = sizex;
             this.sizey = sizey;
@@ -63,6 +71,10 @@ public abstract class Instance {
             this.velocity = velocity;
             this.collisionVelocity = collisionVelocity;
             this.verticalVelocity = verticalVelocity;
+            this.onTrack = onTrack;
+            this.inAir = inAir;
+            this.rIndex = rIndex;
+            this.isResetting = isResetting;
         }
         
         @Override
@@ -73,7 +85,8 @@ public abstract class Instance {
         
     }
     
-    ProgressManager progress = new ProgressManager();
+    protected ProgressManager progress = new ProgressManager();
+    protected boolean isDestroyed = false;
     
     protected State state;
     protected PhysicsContext physicsContext;
@@ -89,6 +102,7 @@ public abstract class Instance {
         this(box, size, size, size, rotx, roty, rotz, model,
                 0, internRoty, 0, physicContext);
     }
+    
     public Instance(PosHitBox3f box, float sizex, float sizey, float sizez,
             float rotx, float roty, float rotz, OBJTexture model,
             float internRotx, float internRoty, float internRotz,
@@ -96,7 +110,8 @@ public abstract class Instance {
         box.scaleHitBox(sizex, sizey, sizez);
         setState(new State(box, sizex, sizey, sizez,
                 rotx, roty, rotz,
-                internRotx, internRoty, internRotz, 0, 0, 0));
+                internRotx, internRoty, internRotz, 0, 0, 0, 
+                true, false, 0, true));
         
         this.model = model;
         this.physicsContext = physicContext;
@@ -138,7 +153,7 @@ public abstract class Instance {
                 (s.rotx + rot) % 360, s.roty, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity));
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
     }
     
     @Deprecated
@@ -152,7 +167,7 @@ public abstract class Instance {
                 s.rotx, (s.roty + rot) % 360, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity));
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
     }
 
     @Deprecated
@@ -166,7 +181,16 @@ public abstract class Instance {
                 s.rotx, s.roty, (s.rotz + rot) % 360,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity));
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
+    }
+    
+    public void rotate(float rotx, float roty, float rotz) {
+        State s = state; // For sync.
+        setState(new State(s.box, s.sizex, s.sizey, s.sizez,
+                (s.rotx + rotx) % 360, (s.roty + roty) % 360, (s.rotz + rotz) % 360,
+                s.internRotx, s.internRoty, s.internRotz,
+                s.velocity, s.collisionVelocity,
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
     }
 
     @Deprecated
@@ -183,7 +207,7 @@ public abstract class Instance {
                 s.rotx, s.roty, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.velocity, s.collisionVelocity,
-                s.verticalVelocity));
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
     }
 
     /**
@@ -196,7 +220,7 @@ public abstract class Instance {
         shader.loadModelMatrix(gl, getTransformationMatrix());
         shader.loadTextureLightValues(gl, model.getTextureImg().getShininess(),
                 model.getTextureImg().getReflectivity());
-        
+
         GraphicsObject obj = model.getAsset().get(0);
         for (int i = 0; i < obj.size(); i++) {
             if(shader.useMaterial()) shader.loadMaterial(gl,obj.getMaterials().get(i));
@@ -212,6 +236,21 @@ public abstract class Instance {
         }
         gl.glBindVertexArray(0);
     }
+
+    public void draw(GL3 gl, ShadowShader shader) {
+        shader.loadModelMatrix(gl, getTransformationMatrix());
+
+        GraphicsObject obj = model.getAsset().get(0);
+        for (int i = 0; i < obj.size(); i++) {
+            gl.glBindVertexArray(obj.getVao(i));
+            gl.glEnableVertexAttribArray(0);
+            gl.glDrawElements(GL3.GL_TRIANGLES, obj.getNrV(i),
+                    GL3.GL_UNSIGNED_INT, 0);
+            gl.glDisableVertexAttribArray(0);
+
+        }
+        gl.glBindVertexArray(0);
+    }
     
     /**
      * Sets the state of {@code this} instance.
@@ -223,6 +262,9 @@ public abstract class Instance {
         state.box.setRoty(state.roty + state.internRoty);
         state.box.setRotz(state.rotz + state.internRotz);
         this.state = state;
+        
+        setChanged();
+        notifyObservers(state);
     }
     
     /**
@@ -292,6 +334,14 @@ public abstract class Instance {
         return state.box.intersects(other.state.box);
     }
     
+    public ProgressManager getProgressManager() {
+        return progress;
+    }
+    
+    public void setProgressManager(ProgressManager pm) {
+        this.progress = pm;
+    }
+    
     /**
      * @return {@code true} if the instance is static (i.e. not moveable).
      *     {@code false} otherwise.
@@ -304,13 +354,15 @@ public abstract class Instance {
      * @param pStruct the action to execute.
      */
     public void movement(PStructAction pStruct) {
+        if (isDestroyed()) return;
         if (!isStatic()) {
             Set<Instance> collisions = GS.grid.getCollisions(this);
             Physics.calcPhysics(this, pStruct, physicsContext, state,
                     collisions, progress);
             
         } else {
-            Physics.calcPhysics(this, pStruct, physicsContext, state, null, progress);
+            Physics.calcPhysics(this, pStruct, physicsContext, state,
+                    null, progress);
         }
     }
     
@@ -318,7 +370,17 @@ public abstract class Instance {
      * Removes the instance and releases all resources connected to it.
      */
     public void destroy() {
-        // TODO
+        System.out.println("destroyed: " + this);
+        isDestroyed = true;
+        Locker.remove(this);
+    }
+    
+    /**
+     * @return {@code true} if this object is destroyed.
+     *     {@code false} otherwise.
+     */
+    public boolean isDestroyed() {
+        return isDestroyed;
     }
     
     

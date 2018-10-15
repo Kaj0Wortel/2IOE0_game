@@ -23,8 +23,12 @@ public class ItemRenderer {
         defaultShader.loadViewMatrix(gl, GS.camera.getViewMatrix());
         defaultShader.loadLight(gl,GS.getLights().get(0));
         defaultShader.loadCameraPos(gl, GS.camera.getPosition());
+        defaultShader.loadTextures(gl);
+
 
         for(Instance asset : GS.getItems()){
+            gl.glActiveTexture(gl.GL_TEXTURE0);
+            gl.glBindTexture(gl.GL_TEXTURE_2D, asset.getModel().getTextureImg().getTexture());
             asset.draw(gl, defaultShader);
         }
 
