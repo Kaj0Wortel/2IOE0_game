@@ -5,7 +5,10 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import src.GS;
 
-public class FrustrumBox {
+import java.util.Observable;
+import java.util.Observer;
+
+public class FrustrumBox implements Observer {
 
     private float width;
     private float height;
@@ -31,11 +34,9 @@ public class FrustrumBox {
         height = 0;
         depth = 0;
 
-        calculateBoundingBox();
     }
 
-
-    public void calculateBoundingBox(){
+    public void update(Observable o, Object arg){
         float hhn = (float) Math.tan(Math.toRadians(FOV/2)) * NEAR;
         float hwn = getAspectRatio() * hhn;
         float hhf = (float) Math.tan(Math.toRadians(FOV/2)) * SHADOW_DISTANCE;
