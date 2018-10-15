@@ -536,7 +536,7 @@ public class AINN {
 
         if (updateThread != null) return;
 
-        new Thread("AINN-thread-" + id) {
+        updateThread = new Thread("AINN-thread-" + id) {
             private long prevTime = System.currentTimeMillis();
 
             @Override
