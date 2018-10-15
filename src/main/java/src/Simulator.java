@@ -16,7 +16,6 @@ import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
 import src.tools.Binder;
 import src.tools.PosHitBox3f;
-import src.tools.update.Updateable;
 import src.tools.update.Updater;
 
 import javax.swing.*;
@@ -24,14 +23,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static src.Simulator.TYPE.*;
-import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
 // Own imports
 // Java imports
 
 
-public class Simulator
-        implements Updateable {
+public class Simulator {
 
     public static enum TYPE {
         CAR, ITEM, TRACK, ENVIRONMENT_TYPE, PLAYER, OTHER;
@@ -43,10 +40,6 @@ public class Simulator
 
     public Simulator () {
         this.binder = new Binder();
-        
-        SwingUtilities.invokeLater(() -> {
-            Updater.addTask(this);
-        });
     }
 
     public void setGL(GL3 gl){
@@ -201,25 +194,6 @@ public class Simulator
         binder.clean(gl);
     }
 
-
-    long prevTimeStamp = System.currentTimeMillis();
-    @Override
-    public void performUpdate(long timeStamp)
-            throws InterruptedException {
-        long dt = timeStamp - prevTimeStamp;
-        prevTimeStamp = timeStamp;
-    }
-    
-    @Override
-    public void ignoreUpdate(long timeStamp) {
-        prevTimeStamp = timeStamp;
-    }
-    
-    @Override
-    public Priority getPriority() {
-        return UPDATE_ALWAYS;
-    }
-
     public Instance addToGamestate(TYPE type, OBJCollection col,
             Vector3f position, int size, int rotx, int roty, int rotz,
             int integratedRotation, TextureImg texture, TextureImg normalMap,
@@ -347,8 +321,8 @@ public class Simulator
         PosHitBox3f box = col.createBoundingBox();
         box.translate(position);
         Instance cubeInstance = new MaterialInstance(box,
-                size, rotx, roty, rotz, texturedCube,
-                integratedRotation, new PhysicsContext(),
+                size, 0, 0, 0, texturedCube,
+                rotx, roty, rotz, new PhysicsContext(),
                 MaterialInstance.Type.SPACE_ROCK);
         GS.addMaterialAsset(cubeInstance);
     }

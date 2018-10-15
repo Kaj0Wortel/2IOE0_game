@@ -125,29 +125,32 @@ public abstract class Instance
     public Matrix4f getTransformationMatrix() {
         State s = state; // For sync.
         Matrix4f transformationMatrix = new Matrix4f();
+        
+        // World coordinate system.
         transformationMatrix.identity();
         transformationMatrix.translate(s.box.pos());
-        Vector3f rotVec = new Vector3f(
-                (float) Math.sin(Math.toRadians(s.box.rotx())),
-                0,
-                (float) Math.sin(Math.toRadians(s.box.rotz())));
-        
+        Vector3f rotVec1 = new Vector3f(
+                (float) Math.sin(Math.toRadians(s.rotx)),
+                (float) (Math.cos(Math.toRadians(s.rotz))
+                        + Math.cos(Math.toRadians(s.rotx))),
+                (float) Math.sin(Math.toRadians(s.rotz)))
+                .cross(new Vector3f(0, 1, 0));
         transformationMatrix
-                /**/
-                .rotate((float) Math.toRadians(s.box.roty()), 0, 1, 0)
-                .rotate(rotVec.length(), rotVec);
-                //.rotate((float) Math.toRadians(s.box.rotx()), 1, 0, 0)
-                //.rotate((float) Math.toRadians(s.box.rotz()), 0, 0, 1);
-                /**/
-                /*
-                .rotate((float) Math.toRadians(s.rotx), 1, 0, 0)
                 .rotate((float) Math.toRadians(s.roty), 0, 1, 0)
-                .rotate((float) Math.toRadians(s.rotz), 0, 0, 1)
-                .rotate((float) Math.toRadians(s.internRotx), 1, 0, 0)
-                .rotate((float) Math.toRadians(s.internRoty), 0, 1, 0)
-                .rotate((float) Math.toRadians(s.internRotz), 0, 0, 1);
-                */
+                .rotate(rotVec1.length(), rotVec1);
         transformationMatrix.scale(s.sizex, s.sizey, s.sizez);
+        
+        // Model coordinate system.
+        
+        Vector3f rotVec2 = new Vector3f(
+                (float) Math.sin(Math.toRadians(s.internRotx)),
+                (float) (Math.cos(Math.toRadians(s.internRotz))
+                        + Math.cos(Math.toRadians(s.internRotx))),
+                (float) Math.sin(Math.toRadians(s.internRotz)))
+                .cross(new Vector3f(0, 1, 0));
+        transformationMatrix
+                .rotate((float) Math.toRadians(s.internRoty), 0, 1, 0)
+                .rotate(rotVec2.length(), rotVec2);
         
         return transformationMatrix;
     }
