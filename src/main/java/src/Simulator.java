@@ -75,6 +75,7 @@ public class Simulator
         OBJCollection car = LoadOBJ.load(gl, GS.OBJ_DIR + "car.obj");
         OBJCollection car2 = LoadOBJ.load(gl, GS.OBJ_DIR + "offroadcar.obj");
         OBJCollection rock = LoadOBJ.load(gl, GS.OBJ_DIR + "Low-Poly_models.obj");
+        OBJCollection planet = LoadOBJ.load(gl, GS.OBJ_DIR + "planet.obj");
 
         Map<Integer, OBJObject> rocks = new HashMap<Integer, OBJObject>();
         rocks.put(0, rock.get(0));
@@ -190,6 +191,8 @@ public class Simulator
             ), GS.rani(1, 8), GS.rani(0, 90), GS.rani(0, 90), GS.rani(0, 90), 0,
             new TextureImg(5, 3f));
         }
+
+        addRock(planet.get(0), new Vector3f(310,-30,780), 25,0,0,0,0,new TextureImg(5, 3f));
 
         addSkybox();
         

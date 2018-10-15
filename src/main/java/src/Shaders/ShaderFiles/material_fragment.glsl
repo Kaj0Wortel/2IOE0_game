@@ -28,7 +28,7 @@ void main() {
     float dotSpec = dot(unitCamera, ref);
     dotSpec = max(dotSpec, 0.0);
     dotSpec = pow(dotSpec, shininess);
-    vec3 specular = dotSpec * reflectivity * lightColor * matSpecular;
+    vec3 specular = dotSpec * lightColor * matSpecular;
 
 
 	color = vec4(change,1.0) + vec4(specular,1.0);
