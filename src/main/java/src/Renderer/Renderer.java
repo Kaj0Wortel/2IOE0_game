@@ -85,7 +85,7 @@ public class Renderer
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
-        //gl.glViewport(0, 0, GS.canvas.getWidth(), GS.canvas.getHeight());
+        gl.glViewport(0, 0, GS.canvas.getWidth(), GS.canvas.getHeight());
         shadowRenderer.render(gl);
 
         gl.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_COLOR_BUFFER_BIT);
