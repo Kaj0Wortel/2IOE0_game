@@ -66,12 +66,12 @@ public class FrustrumBox {
 
     private void getBoundingBox(Vector4f[] vertices) {
         float maxX = Float.NEGATIVE_INFINITY;
-        float maxY = Float.POSITIVE_INFINITY;
-        
-        float maxZ = Float.NEGATIVE_INFINITY;
         float minX = Float.POSITIVE_INFINITY;
         
-        float minY = Float.NEGATIVE_INFINITY;
+        float maxY = Float.NEGATIVE_INFINITY;
+        float minY = Float.POSITIVE_INFINITY;
+        
+        float maxZ = Float.NEGATIVE_INFINITY;
         float minZ = Float.POSITIVE_INFINITY;
         
         for(Vector4f v : vertices) {
@@ -86,7 +86,7 @@ public class FrustrumBox {
         }
         
         maxZ += 10; // Some random increment that fixes everything.
-
+        
         width  = maxX - minX;
         height = maxY - minY;
         depth  = maxZ - minZ;
