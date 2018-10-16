@@ -59,7 +59,7 @@ public class FrustrumBox {
     }
 
     private void transform(Vector4f[] vertices, Matrix4f matrix) {
-        for(Vector4f v : vertices){
+        for(Vector4f v : vertices) {
             matrix.transform(v);
         }
     }
@@ -94,10 +94,10 @@ public class FrustrumBox {
         Vector4f centerInLightSpace = new Vector4f(
                 (minX + maxX) / 2,
                 (minY + maxY) / 2,
-                (maxZ + minZ) / 2,
+                (minZ + maxZ) / 2,
                 1);
         GS.getLights().get(0)
-                .getRotatinMatrixInverse()
+                .getRotationMatrixInverse()
                 .transform(centerInLightSpace);
         center = new Vector3f(
                 centerInLightSpace.x,
@@ -120,8 +120,7 @@ public class FrustrumBox {
     }
 
     public Matrix4f getLightViewMatrix() {
-        return new Matrix4f(GS.getLights().get(0)
-                .getRotationMatrix())
+        return new Matrix4f(GS.getLights().get(0).getRotationMatrix())
                 .translate(new Vector3f(-center.x, -center.y, -center.z));
     }
 }

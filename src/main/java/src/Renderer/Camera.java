@@ -54,8 +54,7 @@ public class Camera
         viewMatrix.rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0));
         viewMatrix.rotate((float) Math.toRadians(yaw), new Vector3f(0, 1, 0));
         viewMatrix.rotate((float) Math.toRadians(roll), new Vector3f(0, 0, 1));
-        Vector3f negPos = new Vector3f(-position.x, -position.y, -position.z);
-        viewMatrix.translate(negPos);
+        viewMatrix.translate(new Vector3f(position).negate());
     }
     
     public Matrix4f getViewMatrix(){
@@ -125,15 +124,15 @@ public class Camera
         if (focusedOn != null) {
             focusedOn.deleteObserver(this);
             focusedOn = null;
+            onPlayer = false;
+            position = new Vector3f(previousPosition);
+            this.yaw = 0;
+            this.pitch = 0;
+            this.roll = 0;
         }
-        onPlayer = false;
-        position = new Vector3f(previousPosition);
-        this.yaw = 0;
-        this.pitch = 0;
-        this.roll = 0;
     }
 
-    public void rubberBand(){
+    public void rubberBand() {
         boolean turned = false;
         if(focusedOn == null && rubberBandEnabled) {
 
@@ -172,7 +171,7 @@ public class Camera
 
     }
 
-    public void speedFOV(){
+    public void speedFOV() {
         Renderer.changeFOV(fovVelocityFactor * focusedOn.getState().velocity);
     }
     
@@ -180,27 +179,33 @@ public class Camera
         return onPlayer;
     }
     
-    public void moveToInstance(){
+    @Deprecated
+    public void moveToInstance() {
         distanceToAsset -= 0.1f;
     }
     
-    public void moveAwayFromInstance(){
+    @Deprecated
+    public void moveAwayFromInstance() {
         distanceToAsset += 0.1f;
     }
     
-    public void rotateAroundAssetR(){
+    @Deprecated
+    public void rotateAroundAssetR() {
         angleAroundAsset += 0.1f;
     }
     
-    public void rotateAroundAssetL(){
+    @Deprecated
+    public void rotateAroundAssetL() {
         angleAroundAsset -= 0.1f;
     }
     
-    public void movePitchDown(){
+    @Deprecated
+    public void movePitchDown() {
         pitch -= 0.1f;
     }
     
-    public void movePitchUp(){
+    @Deprecated
+    public void movePitchUp() {
         pitch += 0.1f;
     }
     
@@ -221,7 +226,7 @@ public class Camera
 
     }
 
-    public Matrix4f getViewMatrixInverse(){
+    public Matrix4f getViewMatrixInverse() {
         Matrix4f viewMatrixRotation = new Matrix4f();
         viewMatrixRotation.rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0));
         viewMatrixRotation.rotate((float) Math.toRadians(yaw), new Vector3f(0, 1, 0));

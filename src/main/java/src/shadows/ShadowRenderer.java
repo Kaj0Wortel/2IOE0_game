@@ -21,7 +21,6 @@ public class ShadowRenderer {
         shadowShader = new ShadowShader(gl);
         shadowFBO = new ShadowFBO(gl, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
         frustrumBox = new FrustrumBox(fov, near, far, width, height);
-
     }
     
     
@@ -59,21 +58,21 @@ public class ShadowRenderer {
     }
 
     public Matrix4f getShadowMatrix() {
-        Matrix4f shadowMatrix = new Matrix4f();
-        shadowMatrix.mul(offsetMatrox());
-        shadowMatrix.mul(frustrumBox.getOrthographicProjectionMatrix());
-        shadowMatrix.mul(frustrumBox.getLightViewMatrix());
-        return shadowMatrix;
+        return new Matrix4f()
+                .mul(offsetMatrox())
+                .mul(frustrumBox.getOrthographicProjectionMatrix())
+                .mul(frustrumBox.getLightViewMatrix());
     }
 
-    private Matrix4f offsetMatrox(){
-        Matrix4f offset = new Matrix4f();
-        offset.translate(new Vector3f(0.5f, 0.5f, 0.5f));
-        offset.scale(new Vector3f(0.5f, 0.5f, 0.5f));
-        return offset;
+    private Matrix4f offsetMatrox() {
+        return new Matrix4f()
+                .translate(new Vector3f(0.5f, 0.5f, 0.5f))
+                .scale(new Vector3f(0.5f, 0.5f, 0.5f));
     }
 
     public FrustrumBox getFrustrumBox() {
         return frustrumBox;
     }
+    
+    
 }

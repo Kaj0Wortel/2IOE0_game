@@ -36,7 +36,7 @@ public class Light {
         return rotationMatrix;
     }
 
-    public Matrix4f getRotatinMatrixInverse(){
+    public Matrix4f getRotationMatrixInverse(){
         return new Matrix4f(getRotationMatrix()).invert();
     }
 }

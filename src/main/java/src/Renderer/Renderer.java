@@ -108,7 +108,6 @@ public class Renderer
         GS.getTrack().draw(gl, shadowRenderer.getShadowMatrix());
         GS.getSkybox().draw(gl, projectionMatrix);
         guiRenderer.render(gl);
-
     }
 
     @Override
