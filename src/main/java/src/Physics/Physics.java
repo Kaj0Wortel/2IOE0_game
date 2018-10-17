@@ -401,8 +401,37 @@ public class Physics {
                 double yz_ang = Math.atan2(y, z);
                 double rotz = Math.atan2(x, yz);
 
+                double z_ang;
+                if(!inAir) {
+                    Vector3f n = new Vector3f();
+                    normals[ind].cross(tangents[ind], n);
+                    Vector3f side = new Vector3f();
+                    points[ind].add(n, side);
+                    Vector3f side2 = new Vector3f();
+                    points[ind].add(n.negate(), side2);
+                    Vector3f sideToPoint = new Vector3f();
+                    s.box.pos().sub(side, sideToPoint);
+                    Vector3f sideToPoint2 = new Vector3f();
+                    s.box.pos().sub(side2, sideToPoint2);
+                    int sign = -1;
+                    if (sideToPoint.length() < sideToPoint2.length()) {
+                        sign *= -1;
+                    }
+
+                    double a = sign * dist;
+                    double mapped_dist = a / trackWidth;
+                    System.out.println(mapped_dist);
+
+                    z_ang = Math.atan(-2 * (1.5 / (trackWidth / 2)) * mapped_dist);
+                    double z_dist = mapped_dist * mapped_dist * 1.5f;
+                    s.internTrans = new Vector3f(0, 0, (float) -z_dist);
+                }else{
+                    z_ang = 0.0;
+                }
+
                 //write the needed rotation to the rotation only do this with the final value
-                s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));       
+                //s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));
+                s.internRotz = (float) z_ang;
                 s.rotx = (float) (-rotz * Math.cos(yz_ang - s.roty));
                 // </editor-fold>
 

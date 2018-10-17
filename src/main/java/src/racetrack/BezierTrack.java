@@ -229,6 +229,7 @@ public class BezierTrack
     
     private float nMapSquared(int i) {
         float nMap = nMap(i);
+        System.out.println(nMap);
         return nMap * nMap * 1.5f;
     }
     
