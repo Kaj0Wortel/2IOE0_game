@@ -13,11 +13,6 @@ import java.util.ArrayList;
 public class BezierTrack
         extends Track {
 
-    final private int nrSegmentVerticesCol = 150;
-    final private int nrSegmentVerticesRow = 17; //Must be odd
-    private int laneWidth = 7;
-    private int scalePoints = 10;
-
     private Vector3f UP = new Vector3f(0, 1, 0);
 
     public BezierTrack(Vector3f position, float size,
@@ -144,14 +139,14 @@ public class BezierTrack
         ArrayList<Integer> indices = new ArrayList<>();
 
         for (int i = 0; i < nrOfSegments; i++) {
-            for (int col = 0; col < nrSegmentVerticesCol; col++) {
-                float t = (float) col / (float) nrSegmentVerticesCol;
+            for (int col = 0; col < NR_SEGMENT_VERTICES_COL; col++) {
+                float t = (float) col / (float) NR_SEGMENT_VERTICES_COL;
                 Vector3f point = getPoint(i, t);
                 Vector3f tangent = getTangent(i, t);
                 Vector3f normal = new Vector3f(tangent).cross(UP).normalize();
                 Vector3f vertNorm = new Vector3f(normal).cross(tangent).normalize();
 
-                for (int row = 0; row < nrSegmentVerticesRow; row++) {
+                for (int row = 0; row < NR_SEGMENTS_VERTICES_ROW; row++) {
                     Vector3f mulNormal = new Vector3f(normal)
                             .mul(laneWidth).mul(nMap(row))
                             .sub(new Vector3f(vertNorm).mul(nMapSquared(row)));
@@ -165,40 +160,40 @@ public class BezierTrack
                     normals.add(UP.y);
                     normals.add(UP.z);
                     textureCoordinates.add(t);
-                    textureCoordinates.add(((float) row) / ((float) nrSegmentVerticesRow - 1));
+                    textureCoordinates.add(((float) row) / ((float) NR_SEGMENTS_VERTICES_ROW - 1));
                 }
             }
         }
         for (int i = 0; i < nrOfSegments; i++) {
-            int pointer = i * nrSegmentVerticesRow * nrSegmentVerticesCol;
+            int pointer = i * NR_SEGMENTS_VERTICES_ROW * NR_SEGMENT_VERTICES_COL;
 
-            for (int col = 0; col < nrSegmentVerticesCol - 1; col++) {
-                for (int row = 0; row < nrSegmentVerticesRow - 1; row++) {
-                    indices.add(col * (nrSegmentVerticesRow) + row + pointer);
-                    indices.add((col + 1) * (nrSegmentVerticesRow) + row + pointer);
-                    indices.add(col * (nrSegmentVerticesRow) + row + pointer + 1);
+            for (int col = 0; col < NR_SEGMENT_VERTICES_COL - 1; col++) {
+                for (int row = 0; row < NR_SEGMENTS_VERTICES_ROW - 1; row++) {
+                    indices.add(col * (NR_SEGMENTS_VERTICES_ROW) + row + pointer);
+                    indices.add((col + 1) * (NR_SEGMENTS_VERTICES_ROW) + row + pointer);
+                    indices.add(col * (NR_SEGMENTS_VERTICES_ROW) + row + pointer + 1);
 
-                    indices.add(col * (nrSegmentVerticesRow) + row + pointer + 1);
-                    indices.add((col + 1) * (nrSegmentVerticesRow) + row + pointer);
-                    indices.add((col + 1) * (nrSegmentVerticesRow) + row + pointer + 1);
+                    indices.add(col * (NR_SEGMENTS_VERTICES_ROW) + row + pointer + 1);
+                    indices.add((col + 1) * (NR_SEGMENTS_VERTICES_ROW) + row + pointer);
+                    indices.add((col + 1) * (NR_SEGMENTS_VERTICES_ROW) + row + pointer + 1);
                 }
             }
 
-            int curCol = nrSegmentVerticesCol - 1;
+            int curCol = NR_SEGMENT_VERTICES_COL - 1;
 
             int p;
             if (i + 1 < nrOfSegments) {
-                p = (i + 1) * nrSegmentVerticesRow * nrSegmentVerticesCol;
+                p = (i + 1) * NR_SEGMENTS_VERTICES_ROW * NR_SEGMENT_VERTICES_COL;
             } else {
                 p = 0;
             }
-            for (int row = 0; row < nrSegmentVerticesRow - 1; row++) {
+            for (int row = 0; row < NR_SEGMENTS_VERTICES_ROW - 1; row++) {
 
-                indices.add(curCol * nrSegmentVerticesRow + row + pointer);
+                indices.add(curCol * NR_SEGMENTS_VERTICES_ROW + row + pointer);
                 indices.add(row + p);
-                indices.add(curCol * nrSegmentVerticesRow + row + pointer + 1);
+                indices.add(curCol * NR_SEGMENTS_VERTICES_ROW + row + pointer + 1);
 
-                indices.add(curCol * nrSegmentVerticesRow + row + pointer + 1);
+                indices.add(curCol * NR_SEGMENTS_VERTICES_ROW + row + pointer + 1);
                 indices.add(row + p);
                 indices.add(row + p + 1);
 
@@ -226,7 +221,7 @@ public class BezierTrack
     }
 
     private float nMap(int i) {
-        float nr = (float) nrSegmentVerticesRow - 1;
+        float nr = (float) NR_SEGMENTS_VERTICES_ROW - 1;
         float half = nr / 2;
 
         return ((float) i / half) - 1.0f;

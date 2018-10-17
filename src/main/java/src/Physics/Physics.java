@@ -174,6 +174,7 @@ public class Physics {
     
     // Necessary for determining if on track
     final private static int POINTS_PER_SEGMENT = 500;
+    private static Track track = null;
     private static Vector3f[] points = new Vector3f[0];
     private static Vector3f[] normals = new Vector3f[0];
     private static Vector3f[] tangents = new Vector3f[0];
@@ -303,7 +304,7 @@ public class Physics {
         if (!s.isResetting) {
             // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
             // Find road point closest to car
-            float shortestDist = 10000000;
+            float shortestDist = 10_000_000;
             float dist;
             int ind = 0; // Current road point index
             // Check from checkpoint up until current point
@@ -365,7 +366,7 @@ public class Physics {
                 s.onTrack = false;
             //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
             //        , (float)Math.sqrt(6)/3);
-            Vector3f rN = new Vector3f(normals[ind]);
+            Vector3f rN = Track.rotateNormal(normals[ind], tangents[ind], dist);
             Vector3f roadPos = new Vector3f(points[ind]);
             // </editor-fold>
 
@@ -707,6 +708,7 @@ public class Physics {
      * @param track the track to get the points and normals of.
      */
     public static void setTrack(Track track) {
+        Physics.track = track;
         List<Vector3f> pointList = new ArrayList<Vector3f>();
         List<Vector3f> normalList = new ArrayList<Vector3f>();
         List<Vector3f> tangentList = new ArrayList<Vector3f>();

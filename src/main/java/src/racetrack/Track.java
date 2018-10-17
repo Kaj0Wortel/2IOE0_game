@@ -12,6 +12,11 @@ import java.nio.IntBuffer;
 
 public abstract class Track {
 
+    final protected static int NR_SEGMENT_VERTICES_COL = 150;
+    final protected static int NR_SEGMENTS_VERTICES_ROW = 17; //Must be odd
+    protected int laneWidth = 7;
+    protected int scalePoints = 10;
+
     protected Vector3f[] controlPoints;
     protected int nrOfSegments;
 
@@ -120,6 +125,15 @@ public abstract class Track {
         return tangent.cross(sideVector);
     }
     
+    public static Vector3f calcNormal(Vector3f tangent, float dist) {
+        return rotateNormal(calcNormal(tangent), tangent, dist);
+    }
+    
+    public static Vector3f rotateNormal(Vector3f norm, Vector3f tangent,
+            float dist) {
+        return norm; // TODO
+    }
+    
 
     private void prepare(GL3 gl){
         shader.start(gl);
@@ -154,4 +168,6 @@ public abstract class Track {
     private void prepare(GL3 gl, ShadowShader shader){
         shader.loadModelMatrix(gl, getTransformationMatrix());
     }
+    
+    
 }
