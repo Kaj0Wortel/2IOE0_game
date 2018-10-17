@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.joml.Matrix3f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import src.tools.PosHitBox3f;
 import src.tools.log.Logger;
@@ -307,7 +308,7 @@ public class Physics {
         if (!s.isResetting) {
             // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
             // Find road point closest to car
-            float shortestDist = 10_000_000;
+            float shortestDist = Float.POSITIVE_INFINITY;
             float dist;
             int ind = 0; // Current road point index
             // Check from checkpoint up until current point
@@ -389,20 +390,16 @@ public class Physics {
                 // </editor-fold>
 
                 // <editor-fold defaultstate="collapsed" desc="HORIZONTAL ROTATION"> 
-                double y = rN.y;
-                double x = rN.x;
-                double z = rN.z;
-                /*
                 double y = normals[ind].y;
                 double x = normals[ind].x;
-                double z = normals[ind].z;*/
+                double z = normals[ind].z;
                 //calculating the values needed
                 double yz = Math.sqrt(y*y + z*z);
                 double yz_ang = Math.atan2(y, z);
                 double rotz = Math.atan2(x, yz);
 
                 double z_ang;
-                if(!inAir) {
+                //if(!inAir) {
                     Vector3f n = new Vector3f();
                     normals[ind].cross(tangents[ind], n);
                     Vector3f side = new Vector3f();
@@ -418,23 +415,36 @@ public class Physics {
                         sign *= -1;
                     }
 
+                    //System.out.println(mapped_dist);
                     double a = sign * dist;
                     double mapped_dist = a / trackWidth;
-                    System.out.println(mapped_dist);
-
                     z_ang = Math.atan(-2 * (1.5 / (trackWidth / 2)) * mapped_dist);
+                    
+                if (!inAir) {
                     double z_dist = mapped_dist * mapped_dist * 1.5f;
                     s.internTrans = new Vector3f(0, 0, (float) -z_dist);
-                }else{
-                    z_ang = 0.0;
+                } else {
+                    s.internTrans.mul(0.99f * dt);
                 }
 
                 //write the needed rotation to the rotation only do this with the final value
                 //s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));
-                s.internRotz = (float) z_ang;
                 s.rotx = (float) (-rotz * Math.cos(yz_ang - s.roty));
+                
+                Vector2f curCarDir = new Vector2f(
+                        (float) Math.sin(s.roty),
+                        (float) Math.cos(s.roty)
+                ).normalize();
+                Vector2f tangTrackDir = new Vector2f(
+                        tangents[ind].x,
+                        tangents[ind].z
+                ).normalize();
+                float cosAngleCarTrack = curCarDir.dot(tangTrackDir) /
+                        (curCarDir.length() * tangTrackDir.length());
+                s.internRotx = (float) (z_ang * cosAngleCarTrack);
+                s.internRotz = (float) (z_ang * Math.sin(Math.acos(cosAngleCarTrack)));
                 // </editor-fold>
-
+                
                 // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
                 progress.manageProgress(s.box.pos(), points.length, ind);
                 if (progress.finished) {
@@ -445,7 +455,13 @@ public class Physics {
             }
             // </editor-fold>
             else {
-                s.rotz += 0.015;
+                System.out.println(dt);
+                s.rotz += 0.015 * dt;
+                float change = (float) Math.pow(0.8, dt);
+                s.internTrans.mul(change);
+                s.internRotx *= change;
+                s.internRoty *= change;
+                s.internRotz *= change;
             }
 
             // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
@@ -477,7 +493,7 @@ public class Physics {
             } else { // When accelerate
                 if (s.velocity > linAccel * pc.frictionConstant * dt && pStruct.accel < 0 
                         || s.velocity < -linAccel * pc.frictionConstant * dt && pStruct.accel > 0) {
-                    linAccel *=pc.brakeAccel;
+                    linAccel *= pc.brakeAccel;
                 }
                 linAccel *= pStruct.accel;
             }
@@ -511,7 +527,10 @@ public class Physics {
                 eV = s.velocity + linAccel * dt;
                 eRot = s.roty;
                 // Calculate the vFactor in the direction of XY movement
-                carDir = new Vector3f ((float)Math.cos(s.roty), (float)Math.sin(s.roty), 0);
+                carDir = new Vector3f (
+                        (float) Math.cos(s.roty),
+                        (float) Math.sin(s.roty),
+                        0);
                 u = new Vector3f(carDir.y*rN.z - carDir.z*rN.y,
                         carDir.z*rN.x - carDir.x*rN.z,
                         carDir.x*rN.y - carDir.y*rN.x);
@@ -547,7 +566,10 @@ public class Physics {
                 distAngle = (-(distAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
 
                 // Calculate the vFactor in the direction of XY movement
-                carDir = new Vector3f ((float)Math.cos(distAngle), (float)Math.sin(distAngle), 0);
+                carDir = new Vector3f (
+                        (float) Math.cos(distAngle),
+                        (float) Math.sin(distAngle),
+                        0);
                 u = new Vector3f(carDir.y*rN.z - carDir.z*rN.y,
                         carDir.z*rN.x - carDir.x*rN.z,
                         carDir.x*rN.y - carDir.y*rN.x);
@@ -682,6 +704,11 @@ public class Physics {
                 // Drive again
                 s.isResetting = false;
             }
+            
+            s.internRotx = 0;
+            s.internRoty = 0;
+            s.internRotz = 0;
+            s.internTrans = new Vector3f();
         }
         // </editor-fold>
         
