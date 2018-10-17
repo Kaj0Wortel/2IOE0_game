@@ -18,7 +18,7 @@ void main() {
     vec3 unitNormal = normalize(normalVector);
     vec3 unitLight = normalize(toLight);
     float d = dot(unitNormal, unitLight);
-    d = max(d,0.1);
+    d = max(d,0.3);
     vec3 change = d * lightColor;
 
     vec3 unitCamera = normalize(toCamera);

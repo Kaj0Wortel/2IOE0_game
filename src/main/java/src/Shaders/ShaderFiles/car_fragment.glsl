@@ -30,7 +30,7 @@ void main() {
     for(int i = -pcfPixels; i < pcfPixels + 1; i++){
         for(int j = -pcfPixels; j < pcfPixels + 1; j++){
             float depth = texture(shadowMap, shadowTextureCoords.xy + vec2(i,j)*pixelSize).r;
-            if(shadowTextureCoords.z - 0.005f > depth){
+            if(shadowTextureCoords.z - 0.01f > depth){
                     visible += 1.0;
             }
         }
