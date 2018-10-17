@@ -166,7 +166,7 @@ public class Camera
             previousRotation = currentRotation;
             angleAroundAsset *= -1;
         }
-        float targetPitch = 20 + focusedOn.getRotz();
+        float targetPitch = 20 - focusedOn.getRotx();
         //System.out.println("targetPitch" + targetPitch);
         if (Math.abs(targetPitch - pitch) > 0.01f)
         pitch = targetPitch;
@@ -231,8 +231,8 @@ public class Camera
 
     public Matrix4f getViewMatrixInverse() {
         Matrix4f viewMatrixRotation = new Matrix4f();
-        viewMatrixRotation.rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0));
         viewMatrixRotation.rotate((float) Math.toRadians(yaw), new Vector3f(0, 1, 0));
+        viewMatrixRotation.rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0));
         viewMatrixRotation.rotate((float) Math.toRadians(roll), new Vector3f(0, 0, 1));
         viewMatrixRotation.transpose();
 

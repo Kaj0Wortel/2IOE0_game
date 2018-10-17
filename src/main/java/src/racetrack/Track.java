@@ -31,7 +31,8 @@ public abstract class Track {
     protected Matrix4f projectionMatrix;
     protected Matrix4f viewMatrix;
 
-    public Track(Vector3f position, float size, float rotx, float roty, float rotz, TextureImg texture, TextureImg bumpmap) {
+    public Track(Vector3f position, float size, float rotx, float roty,
+            float rotz, TextureImg texture, TextureImg bumpmap) {
         this.position = position;
         this.size = size;
         this.rotx = rotx;
@@ -41,7 +42,8 @@ public abstract class Track {
         this.bumpmap = bumpmap;
     }
 
-    public abstract void setShaderAndRenderMatrices(RacetrackShader shader, Matrix4f projectionMatrix, Matrix4f viewMatrix);
+    public abstract void setShaderAndRenderMatrices(RacetrackShader shader,
+            Matrix4f projectionMatrix, Matrix4f viewMatrix);
 
     public abstract Vector3f getPoint(int segment, float t);
     public abstract Vector3f getTangent(int segment, float t);

@@ -10,17 +10,16 @@ import src.tools.update.CollisionManager.Collision;
 import src.tools.update.CollisionManager.Entry;
 import src.Progress.ProgressManager;
 
+
 //Java imports
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
-import src.Assets.instance.Car;
 import src.tools.PosHitBox3f;
 import src.tools.log.Logger;
 import src.tools.update.CollisionManager;
-
 
 
 public class Physics {
@@ -193,7 +192,7 @@ public class Physics {
      * simple collision (rectangle colliders)
      * rotation correction for small velocities and negative velocities
      * 2 simple items/situations implemented
-    \* Large slowdown when speed higher than vMax 
+     * Large slowdown when speed higher than vMax 
      * 
      * 
      * TODO:
@@ -308,7 +307,10 @@ public class Physics {
             float dist;
             int ind = 0; // Current road point index
             // Check from checkpoint up until current point
-            for (int i = Math.max((int)Math.floor(points.length * (progress.checkPoint / progress.cpAm)) - 5, (int)Math.floor(points.length * (progress.checkPoint / progress.cpAm))); i < Math.min(s.rIndex + 10, points.length); i++) {
+            for (int i = Math.max(
+                    (int) Math.floor(points.length * (progress.checkPoint / progress.cpAm)) - 5,
+                    (int) Math.floor(points.length * (progress.checkPoint / progress.cpAm)));
+                    i < Math.min(s.rIndex + 10, points.length); i++) {
                 if (Math.abs(s.box.pos().z - points[i].z) < 50) {
                     dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
                             + (float)Math.pow(s.box.pos().y - points[i].y, 2)
@@ -363,8 +365,8 @@ public class Physics {
                 s.onTrack = false;
             //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
             //        , (float)Math.sqrt(6)/3);
-            Vector3f rN = normals[ind];
-            Vector3f roadPos = new Vector3f(points[ind].x, points[ind].y, points[ind].z);
+            Vector3f rN = new Vector3f(normals[ind]);
+            Vector3f roadPos = new Vector3f(points[ind]);
             // </editor-fold>
 
             if (s.onTrack) {
@@ -388,7 +390,7 @@ public class Physics {
                 double z = normals[ind].z;
 
                 //calculating the values needed
-                double yz = Math.sqrt(Math.pow(y,2) + Math.pow(z,2));
+                double yz = Math.sqrt(y*y + z*z);
                 double yz_ang = Math.atan2(y, z);
                 double rotz = Math.atan2(x, yz);
 
@@ -662,11 +664,11 @@ public class Physics {
         Entry e1 = col.getEntry1();
         Entry e2 = col.getEntry2();
         
-        
         if (e2 == null) {
-//            Logger.write("collision e2 entry is empty", Logger.Type.ERROR);
-            System.out.println(col.getOther() + " " + e1.inst);
+            Logger.write("collision e2 entry is empty", Logger.Type.ERROR);
+            System.out.println("bad:  " + col.getOther() + " " + e1.inst);
         }
+        
         e1.ms.box.pos();//current position of car 1
         e2.ms.box.pos();//current position of car 2
         

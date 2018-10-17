@@ -165,8 +165,8 @@ public class Simulator {
                 0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
         new PlayerController(player2, 2);
 
-        addToGamestate(PLAYER, car2, new Vector3f(0,2,-30), 3, 0, 180, 0, 0,
-                new TextureImg(5, 3f), null, null);
+        addToGamestate(PLAYER, car2, new Vector3f(0, 2, -30), 3,
+                0, 180, 0, 0, new TextureImg(5, 3f), null, null);
 
         addLight(new Vector3f(30000f, 50000f, 1f),
                 new Vector3f(1f, 1f, 1f));

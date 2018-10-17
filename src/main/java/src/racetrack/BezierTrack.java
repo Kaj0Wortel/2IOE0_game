@@ -10,7 +10,8 @@ import src.tools.Binder;
 
 import java.util.ArrayList;
 
-public class BezierTrack extends Track {
+public class BezierTrack
+        extends Track {
 
     final private int nrSegmentVerticesCol = 150;
     final private int nrSegmentVerticesRow = 17; //Must be odd
@@ -147,12 +148,15 @@ public class BezierTrack extends Track {
                 float t = (float) col / (float) nrSegmentVerticesCol;
                 Vector3f point = getPoint(i, t);
                 Vector3f tangent = getTangent(i, t);
+                Vector3f normal = new Vector3f(tangent).cross(UP).normalize();
+                Vector3f vertNorm = new Vector3f(normal).cross(tangent).normalize();
 
                 for (int row = 0; row < nrSegmentVerticesRow; row++) {
-                    Vector3f normal = new Vector3f(tangent);
-                    normal.cross(UP).normalize().mul(laneWidth).mul(nMap(row));
+                    Vector3f mulNormal = new Vector3f(normal)
+                            .mul(laneWidth).mul(nMap(row))
+                            .sub(new Vector3f(vertNorm).mul(nMapSquared(row)));
                     Vector3f addedNormal = new Vector3f();
-                    point.add(normal, addedNormal);
+                    point.add(mulNormal, addedNormal);
 
                     vertices.add(addedNormal.x);
                     vertices.add(addedNormal.y);
@@ -221,10 +225,17 @@ public class BezierTrack extends Track {
         this.shadowMap = shadowMap;
     }
 
-    private float nMap(int i){
+    private float nMap(int i) {
         float nr = (float) nrSegmentVerticesRow - 1;
         float half = nr / 2;
 
         return ((float) i / half) - 1.0f;
     }
+    
+    private float nMapSquared(int i) {
+        float nMap = nMap(i);
+        return nMap * nMap * 1.5f;
+    }
+    
+    
 }
