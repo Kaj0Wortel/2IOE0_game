@@ -366,15 +366,16 @@ public class Physics {
                 s.onTrack = false;
             //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
             //        , (float)Math.sqrt(6)/3);
-            Vector3f rN = Track.rotateNormal(normals[ind], tangents[ind], dist);
             Vector3f roadPos = new Vector3f(points[ind]);
+            Vector3f rN = Track.rotateNormal(roadPos, s.box.pos(), normals[ind],
+                    tangents[ind], dist);
             // </editor-fold>
 
             if (s.onTrack) {
                 // <editor-fold defaultstate="collapsed" desc="AIR TIME DETECTION"> 
                 gndZ = roadPos.z 
-                        - (s.box.pos().x - roadPos.x) * rN.x / rN.z
-                        - (s.box.pos().y - roadPos.y) * rN.y / rN.z;
+                        - (s.box.pos().x - roadPos.x) * normals[ind].x / normals[ind].z
+                        - (s.box.pos().y - roadPos.y) * normals[ind].y / normals[ind].z;
                 // extra part after gnd is to compensate for small rounding errors
                 if (s.box.pos().z - gndZ < gndClamp && s.verticalVelocity <= 0.01) {
                     s.inAir = false;
@@ -386,10 +387,13 @@ public class Physics {
                 // </editor-fold>
 
                 // <editor-fold defaultstate="collapsed" desc="HORIZONTAL ROTATION"> 
+                double y = rN.y;
+                double x = rN.x;
+                double z = rN.z;
+                /*
                 double y = normals[ind].y;
                 double x = normals[ind].x;
-                double z = normals[ind].z;
-
+                double z = normals[ind].z;*/
                 //calculating the values needed
                 double yz = Math.sqrt(y*y + z*z);
                 double yz_ang = Math.atan2(y, z);

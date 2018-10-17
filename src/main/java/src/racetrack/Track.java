@@ -9,6 +9,7 @@ import src.Shaders.RacetrackShader;
 import src.shadows.ShadowShader;
 
 import java.nio.IntBuffer;
+import org.joml.Matrix3f;
 
 public abstract class Track {
 
@@ -125,13 +126,15 @@ public abstract class Track {
         return tangent.cross(sideVector);
     }
     
-    public static Vector3f calcNormal(Vector3f tangent, float dist) {
-        return rotateNormal(calcNormal(tangent), tangent, dist);
-    }
-    
-    public static Vector3f rotateNormal(Vector3f norm, Vector3f tangent,
-            float dist) {
-        return norm; // TODO
+    public static Vector3f rotateNormal(Vector3f roadPos, Vector3f carPos,
+            Vector3f norm, Vector3f tangent, float dist) {
+        Vector3f relPos = new Vector3f(roadPos).sub(carPos).normalize();
+        float angle = 45;//dist;//(float) Math.acos(norm.dot(relPos));
+        
+        Matrix3f rotMat = new Matrix3f().rotate(angle, tangent);
+        
+        //return new Vector3f(norm).mul(rotMat);
+        return norm;
     }
     
 
