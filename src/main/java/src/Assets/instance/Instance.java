@@ -130,13 +130,25 @@ public abstract class Instance
         transformationMatrix.translate(s.box.pos());
         
         // World coordinate system.
+        transformationMatrix
+                .rotate((float) Math.toRadians(s.box.roty()), 0, 1, 0)
+                .rotate((float) Math.toRadians(s.box.rotx()), 1, 0, 0)
+                .rotate((float) Math.toRadians(s.box.rotz()), 0, 0, 1);
         
-        transformationMatrix.rotate((float)
-                Math.toRadians(s.box.roty()), 0, 1, 0);
-        transformationMatrix.rotate((float)
-                Math.toRadians(s.box.rotx()), 1, 0, 0);
-        transformationMatrix.rotate((float)
-                Math.toRadians(s.box.rotz()), 0, 0, 1);
+        transformationMatrix.scale(s.sizex, s.sizey, s.sizez);
+        /*
+        transformationMatrix
+                .rotate((float) Math.toRadians(s.roty), 0, 1, 0)
+                .rotate((float) Math.toRadians(s.rotx), 1, 0, 0)
+                .rotate((float) Math.toRadians(s.rotz), 0, 0, 1);
+        
+        transformationMatrix.scale(s.sizex, s.sizey, s.sizez);
+        
+        transformationMatrix
+                .rotate((float) Math.toRadians(s.internRoty), 0, 1, 0)
+                .rotate((float) Math.toRadians(s.internRotx), 1, 0, 0)
+                .rotate((float) Math.toRadians(s.internRotz), 0, 0, 1);
+        */
         
 //        Vector3f orgVec1 = new Vector3f(
 //                (float) Math.sin(Math.toRadians(s.rotx)),
@@ -149,7 +161,6 @@ public abstract class Instance
 //        transformationMatrix
 //                .rotate((float) Math.toRadians(s.roty), 0, 1, 0)
 //                .rotate(angle1, rotVec1);
-        transformationMatrix.scale(s.sizex, s.sizey, s.sizez);
         
         // Model coordinate system.
 //        Vector3f orgVec2 = new Vector3f(

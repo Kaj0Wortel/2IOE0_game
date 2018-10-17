@@ -141,11 +141,14 @@ public class Camera
             currentRotation = focusedOn.getRoty();
             //if(currentRotation < 0) currentRotation *= -1;
             //System.out.println(focusedOn.getRotz());
-            distanceToAsset = max(focusedOn.getState().velocity*rubberVelocityFactor + minRubberDistance, minRubberDistance);
-            pitch = max(focusedOn.getState().velocity*0.4f + 20, 20);
-            if(angleAroundAsset >= -maxRubberAngle && angleAroundAsset <= maxRubberAngle){
-                if (-rubberSmoothness > currentRotation - previousRotation || currentRotation - previousRotation  > rubberSmoothness){
-                    angleAroundAsset = angleAroundAsset + signum(currentRotation-previousRotation) * rubberSpeed;
+            distanceToAsset = max(focusedOn.getState()
+                    .velocity * rubberVelocityFactor + minRubberDistance, minRubberDistance);
+            pitch = max(focusedOn.getState().velocity * 0.4f + 20, 20);
+            if (angleAroundAsset >= -maxRubberAngle && angleAroundAsset <= maxRubberAngle) {
+                if (-rubberSmoothness > currentRotation - previousRotation ||
+                        currentRotation - previousRotation  > rubberSmoothness) {
+                    angleAroundAsset = angleAroundAsset
+                            + signum(currentRotation - previousRotation) * rubberSpeed;
                     turned = true;
                 } else {
                     if(!turned) {
@@ -161,7 +164,7 @@ public class Camera
             //System.out.println(currentRotation - previousRotation);
             //System.out.println(currentRotation);
             previousRotation = currentRotation;
-            angleAroundAsset *=-1;
+            angleAroundAsset *= -1;
         }
         float targetPitch = 20 + focusedOn.getRotz();
         //System.out.println("targetPitch" + targetPitch);

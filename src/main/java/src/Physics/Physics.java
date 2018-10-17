@@ -393,8 +393,8 @@ public class Physics {
                 double phiz = rotz * Math.cos(yz_ang - s.roty);
                 double phix = rotz * Math.sin(yz_ang - s.roty); 
 
-                s.rotz = (float) (phiz);            
-                s.rotx = (float) (phix);
+                s.rotz = (float) (phix);            
+                s.rotx = (float) (-phiz);
                 // </editor-fold>
 
                 // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 

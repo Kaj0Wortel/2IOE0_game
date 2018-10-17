@@ -10,7 +10,6 @@ import org.joml.Vector3f;
 import src.Assets.*;
 import src.Assets.instance.*;
 import src.Assets.skybox.Skybox;
-import src.Controllers.AIController;
 import src.OBJ.LoadOBJ;
 import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
@@ -19,6 +18,7 @@ import src.tools.PosHitBox3f;
 import java.util.HashMap;
 import java.util.Map;
 
+import src.Controllers.PlayerController;
 import static src.Simulator.TYPE.*;
 
 // Own imports
@@ -62,8 +62,8 @@ public class Simulator {
         
         OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "cube.obj");
         OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "dragon.obj");
-        OBJCollection car = LoadOBJ.load(gl, GS.OBJ_DIR + "car.obj");
-        OBJCollection car2 = LoadOBJ.load(gl, GS.OBJ_DIR + "offroadcar.obj");
+        OBJCollection car = LoadOBJ.load(gl, GS.OBJ_DIR + "car_better.obj");
+        OBJCollection car2 = LoadOBJ.load(gl, GS.OBJ_DIR + "offroadcar_better.obj");
         OBJCollection rock = LoadOBJ.load(gl, GS.OBJ_DIR + "Low-Poly_models.obj");
         OBJCollection planet = LoadOBJ.load(gl, GS.OBJ_DIR + "planet.obj");
 
@@ -156,11 +156,16 @@ public class Simulator {
         addToGamestate(OTHER, sp, new Vector3f(0f, -60f, 500f), 4, 0, -90, 0, 0,
                 new TextureImg(5, 0.5f), null, null);
 
+        /*
         Instance aiCar = addToGamestate(CAR, car, new Vector3f(0,2,0), 5,0,180,0,90,
                 new TextureImg(5,0.5f),null,null);
         new AIController((Car) aiCar);
+        */
+        Car player2 = (Car) addToGamestate(CAR, car, new Vector3f(0, 2, 0), 5,
+                0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
+        new PlayerController(player2, 2);
 
-        addToGamestate(PLAYER, car2, new Vector3f(0,2,-30), 3, 0, 180, 0, -90,
+        addToGamestate(PLAYER, car2, new Vector3f(0,2,-30), 3, 0, 180, 0, 0,
                 new TextureImg(5, 3f), null, null);
 
         addLight(new Vector3f(30000f, 50000f, 1f),
