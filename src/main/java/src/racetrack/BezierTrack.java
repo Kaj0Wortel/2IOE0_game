@@ -164,11 +164,29 @@ public class BezierTrack extends Track {
                     textureCoordinates.add(((float) row) / ((float) nrSegmentVerticesRow - 1));
                 }
             }
+            float t = 1.0f;
+            Vector3f point = getPoint(i, t);
+            Vector3f tangent = getTangent(i, t);
+            for (int row = 0; row < nrSegmentVerticesRow; row++) {
+                Vector3f normal = new Vector3f(tangent);
+                normal.cross(UP).normalize().mul(laneWidth).mul(nMap(row));
+                Vector3f addedNormal = new Vector3f();
+                point.add(normal, addedNormal);
+
+                vertices.add(addedNormal.x);
+                vertices.add(addedNormal.y);
+                vertices.add(addedNormal.z);
+                normals.add(UP.x);
+                normals.add(UP.y);
+                normals.add(UP.z);
+                textureCoordinates.add(t);
+                textureCoordinates.add(((float) row) / ((float) nrSegmentVerticesRow - 1));
+            }
         }
-        for (int i = 0; i < nrOfSegments; i++) {
+        for (int i = 0; i < nrOfSegments + 1; i++) {
             int pointer = i * nrSegmentVerticesRow * nrSegmentVerticesCol;
 
-            for (int col = 0; col < nrSegmentVerticesCol - 1; col++) {
+            for (int col = 0; col < nrSegmentVerticesCol; col++) {
                 for (int row = 0; row < nrSegmentVerticesRow - 1; row++) {
                     indices.add(col * (nrSegmentVerticesRow) + row + pointer);
                     indices.add((col + 1) * (nrSegmentVerticesRow) + row + pointer);
@@ -179,27 +197,6 @@ public class BezierTrack extends Track {
                     indices.add((col + 1) * (nrSegmentVerticesRow) + row + pointer + 1);
                 }
             }
-
-            int curCol = nrSegmentVerticesCol - 1;
-
-            int p;
-            if (i + 1 < nrOfSegments) {
-                p = (i + 1) * nrSegmentVerticesRow * nrSegmentVerticesCol;
-            } else {
-                p = 0;
-            }
-            for (int row = 0; row < nrSegmentVerticesRow - 1; row++) {
-
-                indices.add(curCol * nrSegmentVerticesRow + row + pointer);
-                indices.add(row + p);
-                indices.add(curCol * nrSegmentVerticesRow + row + pointer + 1);
-
-                indices.add(curCol * nrSegmentVerticesRow + row + pointer + 1);
-                indices.add(row + p);
-                indices.add(row + p + 1);
-
-            }
-
         }
 
         setVAOValues(Binder.loadVAO(gl, vertices, textureCoordinates, normals,
