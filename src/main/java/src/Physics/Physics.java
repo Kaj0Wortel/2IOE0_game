@@ -60,9 +60,9 @@ public class Physics {
             this.rotx = (float) Math.toRadians(state.rotx);
             this.roty = (float) Math.toRadians(state.roty);
             this.rotz = (float) Math.toRadians(state.rotz);
-            internRotx = state.internRotx;
-            internRoty = state.internRoty;
-            internRotz = state.internRotz;
+            this.internRotx = (float) Math.toRadians(state.internRotx);
+            this.internRoty = (float) Math.toRadians(state.internRoty);
+            this.internRotz = (float) Math.toRadians(state.internRotz);
             velocity = state.velocity;
             collisionVelocity = state.collisionVelocity;
             verticalVelocity = state.verticalVelocity;
@@ -82,8 +82,12 @@ public class Physics {
         public State createState() {
             // Convert back to instance space.
             return new State(box.convert(CONV_MAT_INV), sizey, sizez, sizex,
-                    (float) (Math.toDegrees(rotx) % 360), (float) (Math.toDegrees(roty) % 360), (float) (Math.toDegrees(rotz) % 360),
-                    internRotx, internRoty, internRotz,
+                    (float) (Math.toDegrees(rotx) % 360), 
+                    (float) (Math.toDegrees(roty) % 360), 
+                    (float) (Math.toDegrees(rotz) % 360),
+                    (float) (Math.toDegrees(internRotx) % 360), 
+                    (float) (Math.toDegrees(internRoty) % 360), 
+                    (float) (Math.toDegrees(internRotz) % 360),
                     velocity, collisionVelocity,
                     verticalVelocity, onTrack, inAir, rIndex, isResetting);
         }
@@ -386,8 +390,11 @@ public class Physics {
                 double yz_ang = Math.atan2(y, z);
                 double rotz = Math.atan2(x, yz);
 
-                s.rotz = (float) (rotz * Math.cos(yz_ang - s.roty));            
-                s.rotx = (float) (rotz * Math.sin(yz_ang - s.roty));
+                double phiz = rotz * Math.cos(yz_ang - s.roty);
+                double phix = rotz * Math.sin(yz_ang - s.roty); 
+
+                s.rotz = (float) (phiz);            
+                s.rotx = (float) (phix);
                 // </editor-fold>
 
                 // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 

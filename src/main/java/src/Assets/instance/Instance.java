@@ -130,40 +130,39 @@ public abstract class Instance
         transformationMatrix.translate(s.box.pos());
         
         // World coordinate system.
-        /**
         
-        transformationMatrix.rotate((float)
-                Math.toRadians(s.box.rotx()), 1, 0, 0);
         transformationMatrix.rotate((float)
                 Math.toRadians(s.box.roty()), 0, 1, 0);
         transformationMatrix.rotate((float)
+                Math.toRadians(s.box.rotx()), 1, 0, 0);
+        transformationMatrix.rotate((float)
                 Math.toRadians(s.box.rotz()), 0, 0, 1);
-        /**/
-        Vector3f orgVec1 = new Vector3f(
-                (float) Math.sin(Math.toRadians(s.rotx)),
-                (float) (Math.cos(Math.toRadians(s.rotz))
-                        + Math.cos(Math.toRadians(s.rotx))) / 2f,
-                (float) Math.sin(Math.toRadians(s.rotz))
-        ).normalize();
-        float angle1 = (float) Math.acos(new Vector3f(0, 1, 0).dot(orgVec1));
-        Vector3f rotVec1 = orgVec1.cross(new Vector3f(0, 1, 0));
-        transformationMatrix
-                .rotate((float) Math.toRadians(s.roty), 0, 1, 0)
-                .rotate(angle1, rotVec1);
+        
+//        Vector3f orgVec1 = new Vector3f(
+//                (float) Math.sin(Math.toRadians(s.rotx)),
+//                (float) (Math.cos(Math.toRadians(s.rotz))
+//                        + Math.cos(Math.toRadians(s.rotx))) / 2f,
+//                (float) Math.sin(Math.toRadians(s.rotz))
+//        ).normalize();
+//        float angle1 = (float) Math.acos(new Vector3f(0, 1, 0).dot(orgVec1));
+//        Vector3f rotVec1 = orgVec1.cross(new Vector3f(0, 1, 0));
+//        transformationMatrix
+//                .rotate((float) Math.toRadians(s.roty), 0, 1, 0)
+//                .rotate(angle1, rotVec1);
         transformationMatrix.scale(s.sizex, s.sizey, s.sizez);
         
         // Model coordinate system.
-        Vector3f orgVec2 = new Vector3f(
-                (float) Math.sin(Math.toRadians(s.internRotx)),
-                (float) (Math.cos(Math.toRadians(s.internRotz))
-                        + Math.cos(Math.toRadians(s.internRotx))) / 2f,
-                (float) Math.sin(Math.toRadians(s.internRotz))
-        ).normalize();
-        float angle2 = (float) Math.acos(new Vector3f(0, 1, 0).dot(orgVec2));
-        Vector3f rotVec2 = orgVec2.cross(new Vector3f(0, 1, 0));
-        transformationMatrix
-                .rotate((float) Math.toRadians(s.internRoty), 0, 1, 0)
-                .rotate(angle2, rotVec2);
+//        Vector3f orgVec2 = new Vector3f(
+//                (float) Math.sin(Math.toRadians(s.internRotx)),
+//                (float) (Math.cos(Math.toRadians(s.internRotz))
+//                        + Math.cos(Math.toRadians(s.internRotx))) / 2f,
+//                (float) Math.sin(Math.toRadians(s.internRotz))
+//        ).normalize();
+//        float angle2 = (float) Math.acos(new Vector3f(0, 1, 0).dot(orgVec2));
+//        Vector3f rotVec2 = orgVec2.cross(new Vector3f(0, 1, 0));
+//        transformationMatrix
+//                .rotate((float) Math.toRadians(s.internRoty), 0, 1, 0)
+//                .rotate(angle2, rotVec2);
         
         return transformationMatrix;
     }
