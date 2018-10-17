@@ -35,6 +35,7 @@ public class Physics {
         public float internRotx;
         public float internRoty;
         public float internRotz;
+        public Vector3f internTrans;
         
         public float velocity;
         public float collisionVelocity;
@@ -63,6 +64,7 @@ public class Physics {
             this.internRotx = (float) Math.toRadians(state.internRotx);
             this.internRoty = (float) Math.toRadians(state.internRoty);
             this.internRotz = (float) Math.toRadians(state.internRotz);
+            this.internTrans = state.internTrans.mul(CONV_MAT, new Vector3f());
             velocity = state.velocity;
             collisionVelocity = state.collisionVelocity;
             verticalVelocity = state.verticalVelocity;
@@ -88,6 +90,7 @@ public class Physics {
                     (float) (Math.toDegrees(internRotx) % 360), 
                     (float) (Math.toDegrees(internRoty) % 360), 
                     (float) (Math.toDegrees(internRotz) % 360),
+                    internTrans.mul(CONV_MAT_INV),
                     velocity, collisionVelocity,
                     verticalVelocity, onTrack, inAir, rIndex, isResetting);
         }
@@ -367,8 +370,7 @@ public class Physics {
             //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
             //        , (float)Math.sqrt(6)/3);
             Vector3f roadPos = new Vector3f(points[ind]);
-            Vector3f rN = Track.rotateNormal(roadPos, s.box.pos(), normals[ind],
-                    tangents[ind], dist);
+            Vector3f rN = normals[ind];
             // </editor-fold>
 
             if (s.onTrack) {
