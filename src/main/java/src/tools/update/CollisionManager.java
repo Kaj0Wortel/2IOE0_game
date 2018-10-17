@@ -65,6 +65,13 @@ public class CollisionManager {
         public Entry getEntry2() {
             return e2;
         }
+          
+        /**
+         * @return the other instance of the collision.
+         */      
+        public Instance getOther(){
+            return other;
+        }
         
         /**
          * @inheritDoc
