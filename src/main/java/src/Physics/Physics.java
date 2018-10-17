@@ -18,6 +18,7 @@ import org.joml.Matrix3f;
 import org.joml.Vector3f;
 import src.Assets.instance.Car;
 import src.tools.PosHitBox3f;
+import src.tools.log.Logger;
 import src.tools.update.CollisionManager;
 
 
@@ -386,15 +387,14 @@ public class Physics {
                 double x = normals[ind].x;
                 double z = normals[ind].z;
 
+                //calculating the values needed
                 double yz = Math.sqrt(Math.pow(y,2) + Math.pow(z,2));
                 double yz_ang = Math.atan2(y, z);
                 double rotz = Math.atan2(x, yz);
 
-                double phiz = rotz * Math.cos(yz_ang - s.roty);
-                double phix = rotz * Math.sin(yz_ang - s.roty); 
-
-                s.rotz = (float) (phix);            
-                s.rotx = (float) (-phiz);
+                //write the needed rotation to the rotation only do this with the final value
+                s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));       
+                s.rotx = (float) (-rotz * Math.cos(yz_ang - s.roty));
                 // </editor-fold>
 
                 // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
@@ -407,7 +407,7 @@ public class Physics {
             }
             // </editor-fold>
             else {
-                s.rotz += 0.01;
+                s.rotz += 0.015;
             }
 
             // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
@@ -662,6 +662,21 @@ public class Physics {
         Entry e1 = col.getEntry1();
         Entry e2 = col.getEntry2();
         
+        
+        if (e2 == null) {
+//            Logger.write("collision e2 entry is empty", Logger.Type.ERROR);
+            System.out.println(col.getOther() + " " + e1.inst);
+        }
+        e1.ms.box.pos();//current position of car 1
+        e2.ms.box.pos();//current position of car 2
+        
+        float v = e1.ms.velocity;
+        e1.ms.velocity = e2.ms.velocity;
+        e2.ms.velocity = v;
+        
+        float roty = e1.ms.roty;
+        e1.ms.roty = e2.ms.roty;
+        e2.ms.roty = roty;
         // TODO: do stuff with the entries.
         //System.out.println("Collision occured");
     }

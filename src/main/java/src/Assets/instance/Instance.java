@@ -111,7 +111,7 @@ public abstract class Instance
         setState(new State(box, sizex, sizey, sizez,
                 rotx, roty, rotz,
                 internRotx, internRoty, internRotz, 0, 0, 0, 
-                true, false, 0, true));
+                true, false, 0, false));
         
         this.model = model;
         this.physicsContext = physicContext;
