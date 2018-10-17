@@ -16,9 +16,6 @@ import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
 import src.tools.Binder;
 import src.tools.PosHitBox3f;
-import src.tools.update.Updater;
-
-import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,8 +82,9 @@ public class Simulator {
             box = obj.createBoundingBox();
             //box.setPosKeepHitBox();
             box.translate(new Vector3f(0f, 0f, 0f));
-            Instance cubeInstance = new Car(box,
-                    1f, 0, 0, 0, texturedCube, 0, new PhysicsContext());
+            Instance cubeInstance = new EnvironmentItem(box,
+                    1f, 0, 0, 0, texturedCube, 0, new PhysicsContext(),
+                    EnvironmentItem.Type.SPEED_BOOST);
             GS.addAsset(cubeInstance);
         }
 
@@ -284,9 +282,10 @@ public class Simulator {
                     PosHitBox3f box = obj.createBoundingBox();
                     //box.setPosKeepHitBox();
                     box.translate(position);
-                    cubeInstance = new Car(box,
+                    cubeInstance = new EnvironmentItem(box,
                             size, rotx, roty, rotz, texturedCube,
-                            integratedRotation, new PhysicsContext());
+                            integratedRotation, new PhysicsContext(),
+                            EnvironmentItem.Type.SPEED_BOOST);
                     GS.addAsset(cubeInstance);
                 }
                 break;

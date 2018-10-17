@@ -3,8 +3,6 @@ package src.Assets.instance;
 
 
 // Own imports
-
-import com.jogamp.opengl.GL3;
 import src.Assets.GraphicsObject;
 import src.Assets.OBJTexture;
 import src.Assets.instance.ThrowingItemFactory.ItemType;
@@ -15,9 +13,9 @@ import src.Shaders.ShaderProgram;
 import src.shadows.ShadowShader;
 import src.tools.PosHitBox3f;
 import src.tools.log.Logger;
-import tools.observer.HashObservableInterface;
 
 // Java imports
+import com.jogamp.opengl.GL3;
 
 
 /**
