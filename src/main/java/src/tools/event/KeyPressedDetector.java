@@ -28,6 +28,7 @@ import javax.swing.SwingUtilities;
  * last update. To prevent missing key presses, this also includes keys
  * that were pressed and released between the two updates.
  */
+@Deprecated
 public class KeyPressedDetector
         extends KeyAdapter {
     // List containing all keys that are currently pressed.

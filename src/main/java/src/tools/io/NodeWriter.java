@@ -73,7 +73,8 @@ public class NodeWriter
                 + node.rotV + delim
                 + node.g + delim
                 + node.h + delim
-                + node.nextCP + GS.LS;
+                + node.nextCP + GS.LS
+                + "1";
         writer.write(writeData);
     }
 

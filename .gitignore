@@ -61,3 +61,6 @@ nbdist/
 # Maven
 target/maven-archiver/pom.properties
 src/main/java/src/log.log
+target/maven-archiver/pom.properties
+target/classes/.netbeans_automatic_build
+target/test-classes/.netbeans_automatic_build

@@ -53,7 +53,6 @@ public class ControllerKeyDetector {
      * device polling thread.
      */
     public ControllerKeyDetector() {
-        super();
         init();
     }
     
@@ -243,49 +242,6 @@ public class ControllerKeyDetector {
     }
     
     /**
-     * @param controller the controller to process.
-     * @return the save string of the given controller.
-     *     {@code null} if the controller was not available.
-     *//*
-    public String controllerToString(Controller controller) {
-        if (controller instanceof GeneratedController) {
-            return ((GeneratedController) controller).getKey();
-        }
-        
-        Locker.lock(this);
-        try {
-            String name = controller.toString();
-            Controller[] sameNameArr = connected.get(name);
-            if (sameNameArr == null) {
-                Logger.write(new Object[] {
-                    "Tried to convert controller to string:",
-                    controller,
-                    "but the controller wasn't registered (1)!"
-                }, Logger.Type.WARNING);
-                return null;
-            }
-            
-            for (int i = 0; i < sameNameArr.length; i++) {
-                if (ContrlEnv.compareController(
-                        sameNameArr[i], controller)) {
-                    return name + "-" + i;
-                }
-            }
-            
-            Logger.write(new Object[] {
-                "Tried to convert controller to string:",
-                controller,
-                "But the controller wasn't registered (2)!"
-            }, Logger.Type.WARNING);
-            
-        } finally {
-            Locker.unlock(this);
-        }
-        
-        return null;
-    }
-    /**/
-    /**
      * @param str the save string to parse.
      * @return a controller denoted by the given save string.
      *     {@code null} if the denoted controller is disconnected.
@@ -330,23 +286,48 @@ public class ControllerKeyDetector {
         
         Locker.lock(this);
         try {
+            /**
+            CEPair pair;
+            Deque<CEPair> events = contrlEnv.getEvents();
+            while ((pair = events.poll()) != null) {
+                Controller c = pair.getController();
+                Event e = pair.getEvent();
+                ControllerKey key = new ControllerKey(
+                        c, getControllerID(c), e.getComponent(), e.getValue());
+                
+                Locker.lock(ControllerKey.class);
+                try {
+                    ControllerKey.setCompMode(DEFAULT_REPLACE_COMP_MODE);
+                    prevState.remove(key);
+                    prevState.add(key);
+                    
+                    //newState.add(key);
+                    //if (key.getValue() == 1.0f) System.out.println(key);
+                    Logger.write(e.getValue() + ", " + e.getComponent());
+                } finally {
+                    Locker.unlock(ControllerKey.class);
+                }
+            }
+            
+            /**/
             for (Controller controller : contrlEnv.getControllers()) {
                 if (!controller.poll()) continue;
                 int id = getControllerID(controller);
-
+                
                 ControllerKey.setCompMode(DEFAULT_REPLACE_COMP_MODE);
                 for (Component comp : controller.getComponents()) {
                     ControllerKey key = new ControllerKey(controller, id, comp,
                             comp.getPollData());
                     newState.add(key);
-                    //if (key.getValue() == 1.0f) System.out.println(key);
+                    //if (!key.isCenter()) System.out.println("Key: " + key.toString());
                     //Logger.write(comp.getPollData() + ", " + comp);
                 }
-            }
+            }/**/
         } finally {
             Locker.unlock(this);
         }
         
+        /**/
         Locker.lock(ControllerKey.class);
         try {
             prevState = newState;
@@ -354,6 +335,10 @@ public class ControllerKeyDetector {
         } finally {
             Locker.unlock(ControllerKey.class);
         }
+        /**/
+        
+        
+        
         
         /*
         // Create an event object for the underlying plugin to populate.
@@ -438,6 +423,8 @@ public class ControllerKeyDetector {
     }
     
     private boolean werePressed(List<ControllerKey> keys, int compMode) {
+        if (keys.isEmpty()) return false;
+        
         Locker.lock(ControllerKey.class);
         try {
             ControllerKey.setCompMode(compMode);

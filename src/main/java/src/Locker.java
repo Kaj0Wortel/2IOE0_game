@@ -21,7 +21,6 @@ import src.tools.MultiTool;
  * Class for providing global locks for all registered objects.
  */
 public class Locker {
-    final private static long DEFAULT_TIMEOUT = 1L;
     final private static Map<Object, Lock> lockMap
             = new ConcurrentHashMap<>();
     
@@ -144,9 +143,25 @@ public class Locker {
      * @param obj the object to remove.
      */
     public static void remove(Object obj) {
-        synchronized(lockMap) {
-            if (lockMap.get(obj) != null) lockMap.remove(obj);
-        }
+        new Thread("Remove-lock-thread") {
+            @Override
+            public void run() {
+                Lock lock;
+                synchronized(lockMap) {
+                    lock = lockMap.get(obj);
+                }
+                if (lock == null) return;
+                
+                lock.lock();
+                try {
+                    synchronized(lockMap) {
+                        lockMap.remove(obj);
+                    }
+                } finally {
+                    lock.unlock();
+                }
+            }
+        }.start();
     }
     
     

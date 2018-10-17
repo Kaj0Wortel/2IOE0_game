@@ -7,6 +7,8 @@ package src.Assets;
 
 // Java imports
 
+import src.tools.PosHitBox3f;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -45,5 +47,11 @@ public class OBJCollection
         objObjects = null;
     }
     
+    public PosHitBox3f createBoundingBox() {
+        return objObjects.get(objObjects.size() - 1).createBoundingBox();
+    }
     
+    public int getSize(){
+        return objObjects.size();
+    }
 }

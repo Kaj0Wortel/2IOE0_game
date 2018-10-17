@@ -1,20 +1,27 @@
+
 package src.Assets;
 
-public class OBJTexture {
 
-    private OBJObject asset;
+//Own imports
+import src.tools.Cloneable;
+
+
+public class OBJTexture
+        implements Cloneable {
+
+    private OBJCollection asset;
     private TextureImg textureImg;
 
-    public OBJTexture(OBJObject asset, TextureImg textureImg) {
+    public OBJTexture(OBJCollection asset, TextureImg textureImg) {
         this.asset = asset;
         this.textureImg = textureImg;
     }
 
-    public OBJObject getAsset() {
+    public OBJCollection getAsset() {
         return asset;
     }
 
-    public void setAsset(OBJObject asset) {
+    public void setAsset(OBJCollection asset) {
         this.asset = asset;
     }
 
@@ -25,4 +32,10 @@ public class OBJTexture {
     public void setTextureImg(TextureImg textureImg) {
         this.textureImg = textureImg;
     }
+    
+    @Override
+    public OBJTexture clone() {
+        return new OBJTexture(asset, textureImg);
+    }
+    
 }

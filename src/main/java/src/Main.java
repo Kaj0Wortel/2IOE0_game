@@ -3,18 +3,17 @@ package src;
 
 
 // Own imports
-
 import net.java.games.input.Controller;
 import net.java.games.input.Rumbler;
 import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.CarKeyAction;
-import src.tools.event.keyAction.CarKeyAction.MovementAction;
+import src.tools.event.keyAction.action.CarMovementAction;
 import src.tools.update.Updateable;
 import src.tools.update.Updater;
 
-import java.util.List;
 
 // Java imports
+import java.util.List;
 
 
 /**
@@ -22,8 +21,13 @@ import java.util.List;
  */
 public class Main {
     
+    final private static boolean SKIP_INTRO = false;
+    
     public static void main(String[] args) {
         GS.init();
+        if (SKIP_INTRO) {
+            GS.startRendering();
+        }
         
         // TMP
         Updateable up = new TmpUpdateable(1);
@@ -38,8 +42,8 @@ public class Main {
         
         public TmpUpdateable(int id) {
             actions = new CarKeyAction[] {
-                new CarKeyAction(id, MovementAction.LEFT),
-                new CarKeyAction(id, MovementAction.RIGHT)
+                new CarKeyAction(id, CarMovementAction.LEFT),
+                new CarKeyAction(id, CarMovementAction.RIGHT)
             };
         }
         
@@ -85,7 +89,7 @@ public class Main {
         
         @Override
         public Priority getPriority() {
-            return Priority.UPDATE_ALWAYS;
+            return Priority.ONLY_WHEN_RUNNING;
         }
         
         

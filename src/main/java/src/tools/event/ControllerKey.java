@@ -3,16 +3,20 @@ package src.tools.event;
 
 
 // Own imports
+import net.java.games.input.ContrlEnv;
 import src.tools.MultiTool;
 import src.tools.log.Logger;
+import src.Locker;
 
 
 // JInput imports
 import net.java.games.input.Component;
+import net.java.games.input.Component.Identifier;
 import net.java.games.input.Component.Identifier.Axis;
 import net.java.games.input.Component.Identifier.Button;
 import net.java.games.input.Component.POV;
 import net.java.games.input.Controller;
+import net.java.games.input.Controller.Type;
 
 
 // Java imports
@@ -20,10 +24,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
-import net.java.games.input.Component.Identifier;
-import net.java.games.input.ContrlEnv;
-import net.java.games.input.Controller.Type;
-import src.Locker;
 
 
 /**
@@ -225,7 +225,7 @@ public class ControllerKey {
     public ControllerKey(Controller controller, int id, Component comp,
             float value) {
         this.controller = controller;
-        this.id = id;;
+        this.id = id;
         this.comp = comp;
         this.value = value;
         this.useTypeOnly = false;
@@ -437,6 +437,10 @@ public class ControllerKey {
         return false;
     }
     
+    /**
+     * @return whether this controller should be compared by type only,
+     *     instead of by key name.
+     */
     public boolean typeOnly() {
         return useTypeOnly;
     }
@@ -515,6 +519,12 @@ public class ControllerKey {
         return -JOYSTICK_SENS <= value && value <= JOYSTICK_SENS;
     }
     
+    /**
+     * Checks if the button is pressed.
+     * Function for {@link Identifier.Key} and {@link Identifier.Button} only.
+     * 
+     * @return {@code true} if the button was pressed. {@code false} otherwise.
+     */
     public boolean isPressed() {
         return value > BUTTON_SENS;
     }
@@ -575,7 +585,7 @@ public class ControllerKey {
     @Override
     public String toString() {
         Identifier ident = comp.getIdentifier();
-        System.out.println(controller.getName());
+        //System.out.println(controller.getName());
         if (useTypeOnly) {
             return getClass().getName() + "="
                     + "true,"

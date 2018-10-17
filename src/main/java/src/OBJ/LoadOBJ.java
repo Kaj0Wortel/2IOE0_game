@@ -2,8 +2,7 @@
 package src.OBJ;
 
 // Jogamp imports
-
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import src.Assets.OBJCollection;
@@ -22,25 +21,24 @@ import java.util.concurrent.ConcurrentHashMap;
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 
-// Own imports
 // Java imports
+// Own imports
 
 
 
 /**
  * 
- * 
- * @author Kaj Wortel (0991586)
  */
 public class LoadOBJ {
     final private static Map<String, OBJCollection> map
             = new ConcurrentHashMap<>();
     
-    // Private constructor for static singleton design.
+    // Private constructor for static singleton design pattern.
     private LoadOBJ() { }
     
+    
     @SuppressWarnings({"null", "UnusedAssignment"})
-    public static OBJCollection load(GL2 gl, String fileName) {
+    public static OBJCollection load(GL3 gl, String fileName) {
         
         OBJCollection collection = map.get(fileName);
         if (collection != null) return collection;
@@ -62,6 +60,7 @@ public class LoadOBJ {
             brp.setConfDataSeparator(" ");
             
             OBJObject obj = null;
+            MTLObject mtl = null;
             List<Vector3f> verts = new ArrayList<>();
             List<Vector2f> texs = new ArrayList<>();
             List<Vector3f> norms = new ArrayList<>();
@@ -71,6 +70,13 @@ public class LoadOBJ {
             List<Float> normsBuf = new ArrayList<>();
             List<Integer> facesBuf = new ArrayList<>();
             
+            float minX = 0;
+            float maxX = 0;
+            float minY = 0;
+            float maxY = 0;
+            float minZ = 0;
+            float maxZ = 0;
+            
             int locCounter = 0;
             
             Map<FaceElement, Integer> faces = new HashMap<>();
@@ -79,11 +85,18 @@ public class LoadOBJ {
                 String[] data = brp.getData();
                 
                 if (brp.fieldEquals("v")) {
-                    verts.add(new Vector3f(
+                    Vector3f v = new Vector3f(
                             Float.parseFloat(data[0]),
                             Float.parseFloat(data[1]),
                             Float.parseFloat(data[2])
-                    ));
+                    );
+                    verts.add(v);
+                    minX = Math.min(minX, v.x);
+                    maxX = Math.max(maxX, v.x);
+                    minY = Math.min(minY, v.y);
+                    maxY = Math.max(maxY, v.y);
+                    minZ = Math.min(minZ, v.z);
+                    maxZ = Math.max(maxZ, v.z);
                     
                 } else if (brp.fieldEquals("vt")) {
                     texs.add(new Vector2f(
@@ -144,18 +157,37 @@ public class LoadOBJ {
 
                         // Add the position to the faces buffer.
                         facesBuf.add(loc);
-
                     }
 
                 } else if (brp.fieldEquals("o")) {
                     if (obj != null) {
-                        obj.setData(gl, vertsBuf, texsBuf, normsBuf, facesBuf);
-
+                        obj.addData(gl, vertsBuf, texsBuf, normsBuf,
+                                facesBuf, mtl);
+                        obj.setMinMax(minX, maxX, minY, maxY, minZ, maxZ);
+                        
+                        vertsBuf = new ArrayList<>();
+                        texsBuf = new ArrayList<>();
+                        normsBuf = new ArrayList<>();
+                        facesBuf = new ArrayList<>();
+                        faces.clear();
+                        locCounter = 0;
                     }
                     collection.add(obj = new OBJObject(data[0]));
                     
                 } else if (brp.fieldEquals("usemtl")) {
-                    obj.setMltObject(mtlCol.get(data[0]));
+                    if (mtl != null) {
+                        obj.addData(gl, vertsBuf, texsBuf, normsBuf,
+                                facesBuf, mtl);
+                        obj.setMinMax(minX, maxX, minY, maxY, minZ, maxZ);
+                        
+                        vertsBuf = new ArrayList<>();
+                        texsBuf = new ArrayList<>();
+                        normsBuf = new ArrayList<>();
+                        facesBuf = new ArrayList<>();
+                        faces.clear();
+                        locCounter = 0;
+                    }
+                    mtl = mtlCol.get(data[0]);
                     
                 } else if (brp.fieldEquals("mtllib")) {
                     mtlCol = LoadMTL.load(GS.OBJ_DIR + data[0]);
@@ -166,7 +198,8 @@ public class LoadOBJ {
                 }
             }
             if (obj != null) {
-                obj.setData(gl, vertsBuf, texsBuf, normsBuf, facesBuf);
+                obj.addData(gl, vertsBuf, texsBuf, normsBuf, facesBuf, mtl);
+                obj.setMinMax(minX, maxX, minY, maxY, minZ, maxZ);
             }
             
         } catch (IOException e) {

@@ -6,24 +6,20 @@ package net.java.games.input;
 
 
 // Own imports
+import src.GS;
+import src.Locker;
 import src.tools.log.Logger;
 
-
-// Java imports
+import javax.swing.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import javax.swing.SwingUtilities;
-import src.GS;
-import src.Locker;
+
+// Java imports
 
 
 /**
@@ -45,9 +41,39 @@ public class ContrlEnv
     private List<Controller> added = new ArrayList<>();
     private List<Controller> removed = new ArrayList<>();
     
+    //private Deque<CEPair> eventQueue = new LinkedList<>();
+    //private Lock eventLock = new ReentrantLock(true);
+    
+    /*
+    public static class CEPair {
+        final private Controller c;
+        final private Event e;
+        
+        public CEPair(Controller c, Event e) {
+            this.c = c;
+            this.e = e;
+        }
+        
+        public Controller getController() {
+            return c;
+        }
+        
+        /**
+         * @return the event 
+         *//*
+        public Event getEvent() {
+            return e;
+        }
+        
+        
+    }
+    /**/
+    
     
     @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
     public ContrlEnv() {
+        setAutoUpdate(false);
+        
         new Thread("Controll-environment-updater-thread") {
             @Override
             public void run() {
@@ -58,7 +84,7 @@ public class ContrlEnv
                     // tmp
                     Logger.write("Update controller list");
                     
-                    // Kill the thread of the previous controller levent queue.
+                    // Kill the thread of the previous controller event queue.
                     final Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
                     for (final Thread thread : threadSet) {
                         final String name = thread.getClass().getName();
@@ -66,6 +92,7 @@ public class ContrlEnv
                             thread.interrupt();
                             try {
                                 thread.join();
+                                
                             } catch (final InterruptedException e) {
                                 thread.interrupt();
                             }
@@ -73,15 +100,14 @@ public class ContrlEnv
                     }
                     
                     // Load controllers.
-                    Controller[] c ;
+                    Controller[] c;
                     try {
-                        // If the VM is shutting down, an invocation exception
+                        // When the VM is shutting down, an invocation exception
                         // might occur. Since this is not important, 
                         // simple exit the updating loop and prevent spamming
                         // the error in the console and giving you
                         // a heart attack every single time.
                         c = ContrlEnv.super.getControllers();
-                        //c = new Controller[0];
                         
                         // Because the compiler is complaining...
                         if (null != null)
@@ -90,6 +116,16 @@ public class ContrlEnv
                     } catch (InvocationTargetException e) {
                         break;
                     }
+                    /*
+                    eventLock.lock();
+                    try {
+                        // Add the events of the removed controllers such that
+                        // no events are missed.
+                        addEvents(cachedContr);
+                        
+                    } finally {
+                        eventLock.unlock();
+                    }*/
                     
                     // Notify listeners for added devices.
                     if (cachedContr == null) {
@@ -103,30 +139,19 @@ public class ContrlEnv
                         setDiff(cachedContr, c);
                     }
                     
-                    
                     // Update cached controllers and signal that they have
                     // been changed. Notify the listeners afterwards.
                     lock.lock();
                     try {
-                        if (!autoUpdateEnabled) {
-                            while (!autoUpdateEnabled) {
-                                requestUpdate.await();
-                            }
-                            
-                        } else {
-                            Locker.lock(GS.keyDet);
-                            try {
-                                cachedContr = c;
-                                environmentUpdated.signalAll();
-                                notifyListener();
-                                
-                            } finally {
-                                Locker.unlock(GS.keyDet);
-                            }
+                        Locker.lock(GS.keyDet);
+                        try {
+                            cachedContr = c;
+                            environmentUpdated.signalAll();
+                            notifyListener();
+
+                        } finally {
+                            Locker.unlock(GS.keyDet);
                         }
-                        
-                    } catch (InterruptedException e) {
-                        Logger.write(e);
                         
                     } finally {
                         lock.unlock();
@@ -140,9 +165,7 @@ public class ContrlEnv
                                     TimeUnit.MILLISECONDS);
                             
                         } else {
-                            while (!autoUpdateEnabled) {
-                                requestUpdate.await();
-                            }
+                            requestUpdate.await();
                         }
                         
                     } catch (InterruptedException e) {
@@ -187,6 +210,38 @@ public class ContrlEnv
         });
     }
     
+    /**
+     * Adds the events of given controllers.
+     * @param controllers 
+     *//*
+    private void addEvents(Controller[] controllers) {
+        Event e = new Event();
+        for (Controller c : controllers) {
+            c.poll();
+            EventQueue eq = c.getEventQueue();
+            while (eq.getNextEvent(e)) {
+                eventQueue.add(new CEPair(c, e));
+            }
+        }
+    }
+    
+    /**
+     * @return a deque with all events since the last
+     *     time this method was called.
+     *//*
+    public Deque<CEPair> getEvents() {
+        if (!eventLock.tryLock()) return null;
+        try {
+            addEvents(getControllers());
+            Deque<CEPair> curQueue = eventQueue;
+            eventQueue = new LinkedList<>();
+            return curQueue;
+            
+        } finally {
+            eventLock.unlock();
+        }
+    }
+    /**/
     
     /**
      * Stores the difference between the previous and next controll array.

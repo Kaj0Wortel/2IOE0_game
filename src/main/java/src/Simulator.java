@@ -1,87 +1,194 @@
+
 package src;
 
-import com.jogamp.opengl.GL2;
+
+// Jogamp imports
+
+import com.jogamp.opengl.GL3;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import src.Assets.*;
+import src.Assets.instance.*;
+import src.Assets.skybox.Skybox;
+import src.Controllers.AIController;
 import src.OBJ.LoadOBJ;
+import src.Physics.PhysicsContext;
+import src.racetrack.BezierTrack;
 import src.tools.Binder;
-import src.tools.event.ControllerKey;
-import src.tools.event.keyAction.CameraKeyAction;
-import src.tools.event.keyAction.PlayerKeyAction;
-import src.tools.update.Updateable;
+import src.tools.PosHitBox3f;
 import src.tools.update.Updater;
 
 import javax.swing.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import java.util.List;
+import static src.Simulator.TYPE.*;
 
-import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
+// Own imports
+// Java imports
 
-public class Simulator implements Updateable {
 
-    private GL2 gl;
+public class Simulator {
+
+    public static enum TYPE {
+        CAR, ITEM, TRACK, ENVIRONMENT_TYPE, PLAYER, OTHER;
+    }
+
+    private GL3 gl;
 
     private Binder binder;
-    CameraKeyAction[] cameraActions;
-    PlayerKeyAction[] playerActions;
-
-    Instance player;
 
     public Simulator () {
         this.binder = new Binder();
-
-        cameraActions = new CameraKeyAction[] {
-                new CameraKeyAction(1, CameraKeyAction.MovementAction.LEFT),
-                new CameraKeyAction(1, CameraKeyAction.MovementAction.RIGHT),
-                new CameraKeyAction(1, CameraKeyAction.MovementAction.FORWARD),
-                new CameraKeyAction(1, CameraKeyAction.MovementAction.BACKWARD)
-        };
-
-        playerActions = new PlayerKeyAction[] {
-                new PlayerKeyAction(1, PlayerKeyAction.MovementAction.LEFT),
-                new PlayerKeyAction(1, PlayerKeyAction.MovementAction.RIGHT),
-                new PlayerKeyAction(1, PlayerKeyAction.MovementAction.FORWARD),
-                new PlayerKeyAction(1, PlayerKeyAction.MovementAction.BACKWARD)
-        };
-
-        SwingUtilities.invokeLater(() -> {
-            Updater.addTask(this);
-        });
     }
 
-    public void setGL(GL2 gl){
+    public void setGL(GL3 gl){
         this.gl = gl;
     }
 
     public void initAssets() {
-        //OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "test.obj");
-
-        Terrain terrain = new Terrain(gl);
-        OBJTexture TexturedTerrain = new OBJTexture(terrain, new TextureImg(gl,"test.jpg",0, 0));
-        Instance TerrainInstance = new Instance(new Vector3f(TexturedTerrain.getAsset().getCenteredPosition()).add(new Vector3f(0,-2,0)),1f,0f,0f,0f,TexturedTerrain);
-        GS.addTerrain(TerrainInstance);
-
+        /*
+        //Terrain terrain = new Terrain(gl);
+        //OBJTexture texturedTerrain = new OBJTexture(terrain,
+          //      new TextureImg(gl,"test.jpg",0, 0));
+        PosHitBox3f box = new PosHitBox3f(
+                new Vector3f(texturedTerrain.getAsset().getCenteredPosition())
+                .add(new Vector3f(0, -2, 0)), new Vector3f(), 2f, 2f, 6f);
+        Instance terrainInstance = new TerrainInstance(box, 1f, 0f, 0f, 0f,
+                texturedTerrain, 0f, new PhysicsContext());
+        GS.addTerrain(terrainInstance);
+       */
+        
+        ThrowingItemFactory.init(gl);
+        
+        PosHitBox3f box;
+        
         OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "cube.obj");
         OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "dragon.obj");
+        OBJCollection car = LoadOBJ.load(gl, GS.OBJ_DIR + "car.obj");
+        OBJCollection car2 = LoadOBJ.load(gl, GS.OBJ_DIR + "offroadcar.obj");
+        OBJCollection rock = LoadOBJ.load(gl, GS.OBJ_DIR + "Low-Poly_models.obj");
+        OBJCollection planet = LoadOBJ.load(gl, GS.OBJ_DIR + "planet.obj");
+
+        Map<Integer, OBJObject> rocks = new HashMap<Integer, OBJObject>();
+        rocks.put(0, rock.get(0));
+        rocks.put(1, rock.get(1));
+        rocks.put(2, rock.get(2));
+        rocks.put(3, rock.get(3));
+
         
+        // (0,0,0) REFERENCE
         for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj, new TextureImg(5,0.5f));
-            Instance cubeInstance = new Instance(new Vector3f(0f, 0f, 0f),
-                    1f, 0, 0, 0, texturedCube);
-            player = cubeInstance;
+            OBJTexture texturedCube = new OBJTexture(col,
+                    new TextureImg(5, 0.5f));
+            //box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
+            box = obj.createBoundingBox();
+            //box.setPosKeepHitBox();
+            box.translate(new Vector3f(0f, 0f, 0f));
+            Instance cubeInstance = new Car(box,
+                    1f, 0, 0, 0, texturedCube, 0, new PhysicsContext());
             GS.addAsset(cubeInstance);
         }
 
-        for (OBJObject obj : sp) {
-            OBJTexture texturedCube = new OBJTexture(obj, new TextureImg(5,0.5f));
-            Instance cubeInstance = new Instance(new Vector3f(0f, 0f, -5f),
-                    1, 0, 0, 0, texturedCube);
+
+        addToGamestate(ENVIRONMENT_TYPE, col, new Vector3f(-40f, 1f, 0.001f), 1, 0, 0, 0, 0,
+                new TextureImg(5, 0.5f), null, EnvironmentItem.Type.STATIC_OBSTACLE);
+
+        addToGamestate(ENVIRONMENT_TYPE, col, new Vector3f(0f, 1f, -40f), 1, 0, 0, 0, 0,
+                new TextureImg(5, 0.5f), null, EnvironmentItem.Type.SPEED_BOOST);
+
+
+
+        // SLOWDOWN TEST
+        /*for (OBJObject obj : col) {
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            box = new Box3f(new Vector3f(100f, -52f, 0), 2f, 2f, 6f);
+            Instance cubeInstance = new EnvironmentItem(box,
+                    50f, 0, 0, 0, texturedCube, 0, new PhysicsContext(),
+                    EnvironmentItem.Type.SLOW_DOWN);
             GS.addAsset(cubeInstance);
+        }*/
+        // SLOPE TEST
+        /*for (OBJObject obj : col) {
+            OBJTexture texturedCube = new OBJTexture(obj,
+                    new TextureImg(5, 0.5f));
+            box = new Box3f(new Vector3f(-100f, -81f, -100f), 2f, 2f, 6f);
+            Instance cubeInstance = new EnvironmentItem(box,
+                    150f, 0, -45, -35.26438968f, texturedCube, 0, new PhysicsContext(),
+                    EnvironmentItem.Type.SLOW_DOWN);
+            GS.addAsset(cubeInstance);
+        }*/
+        
+        /*
+        addToGamestate(ITEM, col, new Vector3f(0f, -115f, 540f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(-10f, -115f, 540f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(10f, -115f, 540f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1015f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1025f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1035f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(80f, -52f, -5f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(-40f,-52f, 30f), 1, 45, 45, 45, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        */
+        addToGamestate(ITEM, col, new Vector3f(0f, -115f, 540f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(-10f, -115f, 540f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(10f, -115f, 540f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1015f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1025f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(385f, -73f, 1035f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(80f, -52f, -5f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        addToGamestate(ITEM, col, new Vector3f(-40f,-52f, 30f), 1, 0, 0, 0, 0,
+                new TextureImg(gl,"item_block.png",5, 0.5f), null, null);
+        
+        addToGamestate(OTHER, sp, new Vector3f(0f, -60f, 500f), 4, 0, -90, 0, 0,
+                new TextureImg(5, 0.5f), null, null);
+
+        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0,2,0), 5,0,180,0,90,
+                new TextureImg(5,0.5f),null,null);
+        new AIController((Car) aiCar);
+
+        addToGamestate(PLAYER, car2, new Vector3f(0,2,-4), 3, 0, 180, 0, -90,
+                new TextureImg(5, 3f), null, null);
+
+        addLight(new Vector3f(30000f, 50000f, 1f),
+                new Vector3f(1f, 1f, 1f));
+
+        addGUI(new TextureImg(gl,"test_icon.png"),
+                new Vector2f(-0.5f, -0.5f), new Vector2f(0.25f, 0.25f));
+
+        addToGamestate(TRACK, null, new Vector3f(0,1,-5), 3, 0,0,0, 0,
+                new TextureImg(gl,"rainbow_road.png"),
+                new TextureImg(gl, "tileNormalMap.png"), null);
+
+        int range = 1000;
+        for(int i = 0; i < 1000; i++){
+            addRock(rocks.get(GS.rani(0, 3)), new Vector3f(
+                    GS.rani(-range, range),
+                    GS.rani(-range, range),
+                    GS.rani(-range, range)
+            ), GS.rani(1, 8), GS.rani(0, 90), GS.rani(0, 90), GS.rani(0, 90), 0,
+            new TextureImg(5, 3f));
         }
 
-        Light light = new Light(new Vector3f(0f,50f,0f), new Vector3f(1f,1f,1f));
-        GS.addLight(light);
+        addRock(planet.get(0), new Vector3f(310,-30,780), 25,0,0,0,0,new TextureImg(5, 3f));
 
+        addSkybox();
+        
         System.out.println("Assets initialized");
 
     }
@@ -90,62 +197,138 @@ public class Simulator implements Updateable {
         binder.clean(gl);
     }
 
-
-    long prevTimeStamp = System.currentTimeMillis();
-    @Override
-    public void performUpdate(long timeStamp)
-            throws InterruptedException {
-        long dt = timeStamp - prevTimeStamp;
-        prevTimeStamp = timeStamp;
-
-        if(GS.getAssets().size() > 0) {
-            GS.getAssets().get(1).roty(1f);
+    public Instance addToGamestate(TYPE type, OBJCollection col,
+            Vector3f position, int size, int rotx, int roty, int rotz,
+            int integratedRotation, TextureImg texture, TextureImg normalMap,
+            EnvironmentItem.Type envType){
+        Instance cubeInstance = null;
+        switch(type){
+            case ITEM:{
+                for(OBJObject obj : col) {
+                    OBJTexture texturedCube = new OBJTexture(col,
+                            texture);
+                    //box = new Box3f(new Vector3f(-40f, -52f, 30f), 2f, 2f, 2f);
+                    PosHitBox3f box = obj.createBoundingBox();
+                    //box.setPosKeepHitBox();
+                    box.translate(position);
+                    cubeInstance = new PickupItem(box,
+                            5*size, rotx, roty, rotz, texturedCube,
+                            integratedRotation, new PhysicsContext());
+                    GS.addItem((Item) cubeInstance);
+                }
+                break;
+            }
+            case ENVIRONMENT_TYPE:{
+                for (OBJObject obj : col) {
+                    OBJTexture texturedCube = new OBJTexture(col,
+                            texture);
+                    //box = new Box3f(new Vector3f(0f, 1f, -40f), 2f, 2f, 6f);
+                    PosHitBox3f box = obj.createBoundingBox();
+                    //box.setPosKeepHitBox();
+                    box.translate(position);
+                    cubeInstance = new EnvironmentItem(box,
+                            size, rotx, roty, rotz, texturedCube,
+                            integratedRotation, new PhysicsContext(),
+                            envType);
+                    GS.addAsset(cubeInstance);
+                }
+                break;
+            }
+            case TRACK:{
+                BezierTrack testTrack = new BezierTrack(
+                        position, size, rotx, roty, rotz,
+                        texture,
+                        normalMap);
+                testTrack.generateTrack(gl);
+                GS.setTrack(testTrack);
+                break;
+            }
+            case CAR:{
+                // CAR
+                OBJTexture texturedCube = new OBJTexture(col,
+                        texture);
+                //box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
+                PosHitBox3f box = col.createBoundingBox();
+                //box.setPosKeepHitBox();
+                box.translate(position);
+                cubeInstance = new Car(box,
+                        size, rotx, roty, rotz, texturedCube,
+                        integratedRotation, new PhysicsContext());
+                GS.cars.add((Car) cubeInstance);
+                GS.addMaterialAsset(cubeInstance);
+                break;
+            }
+            case PLAYER:{
+                // CAR
+                OBJTexture texturedCube = new OBJTexture(col,
+                        texture);
+                //box = new Box3f(new Vector3f(0f, 0f, 0f), 2f, 2f, 6f);
+                PosHitBox3f box = col.createBoundingBox();
+                //box.setPosKeepHitBox();
+                box.translate(position);
+                //box.pos().
+                cubeInstance = new Car(box,
+                        size/1.75f, rotx, roty, rotz, texturedCube, 
+                        integratedRotation, new PhysicsContext());
+                GS.player = (Car) cubeInstance;
+                GS.cars.add((Car) cubeInstance);
+                GS.addMaterialAsset(cubeInstance);
+                GS.camera.setFocus(GS.player);
+                break;
+            }
+            case OTHER:{
+                for (OBJObject obj : col) {
+                    OBJTexture texturedCube = new OBJTexture(col,
+                            texture);
+                    //box = new Box3f(new Vector3f(0f, -60f, 500f));
+                    PosHitBox3f box = obj.createBoundingBox();
+                    //box.setPosKeepHitBox();
+                    box.translate(position);
+                    cubeInstance = new Car(box,
+                            size, rotx, roty, rotz, texturedCube,
+                            integratedRotation, new PhysicsContext());
+                    GS.addAsset(cubeInstance);
+                }
+                break;
+            }
         }
-        if(player != null) {
-            GS.getCamera().setFocus(player);
-            processInput();
-            GS.getCamera().calculateInstanceValues();
-        }
+        
+        return cubeInstance;
+    }
 
+    public void addGUI(TextureImg texture, Vector2f topright, Vector2f size) {
+        GUI test = new GUI(texture.getTexture(),
+                topright, size);
+        GS.addGUI(test);
+    }
 
+    public void addLight(Vector3f position, Vector3f color) {
+        Light light = new Light(position,
+                color);
+        GS.addLight(light);
+    }
+
+    public void addSkybox() {
+        Skybox skybox = new Skybox(gl);
+        GS.setSkybox(skybox);
     }
     
-    @Override
-    public void ignoreUpdate(long timeStamp) {
-        prevTimeStamp = timeStamp;
+    public void addRock(OBJObject rock, Vector3f position, int size,
+            int rotx, int roty, int rotz, int integratedRotation,
+            TextureImg texture) {
+        OBJCollection col = new OBJCollection();
+        col.add(rock);
+        OBJTexture texturedCube = new OBJTexture(col,
+                texture);
+        //box = new Box3f(new Vector3f(0f, -60f, 500f));
+        PosHitBox3f box = col.createBoundingBox();
+        box.translate(position);
+        Instance cubeInstance = new MaterialInstance(box,
+                size, 0, 0, 0, texturedCube,
+                rotx, roty, rotz, new PhysicsContext(),
+                MaterialInstance.Type.SPACE_ROCK);
+        GS.addMaterialAsset(cubeInstance);
     }
-
-    @Override
-    public Priority getPriority() {
-        return UPDATE_ALWAYS;
-    }
-
-    private void addCollection(OBJCollection colletion){
-
-    }
-
-    private void processInput(){
-
-        if(GS.getCamera().isOnPlayer()){
-            for (PlayerKeyAction action : playerActions) {
-                List<ControllerKey> keys = GS.getKeys(action);
-                if (keys == null) return;
-                if (GS.keyDet.werePressed(keys)) {
-                    GS.getPlayerController().processKey(action.getAction());
-                }
-            }
-        }else {
-            for (CameraKeyAction action : cameraActions) {
-                List<ControllerKey> keys = GS.getKeys(action);
-                if (keys == null) return;
-                if (GS.keyDet.werePressed(keys)) {
-                    GS.getCameraController().processKey(action.getAction());
-                }
-            }
-        }
-    }
-
-    public Instance getPlayer(){
-        return this.player;
-    }
+    
+    
 }

@@ -1,18 +1,19 @@
 
 package src.Assets;
 
-import com.jogamp.opengl.GL2;
+
+// Jogamp imports
+import com.jogamp.opengl.GL3;
 import org.joml.Vector3f;
 import src.OBJ.MTLObject;
 import src.tools.Binder;
+import src.tools.PosHitBox3f;
 
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
-
 // Own imports
-
-
 // Java imports
 
 
@@ -20,20 +21,35 @@ import java.util.List;
  * 
  * <url>http://paulbourke.net/dataformats/obj/</url>
  */
-public class OBJObject extends Object {
+public class OBJObject
+        extends GraphicsObject {
+    private float minX = 0;
+    private float maxX = 0;
+    private float minY = 0;
+    private float maxY = 0;
+    private float minZ = 0;
+    private float maxZ = 0;
+    
+    
+
+    protected List<MTLObject> mtlObjects = new ArrayList<>();
+    protected List<IntBuffer> vaos = new ArrayList<>();
+    protected List<Integer> nrVs = new ArrayList<>();
+    
     
     public OBJObject(String name) {
         super(name);
     }
     
-    public void setData(GL2 gl, List<Float> vertices, List<Float> tex,
-                        List<Float> normals, List<Integer> indices) {
-
-        vao = Binder.loadVAO(gl,
+    
+    public void addData(GL3 gl, List<Float> vertices, List<Float> tex,
+                        List<Float> normals, List<Integer> indices,
+                        MTLObject mtl) {
+        vaos.add(Binder.loadVAO(gl,
                 toFloatArray(vertices), toFloatArray(tex),
-                toFloatArray(normals), toIntegerArray(indices));
-        nrV = indices.size();
-
+                toFloatArray(normals), toIntegerArray(indices)));
+        nrVs.add(indices.size());
+        mtlObjects.add(mtl);
     }
 
     private float[] toFloatArray(List<Float> floats){
@@ -52,32 +68,98 @@ public class OBJObject extends Object {
         return intar;
     }
 
+
+
+
+    /*
+    public void addData(GL3 gl, List<Float> vertices, List<Float> tex,
+                        List<Float> normals, List<Integer> indices,
+                        MTLObject mtl) {
+        vaos.add(Binder.loadVAO(gl, vertices, tex, normals, indices));
+        nrVs.add(indices.size());
+    }*/
+
     public String getName() {
         return name;
     }
-
-    public IntBuffer getVao() {
-        return vao;
+    
+    @Override
+    public List<IntBuffer> getVao() {
+        return vaos;
+    }
+    
+    @Override
+    public int getVao(int id) {
+        return getVao().get(id).get(0);
+    }
+    
+    @Override
+    public List<Integer> getNrV() {
+        return nrVs;
+    }
+    
+    @Override
+    public int getNrV(int id) {
+        return getNrV().get(id);
     }
 
-    public int getNrV() {
-        return nrV;
-    }
-
-    public void setVao(IntBuffer vao) {
-        this.vao = vao;
-    }
-
-    public void setNrV(int nrV) {
-        this.nrV = nrV;
-    }
-
-    public void setMltObject(MTLObject mltObject) {
-        this.mltObject = mltObject;
+    @Override
+    public List<MTLObject> getMaterials() {
+        return mtlObjects;
     }
 
     @Override
     public Vector3f getCenteredPosition() {
         return null;
     }
+    
+    public void setMinMax(
+            float minX, float maxX,
+            float minY, float maxY,
+            float minZ, float maxZ) {
+        this.minX = minX;
+        this.maxX = maxX;
+        this.minY = minY;
+        this.maxY = maxY;
+        this.minZ = minZ;
+        this.maxZ = maxZ;
+    }
+    
+    @Override
+    public int size() {
+        return mtlObjects.size();
+    }
+    
+    public float getMinX() {
+        return minX;
+    }
+    
+    public float getMaxX() {
+        return maxX;
+    }
+    
+    public float getMinY() {
+        return minY;
+    }
+    
+    public float getMaxY() {
+        return maxY;
+    }
+    
+    public float getMinZ() {
+        return minZ;
+    }
+    
+    public float getMaxZ() {
+        return maxZ;
+    }
+    
+    public PosHitBox3f createBoundingBox() {
+        return new PosHitBox3f(
+                new Vector3f(), // Pos
+                new Vector3f(minX, minY, minZ), // Rel pos
+                new Vector3f(maxX - minX, maxY - minY, maxZ - minZ)); // Dim
+    }
+    
+    
 }

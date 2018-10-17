@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package src.tools.update;
 
@@ -22,7 +17,6 @@ import src.tools.log.Logger;
 /**
  * Updating thread.
  * Use {@link scheduleTask(Runnable)} to schedule a task.
- * If 
  */
 public class UpdateThread
         extends Thread {
@@ -36,6 +30,7 @@ public class UpdateThread
     
     private static int id;
     private boolean terminate = false;
+    private boolean isDone = true;
     
     
     public UpdateThread() {
@@ -52,6 +47,7 @@ public class UpdateThread
             try {
                 // If the queue is empty, wait for a task.
                 if (requestQueue.isEmpty()) {
+                    isDone = true;
                     waitForEmpty.signalAll();
                     addedToQueue.await();
                 }
@@ -125,6 +121,7 @@ public class UpdateThread
         lock.lock();
         try {
             if (terminate) return;
+            isDone = false;
             requestQueue.addLast(r);
             addedToQueue.signalAll();
             
@@ -147,7 +144,7 @@ public class UpdateThread
         lock.lock();
         try {
             if (terminate) return;
-            if (requestQueue.isEmpty()) return;
+            if (isDone) return;
             waitForEmpty.await();
             
         } catch (InterruptedException e) {

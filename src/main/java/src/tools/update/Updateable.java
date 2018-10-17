@@ -24,7 +24,7 @@ import src.GS;
  * @author Kaj Wortel (0991586)
  */
 public interface Updateable {
-    public enum Priority {
+    public static enum Priority {
         UPDATE_ALWAYS,
         ONLY_WHEN_RUNNING,
         ONLY_WHEN_PAUSED,

@@ -26,7 +26,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.SwingUtilities;
+import src.Controllers.CameraController;
+import src.GS;
+import src.Physics.Physics;
+import src.tools.MultiTool;
 import src.tools.MultiTool.RandomIterator;
+import src.tools.update.CollisionManager.Collision;
+import src.tools.update.CollisionManager.Entry;
 
 
 /**
@@ -38,18 +44,18 @@ public class Updater {
     // The number of available threads. The {@code -1} is because the
     // graphics part also needs one thread. Other (mainly sleeping or waiting)
     // scheduleTask threads from other classes are ignored.
-    final private static int NUM_THREADS = Runtime.getRuntime()
-            .availableProcessors() - 1;
+    final private static int NUM_THREADS = Math.max(1, Runtime.getRuntime()
+            .availableProcessors() - 1);
     final private static Set<Updateable> updateSet = new HashSet<>();
     final private static List<UpdateThread> updateThreads = new ArrayList<>();
     
+    @SuppressWarnings("UseSpecificCatch")
     final private static AccurateTimerTool tt = new AccurateTimerTool(() -> {
-        //Logger.write("scheduleTask");
         // Obtain the time stamp.
         long timeStamp = System.currentTimeMillis();
-        // Update the keys. -> replace by separate timer/thread.
-        //if (GS.keyDet != null) GS.keyDet.scheduleTask();
         
+        
+        /** Update updateables. */
         synchronized(updateSet) {
             // Distribute the tasks evenly and randomly over the
             // available threads.
@@ -71,9 +77,7 @@ public class Updater {
                 Updateable updateable = it.next();
                 tasks.add(updateable);
                 
-                if (tasks.size() <= tasksPerThread) {
-                    
-                } else {
+                if (tasks.size() > tasksPerThread) {
                     // Create a new scheduleTask thread.
                     updater.scheduleTask(createUpdateRunnable(tasks, timeStamp));
                     if (++counter < updateThreads.size()) {
@@ -92,16 +96,107 @@ public class Updater {
             }
             
             if (!tasks.isEmpty()) {
-                Logger.write("Executing remaining tasks in updater!",
-                        Logger.Type.ERROR);
-                // Create a new scheduleTask thread.
                 updater.scheduleTask(createUpdateRunnable(tasks, timeStamp));
             }
             
-            // Wait for the other threads to terminate.
+            // Wait for the update threads to terminate.
             for (UpdateThread thread : updateThreads) {
                 thread.waitUntilDone();
             }
+        }
+        
+        
+        /** Determine collisions with double non-static collisions. */
+        final Iterator<Collision> colIt = CollisionManager.colLockIterator();
+        for (UpdateThread updater : updateThreads) {
+            updater.scheduleTask(() -> {
+                while (colIt.hasNext()) {
+                    Collision col = colIt.next();
+                    if (col == null) return;
+                    try {
+                        Physics.exeCollision(col);
+                        
+                    } finally {
+                        Locker.unlock(col.e1.inst);
+                        Locker.unlock(col.other);
+                    }
+                }
+            });
+        }
+        
+        // Wait for the update threads to terminate.
+        for (UpdateThread thread : updateThreads) {
+            thread.waitUntilDone();
+        }
+        
+        
+        /** Update objects that had a double non-static collision. */
+        int tasksPerThread = (int) Math.ceil(
+                ((double) updateSet.size()) / updateThreads.size());
+        int counter = 0;
+        List<Entry> tasks = new ArrayList<>(tasksPerThread);
+        UpdateThread updater = updateThreads.get(0);
+        int threadCounter = 0;
+        
+        final Iterator<Entry> instIt = CollisionManager.entryIterator();
+        while (instIt.hasNext()) {
+            Entry entry = instIt.next();
+            tasks.add(entry);
+
+            if (tasks.size() > tasksPerThread) {
+                // Create a new scheduleTask thread.
+                final List<Entry> t = tasks;
+                updater.scheduleTask(() -> {
+                    for (Entry e : t) {
+                        Physics.calcAndUpdatePhysics(e);
+                    }
+                });
+                if (++counter < updateThreads.size()) {
+                    updater = updateThreads.get(counter);
+
+                } else {
+                    Logger.write(
+                            "Wrong distribution among update threads!",
+                            Logger.Type.WARNING);
+                }
+                
+                // Reset counter and scheduleTask list for
+                // the next iteration.
+                tasks = new ArrayList<>();
+            }
+        }
+
+        if (!tasks.isEmpty()) {
+            final List<Entry> t = tasks;
+            updater.scheduleTask(() -> {
+                for (Entry e : t) {
+                    Physics.calcAndUpdatePhysics(e);
+                }
+            });
+        }
+        
+        // Wait for the update threads to terminate.
+        for (UpdateThread thread : updateThreads) {
+            thread.waitUntilDone();
+        }
+        
+        /** Update Camera. */
+        CameraController camContr = GS.cameraController;
+        if (camContr == null) return;
+        try {
+            Locker.lock(camContr);
+            try {
+                camContr.update(timeStamp);
+                
+            } finally {
+                Locker.unlock(camContr);
+            }
+            
+        } catch (Exception e) { // Play it safe to catch all types.
+            Logger.write(new Object[] {
+                "Exception occured in Camera controller:",
+                e,
+            }, Logger.Type.ERROR);
         }
     });
     static {
@@ -115,7 +210,6 @@ public class Updater {
      * @param timeStamp the timestamp the scheduleTask occured.
      * @return a fresh scheduleTask thread.
      */
-    private static long prevTime = System.currentTimeMillis();
     @SuppressWarnings("UseSpecificCatch")
     private static Runnable createUpdateRunnable(
             List<Updateable> threadUpdates, long timeStamp) {
@@ -125,12 +219,7 @@ public class Updater {
             // try it later again.
             List<Updateable> doLater = new ArrayList<Updateable>();
             for (Updateable up : threadUpdates) {
-                long curTimePre = System.currentTimeMillis();
-                //Logger.write("scheduleTask time diff: " + (curTimePre - prevTime));
-                prevTime = curTimePre;
                 if (!updateUpdateable(up, timeStamp)) doLater.add(up);
-                //long curTimePost = System.currentTimeMillis();
-                //Logger.write("time taken: " + (curTimePost - curTimePre));
             }
             
             // Re-do all updateables that were locked the first time.
@@ -158,7 +247,6 @@ public class Updater {
      */
     @SuppressWarnings("UseSpecificCatch")
     private static boolean updateUpdateable(Updateable up, long timeStamp) {
-        //Logger.write("Started updateable: " + up);
         try {
             if (Locker.tryLock(up)) {
                 try {
@@ -178,7 +266,6 @@ public class Updater {
             }, Logger.Type.ERROR);
         }
         
-        //Logger.write("Ended updateable: " + up);
         return true;
     }
     
@@ -227,7 +314,6 @@ public class Updater {
      * @see AccurateTimerTool#start()
      */
     public static void start() {
-        tt.start();
         Logger.write("Updater started!", Logger.Type.INFO);
         
         for (int i = 0; i < NUM_THREADS; i++) {
@@ -236,14 +322,8 @@ public class Updater {
             updateThreads.add(ut);
         }
         
-        // tmp
-        fpsTracker.start();
+        tt.start();
     }
-    
-    // tmp
-    private static TimerTool fpsTracker = new TimerTool(1000, 1000, () -> {
-        Logger.write("Fps = " + getFPS());
-    });
     
     /**
      * @see AccurateTimerTool#pause()
