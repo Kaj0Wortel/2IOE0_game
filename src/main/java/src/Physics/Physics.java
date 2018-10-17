@@ -400,26 +400,34 @@ public class Physics {
 
                 double z_ang;
                 //if(!inAir) {
-                    Vector3f n = new Vector3f();
-                    normals[ind].cross(tangents[ind], n);
-                    Vector3f side = new Vector3f();
-                    points[ind].add(n, side);
-                    Vector3f side2 = new Vector3f();
-                    points[ind].add(n.negate(), side2);
-                    Vector3f sideToPoint = new Vector3f();
-                    s.box.pos().sub(side, sideToPoint);
-                    Vector3f sideToPoint2 = new Vector3f();
-                    s.box.pos().sub(side2, sideToPoint2);
-                    int sign = -1;
-                    if (sideToPoint.length() < sideToPoint2.length()) {
-                        sign *= -1;
-                    }
-
-                    //System.out.println(mapped_dist);
-                    double a = sign * dist;
-                    double mapped_dist = a / trackWidth;
-                    z_ang = Math.atan(-2 * (1.5 / (trackWidth / 2)) * mapped_dist);
-                    
+                Vector3f n = new Vector3f();
+                normals[ind].cross(tangents[ind], n);
+                Vector3f side = new Vector3f();
+                points[ind].add(n, side);
+                Vector3f side2 = new Vector3f();
+                points[ind].add(n.negate(), side2);
+                Vector3f sideToPoint = new Vector3f();
+                s.box.pos().sub(side, sideToPoint);
+                Vector3f sideToPoint2 = new Vector3f();
+                s.box.pos().sub(side2, sideToPoint2);
+                int sign = -1;
+                if (sideToPoint.length() < sideToPoint2.length()) {
+                    sign *= -1;
+                }
+                
+                //System.out.println(mapped_dist);
+                Vector2f dist2dVec = new Vector2f(
+                        s.box.pos().x - points[ind].x,
+                        s.box.pos().y - points[ind].y
+                );
+                //double dist2d = Math.sqrt(dist2dVec.dot(dist2dVec));
+                double dist2d = Math.sqrt(
+                        Math.pow(s.box.pos().x - points[ind].x, 2) + 
+                        Math.pow(s.box.pos().y - points[ind].y, 2));
+                double a = sign * dist2d;
+                double mapped_dist = a / trackWidth;
+                z_ang = Math.atan(-2 * (1.5 / (trackWidth / 2)) * mapped_dist);
+                
                 if (!inAir) {
                     double z_dist = mapped_dist * mapped_dist * 1.5f;
                     s.internTrans = new Vector3f(0, 0, (float) -z_dist);
@@ -455,7 +463,6 @@ public class Physics {
             }
             // </editor-fold>
             else {
-                System.out.println(dt);
                 s.rotz += 0.015 * dt;
                 float change = (float) Math.pow(0.8, dt);
                 s.internTrans.mul(change);
@@ -729,7 +736,7 @@ public class Physics {
         
         if (e2 == null) {
             Logger.write("collision e2 entry is empty", Logger.Type.ERROR);
-            System.out.println("bad:  " + col.getOther() + " " + e1.inst);
+            System.out.println(col.getOther() + " " + e1.inst);
         }
         
         e1.ms.box.pos();//current position of car 1
