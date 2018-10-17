@@ -35,6 +35,8 @@ public class ShadowRenderer {
         shadowShader.loadProjectionMatrix(gl,frustrumBox.getOrthographicProjectionMatrix());
         shadowShader.loadViewMatrix(gl, frustrumBox.getLightViewMatrix());
 
+        GS.player.draw(gl, shadowShader);
+
         for(Instance asset : GS.getAssets()) {
             asset.draw(gl, shadowShader);
         }

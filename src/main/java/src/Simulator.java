@@ -16,9 +16,7 @@ import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
 import src.tools.Binder;
 import src.tools.PosHitBox3f;
-import src.tools.update.Updater;
 
-import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -272,7 +270,6 @@ public class Simulator {
                         integratedRotation, new PhysicsContext());
                 GS.player = (Car) cubeInstance;
                 GS.cars.add((Car) cubeInstance);
-                GS.addMaterialAsset(cubeInstance);
                 GS.camera.setFocus(GS.player);
                 break;
             }

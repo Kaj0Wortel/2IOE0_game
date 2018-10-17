@@ -11,6 +11,7 @@ import com.jogamp.opengl.glu.GLU;
 import org.joml.Matrix4f;
 import src.Controllers.PlayerController;
 import src.GS;
+import src.Shaders.CarShader;
 import src.Shaders.RacetrackShader;
 import src.Simulator;
 import src.shadows.ShadowRenderer;
@@ -63,6 +64,7 @@ public class Renderer
         GS.playerController = new PlayerController(GS.player, 1);
 
         getProjectionMatrix();
+        GS.player.setCarShaderVariables(new CarShader(gl), projectionMatrix);
         objectRenderer = new ObjectRenderer(gl,projectionMatrix);
         materialRenderer = new MaterialRenderer(gl, projectionMatrix);
         terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
@@ -70,6 +72,7 @@ public class Renderer
         guiRenderer = new GUIRenderer(gl);
         shadowRenderer = new ShadowRenderer(gl, fov, NEAR, FAR, width, height);
         GS.getTrack().setShadowMap(shadowRenderer.getDepthTexture());
+        GS.player.setShadowMap(shadowRenderer.getDepthTexture());
 
         RacetrackShader racetrackShader = new RacetrackShader(gl);
         GS.getTrack().setShaderAndRenderMatrices(racetrackShader, projectionMatrix,
@@ -103,6 +106,7 @@ public class Renderer
         materialRenderer.render(gl);
         terrainRenderer.render(gl);
         itemRenderer.render(gl);
+        GS.player.draw(gl, shadowRenderer.getShadowMatrix());
 
         gl.glDisable(GL3.GL_CULL_FACE);
         GS.getTrack().draw(gl, shadowRenderer.getShadowMatrix());
