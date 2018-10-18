@@ -47,6 +47,10 @@ public class ShadowRenderer {
             asset.draw(gl, shadowShader);
         }
 
+        for(Instance asset : GS.getTerrain()){
+            asset.draw(gl, shadowShader);
+        }
+
         GS.getTrack().draw(gl, shadowShader);
         GS.player.draw(gl, shadowShader);
 

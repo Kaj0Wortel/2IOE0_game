@@ -72,6 +72,7 @@ public class Simulator {
         OBJCollection car2 = LoadOBJ.load(gl, GS.OBJ_DIR + "offroadcar_better.obj");
         OBJCollection rock = LoadOBJ.load(gl, GS.OBJ_DIR + "Low-Poly_models.obj");
         OBJCollection planet = LoadOBJ.load(gl, GS.OBJ_DIR + "planet.obj");
+        OBJCollection banner = LoadOBJ.load(gl, GS.OBJ_DIR + "startBanner.obj");
 
         Map<Integer, OBJObject> rocks = new HashMap<Integer, OBJObject>();
         rocks.put(0, rock.get(0));
@@ -220,6 +221,8 @@ public class Simulator {
                 new TextureImg(5, 3f), MaterialInstance.Type.PLANET);
 
         addSkybox();
+        addBanner(banner, new Vector3f(0, 0, 40), 4, 0, 90, 0, 0,
+                new TextureImg(gl, "rainbow_road.png"), null);
         
         System.out.println("Assets initialized");
 
@@ -359,6 +362,21 @@ public class Simulator {
                 size, 0, 0, 0, texturedCube,
                 rotx, roty, rotz, new PhysicsContext(), type);
         GS.addMaterialAsset(cubeInstance);
+    }
+
+    public void addBanner(OBJCollection col, Vector3f position, int size,
+                          int rotx, int roty, int rotz, int integratedRotation,
+                          TextureImg texture, MaterialInstance.Type type){
+
+        OBJTexture texturedCube = new OBJTexture(col,
+                texture);
+        //box = new Box3f(new Vector3f(0f, -60f, 500f));
+        PosHitBox3f box = col.createBoundingBox();
+        box.translate(position);
+        Instance cubeInstance = new MaterialInstance(box,
+                size, 0, 0, 0, texturedCube,
+                rotx, roty, rotz, new PhysicsContext(), type);
+        GS.addTerrain(cubeInstance);
     }
     
     
