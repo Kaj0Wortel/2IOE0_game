@@ -13,6 +13,7 @@ import src.Assets.skybox.Skybox;
 import src.Controllers.PlayerController;
 import src.OBJ.LoadOBJ;
 import src.Physics.PhysicsContext;
+import src.music.MusicManager;
 import src.racetrack.BezierTrack;
 import src.tools.Binder;
 import src.tools.PosHitBox3f;
@@ -192,6 +193,8 @@ public class Simulator {
         addRock(planet.get(0), new Vector3f(310,-30,780), 25,0,0,0,0,new TextureImg(5, 3f));
 
         addSkybox();
+
+
         
         System.out.println("Assets initialized");
 

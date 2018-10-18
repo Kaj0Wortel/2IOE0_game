@@ -14,6 +14,7 @@ import src.tools.log.Logger;
 import src.tools.update.CollisionManager;
 import src.tools.update.CollisionManager.Collision;
 import src.tools.update.CollisionManager.Entry;
+import src.music.MusicManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -366,8 +367,10 @@ public class Physics {
                     points[ind].z - s.box.pos().z + tangents[ind].z*t);
             dist = (float)Math.sqrt(dDir.x*dDir.x + dDir.y*dDir.y + dDir.z*dDir.z);
             // If you are outside of the track
-            if (dist > trackWidth)
+            if (dist > trackWidth && s.onTrack) {
                 s.onTrack = false;
+                MusicManager.play("will_scream.wav", MusicManager.MUSIC_SFX);
+            }
             //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
             //        , (float)Math.sqrt(6)/3);
             Vector3f roadPos = new Vector3f(points[ind]);

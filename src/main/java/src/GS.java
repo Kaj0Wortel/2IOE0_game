@@ -24,6 +24,7 @@ import src.Renderer.Camera;
 import src.Renderer.Renderer;
 import src.grid.Grid;
 import src.gui.MainPanel;
+import src.music.MusicManager;
 import src.racetrack.Track;
 import src.tools.event.ControllerKey;
 import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
@@ -227,6 +228,10 @@ public class GS {
      * Function to start running the actual game.
      */
     public static void startRendering() {
+
+        // Start background music
+        MusicManager.play("shooting_stars_background.wav", MusicManager.MUSIC_BACKGROUND);
+
         GLProfile profile = GLProfile.get(GLProfile.GL3);
         GLCapabilities cap = new GLCapabilities(profile);
         canvas = new GLCanvas(cap);
@@ -249,7 +254,7 @@ public class GS {
 
         animator.start();
         renderer.cleanup();
-        
+
         Updater.start();
     }
     
