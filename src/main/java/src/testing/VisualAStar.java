@@ -136,9 +136,9 @@ public class VisualAStar
                     if (j == 2 && i == 0 && col == 0)
                         fPoint2 = new Point2D.Double(addedNormal.x, addedNormal.z);
                     if (j != 1) {
-                        addLine(new Point2D.Double(addedNormal.z, -addedNormal.x)
-                                , new Point2D.Double(addedNormal.z + 2*(addedTang.z - point.z)
-                                        , -(addedNormal.x + 2*(addedTang.x - point.x))));
+                        //addLine(new Point2D.Double(addedNormal.z, -addedNormal.x)
+                        //        , new Point2D.Double(addedNormal.z + 2*(addedTang.z - point.z)
+                        //                , -(addedNormal.x + 2*(addedTang.x - point.x))));
                     }
                 }
             }

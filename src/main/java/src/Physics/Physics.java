@@ -427,9 +427,12 @@ public class Physics {
 
             // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
             // (ACCEL) Max speed regulation
+            boolean noFriction = false;
             if ((pStruct.accel > 0 && s.velocity + linAccel*dt > pc.maxLinearVelocity) ||
-                    (pStruct.accel < 0 && s.velocity - linAccel*dt < -pc.maxLinearVelocity))
+                    (pStruct.accel < 0 && s.velocity - linAccel*dt < -pc.maxLinearVelocity)) {
                 pStruct.accel = 0;
+                noFriction = true;
+            }
             // (ACCEL) Block manual acceleration when collision just happened
             if (s.collisionVelocity > pc.knockback / pc.accBlockDur)
                 pStruct.accel = 0;
@@ -442,7 +445,7 @@ public class Physics {
 
 
             // (LINACCEL)/(VEL) Friction: When acceleration is 0, abs(v) decreases
-            if (pStruct.accel == 0) {
+            if (pStruct.accel == 0 && !noFriction) {
                 if (s.velocity > linAccel * pc.frictionConstant * dt)
                     linAccel = -pc.frictionConstant * linAccel;
                 else if (s.velocity < -linAccel * pc.frictionConstant * dt)

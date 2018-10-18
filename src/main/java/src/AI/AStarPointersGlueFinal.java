@@ -170,7 +170,7 @@ public class AStarPointersGlueFinal {
         
 
         // Visuals for track
-        visual.setForeground(Color.ORANGE);
+        visual.setForeground(Color.LIGHT_GRAY);
         Vector3f normal = new Vector3f();
         normal.cross(new Vector3f(0,0,1)).normalize().mul(1f).mul((float)(7));
         for (int n = 0; n < points.length - 1; n++) {
@@ -316,12 +316,15 @@ public class AStarPointersGlueFinal {
                     
                     // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
                     // (acc) Max speed regulation
+                    boolean noFriction = false;
                     if ((acc > 0 && curNode.v + a*dt > vMax) ||
-                            (acc < 0 && curNode.v - a*dt < -vMax))
+                            (acc < 0 && curNode.v - a*dt < -vMax)) {
                         acc = 0;
+                        noFriction = true;
+                    }
 
                     // (a)/(v) Friction: When acceleration is 0, abs(v) decreases
-                    if (acc == 0) {
+                    if (acc == 0 && !noFriction) {
                         if (curNode.v > a * frictionConstant * dt)
                             a *= -frictionConstant;
                         else if (curNode.v < -a * frictionConstant * dt)
@@ -411,45 +414,6 @@ public class AStarPointersGlueFinal {
                                 curNode.pos.y + vFactor.y * distTravelled);
                     }
                     // </editor-fold>
-                    
-                    
-                    /*
-                    if (i == 0) { // AI goes straight
-                        sV = curNode.v + (j*a) * tInt;
-                        sA = a;//j * a;
-                        sRot = curNode.rot;
-                        sRotV = 0;
-                        sPos = new Point2D.Double(
-                            curNode.pos.x + Math.cos(curNode.rot)*distTravelled,
-                            curNode.pos.y + Math.sin(curNode.rot)*distTravelled
-                        );
-                    } else { //AI turns
-                        deltaRot = tInt*(i*rotvMax);
-                        sV = curNode.v + (j*a)*tInt;
-                        sA = a;//j*a;
-                        sRot = curNode.rot + deltaRot;
-                        sRotV = i*rotvMax;
-                        // Position
-                        double sY = - (sV / sRotV)
-                                        * Math.cos(curNode.rot + sRotV*tInt)
-                                    + (sA / (sRotV*sRotV))
-                                        * Math.sin(curNode.rot + sRotV*tInt)
-                                    + (curNode.v / sRotV)
-                                        * Math.cos(curNode.rot)
-                                    - (sA / (sRotV*sRotV))
-                                        * Math.sin(curNode.rot);
-                        double sX = + (sV / sRotV)
-                                        * Math.sin(curNode.rot + sRotV*tInt)
-                                    + (sA / (sRotV*sRotV))
-                                        * Math.cos(curNode.rot + sRotV*tInt)
-                                    - (curNode.v / sRotV)
-                                        * Math.sin(curNode.rot)
-                                    - (sA / (sRotV*sRotV))
-                                        * Math.cos(curNode.rot);
-                        sPos = new Point2D.Double(
-                                curNode.pos.x + sX,
-                                curNode.pos.y + sY);
-                    }*/
                     // </editor-fold>
                     
                     // <editor-fold defaultstate="collapsed" desc="G & H">
@@ -541,6 +505,13 @@ public class AStarPointersGlueFinal {
                 System.out.println(iter);
         }
         // </editor-fold>
+        
+        try (NodeWriter nw = new NodeWriter("C:\\Users\\s152102\\Documents\\101_Courses\\Y3Q1 DBL interactive intelligent systems\\Gitkraken game folder\\2IOE0_game\\src\\main\\java\\src\\res\\A_star_data\\Node.csv")) {
+            nw.writeNodeChain(curNode);
+            
+        } catch (IOException e) {
+            Logger.write(e);
+        }
         
         // <editor-fold defaultstate="collapsed" desc="PATH CREATION">
         // If goal could be reached, create a path to it.
