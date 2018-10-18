@@ -4,11 +4,11 @@ import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.InputStreamInputSplit;
 import org.deeplearning4j.api.storage.StatsStorage;
-import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -21,10 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.api.DataSet;
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
-import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
+import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.nativeblas.NativeOps;
 import org.nd4j.nativeblas.NativeOpsHolder;
@@ -40,15 +37,15 @@ import src.grid.GridItem;
 import src.tools.PosHitBox3f;
 import src.tools.log.Logger;
 
+import javax.swing.*;
 import java.awt.geom.Point2D;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import javax.swing.SwingUtilities;
 
 /**
  * Creates a neural network array for driving.
@@ -57,47 +54,29 @@ import javax.swing.SwingUtilities;
  */
 public class AINN {
     // <editor-fold defaultstate="collapsed" desc="Global Variables">
-
     private static int idCounter = 0;
-    private int id = idCounter++;                                       // ID for keeping track of AINN instance
-
-    final private GridItemInstance instance;                            // Grid from game state
-
-    private MultiLayerNetwork[] networks = new MultiLayerNetwork[2];    // Array holding networks
-
-    private RecordReader aStarReader;                                   // Reader for A star data
-    private DataSetIterator it;                                         // Iterator to iterate through data
-
-    private static DataNormalization normalizer = new NormalizerStandardize();
-
-    private int turnSeed;                                               // Seed of turning net
-    private int turnl1;                                                 // l1 of turning net
-    private int turnl2;                                                 // l2 of turning net
-    private int turnHidden;                                             // Amount of hidden nodes of turning net
-
-    private int driveSeed;                                              // Seed of driving net
-    private int drivel1;                                                // l1 of driving net
-    private int drivel2;                                                // l2 of driving net
-    private int driveHidden;                                            // Amount of hidden nodes of driving net
-
-    private int in;                                                     // Number of input nodes
-    private int out;                                                    // Number of output nodes
-    final private static int GRIDSIZE = 5;
-
-    private PStructAction curAction = new PStructAction(0, 0, 0, 1);    // The current action.
-    // List < Quartet < currentState, Action, Reward, nextState > >
-//    private List<Quartet<DataSet, Integer, Double, DataSet>> qMemory = new LinkedList<>();   // Memory for Q-learning
-
-    // Thread variables
+    private int id = idCounter++;
+    private PStructAction curAction;
     private Thread updateThread = null;
     private Lock lock = new ReentrantLock();
     private boolean stopUpdateThread = false;
     final private long MILLIS_PER_UPDATE = 100L;
 
-    /* Static block for reading CSV once. */
+    private MultiLayerNetwork[] networks;
+    private MyIterator myIter;
+
+    final protected GridItemInstance instance;
+    final protected static int GRIDSIZE = 5;
     final private static String CSV;
     final private static List<Point2D.Float> COORDINATES;
+    final protected static List<String> labelNames;
+    final protected static int POSSIBLECLASSES = 3;
+    final protected static int BATCHSIZE = 5;
+    final protected static int LABELINDEX = 7;
 
+    // private List<Quartet<DataSet, Integer, Double, DataSet>> qMemory = new LinkedList<>();   // Memory for Q-learning
+
+    // Static block for reading CSV once.
     static {
         COORDINATES = new ArrayList<>();
         String fileName = "nodes.csv";
@@ -107,26 +86,27 @@ public class AINN {
         try (BufferedReader r = new BufferedReader(new FileReader(filePath + GS.FS + fileName))) {
             String line;
 
+            // while there are more lines, read them and populate CSV string and COORDINATES list
             while ((line = r.readLine()) != null) {
-                // CSV file
                 sb.append(line);
                 sb.append(GS.LS);
-
-                // coordinates file
                 String[] tokens = line.split(";");
                 COORDINATES.add(new Point2D.Float(Float.parseFloat(tokens[0]), Float.parseFloat(tokens[1])));
             }
 
         } catch (IOException e) {
-            Logger.write(new Object[]{"Static reading of file", e}, Logger.Type.ERROR);
+            Logger.write(new Object[]{"Static file reading failure", e}, Logger.Type.ERROR);
         }
 
         CSV = sb.toString();
 
-        Logger.write(
-                new Object[]{"Reading CSV done.", CSV},
-                Logger.Type.DEBUG
-        );
+        // Logger.write(new Object[]{"Reading CSV done.", CSV, COORDINATES}, Logger.Type.DEBUG);
+
+        // Setting labelNames
+        labelNames = new LinkedList<>();
+        labelNames.add("Left / Backward");
+        labelNames.add("Nothing");
+        labelNames.add("Right / Forward");
     }
 
 
@@ -137,13 +117,9 @@ public class AINN {
      * The first one can be used to get the 'previous output', which might be useful for Q-learning.
      */
     final private BaseTrainingListener LISTENER = new BaseTrainingListener() {
-        // TODO : Fix listener logic.
-        @Override
-        public void onEpochStart(Model model) {
-        }
 
         @Override
-        public void onEpochEnd(Model model) {
+        public void iterationDone(Model model, int iteration, int epoch) {
             // Cast model to MultiLayerNetwork in order to get output.
             MultiLayerNetwork network = (MultiLayerNetwork) model;
 
@@ -153,32 +129,31 @@ public class AINN {
 
             // Try to get output from network
             try {
-                out = network.output(it);
+                out = network.output(myIter.next().getFeatures());
             } catch (Exception e) {
-                Logger.write(
-                        new Object[]{"Cannot get network OUTPUT for model " + model.toString(), e},
-                        Logger.Type.ERROR
-                );
+                Logger.write(new Object[]{"Cannot get OUTPUT for model ", network.toString().replaceAll("\n", GS.LS), e,}, Logger.Type.ERROR);
+                e.printStackTrace();
             }
+
+            // Logger.write(new Object[]{"out from network = " + out.toString().replaceAll("\n", GS.LS)}, Logger.Type.DEBUG);
 
             // Try to convert INDArray output to integer output
             try {
                 output = out.maxNumber().intValue();
             } catch (Exception e) {
-                Logger.write(
-                        new Object[]{"Cannot convert OUTPUT to INT for model" + model.toString(), e},
-                        Logger.Type.ERROR
-                );
+                Logger.write(new Object[]{"Cannot convert OUTPUT to INT for model" + model.toString(), e}, Logger.Type.ERROR);
+                e.printStackTrace();
             }
+
+            Logger.write(new Object[]{"output from out = " + output}, Logger.Type.DEBUG);
 
             // Try to get score from network
             try {
+                // TODO use score in Q-learning
                 score = network.score();
             } catch (Exception e) {
-                Logger.write(
-                        new Object[]{"Cannot get network SCORE for model " + model.toString(), e},
-                        Logger.Type.ERROR
-                );
+                Logger.write(new Object[]{"Cannot get network SCORE for model " + model.toString(), e}, Logger.Type.ERROR);
+                e.printStackTrace();
             }
 
             if (model == networks[0]) {
@@ -188,10 +163,8 @@ public class AINN {
             if (model == networks[1]) {
                 curAction.accel = output - 1;
             }
-
         }
     };
-
     // </editor-fold>
 
     /**
@@ -202,24 +175,27 @@ public class AINN {
      * 2. Limit threads to be used to one ({@link #limitThreadsToOne()}).
      * 3. Configure both neural networks to be used.
      * 4. Add listeners to both networks.
+     * 5. Start the AI thread.
      *
      * @param instance GridItemInstance to be set.
      */
     public AINN(@NotNull GridItemInstance instance) {
-
-        Logger.write(
-                "Entering AINN()..."
-        );
-
         this.instance = instance;
-
         limitThreadsToOne();
 
-        Logger.write(
-                "Limiting threads done."
-        );
+        // normalizer = new NormalizerStandardize();
+        networks = new MultiLayerNetwork[2];
+        curAction = new PStructAction(0, 0, 0, 1);
 
         // <editor-fold defaultstate="collapsed" desc="Configuration for network responsible for turning">
+        int in = 60;
+        int out = 3;
+
+        int turnSeed = 1;
+        double turnl1 = 0.001;
+        double turnl2 = 0.001;
+        int turnHidden = 25;
+
         MultiLayerConfiguration turnConfig = new NeuralNetConfiguration.Builder()
                 .seed(turnSeed)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
@@ -227,28 +203,14 @@ public class AINN {
                 .weightInit(WeightInit.XAVIER)
                 .l1(turnl1)
                 .l2(turnl2)
+                .inferenceWorkspaceMode(WorkspaceMode.NONE)
+                .trainingWorkspaceMode(WorkspaceMode.NONE)
                 .list()
-                .layer(
-                        0, new DenseLayer.Builder()
-                                .nIn(in)
-                                .nOut(turnHidden)
-                                .build()
-                )
-                .layer(
-                        1, new DenseLayer.Builder()
-                                .nIn(turnHidden)
-                                .nOut(turnHidden)
-                                .build()
-                )
-                .layer(
-                        2, new OutputLayer.Builder()
-                                .nIn(turnHidden)
-                                .nOut(out)
-                                // .lossFunction(new LossMCXENT(Nd4j.create(new double[]{0.5, 0.5, 1.0})))
-                                // TODO: Q-learning comment: Create correct loss function.
-                                .activation(Activation.SOFTMAX)
-                                .build()
-                )
+                .layer(0, new DenseLayer.Builder().nIn(in).nOut(turnHidden).build())
+                .layer(1, new DenseLayer.Builder().nIn(turnHidden).nOut(turnHidden).build())
+                .layer(2, new OutputLayer.Builder().nIn(turnHidden).nOut(out).activation(Activation.SOFTMAX).build())
+                // .lossFunction(new LossMCXENT(Nd4j.create(new double[]{0.5, 0.5, 1.0})))
+                // TODO: Q-learning comment: Create correct loss function.
                 .pretrain(false)
                 .backprop(true)
                 .build();
@@ -256,6 +218,10 @@ public class AINN {
 
 
         // <editor-fold defaultstate="collapsed" desc="Configuration for network responsible for acceleration">
+        int driveSeed = 1;
+        double drivel1 = 0.001;
+        double drivel2 = 0.001;
+        int driveHidden = 25;
         MultiLayerConfiguration driveConfig = new NeuralNetConfiguration.Builder()
                 .seed(driveSeed)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
@@ -263,26 +229,12 @@ public class AINN {
                 .weightInit(WeightInit.XAVIER)
                 .l1(drivel1)
                 .l2(drivel2)
+                .inferenceWorkspaceMode(WorkspaceMode.NONE)
+                .trainingWorkspaceMode(WorkspaceMode.NONE)
                 .list()
-                .layer(
-                        0, new DenseLayer.Builder()
-                                .nIn(in)
-                                .nOut(driveHidden)
-                                .build()
-                )
-                .layer(
-                        1, new DenseLayer.Builder()
-                                .nIn(driveHidden)
-                                .nOut(driveHidden)
-                                .build()
-                )
-                .layer(
-                        2, new OutputLayer.Builder()
-                                .nIn(driveHidden)
-                                .nOut(out)
-                                .activation(Activation.SOFTMAX)
-                                .build()
-                )
+                .layer(0, new DenseLayer.Builder().nIn(in).nOut(driveHidden).build())
+                .layer(1, new DenseLayer.Builder().nIn(driveHidden).nOut(driveHidden).build())
+                .layer(2, new OutputLayer.Builder().nIn(driveHidden).nOut(out).activation(Activation.SOFTMAX).build())
                 .pretrain(false)
                 .backprop(true)
                 .build();
@@ -292,17 +244,12 @@ public class AINN {
         networks[0] = new MultiLayerNetwork(turnConfig);
         networks[1] = new MultiLayerNetwork(driveConfig);
 
-        // Add listeners.
+        // Add listeners
         networks[0].addListeners(LISTENER);
         networks[1].addListeners(LISTENER);
 
-        Logger.write(
-                "NN initialised"
-        );
-
-        SwingUtilities.invokeLater(() -> {
-            start();
-        });
+        // Start the thread
+        SwingUtilities.invokeLater(this::start);
     }
 
     /**
@@ -310,30 +257,25 @@ public class AINN {
      * {@code skipLines} lines will be skipped when initialising iterator.
      *
      * @param skipLines amount of lines to skip.
+     * @throws RuntimeException if {@code skipLines < 0}
      */
     private void readAndCreateIter(int skipLines) {
-        aStarReader = new CSVRecordReader(skipLines, GS.DELIM);
+        if (skipLines < 0) throw new RuntimeException("Cannot create CSV reader skipping negative lines!");
+
+        RecordReader aStarReader = new CSVRecordReader(skipLines, GS.DELIM);
 
         try (InputStream is = new ByteArrayInputStream(CSV.getBytes(Charset.defaultCharset()))) {
             aStarReader.initialize(new InputStreamInputSplit(is));
         } catch (Exception e) {
-            Logger.write(
-                    new Object[]{"InputStream reading failure at AINN with id " + id, e},
-                    Logger.Type.ERROR
-            );
+            Logger.write(new Object[]{"InputStream reading failure at AINN with id " + id, e}, Logger.Type.ERROR);
         }
 
-        int batchSize = 5;
-        int labelIndex = 7;
-        int possibleClasses = 3;
+        GridItem[][][][] G = GS.grid.getItemsAround(instance, 2, 2, 2);
 
         try {
-            it = new RecordReaderDataSetIterator(aStarReader, batchSize, labelIndex, possibleClasses);
+            myIter = new MyIterator(aStarReader, BATCHSIZE, LABELINDEX, POSSIBLECLASSES, G);
         } catch (Exception e) {
-            Logger.write(
-                    new Object[]{"Iterator creation failure at AINN with id " + id, e},
-                    Logger.Type.ERROR
-            );
+            Logger.write(new Object[]{"Iterator creation failure at AINN with id " + id, e}, Logger.Type.ERROR);
         }
     }
 
@@ -343,12 +285,12 @@ public class AINN {
      *
      * @return index of closes point in coordinates.
      */
-    private int findIndexOfClosestPoint() {
+    private int findIndexOfClosestPoint(Point2D.Float me) {
         float minDist = Float.MAX_VALUE;
-        Point2D.Float c = new Point2D.Float();
+        Point2D.Float c = new Point2D.Float(me.x, me.y);
 
         for (Point2D.Float p : COORDINATES) {
-            float d = dist(p);
+            float d = dist(me, p);
 
             if (d < minDist) {
                 minDist = d;
@@ -356,147 +298,102 @@ public class AINN {
             }
         }
 
+        // Logger.write(new Object[]{minDist, c, COORDINATES.indexOf(c)}, Logger.Type.DEBUG);
+
         return COORDINATES.indexOf(c);
-    }
-
-
-    /**
-     * Converts {@code items} to floats. Floats can be directly added to a DataSet.
-     *
-     * @param items GridItem[] to convert
-     * @return converted GridItem[] to float[]
-     */
-    private float[] gridItemsToFloats(@NotNull GridItem[] items) {
-        // Logger.write("\n\t\t" + items.length);
-
-        float[] ret = new float[GRIDSIZE];
-
-        for (int i = 0; (i < items.length && i < GRIDSIZE); i++) {
-            // Logger.write(new Object[]{i, Float.parseFloat(Character.toString(items[i].getSimpleRepr()))});
-
-            ret[i] = (float) items[i].getSimpleRepr();
-        }
-
-        return ret;
     }
 
     /**
      * Computes and returns the distance of the current position to another point.
-     * Used in {@link #findIndexOfClosestPoint()}.
+     * Used in {@link #findIndexOfClosestPoint(Point2D.Float)}.
      *
      * @param other some point.
      * @return euclidean distance of current position to {@code other}.
      */
-    private float dist(@NotNull Point2D.Float other) {
-        Vector3f pos = instance.getCurPosition();
-        Point2D.Float me = new Point2D.Float(pos.x, -pos.z);
-
+    private float dist(@NotNull Point2D.Float me, @NotNull Point2D.Float other) {
         return (float) Math.sqrt((other.x - me.x) * (other.x - me.x) + (other.y - me.y) * (other.y - me.y));
     }
 
     /**
-     * Given a GridItem[][][][] instance {@code G},
-     * computes the correct DataSet to use for the current iteration.
-     *
-     * @param G GridItem[][][][] instance
-     * @return DataSet to use.
+     * Returns the point at which you are right now.
      */
-    private DataSet getNextDataSet(@NotNull GridItem[][][][] G) {
-        // Create Iterator at correct place
-        readAndCreateIter(findIndexOfClosestPoint());
-
-        // Retrieve data from grid (5 : hardcoded GRIDSIZE)
-        float[][][] gridData = new float[GRIDSIZE][GRIDSIZE][GRIDSIZE];
-
-        for (int i = 0; (i < G.length && i < GRIDSIZE); i++) {
-            for (int j = 0; (j < G[i].length && j < GRIDSIZE); j++) {
-                for (int k = 0; (k < G[i][j].length && k < GRIDSIZE); k++) {
-                    gridData[i][k] = gridItemsToFloats(G[i][j][k]);
-                }
-            }
-        }
-
-        // Add Data To DataSet
-        DataSet DS = it.next();
-
-        for (float[][] aGridData : gridData) {
-            for (float[] anAGridData : aGridData) {
-                Logger.write(
-                        Arrays.toString(anAGridData).replaceAll("\n", GS.LS),
-                        Logger.Type.ERROR
-                );
-            }
-        }
-
-        INDArray Nd4jArr = Nd4j.create(gridData);
-
-        Logger.write(
-                new Object[]{"Nd4jArr looks like:", Nd4jArr.toString().replaceAll("\n", GS.LS)},
-                Logger.Type.ERROR
-        );
-
-        DS.addFeatureVector(Nd4jArr);
-
-        return DS;
+    private Point2D.Float findPoint() {
+        Vector3f pos = instance.getCurPosition();
+        return new Point2D.Float(pos.x, -pos.z);
     }
 
     /**
      * Runs one iteration of the AINN;
-     * 1. Get DataSet to train on ({@link #getNextDataSet(GridItem[][][][])}).
-     * 2. Normalise said DataSet using {@code DataNormalization}.
+     * 1. Get next DataSet using {@link MyIterator}.
+     * 2. Normalise said DataSet using {@link org.nd4j.linalg.dataset.api.preprocessor.DataNormalization}.
      * 3. Train using {@code fit()} function.
      */
     protected void execute() {
-        Logger.write(
-                "Entering execute()"
-        );
-        GridItem[][][][] G = GS.grid.getItemsAround(instance, 2, 2, 2);
-        DataSet nextSet = getNextDataSet(G);
+        // Create iterator to read CSV, starting at correct index.
+        readAndCreateIter(findIndexOfClosestPoint(findPoint()));
 
-        // Log initial data sent to network
-        Logger.write(
-                new Object[]{"Initial data non-normalised " + id + ":", nextSet},
-                Logger.Type.INFO
-        );
+        // get next()
+        DataSet nextSet = myIter.next();
 
-        normalizer.fit(nextSet);
-        normalizer.transform(nextSet);
+        // This data is correct.
+        Logger.write(new Object[]{
+                "Initial data non-normalised as in execute()" + id + ":",
+                nextSet.getFeatures().length() + "\n\t" + nextSet.getFeatures().toString().replaceAll("\n", GS.LS),
+                nextSet.getLabels().length() + "\n\t" + nextSet.getLabels().toString().replaceAll("\n", GS.LS),
+        }, Logger.Type.DEBUG);
 
-        // Log data after normalising
-        Logger.write(
-                new Object[]{"Initial normalised data " + id + ":", nextSet},
-                Logger.Type.INFO
-        );
+
+        // TODO Decide if we want this normalisation
+        // normalizer.fit(nextSet);
+        // normalizer.transform(nextSet);
+
+/*
+        Logger.write(new Object[]{
+                "AFTER NORMALISATION" + id + ":",
+                nextSet.getFeatures().length() + "\n\t" + nextSet.getFeatures().toString().replaceAll("\n", GS.LS + "\t"),
+                nextSet.getLabels().length() + "\n\t" + nextSet.getLabels().toString().replaceAll("\n", GS.LS + "\t"),
+                nextSet.getLabelNamesList()
+        }, Logger.Type.DEBUG);
+*/
 
         // TODO Q-Learning comment: Here we have a current state: nextSet.
 
+        networks[0].init();
+        networks[1].init();
 
         // Train turning net
         try {
+
+            /*
+            Logger.write(new Object[]{
+                    "Data with which we fit: ",
+                    "getFeatures()" + nextSet.getFeatures().toString().replaceAll("\n", GS.LS),
+                    "getLabels()" + nextSet.getLabels().toString().replaceAll("\n", GS.LS),
+            }, Logger.Type.DEBUG);
+            */
+
             networks[0].fit(nextSet);
         } catch (Exception e) {
-            Logger.write(
-                    new Object[]{"Fitting network[0] for turning failed " + id, e},
-                    Logger.Type.ERROR
-            );
+            Logger.write(new Object[]{"Fitting network[0] for turning failed " + id, e}, Logger.Type.ERROR);
+            e.printStackTrace();
         }
 
         // Train driving net
         try {
             networks[1].fit(nextSet);
         } catch (Exception e) {
-            Logger.write(
-                    new Object[]{"Fitting network[1] for driving failed " + id, e},
-                    Logger.Type.ERROR
-            );
+            Logger.write(new Object[]{"Fitting network[1] for driving failed " + id, e}, Logger.Type.ERROR);
+            e.printStackTrace();
         }
 
-        // Visualise
+        /*
+        // Visualisation. Disabled for now.
         for (MultiLayerNetwork net : networks) {
             if (net == networks[0]) {
                 visualize(net);
             }
         }
+        */
     }
 
     /**
@@ -522,10 +419,6 @@ public class AINN {
      */
     public void start() {
         lock.lock();
-
-        Logger.write(
-                "Opening start()..."
-        );
 
         try {
             stopUpdateThread = false;
@@ -555,6 +448,9 @@ public class AINN {
                                 "Exception occured in AINN " + id + ":",
                                 e
                         }, Logger.Type.ERROR);
+
+                        // Make error clickable.
+                        e.printStackTrace();
                     }
 
                     // Wait to fill the time.
@@ -626,6 +522,8 @@ public class AINN {
     }
 
     /**
+     * TODO fix documentation @Kaj. Also, can this not be removed?
+     *
      * @return {@code true} if the update
      */
     public boolean isUpdateRunning() {
@@ -639,12 +537,11 @@ public class AINN {
      * @return a fresh action that was generated by the neural net.
      */
     public PStructAction createAction(long dt) {
-        return new PStructAction(curAction.turn, curAction.accel,
-                curAction.verticalVelocity, dt);
+        return new PStructAction(curAction.turn, curAction.accel, curAction.verticalVelocity, dt);
     }
 
     /**
-     * Makes sure that this class only uses 1 thread.
+     * Gets computing object-threads, and limit them to 1.
      */
     private static void limitThreadsToOne() {
         Nd4jBlas nd4jBlas = (Nd4jBlas) Nd4j.factory().blas();
@@ -654,9 +551,9 @@ public class AINN {
         nd4jBlas.setMaxThreads(1);
     }
 
-    // TMP CLASS
-    public static class InstanceImpl
-            extends GridItemInstance {
+    // TODO: Delete this class, most likely obsolete.
+    @Deprecated
+    public static class InstanceImpl extends GridItemInstance {
 
         public InstanceImpl() {
             super(new PosHitBox3f(), 1, 0, 0, 0, new OBJTexture(new OBJCollection(), new TextureImg(0f, 0f)), 0, new PhysicsContext());
@@ -667,5 +564,4 @@ public class AINN {
             return true;
         }
     }
-
 }

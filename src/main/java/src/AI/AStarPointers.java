@@ -352,11 +352,9 @@ public class AStarPointers {
                 System.out.println(iter);
         }
         // </editor-fold>
-        
-        /*
-        try (NodeWriter nw = new NodeWriter("C:\\Users\\s155587\\Documents\\"
-                + "_university\\3_courses\\1_a1_2IOE0_DBL_Inter_intel\\"
-                + "software\\2IOE0_game\\nodes.cvs")) {
+
+        String danielLocation = "C:\\Users\\s165839\\Documents\\gitStuff\\2IOE0_game\\src\\main\\java\\src\\res\\A_star_data\\nodes.csv";
+        try (NodeWriter nw = new NodeWriter(danielLocation)) {
             nw.writeNodeChain(curNode);
             
         } catch (IOException e) {
