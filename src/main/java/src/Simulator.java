@@ -10,15 +10,16 @@ import org.joml.Vector3f;
 import src.Assets.*;
 import src.Assets.instance.*;
 import src.Assets.skybox.Skybox;
+import src.Controllers.PlayerController;
 import src.OBJ.LoadOBJ;
 import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
 import src.tools.Binder;
 import src.tools.PosHitBox3f;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import src.Controllers.PlayerController;
 import static src.Simulator.TYPE.*;
 
 // Own imports
@@ -275,7 +276,6 @@ public class Simulator {
                         integratedRotation, new PhysicsContext());
                 GS.player = (Car) cubeInstance;
                 GS.cars.add((Car) cubeInstance);
-                GS.addMaterialAsset(cubeInstance);
                 GS.camera.setFocus(GS.player);
                 break;
             }

@@ -48,6 +48,7 @@ public class ShadowRenderer {
         }
 
         GS.getTrack().draw(gl, shadowShader);
+        GS.player.draw(gl, shadowShader);
 
         shadowShader.stop(gl);
         shadowFBO.unbindFrameBuffer(gl);
