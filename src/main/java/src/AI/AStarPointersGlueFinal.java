@@ -170,7 +170,7 @@ public class AStarPointersGlueFinal {
         
 
         // Visuals for track
-        visual.setForeground(Color.ORANGE);
+        visual.setForeground(Color.LIGHT_GRAY);
         Vector3f normal = new Vector3f();
         normal.cross(new Vector3f(0,0,1)).normalize().mul(1f).mul((float)(7));
         for (int n = 0; n < points.length - 1; n++) {
@@ -506,12 +506,12 @@ public class AStarPointersGlueFinal {
         }
         // </editor-fold>
         
-        /*try (NodeWriter nw = new NodeWriter("C:\\Users\\s152102\\Documents\\101_Courses\\Y3Q1 DBL interactive intelligent systems\\Gitkraken game folder\\2IOE0_game\\src\\main\\java\\src\\res\\A_star_data\\Node.csv")) {
+        try (NodeWriter nw = new NodeWriter("C:\\Users\\s152102\\Documents\\101_Courses\\Y3Q1 DBL interactive intelligent systems\\Gitkraken game folder\\2IOE0_game\\src\\main\\java\\src\\res\\A_star_data\\Node.csv")) {
             nw.writeNodeChain(curNode);
             
         } catch (IOException e) {
             Logger.write(e);
-        }*/
+        }
         
         // <editor-fold defaultstate="collapsed" desc="PATH CREATION">
         // If goal could be reached, create a path to it.
