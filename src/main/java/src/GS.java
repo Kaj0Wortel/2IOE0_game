@@ -7,10 +7,9 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
+import net.java.games.input.ContrlEnv;
+import net.java.games.input.ControllerEnvironment;
 import org.joml.Vector3f;
-
-
-// Own imports
 import src.Assets.GUI;
 import src.Assets.Light;
 import src.Assets.instance.Car;
@@ -26,7 +25,6 @@ import src.grid.Grid;
 import src.gui.MainPanel;
 import src.racetrack.Track;
 import src.tools.event.ControllerKey;
-import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
 import src.tools.event.ControllerKeyDetector;
 import src.tools.event.Key;
 import src.tools.event.keyAction.CameraKeyAction;
@@ -35,18 +33,10 @@ import src.tools.event.keyAction.KeyAction;
 import src.tools.event.keyAction.PlayerKeyAction;
 import src.tools.font.FontLoader;
 import src.tools.io.BufferedReaderPlus;
-import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
-import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 import src.tools.io.ImageManager;
-import src.tools.log.FileLogger;
-import src.tools.log.Logger;
-import src.tools.log.MultiLogger;
-import src.tools.log.ScreenLogger;
-import src.tools.log.ThreadLogger;
+import src.tools.log.*;
 import src.tools.update.Updater;
 
-
-// Java imports
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -55,11 +45,13 @@ import java.util.*;
 import java.util.List;
 import java.util.logging.LogManager;
 
+import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
+import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
+import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 
+// Own imports
+// Java imports
 // JInput imports
-import net.java.games.input.ContrlEnv;
-import net.java.games.input.ControllerEnvironment;
-import src.gui.ScaleCanvas;
 
 
 /**
@@ -129,6 +121,7 @@ public class GS {
     
     /** Image constants. */
     final public static String FRAME_ICON = "FRAME_ICON";
+    final public static String ASTROID_POSITIONS = DATA_DIR + "astroidPositions.csv";
     
     /** Assets and camera. */
     final private static List<Instance> assets = new ArrayList<>();

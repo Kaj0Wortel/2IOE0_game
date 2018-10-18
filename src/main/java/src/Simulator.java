@@ -5,7 +5,6 @@ package src;
 // Jogamp imports
 
 import com.jogamp.opengl.GL3;
-import java.io.IOException;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import src.Assets.*;
@@ -17,15 +16,16 @@ import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
 import src.tools.Binder;
 import src.tools.PosHitBox3f;
+import src.tools.io.BufferedReaderPlus;
+import src.tools.log.Logger;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import static src.Simulator.TYPE.*;
-import src.tools.io.BufferedReaderPlus;
 import static src.tools.io.BufferedReaderPlus.NO_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CSV;
-import src.tools.log.Logger;
 
 // Own imports
 // Java imports
@@ -184,20 +184,26 @@ public class Simulator {
                 new TextureImg(gl,"rainbow_road.png"),
                 new TextureImg(gl, "tileNormalMap.png"), null);
         
-        try (BufferedReaderPlus brp = new BufferedReaderPlus("test",
+        try (BufferedReaderPlus brp = new BufferedReaderPlus(GS.ASTROID_POSITIONS,
                 NO_COMMENT, TYPE_CSV)) {
             
             String line;
             while ((line = brp.readCSVCell(false)) != null) {
                 try {
+                    int rocktype = Integer.parseInt(line);
                     Vector3f pos = new Vector3f(
-                            Float.parseFloat(line),
-                            Float.parseFloat(brp.readCSVCell(false)),
-                            Float.parseFloat(brp.readCSVCell(false))
+                            Integer.parseInt(brp.readCSVCell(false)),
+                            Integer.parseInt(brp.readCSVCell(false)),
+                            Integer.parseInt(brp.readCSVCell(false))
                     );
-                    
-                    addRock(rocks.get(GS.rani(0, 3)), pos, GS.rani(1, 8),
-                            GS.rani(0, 90), GS.rani(0, 90), GS.rani(0, 90), 0,
+
+                    int size =  Integer.parseInt(brp.readCSVCell(false));
+                    int angle1 = Integer.parseInt(brp.readCSVCell(false));
+                    int angle2 = Integer.parseInt(brp.readCSVCell(false));
+                    int angle3 = Integer.parseInt(brp.readCSVCell(false));
+
+                    addRock(rocks.get(rocktype), pos, size,
+                            angle1, angle2, angle3, 0,
                             new TextureImg(5, 3f),
                             MaterialInstance.Type.SPACE_ROCK);
                     
