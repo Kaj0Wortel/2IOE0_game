@@ -2,25 +2,24 @@ package src.Physics;
 
 
 // Own imports
+import org.joml.Matrix3f;
+import org.joml.Vector3f;
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
 import src.Assets.instance.Item;
-import src.racetrack.Track;
-import src.tools.update.CollisionManager.Collision;
-import src.tools.update.CollisionManager.Entry;
 import src.Progress.ProgressManager;
-
-
-//Java imports
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import org.joml.Matrix3f;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
+import src.racetrack.Track;
 import src.tools.PosHitBox3f;
 import src.tools.log.Logger;
 import src.tools.update.CollisionManager;
+import src.tools.update.CollisionManager.Collision;
+import src.tools.update.CollisionManager.Entry;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+//Java imports
 
 
 public class Physics {
@@ -398,54 +397,10 @@ public class Physics {
                 double yz_ang = Math.atan2(y, z);
                 double rotz = Math.atan2(x, yz);
 
-                double z_ang;
-                //if(!inAir) {
-                Vector3f n = new Vector3f();
-                normals[ind].cross(tangents[ind], n);
-                Vector3f side = new Vector3f();
-                points[ind].add(n, side);
-                Vector3f side2 = new Vector3f();
-                points[ind].add(n.negate(), side2);
-                Vector3f sideToPoint = new Vector3f();
-                s.box.pos().sub(side, sideToPoint);
-                Vector3f sideToPoint2 = new Vector3f();
-                s.box.pos().sub(side2, sideToPoint2);
-                int sign = -1;
-                if (sideToPoint.length() < sideToPoint2.length()) {
-                    sign *= -1;
-                }
-                
-                //double dist2d = Math.sqrt(dist2dVec.dot(dist2dVec));
-                double dist2d = Math.sqrt(
-                        Math.pow(s.box.pos().x - points[ind].x, 2) + 
-                        Math.pow(s.box.pos().y - points[ind].y, 2));
-                double a = sign * dist2d;
-                double mapped_dist = a / trackWidth;
-                z_ang = Math.atan(-2 * (1.5 / (trackWidth / 2)) * mapped_dist);
-                
-                if (!inAir) {
-                    double z_dist = mapped_dist * mapped_dist * 1.5f;
-                    s.internTrans = new Vector3f(0, 0, (float) -z_dist);
-                } else {
-                    s.internTrans.mul(0.99f * dt);
-                }
-
                 //write the needed rotation to the rotation only do this with the final value
                 //s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));
                 s.rotx = (float) (-rotz * Math.cos(yz_ang - s.roty));
-                
-                Vector2f curCarDir = new Vector2f(
-                        (float) Math.sin(s.roty),
-                        (float) Math.cos(s.roty)
-                ).normalize();
-                Vector2f tangTrackDir = new Vector2f(
-                        tangents[ind].x,
-                        tangents[ind].z
-                ).normalize();
-                float cosAngleCarTrack = curCarDir.dot(tangTrackDir) /
-                        (curCarDir.length() * tangTrackDir.length());
-                s.internRotx = (float) (z_ang * cosAngleCarTrack) * 1.1f;
-                s.internRotz = (float) (z_ang * Math.sin(Math.acos(cosAngleCarTrack))) * 1.1f;
+
                 // </editor-fold>
                 
                 // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
