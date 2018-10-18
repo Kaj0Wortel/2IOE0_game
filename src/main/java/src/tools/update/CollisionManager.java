@@ -65,6 +65,13 @@ public class CollisionManager {
         public Entry getEntry2() {
             return e2;
         }
+          
+        /**
+         * @return the other instance of the collision.
+         */      
+        public Instance getOther(){
+            return other;
+        }
         
         /**
          * @inheritDoc
@@ -74,7 +81,7 @@ public class CollisionManager {
          */
         @Override
         public int hashCode() {
-            return MultiTool.calcHashCode(e1.hashCode() + other.hashCode());
+            return MultiTool.calcHashCode(e1.inst.hashCode() + other.hashCode());
         }
         
         @Override
@@ -231,7 +238,8 @@ public class CollisionManager {
      * @param c the collision to add.
      */
     public static void addCollision(Instance source, Instance other,
-            PStructAction pStruct, ModPhysicsContext mpc, ModState ms, ProgressManager progress) {
+            PStructAction pStruct, ModPhysicsContext mpc, ModState ms,
+            ProgressManager progress) {
         Entry entry = new Entry(source, pStruct, mpc, ms, progress);
         Collision col = new Collision(entry, other);
         lock.lock();

@@ -22,21 +22,21 @@ public class Light {
         return color;
     }
 
-    public Matrix4f getRotationMatrix(){
+    public Matrix4f getRotationMatrix() {
         Vector3f lightdir = new Vector3f(position).negate();
         lightdir.normalize();
         float pitch = (float) Math.acos(new Vector2f(lightdir.x, lightdir.z).length());
         float yaw = (float) Math.toDegrees((float) Math.atan(lightdir.x / lightdir.z));
-        yaw = lightdir.z > 0 ? yaw - 180 : yaw;
+        yaw = (lightdir.z > 0 ? yaw - 180 : yaw);
 
         Matrix4f rotationMatrix = new Matrix4f();
-        rotationMatrix.rotate((float) pitch, new Vector3f(1,0,0));
-        rotationMatrix.rotate((float) -Math.toRadians(yaw), new Vector3f(0,1,0));
+        rotationMatrix.rotate((float) pitch, new Vector3f(1, 0, 0));
+        rotationMatrix.rotate((float) -Math.toRadians(yaw), new Vector3f(0, 1, 0));
 
         return rotationMatrix;
     }
 
-    public Matrix4f getRotatinMatrixInverse(){
+    public Matrix4f getRotationMatrixInverse(){
         return new Matrix4f(getRotationMatrix()).invert();
     }
 }

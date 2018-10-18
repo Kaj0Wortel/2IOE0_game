@@ -2,22 +2,22 @@ package src.AI;
 
 // Java imports
 import java.awt.geom.Point2D;
-import src.Assets.instance.Instance.State;
 import src.tools.MultiTool;
 
-public class FinalNode {
-    
-        public Point2D.Double pos;  // Node position
-    //public double v;            // position velocity
-    //public double a;            // position acceleration: -max, 0, max
-    //public double rot;          // Rotation: east = 0, north = pi/2
-    //public double rotV;         // Rotation velocity: -max,0,max
-    //public double vertV;        // vertical velocity
+public class NodeGlueFinal {
+    public Point2D.Double pos;  // Node position
+    public double v;            // position velocity
+    public double a;            // position acceleration: -max, 0, max
+    public double rot;          // Rotation: east = 0, north = pi/2
+    public double rotV;         // Rotation velocity: -max,0,max
     public double g;            // Distance from start (known)
     public double h;            // Distance to target (calculated)
     public int nextCP;          // currently travelling to CP(nextCP*2, nextCP*2 + 1)
-    public State state;         // 
-    public FinalNode parentNode;// Parent node position
+    public NodeGlueFinal parentNode;     // Parent node position
+    // extra
+    public int rIndex;
+    public int turn;
+    public int accel;
 
        
     
@@ -28,26 +28,26 @@ public class FinalNode {
      * @param newA
      * @param newRot
      * @param newRotV
-     * @param newVertV
      * @param newG
      * @param newH
      * @param newNextCP
      * @param newParentNode 
      */
-    public FinalNode (Point2D.Double newPos, /*double newV, double newA,
-            double newRot, double newRotV, double newVertV,*/ double newG, 
-            double newH, int newNextCP, State newState, FinalNode newParentNode) {
+    public NodeGlueFinal (Point2D.Double newPos, double newV, double newA,
+            double newRot, double newRotV, double newG, double newH, 
+            int newNextCP, NodeGlueFinal newParentNode, int newRIndex, int newTurn, int newAccel) {
         pos = newPos;
-        //v = newV;
-        //a = newA;
-        //rot  = newRot;
-        //rotV = newRotV;
-        //vertV = newVertV;
+        v = newV;
+        a = newA;
+        rot  = newRot;
+        rotV = newRotV;
         g = newG;
         h = newH;
         nextCP = newNextCP;
-        state = newState;
         parentNode = newParentNode;
+        rIndex = newRIndex;
+        turn = newTurn;
+        accel = newAccel;
     }
     
     /**
@@ -57,24 +57,25 @@ public class FinalNode {
      * 
      * @param arr the input array. Must be non-null and have a length of 9.
      */
-    public FinalNode(double[] arr) {
+    public NodeGlueFinal(double[] arr) {
         if (arr == null)
             throw new IllegalArgumentException(
                     "Expected a non-null array, but found null!");
-        if (arr.length != 9)
+        if (arr.length != 11)
             throw new IllegalArgumentException(
-                    "Expected an array of length 9, but found length "
+                    "Expected an array of length 11, but found length "
                             + arr.length + "!");
         
         pos = new Point2D.Double(arr[0], arr[1]);
-        //v = arr[2];
-        //a = arr[3];
-        //rot = arr[4];
-        //rotV = arr[5];
-        //vertV = arr[6];
-        g = arr[7];
-        h = arr[8];
-        nextCP = (int) arr[9];
+        v = arr[2];
+        a = arr[3];
+        rot = arr[4];
+        rotV = arr[5];
+        g = arr[6];
+        h = arr[7];
+        nextCP = (int) arr[8];
+        turn = (int) arr[9];
+        accel = (int) arr[10];
     }
     
     /**
@@ -88,42 +89,44 @@ public class FinalNode {
         return new double[] {
             pos.x,
             pos.y,
-            //v,
-            //a,
-            //rot,
-            //rotV,
-            //vertV,
+            v,
+            a,
+            rot,
+            rotV,
             g,
             h,
-            nextCP
+            nextCP,
+            turn,
+            accel
         };
     }
     
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        if (!(obj instanceof FinalNode)) return false;
-        FinalNode node = (FinalNode) obj;
+        if (!(obj instanceof NodeGlueFinal)) return false;
+        NodeGlueFinal node = (NodeGlueFinal) obj;
         return pos.equals(node.pos) &&
-                //v == node.v &&
-                //a == node.a &&
-                //rot == node.rot &&
-                //rotV == node.rotV &&
-                //vertV == node.vertV &&
+                v == node.v &&
+                a == node.a &&
+                rot == node.rot &&
+                rotV == node.rotV &&
                 g == node.g &&
                 h == node.h &&
-                nextCP == node.nextCP;
+                nextCP == node.nextCP &&
+                turn == node.turn &&
+                accel == node.accel;
+                
     }
     
     @Override
     public String toString() {
         return getClass().getSimpleName() + "["
                 + "pos=(" + pos.x + "," + pos.y + "),"
-                //+ "v=" + v
-                //+ "a=" + a
-                //+ "rot=" + rot
-                //+ "rotv=" + rotV
-                //+ "vertV=" + vertV
+                + "v=" + v
+                + "a=" + a
+                + "rot=" + rot
+                + "rotv=" + rotV
                 + "g=" + g
                 + "h=" + h
                 + "nextCP=" + nextCP
@@ -142,6 +145,8 @@ public class FinalNode {
      */
     @Override
     public int hashCode() {
-        return MultiTool.calcHashCode(pos, /*v, a, rot, rotV, vertV,*/ g, h, nextCP);
+        return MultiTool.calcHashCode(pos, v, a, rot, rotV, g, h, nextCP, turn, accel);
     }
+    
+    
 }

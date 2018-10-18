@@ -22,7 +22,7 @@ public class PlayerController
         PlayerMovementAction[] values = PlayerMovementAction.values();
         playerActions = new PlayerKeyAction[values.length];
         for (int i = 0; i < values.length; i++) {
-            playerActions[i] = new PlayerKeyAction(1, values[i]);
+            playerActions[i] = new PlayerKeyAction(id, values[i]);
         }
     }
     

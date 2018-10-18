@@ -20,7 +20,7 @@ import src.tools.update.Updater;
  * 
  */
 public class MaterialInstance
-        extends GridItemInstance
+        extends Instance
         implements Updateable {
     
     public static enum Type {
@@ -32,12 +32,13 @@ public class MaterialInstance
     final private float ranRoty = GS.ranf(0.05f, 0.25f);
     final private float ranRotz = GS.ranf(0.05f, 0.25f);
     
+    
     public MaterialInstance(PosHitBox3f box, float size,
-                            float rotx, float roty, float rotz,
-                            OBJTexture model, float integratedRotation,
+                            float rotx, float roty, float rotz, OBJTexture model,
+                            float internRotx, float internRoty, float internRotz,
                             PhysicsContext physicConst, Type type) {
-        super(box, size, rotx, roty, rotz, model, integratedRotation,
-                physicConst);
+        super(box, size, size, size, rotx, roty, rotz, model,
+                internRotx, internRoty, internRotz, physicConst);
         this.type = type;
         
         if (GS.R.nextFloat() < 0.5) {

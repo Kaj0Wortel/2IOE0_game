@@ -2,24 +2,24 @@ package src.Physics;
 
 
 // Own imports
+import org.joml.Matrix3f;
+import org.joml.Vector3f;
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
 import src.Assets.instance.Item;
+import src.Progress.ProgressManager;
 import src.racetrack.Track;
+import src.tools.PosHitBox3f;
+import src.tools.log.Logger;
+import src.tools.update.CollisionManager;
 import src.tools.update.CollisionManager.Collision;
 import src.tools.update.CollisionManager.Entry;
-import src.Progress.ProgressManager;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.joml.Matrix3f;
-import org.joml.Vector3f;
-import src.Assets.instance.Car;
-import src.tools.PosHitBox3f;
-import src.tools.update.CollisionManager;
 
+//Java imports
 
 
 public class Physics {
@@ -35,6 +35,7 @@ public class Physics {
         public float internRotx;
         public float internRoty;
         public float internRotz;
+        public Vector3f internTrans;
         
         public float velocity;
         public float collisionVelocity;
@@ -60,9 +61,10 @@ public class Physics {
             this.rotx = (float) Math.toRadians(state.rotx);
             this.roty = (float) Math.toRadians(state.roty);
             this.rotz = (float) Math.toRadians(state.rotz);
-            internRotx = state.internRotx;
-            internRoty = state.internRoty;
-            internRotz = state.internRotz;
+            this.internRotx = (float) Math.toRadians(state.internRotx);
+            this.internRoty = (float) Math.toRadians(state.internRoty);
+            this.internRotz = (float) Math.toRadians(state.internRotz);
+            this.internTrans = state.internTrans.mul(CONV_MAT, new Vector3f());
             velocity = state.velocity;
             collisionVelocity = state.collisionVelocity;
             verticalVelocity = state.verticalVelocity;
@@ -82,8 +84,13 @@ public class Physics {
         public State createState() {
             // Convert back to instance space.
             return new State(box.convert(CONV_MAT_INV), sizey, sizez, sizex,
-                    (float) (Math.toDegrees(rotx) % 360), (float) (Math.toDegrees(roty) % 360), (float) (Math.toDegrees(rotz) % 360),
-                    internRotx, internRoty, internRotz,
+                    (float) (Math.toDegrees(rotx) % 360), 
+                    (float) (Math.toDegrees(roty) % 360), 
+                    (float) (Math.toDegrees(rotz) % 360),
+                    (float) (Math.toDegrees(internRotx) % 360), 
+                    (float) (Math.toDegrees(internRoty) % 360), 
+                    (float) (Math.toDegrees(internRotz) % 360),
+                    internTrans.mul(CONV_MAT_INV),
                     velocity, collisionVelocity,
                     verticalVelocity, onTrack, inAir, rIndex, isResetting);
         }
@@ -168,8 +175,9 @@ public class Physics {
         
     }
     
-     // Necessary for determining if on track
+    // Necessary for determining if on track
     final private static int POINTS_PER_SEGMENT = 500;
+    private static Track track = null;
     private static Vector3f[] points = new Vector3f[0];
     private static Vector3f[] normals = new Vector3f[0];
     private static Vector3f[] tangents = new Vector3f[0];
@@ -188,7 +196,7 @@ public class Physics {
      * simple collision (rectangle colliders)
      * rotation correction for small velocities and negative velocities
      * 2 simple items/situations implemented
-    \* Large slowdown when speed higher than vMax 
+     * Large slowdown when speed higher than vMax 
      * 
      * 
      * TODO:
@@ -299,25 +307,28 @@ public class Physics {
         if (!s.isResetting) {
             // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
             // Find road point closest to car
-            float shortestDist = 10000000;
+            float shortestDist = Float.POSITIVE_INFINITY;
             float dist;
             int ind = 0; // Current road point index
             // Check from checkpoint up until current point
-            for (int i = (int)Math.floor(points.length * (progress.checkPoint / progress.cpAm));
+            for (int i = Math.max(
+                    (int) Math.floor(points.length * (progress.checkPoint / progress.cpAm)) - 5,
+                    (int) Math.floor(points.length * (progress.checkPoint / progress.cpAm)));
                     i < Math.min(s.rIndex + 10, points.length); i++) {
                 if (Math.abs(s.box.pos().z - points[i].z) < 50) {
                     dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
-                            + (float)Math.pow(s.box.pos().y - points[i].y, 2)
-                            /*+ (float)Math.pow(s.box.pos().z - points[i].z, 2)*/);
+                            + (float)Math.pow(s.box.pos().y - points[i].y, 2));
                     if (dist < shortestDist) {
                         shortestDist = dist;
                         ind = i;
                     }
                 }
             }
+            
+            
             if (s.rIndex > points.length - 10) { // Early on track: check end points
                 for (int i = 0; i < 10; i++) {
-                    if (Math.abs(s.box.pos().z - points[i].z) < 5) {
+                    if (Math.abs(s.box.pos().z - points[i].z) < 20) {
                         dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
                                 + (float)Math.pow(s.box.pos().y - points[i].y, 2)
                                 /*+ (float)Math.pow(s.box.pos().z - points[i].z, 2)*/);
@@ -329,7 +340,7 @@ public class Physics {
                 }
             } else if (s.rIndex < 10) { // Late on track: check start points
                 for (int i = points.length - 10; i < points.length; i++) {
-                    if (Math.abs(s.box.pos().z - points[i].z) < 5) {
+                    if (Math.abs(s.box.pos().z - points[i].z) < 20) {
                         dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
                                 + (float)Math.pow(s.box.pos().y - points[i].y, 2)
                                 /*+ (float)Math.pow(s.box.pos().z - points[i].z, 2)*/);
@@ -359,15 +370,15 @@ public class Physics {
                 s.onTrack = false;
             //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
             //        , (float)Math.sqrt(6)/3);
+            Vector3f roadPos = new Vector3f(points[ind]);
             Vector3f rN = normals[ind];
-            Vector3f roadPos = new Vector3f(points[ind].x, points[ind].y, points[ind].z);
             // </editor-fold>
 
             if (s.onTrack) {
                 // <editor-fold defaultstate="collapsed" desc="AIR TIME DETECTION"> 
                 gndZ = roadPos.z 
-                        - (s.box.pos().x - roadPos.x) * rN.x / rN.z
-                        - (s.box.pos().y - roadPos.y) * rN.y / rN.z;
+                        - (s.box.pos().x - roadPos.x) * normals[ind].x / normals[ind].z
+                        - (s.box.pos().y - roadPos.y) * normals[ind].y / normals[ind].z;
                 // extra part after gnd is to compensate for small rounding errors
                 if (s.box.pos().z - gndZ < gndClamp && s.verticalVelocity <= 0.01) {
                     s.inAir = false;
@@ -382,15 +393,17 @@ public class Physics {
                 double y = normals[ind].y;
                 double x = normals[ind].x;
                 double z = normals[ind].z;
-
-                double yz = Math.sqrt(Math.pow(y,2) + Math.pow(z,2));
+                //calculating the values needed
+                double yz = Math.sqrt(y*y + z*z);
                 double yz_ang = Math.atan2(y, z);
                 double rotz = Math.atan2(x, yz);
 
-                s.rotz = (float) (rotz * Math.cos(yz_ang - s.roty));            
-                s.rotx = (float) (rotz * Math.sin(yz_ang - s.roty));
-                // </editor-fold>
+                //write the needed rotation to the rotation only do this with the final value
+                s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));
+                s.rotx = (float) (-rotz * Math.cos(yz_ang - s.roty));
 
+                // </editor-fold>
+                
                 // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
                 progress.manageProgress(s.box.pos(), points.length, ind);
                 if (progress.finished) {
@@ -401,14 +414,22 @@ public class Physics {
             }
             // </editor-fold>
             else {
-                s.rotz += 0.01;
+                s.internRotx -= 0.15 * dt;
+//                float change = (float) Math.pow(0.8, dt);
+//                s.internTrans.mul(change);
+//                s.internRotx *= change;
+//                s.internRoty *= change;
+//                s.internRotz *= change;
             }
 
             // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
             // (ACCEL) Max speed regulation
+            boolean noFriction = false;
             if ((pStruct.accel > 0 && s.velocity + linAccel*dt > pc.maxLinearVelocity) ||
-                    (pStruct.accel < 0 && s.velocity - linAccel*dt < -pc.maxLinearVelocity))
+                    (pStruct.accel < 0 && s.velocity - linAccel*dt < -pc.maxLinearVelocity)) {
                 pStruct.accel = 0;
+                noFriction = true;
+            }
             // (ACCEL) Block manual acceleration when collision just happened
             if (s.collisionVelocity > pc.knockback / pc.accBlockDur)
                 pStruct.accel = 0;
@@ -421,7 +442,7 @@ public class Physics {
 
 
             // (LINACCEL)/(VEL) Friction: When acceleration is 0, abs(v) decreases
-            if (pStruct.accel == 0) {
+            if (pStruct.accel == 0 && !noFriction) {
                 if (s.velocity > linAccel * pc.frictionConstant * dt)
                     linAccel = -pc.frictionConstant * linAccel;
                 else if (s.velocity < -linAccel * pc.frictionConstant * dt)
@@ -433,7 +454,7 @@ public class Physics {
             } else { // When accelerate
                 if (s.velocity > linAccel * pc.frictionConstant * dt && pStruct.accel < 0 
                         || s.velocity < -linAccel * pc.frictionConstant * dt && pStruct.accel > 0) {
-                    linAccel *=pc.brakeAccel;
+                    linAccel *= pc.brakeAccel;
                 }
                 linAccel *= pStruct.accel;
             }
@@ -467,7 +488,10 @@ public class Physics {
                 eV = s.velocity + linAccel * dt;
                 eRot = s.roty;
                 // Calculate the vFactor in the direction of XY movement
-                carDir = new Vector3f ((float)Math.cos(s.roty), (float)Math.sin(s.roty), 0);
+                carDir = new Vector3f (
+                        (float) Math.cos(s.roty),
+                        (float) Math.sin(s.roty),
+                        0);
                 u = new Vector3f(carDir.y*rN.z - carDir.z*rN.y,
                         carDir.z*rN.x - carDir.x*rN.z,
                         carDir.x*rN.y - carDir.y*rN.x);
@@ -503,7 +527,10 @@ public class Physics {
                 distAngle = (-(distAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
 
                 // Calculate the vFactor in the direction of XY movement
-                carDir = new Vector3f ((float)Math.cos(distAngle), (float)Math.sin(distAngle), 0);
+                carDir = new Vector3f (
+                        (float) Math.cos(distAngle),
+                        (float) Math.sin(distAngle),
+                        0);
                 u = new Vector3f(carDir.y*rN.z - carDir.z*rN.y,
                         carDir.z*rN.x - carDir.x*rN.z,
                         carDir.x*rN.y - carDir.y*rN.x);
@@ -635,9 +662,30 @@ public class Physics {
                 s.verticalVelocity = 4;
                 s.onTrack = true;
                 eRot = finalRot;
+                //
+                float dist = 0;
+                float shortestDist = 1000000;
+                
+                for (int i = 0; i < points.length; i++) {
+                    if (Math.abs(s.box.pos().z - points[i].z) < 50) {
+                        dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
+                                + (float)Math.pow(s.box.pos().y - points[i].y, 2));
+                        if (dist < shortestDist) {
+                            shortestDist = dist;
+                            s.rIndex = i;
+                        }
+                    }
+                }
+                
+                //s.rIndex = (int)Math.floor(points.length * (progress.checkPoint / progress.cpAm));
                 // Drive again
                 s.isResetting = false;
             }
+            
+            s.internRotx = 0;
+            s.internRoty = 0;
+            s.internRotz = 0;
+            s.internTrans = new Vector3f();
         }
         // </editor-fold>
         
@@ -656,6 +704,21 @@ public class Physics {
         Entry e1 = col.getEntry1();
         Entry e2 = col.getEntry2();
         
+        if (e2 == null) {
+            Logger.write("collision e2 entry is empty", Logger.Type.ERROR);
+            System.out.println(col.getOther() + " " + e1.inst);
+        }
+        
+        e1.ms.box.pos();//current position of car 1
+        e2.ms.box.pos();//current position of car 2
+        
+        float v = e1.ms.velocity;
+        e1.ms.velocity = e2.ms.velocity;
+        e2.ms.velocity = v;
+        
+        float roty = e1.ms.roty;
+        e1.ms.roty = e2.ms.roty;
+        e2.ms.roty = roty;
         // TODO: do stuff with the entries.
         //System.out.println("Collision occured");
     }
@@ -684,6 +747,7 @@ public class Physics {
      * @param track the track to get the points and normals of.
      */
     public static void setTrack(Track track) {
+        Physics.track = track;
         List<Vector3f> pointList = new ArrayList<Vector3f>();
         List<Vector3f> normalList = new ArrayList<Vector3f>();
         List<Vector3f> tangentList = new ArrayList<Vector3f>();

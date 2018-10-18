@@ -1,4 +1,3 @@
-
 package src.AI;
 
 // Own imports
@@ -17,6 +16,7 @@ import org.joml.Vector3f;
 import src.Assets.TextureImg;
 import src.Assets.instance.Instance;
 import src.Physics.Physics;
+import src.Physics.Physics.ModState;
 import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
 import src.tools.PosHitBox3f;
@@ -107,15 +107,18 @@ public class FinalAStar {
         // Checkpoints and start position
         List<Point2D.Double> checkPoints = new ArrayList<Point2D.Double>();        
         for (int i = 0; i < 1; i++) {
-            checkPoints.add(new Point2D.Double(8.5, 8.5));
+            checkPoints.add(new Point2D.Double(0, 10));
+            
+            //checkPoints.add(new Point2D.Double(8.5, 8.5));
             //checkPoints.add(new Point2D.Double(5.5, 8.5));
             //checkPoints.add(new Point2D.Double(5, 5.5));
             //checkPoints.add(new Point2D.Double(1.1, 5.3));
             //checkPoints.add(new Point2D.Double(1.4, 1.4));
             //checkPoints.add(new Point2D.Double(8.6, 1.4));
         }
-        checkPoints.add(new Point2D.Double(9, 6.2));
-        Point2D.Double firstPos = new Point2D.Double(9, 5);
+        //checkPoints.add(new Point2D.Double(9, 6.2));
+        //Point2D.Double firstPos = new Point2D.Double(9, 5);
+        Point2D.Double firstPos = new Point2D.Double(-5, 0);
         Point2D.Double startPos = firstPos;
         
         // Maximum velocity (can be something else than +/-max or 0)
@@ -140,6 +143,7 @@ public class FinalAStar {
         System.out.println("---------------A* Debug---------------");
         // <editor-fold defaultstate="collapsed" desc="VISUALS">
         // Visuals for obstacle/void locations
+        /*
         visual.setForeground(Color.DARK_GRAY);
         Point2D.Double point1 = new Point2D.Double(6,-2);
         Point2D.Double point2 = new Point2D.Double(6,-8);
@@ -166,7 +170,7 @@ public class FinalAStar {
             visual.setForeground(Color.CYAN);
             visual.addLine(new Point2D.Double(8,-5), new Point2D.Double(10,-5));
         // </editor-fold>
-            
+        */
         // Initialize open- and closed-list
         ArrayList<FinalNode> openlist = new ArrayList<>();
         ArrayList<FinalNode> closedlist = new ArrayList<>();
@@ -183,8 +187,9 @@ public class FinalAStar {
             curHPos = CP;
         }
 
-        FinalNode start = new FinalNode(startPos, 0, 0, Math.PI/2, 0, 0, 0, h, 0, null);
+        FinalNode start = new FinalNode(startPos, 0, h, 0, instance.getState(), null);
         openlist.add(start);
+        
         
         // LOOP: until openlist is empty left OR when the goal is reached.
         // <editor-fold defaultstate="collapsed" desc="LOOP">
@@ -220,149 +225,97 @@ public class FinalAStar {
                 System.out.println("Checkpoint reached: " + curNode.nextCP);
             }
             
+            
+            
             // i > turning: right, straight or left
             for (int i = -1; i <= 1; i++) {
                 // j > Velocity: decelerate, constant, accelerate
                 for (int j = -1; j <= 1; j++) {
                     // <editor-fold defaultstate="collapsed" desc="PHYSICS">
-                    if (!(j == 1 && curNode.v + a*tInt > vMax)) {
-                        // Calculate succesor node variables
-                        Point2D.Double sPos;
-                        // Used in Node
-                        double sV, sA, sRot, sRotV, sVertV, sg, sh;
-                        // Not used in Node
-                        double deltaRot, r, sr, s_deltaX, s_deltaY;
-                        double distTravelled = curNode.v * tInt + 0.5*(j*a)*tInt*tInt;
-                        if (reachedCP) {
-                            sg = curNode.g + curNode.v * tInt; //+distTravelled
-                        } else {
-                            sg = curNode.g + curNode.v * tInt;//+ distTravelled;
-                        }
-                        if (i == 0) { // AI goes straight
-                            sV = curNode.v + (j*a) * tInt;
-                            sA = j * a;
-                            sRot = curNode.rot;
-                            sRotV = 0;
-                            sPos = new Point2D.Double(
-                                curNode.pos.x + Math.cos(curNode.rot)*distTravelled,
-                                curNode.pos.y + Math.sin(curNode.rot)*distTravelled
-                            );
-                        } else { //AI turns
-                            deltaRot = tInt*(i*rotvMax);
-                            sV = curNode.v + (j*a)*tInt;
-                            sA = j*a;
-                            sRot = curNode.rot + deltaRot;
-                            sRotV = i*rotvMax;
-                            // Position
-                            double sY = - (sV / sRotV)
-                                            * Math.cos(curNode.rot + sRotV*tInt)
-                                        + (sA / (sRotV*sRotV))
-                                            * Math.sin(curNode.rot + sRotV*tInt)
-                                        + (curNode.v / sRotV)
-                                            * Math.cos(curNode.rot)
-                                        - (sA / (sRotV*sRotV))
-                                            * Math.sin(curNode.rot);
-                            double sX = + (sV / sRotV)
-                                            * Math.sin(curNode.rot + sRotV*tInt)
-                                        + (sA / (sRotV*sRotV))
-                                            * Math.cos(curNode.rot + sRotV*tInt)
-                                        - (curNode.v / sRotV)
-                                            * Math.sin(curNode.rot)
-                                        - (sA / (sRotV*sRotV))
-                                            * Math.cos(curNode.rot);
-                            sPos = new Point2D.Double(
-                                    curNode.pos.x + sX,
-                                    curNode.pos.y + sY);
-                        }
+                    //TEST: reach physiscs                        
+                    float turn = i;
+                    float acceleration = j;
+                    float verticalVelocity = 0;
+                    long dt = 16;
+                    System.out.println("turn: " + turn + ", acc: " + acceleration);
+                    System.out.println("pos: " + instance.getState().box.pos());
+                    //System.out.println("on track?: " + instance.getState().onTrack);
+                    PStructAction pStruct = new PStructAction(turn, acceleration, verticalVelocity, dt);
 
-                        //Extra costs if new position is off track
-                        if (sPos.x > 6 && sPos.x < 8 && sPos.y > 2 && sPos.y < 8) {
-                            sg = sg + 10;
-                        } else if (sPos.x > 2 && sPos.x < 6 && sPos.y > 2 && sPos.y < 5) {
-                            sg = sg + 10;
-                        } else if (sPos.x > 3 && sPos.x < 4 && sPos.y > 6 && sPos.y < 10) {
-                            sg = sg + 10;
-                        }
-                        //TEST: reach physiscs
-                        float turn = i;
-                        float acceleration = j;
-                        float verticalVelocity = 0;
-                        long dt = 16;
-                        sVertV = 0;
-                        System.out.println("turn: " + turn + ", acc: " + acceleration
-                                + ", vertV: " + verticalVelocity);
-                        PStructAction pStruct = new PStructAction(turn, acceleration, verticalVelocity, dt);
-                        instance.movement(pStruct);
-                        //System.out.println(instance.getState().velocity);
-                        //System.out.println(instance.getState().box);
-                        //sPos = new Point2D.Double(instance.getPosition().x, instance.getPosition().y);
-                        //System.out.println(instance.getPosition());
-                        // </editor-fold>
-                        
-                        // Determine h  
-                        sh = 0;
-                        curHPos = sPos;
-                        int sNextCP = curNode.nextCP;
-                        reachedCP = false;
-                        // Iterate through all, but only count the first two checkpoint
-                        for (int k = sNextCP; k < checkPoints.size(); k++) {
-                            Point2D.Double CP = checkPoints.get(k);
-                            if (sNextCP == k) {
-                                sh = sh + 1.25*Math.sqrt(Math.pow(curHPos.x - CP.x, 2)
-                                    + Math.pow(curHPos.y - CP.y, 2));
-                            } else if (sNextCP + 1 == k) {
-                                sh = sh + 0.2*Math.sqrt(Math.pow(curHPos.x - CP.x, 2)
-                                    + Math.pow(curHPos.y - CP.y, 2));
-                            }                            
-                            // Check if close to currently closest checkpoint
-                            if (sh < 1.75) {
-                                sNextCP++;
-                                reachedCP = true;
-                            }
-                        }
+                    //ModState ms = new ModState(instance.getState());
+                    instance.setState(curNode.state);
 
-                        //CASE I: already in closed
-                        Point2D.Double compPos = new Point2D.Double
-                            ((int)(10000*sPos.x), (int)(10000*sPos.y));
-                        for (FinalNode o : openlist) {
-                            if ((int)(10000*o.pos.x) == compPos.x && (int)(10000*o.pos.y) == compPos.y) {
-                                alreadyInList = true;
-                                /*System.err.println("Unexpected node found in "
-                                        + "closed list: " + o);*/
-                            }
+                    instance.movement(pStruct);
+
+                    Point2D.Double sPos;
+                    double sg, sh;
+                    System.out.println("--"+instance.getState().box.pos()+"--");
+                    sPos = new Point2D.Double (instance.getState().box.pos().x,
+                            instance.getState().box.pos().y);
+                    sg = curNode.g + curNode.state.velocity * tInt;
+
+                    // </editor-fold>
+
+                    // Determine h  
+                    sh = 0;
+                    curHPos = sPos;
+                    int sNextCP = curNode.nextCP;
+                    reachedCP = false;
+                    // Iterate through all, but only count the first two checkpoint
+                    for (int k = sNextCP; k < checkPoints.size(); k++) {
+                        Point2D.Double CP = checkPoints.get(k);
+                        if (sNextCP == k) {
+                            sh = sh + 1.25*Math.sqrt(Math.pow(curHPos.x - CP.x, 2)
+                                + Math.pow(curHPos.y - CP.y, 2));
+                        } else if (sNextCP + 1 == k) {
+                            sh = sh + 0.2*Math.sqrt(Math.pow(curHPos.x - CP.x, 2)
+                                + Math.pow(curHPos.y - CP.y, 2));
+                        }                            
+                        // Check if close to currently closest checkpoint
+                        if (sh < 1.75) {
+                            sNextCP++;
+                            reachedCP = true;
                         }
-                        //CASE II: already in open
-                        for (FinalNode c : closedlist) {
-                            if ((int)(10000*c.pos.x) == compPos.x && (int)(10000*c.pos.y) == compPos.y) {
-                                alreadyInList = true;
-                                System.err.println("Unexpected node found in "
-                                        + "opened list: " + c);
-                            }
-                        }
-                        //CASE III: not in any list
-                        if (!alreadyInList) {
-                            openlist.add(new FinalNode(sPos, sV, sA, sRot, sRotV,
-                                    sVertV, sg, sh, sNextCP, curNode));
-                            // Debug succesor logs
-                            if(iter == 22) {
-                                System.out.println("-"+(iter+1)+"->a: " + sA 
-                                        + ", rotV: " + sRotV 
-                                        + ", h: " + sh
-                                        + ", g: " + sg
-                                        + ", X: " + sPos.x + ", Y: " + sPos.y
-                                        + ", Rot: "+sRot);
-                            }
-                            // Debug visuals
-                            if (iter < 50000 && false) {
-                                visual.setForeground(Color.LIGHT_GRAY);
-                                visual.addPoint(new Point2D.Double(sPos.x, -sPos.y));
-                                visual.setForeground(Color.WHITE);
-                                visual.addPoint(new Point2D.Double(curNode.pos.x, -curNode.pos.y));
-                            }
-                        }
-                        // Reset flag.
-                        alreadyInList = false;
                     }
+
+                    //CASE I: already in closed
+                    Point2D.Double compPos = new Point2D.Double
+                        ((int)(10000*sPos.x), (int)(10000*sPos.y));
+                    for (FinalNode o : openlist) {
+                        if ((int)(10000*o.pos.x) == compPos.x && (int)(10000*o.pos.y) == compPos.y) {
+                            alreadyInList = true;
+                            /*System.err.println("Unexpected node found in "
+                                    + "closed list: " + o);*/
+                        }
+                    }
+                    //CASE II: already in open
+                    for (FinalNode c : closedlist) {
+                        if ((int)(10000*c.pos.x) == compPos.x && (int)(10000*c.pos.y) == compPos.y) {
+                            alreadyInList = true;
+                            System.err.println("Unexpected node found in "
+                                    + "opened list: " + c);
+                        }
+                    }
+                    //CASE III: not in any list
+                    if (!alreadyInList) {
+                        openlist.add(new FinalNode(sPos, /*sV, sA, sRot, sRotV,
+                                sVertV,*/ sg, sh, sNextCP, instance.getState(), curNode));
+                        // Debug succesor logs
+                        if(iter == 0) {
+                            System.out.println("-"+(iter+1)+"->h: " + sh
+                                    + ", g: " + sg
+                                    + ", X: " + sPos.x + ", Y: " + sPos.y);
+                        }
+                        // Debug visuals
+                        if (iter < 50000 /*&& false*/) {
+                            visual.setForeground(Color.LIGHT_GRAY);
+                            visual.addPoint(new Point2D.Double(sPos.x, -sPos.y));
+                            visual.setForeground(Color.WHITE);
+                            visual.addPoint(new Point2D.Double(curNode.pos.x, -curNode.pos.y));
+                        }
+                    }
+                    // Reset flag.
+                    alreadyInList = false;
                 }
             }
             
@@ -371,9 +324,9 @@ public class FinalAStar {
                 System.out.println(iter + ": (" + curNode.pos.x + ", "
                     + curNode.pos.y + ")->" 
                     + curNode.h
-                    + ", a = " + curNode.a 
-                    + ", rotV = " + curNode.rotV
-                    + ", v = " + curNode.v
+                    //+ ", a = " + curNode.a 
+                    //+ ", rotV = " + curNode.rotV
+                    //+ ", v = " + curNode.v
                     //+ ", rot = " + curNode.rot
                     + ", g = " + curNode.g
                     //+", parent: ("+curNode.parentNode.pos.x+","+curNode.parentNode.pos.y+")"
@@ -398,9 +351,9 @@ public class FinalAStar {
             System.out.print (test + " nodes");
             // The path is greener the more it accelerates  
             for (FinalNode p : pathList) {
-                if (p.a > 0) {
+                if (p.state.velocity > 0) {
                     visual.setForeground(Color.GREEN);
-                } else if (p.a < 0) {
+                } else if (p.state.velocity < 0) {
                     visual.setForeground(Color.RED);
                 } else {
                     visual.setForeground(Color.YELLOW);
@@ -456,9 +409,5 @@ public class FinalAStar {
         public Instance2 clone() {
             return new Instance2(this);
         }
-        
-        
     } 
-    
-    
 }

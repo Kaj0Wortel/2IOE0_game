@@ -87,7 +87,7 @@ public class AStarPointers {
     */ // </editor-fold>
     public static void runAlgorithm () {
         // Project imports
-        VisualAStar visual = new VisualAStar(new Rectangle(-2, -12, 20, 12));
+        VisualAStar visual = new VisualAStar();
        // Physics physics = new Physics();
         
         // <editor-fold defaultstate="collapsed" desc="VARIABLES">

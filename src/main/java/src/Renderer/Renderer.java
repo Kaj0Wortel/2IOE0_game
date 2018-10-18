@@ -11,12 +11,12 @@ import com.jogamp.opengl.glu.GLU;
 import org.joml.Matrix4f;
 import src.Controllers.PlayerController;
 import src.GS;
+import src.Shaders.CarShader;
 import src.Shaders.RacetrackShader;
 import src.Simulator;
 import src.shadows.ShadowRenderer;
 
 import static com.jogamp.opengl.GL2ES2.GL_SHADING_LANGUAGE_VERSION;
-import src.tools.log.Logger;
 
 // Own imports
 
@@ -52,36 +52,33 @@ public class Renderer
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        try {
-            this.gl = glAutoDrawable.getGL().getGL3();
-            this.glu = new GLU();
-            
-            gl.glViewport(0, 0, GS.WIDTH, GS.HEIGHT);
-            
-            System.out.println(gl.glGetString(GL_SHADING_LANGUAGE_VERSION));
-            
-            simulator.setGL(gl);
-            simulator.initAssets();
-            GS.playerController = new PlayerController(GS.player, 1);
-            
-            getProjectionMatrix();
-            objectRenderer = new ObjectRenderer(gl,projectionMatrix);
-            materialRenderer = new MaterialRenderer(gl, projectionMatrix);
-            terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
-            itemRenderer = new ItemRenderer(gl, projectionMatrix);
-            guiRenderer = new GUIRenderer(gl);
-            shadowRenderer = new ShadowRenderer(gl, fov, NEAR, FAR, width, height);
-            GS.getTrack().setShadowMap(shadowRenderer.getDepthTexture());
-            
-            RacetrackShader racetrackShader = new RacetrackShader(gl);
-            GS.getTrack().setShaderAndRenderMatrices(racetrackShader, projectionMatrix,
-                    GS.camera.getViewMatrix());
-            
-            gl.glEnable(GL3.GL_DEPTH_TEST);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.gl = glAutoDrawable.getGL().getGL3();
+        this.glu = new GLU();
+        
+        gl.glViewport(0, 0, GS.WIDTH, GS.HEIGHT);
+
+        System.out.println(gl.glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+        simulator.setGL(gl);
+        simulator.initAssets();
+        GS.playerController = new PlayerController(GS.player, 1);
+
+        getProjectionMatrix();
+        objectRenderer = new ObjectRenderer(gl,projectionMatrix);
+        materialRenderer = new MaterialRenderer(gl, projectionMatrix);
+        terrainRenderer = new TerrainRenderer(gl,projectionMatrix);
+        itemRenderer = new ItemRenderer(gl, projectionMatrix);
+        guiRenderer = new GUIRenderer(gl);
+        shadowRenderer = new ShadowRenderer(gl, fov, NEAR, FAR, width, height);
+        GS.getTrack().setShadowMap(shadowRenderer.getDepthTexture());
+        GS.player.setShadowMap(shadowRenderer.getDepthTexture());
+        GS.player.setCarShaderVariables(new CarShader(gl), projectionMatrix);
+
+        RacetrackShader racetrackShader = new RacetrackShader(gl);
+        GS.getTrack().setShaderAndRenderMatrices(racetrackShader, projectionMatrix,
+                GS.camera.getViewMatrix());
+
+        gl.glEnable(GL3.GL_DEPTH_TEST);
     }
 
     @Override
@@ -91,34 +88,31 @@ public class Renderer
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
-        try {
-            //gl.glViewport(0, 0, GS.canvas.getWidth(), GS.canvas.getHeight());
-            shadowRenderer.render(gl);
-            
-            gl.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_COLOR_BUFFER_BIT);
-            gl.glClearColor(1f, 1f, 1f, 1f);
-            
-            gl.glEnable(GL3.GL_CULL_FACE);
-            gl.glCullFace(GL3.GL_BACK);
-            
-            if (fovChange){
-                getProjectionMatrix();
-                fovChange = false;
-            }
-            
-            objectRenderer.render(gl);
-            materialRenderer.render(gl);
-            terrainRenderer.render(gl);
-            itemRenderer.render(gl);
-            
-            gl.glDisable(GL3.GL_CULL_FACE);
-            GS.getTrack().draw(gl, shadowRenderer.getShadowMatrix());
-            GS.getSkybox().draw(gl, projectionMatrix);
-            guiRenderer.render(gl);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
+        gl.glViewport(0, 0, GS.canvas.getWidth(), GS.canvas.getHeight());
+        shadowRenderer.render(gl);
+
+        gl.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_COLOR_BUFFER_BIT);
+        gl.glClearColor(1f, 1f, 1f, 1f);
+
+        gl.glEnable(GL3.GL_CULL_FACE);
+        gl.glCullFace(GL3.GL_BACK);
+
+        if (fovChange){
+            getProjectionMatrix();
+            fovChange = false;
         }
+
+        objectRenderer.render(gl);
+        materialRenderer.render(gl);
+        terrainRenderer.render(gl);
+        itemRenderer.render(gl);
+
+        GS.player.draw(gl, shadowRenderer.getShadowMatrix());
+
+        gl.glDisable(GL3.GL_CULL_FACE);
+        GS.getTrack().draw(gl, shadowRenderer.getShadowMatrix());
+        GS.getSkybox().draw(gl, projectionMatrix);
+        guiRenderer.render(gl);
     }
 
     @Override
@@ -149,7 +143,7 @@ public class Renderer
     }
 
     public static void changeFOV(float fovOffset){
-        fov = 70 + fovOffset;
+        fov = 70 + fovOffset/1.3f;
         fovChange = true;
         //System.out.println("fov Change " + fov);
     }

@@ -77,7 +77,7 @@ public class ThrowingItemFactory {
                 is.sizex, is.sizey, is.sizez,
                 ss.rotx, ss.roty, ss.rotz,
                 ss.internRotx, ss.internRoty, ss.internRotz,
-                ss.velocity, 0, ss.verticalVelocity,
+                ss.internTrans, ss.velocity, 0, ss.verticalVelocity,
                 true, false, 0, false)
         );
         item.setProgressManager(source.getProgressManager().clone());

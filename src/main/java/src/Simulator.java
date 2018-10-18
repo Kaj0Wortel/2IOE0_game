@@ -10,30 +10,23 @@ import org.joml.Vector3f;
 import src.Assets.*;
 import src.Assets.instance.*;
 import src.Assets.skybox.Skybox;
-import src.Controllers.AIController;
+import src.Controllers.PlayerController;
 import src.OBJ.LoadOBJ;
 import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
 import src.tools.Binder;
 import src.tools.PosHitBox3f;
-import src.tools.update.Updateable;
-import src.tools.update.Updater;
 
-import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
 import static src.Simulator.TYPE.*;
-import src.tools.MultiTool;
-import src.tools.log.Logger;
-import static src.tools.update.Updateable.Priority.UPDATE_ALWAYS;
 
 // Own imports
 // Java imports
 
 
-public class Simulator
-        implements Updateable {
+public class Simulator {
 
     public static enum TYPE {
         CAR, ITEM, TRACK, ENVIRONMENT_TYPE, PLAYER, OTHER;
@@ -45,10 +38,6 @@ public class Simulator
 
     public Simulator () {
         this.binder = new Binder();
-        
-        SwingUtilities.invokeLater(() -> {
-            Updater.addTask(this);
-        });
     }
 
     public void setGL(GL3 gl){
@@ -74,9 +63,10 @@ public class Simulator
         
         OBJCollection col = LoadOBJ.load(gl, GS.OBJ_DIR + "cube.obj");
         OBJCollection sp = LoadOBJ.load(gl, GS.OBJ_DIR + "dragon.obj");
-        OBJCollection car = LoadOBJ.load(gl, GS.OBJ_DIR + "car.obj");
-        OBJCollection car2 = LoadOBJ.load(gl, GS.OBJ_DIR + "offroadcar.obj");
+        OBJCollection car = LoadOBJ.load(gl, GS.OBJ_DIR + "car_better.obj");
+        OBJCollection car2 = LoadOBJ.load(gl, GS.OBJ_DIR + "offroadcar_better.obj");
         OBJCollection rock = LoadOBJ.load(gl, GS.OBJ_DIR + "Low-Poly_models.obj");
+        OBJCollection planet = LoadOBJ.load(gl, GS.OBJ_DIR + "planet.obj");
 
         Map<Integer, OBJObject> rocks = new HashMap<Integer, OBJObject>();
         rocks.put(0, rock.get(0));
@@ -93,8 +83,9 @@ public class Simulator
             box = obj.createBoundingBox();
             //box.setPosKeepHitBox();
             box.translate(new Vector3f(0f, 0f, 0f));
-            Instance cubeInstance = new Car(box,
-                    1f, 0, 0, 0, texturedCube, 0, new PhysicsContext());
+            Instance cubeInstance = new EnvironmentItem(box,
+                    1f, 0, 0, 0, texturedCube, 0, new PhysicsContext(),
+                    EnvironmentItem.Type.SPEED_BOOST);
             GS.addAsset(cubeInstance);
         }
 
@@ -166,12 +157,17 @@ public class Simulator
         addToGamestate(OTHER, sp, new Vector3f(0f, -60f, 500f), 4, 0, -90, 0, 0,
                 new TextureImg(5, 0.5f), null, null);
 
-        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0,2,20), 5,0,180,0,90,
+        /*
+        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0,2,0), 5,0,180,0,90,
                 new TextureImg(5,0.5f),null,null);
         new AIController((Car) aiCar);
+        */
+        Car player2 = (Car) addToGamestate(CAR, car, new Vector3f(0, 2, 0), 5,
+                0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
+        new PlayerController(player2, 2);
 
-        addToGamestate(PLAYER, car2, new Vector3f(0,2,-4), 3, 0, 180, 0, -90,
-                new TextureImg(5, 3f), null, null);
+        addToGamestate(PLAYER, car2, new Vector3f(0, 2, -30), 3,
+                0, 180, 0, 0, new TextureImg(5, 3f), null, null);
 
         addLight(new Vector3f(30000f, 50000f, 1f),
                 new Vector3f(1f, 1f, 1f));
@@ -193,6 +189,8 @@ public class Simulator
             new TextureImg(5, 3f));
         }
 
+        addRock(planet.get(0), new Vector3f(310,-30,780), 25,0,0,0,0,new TextureImg(5, 3f));
+
         addSkybox();
         
         System.out.println("Assets initialized");
@@ -201,25 +199,6 @@ public class Simulator
 
     public void cleanup(){
         binder.clean(gl);
-    }
-
-
-    long prevTimeStamp = System.currentTimeMillis();
-    @Override
-    public void performUpdate(long timeStamp)
-            throws InterruptedException {
-        long dt = timeStamp - prevTimeStamp;
-        prevTimeStamp = timeStamp;
-    }
-    
-    @Override
-    public void ignoreUpdate(long timeStamp) {
-        prevTimeStamp = timeStamp;
-    }
-    
-    @Override
-    public Priority getPriority() {
-        return UPDATE_ALWAYS;
     }
 
     public Instance addToGamestate(TYPE type, OBJCollection col,
@@ -297,7 +276,6 @@ public class Simulator
                         integratedRotation, new PhysicsContext());
                 GS.player = (Car) cubeInstance;
                 GS.cars.add((Car) cubeInstance);
-                GS.addMaterialAsset(cubeInstance);
                 GS.camera.setFocus(GS.player);
                 break;
             }
@@ -309,9 +287,10 @@ public class Simulator
                     PosHitBox3f box = obj.createBoundingBox();
                     //box.setPosKeepHitBox();
                     box.translate(position);
-                    cubeInstance = new Car(box,
+                    cubeInstance = new EnvironmentItem(box,
                             size, rotx, roty, rotz, texturedCube,
-                            integratedRotation, new PhysicsContext());
+                            integratedRotation, new PhysicsContext(),
+                            EnvironmentItem.Type.SPEED_BOOST);
                     GS.addAsset(cubeInstance);
                 }
                 break;
@@ -349,8 +328,8 @@ public class Simulator
         PosHitBox3f box = col.createBoundingBox();
         box.translate(position);
         Instance cubeInstance = new MaterialInstance(box,
-                size, rotx, roty, rotz, texturedCube,
-                integratedRotation, new PhysicsContext(),
+                size, 0, 0, 0, texturedCube,
+                rotx, roty, rotz, new PhysicsContext(),
                 MaterialInstance.Type.SPACE_ROCK);
         GS.addMaterialAsset(cubeInstance);
     }
