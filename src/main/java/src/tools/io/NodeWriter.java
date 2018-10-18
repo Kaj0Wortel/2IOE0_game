@@ -1,22 +1,13 @@
-
 package src.tools.io;
-
-
-// Java imports
-
-import java.awt.geom.Point2D;
-import java.io.BufferedWriter;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 import src.AI.Node;
 import src.AI.NodeGlueFinal;
 import src.GS;
+
+import java.awt.geom.Point2D;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -38,7 +29,7 @@ public class NodeWriter implements Closeable {
      * @param file the file to write the node data to.
      * @throws IOException if the file could not be accessed.
      */
-    public NodeWriter(File file) throws IOException {
+    private NodeWriter(File file) throws IOException {
         writer = new PrintWriter(new BufferedWriter(new FileWriter(file, false)));
     }
 
@@ -58,9 +49,8 @@ public class NodeWriter implements Closeable {
     /**
      * @param node the node to write to the given file.
      */
-    public void writeNode(Node node)
-            throws IOException {
-        String delim = ";";
+    private void writeNode(Node node) {
+        String delim = GS.DELIM + "";
         String writeData = node.pos.x + delim
                 + node.pos.y + delim
                 + node.v + delim
@@ -68,8 +58,6 @@ public class NodeWriter implements Closeable {
                 + node.rot + delim
                 + node.rotV + delim
                 + node.nextCP + delim
-                + node.turn + delim
-                + node.accel
                 + "1" + GS.LS;
         writer.write(writeData);
     }
@@ -78,10 +66,8 @@ public class NodeWriter implements Closeable {
      * Writes a node chain to the given file.
      *
      * @param node the first child node to start the chain from (inclusive)
-     * @throws IOException if the file could not be accessed.
      */
-    public void writeNodeChain(NodeGlueFinal node)
-            throws IOException {
+    public void writeNodeChain(NodeGlueFinal node) {
         while (node != null) {
             writeNode(node);
             node = node.parentNode;
@@ -90,29 +76,23 @@ public class NodeWriter implements Closeable {
 
     /**
      * @param node the node to write to the given file.
-     * @throws IOException if the file could not be accessed.
      */
-    public void writeNode(NodeGlueFinal node)
-            throws IOException {
-        String delim = ";";
-        String writeData = node.pos.x + delim
-                + node.pos.y + delim
-                + node.v + delim
-                + node.a + delim
-                + node.rot + delim
-                + node.rotV + delim
-                + node.g + delim
-                + node.h + delim
-                + node.nextCP + delim
-                + node.turn + delim
-                + node.accel + delim
-                + "1" + GS.LS;
+    private void writeNode(NodeGlueFinal node) {
+        String delim = GS.DELIM + "";
+        String writeData = node.pos.x + delim +
+                node.pos.y + delim +
+                node.v + delim +
+                node.a + delim +
+                node.rot + delim +
+                node.rotV + delim +
+                node.nextCP + delim +
+                node.turn + delim +
+                node.accel + GS.LS;
         writer.write(writeData);
     }
 
     @Override
-    public void close()
-            throws IOException {
+    public void close() {
         writer.close();
     }
 

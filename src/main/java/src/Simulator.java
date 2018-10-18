@@ -10,6 +10,7 @@ import org.joml.Vector3f;
 import src.Assets.*;
 import src.Assets.instance.*;
 import src.Assets.skybox.Skybox;
+import src.Controllers.AIController;
 import src.Controllers.PlayerController;
 import src.OBJ.LoadOBJ;
 import src.Physics.PhysicsContext;
@@ -157,12 +158,12 @@ public class Simulator {
         addToGamestate(OTHER, sp, new Vector3f(0f, -60f, 500f), 4, 0, -90, 0, 0,
                 new TextureImg(5, 0.5f), null, null);
 
-        /*
-        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0,2,0), 5,0,180,0,90,
+
+        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0,2,20), 5,0,180,0,90,
                 new TextureImg(5,0.5f),null,null);
         new AIController((Car) aiCar);
-        */
-        Car player2 = (Car) addToGamestate(CAR, car, new Vector3f(0, 2, 0), 5,
+
+        Car player2 = (Car) addToGamestate(CAR, car, new Vector3f(0, 2, 40), 5,
                 0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
         new PlayerController(player2, 2);
 

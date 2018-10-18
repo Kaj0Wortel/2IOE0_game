@@ -5,6 +5,7 @@ package src.Assets.instance;
 // Own imports
 
 import com.jogamp.opengl.GL3;
+import org.joml.Matrix4f;
 import src.Assets.GraphicsObject;
 import src.Assets.OBJTexture;
 import src.Assets.instance.ThrowingItemFactory.ItemType;
@@ -31,9 +32,9 @@ public class Car
     private int shadowMap;
 
     public Car(PosHitBox3f box, float size,
-               float rotx, float roty, float rotz,
-               OBJTexture model, float integratedRotation,
-               PhysicsContext physicConst) {
+            float rotx, float roty, float rotz,
+            OBJTexture model, float integratedRotation,
+            PhysicsContext physicConst) {
         super(box, size, rotx, roty, rotz, model, integratedRotation,
                 physicConst);
     }
@@ -48,13 +49,13 @@ public class Car
 
         carShader.loadShadowMatrix(gl, shadowMatrix);
 
-        for(GraphicsObject obj : model.getAsset()) {
+        for (GraphicsObject obj : model.getAsset()) {
             carShader.loadModelMatrix(gl, getTransformationMatrix());
             carShader.loadTextureLightValues(gl, model.getTextureImg().getShininess(),
                     model.getTextureImg().getReflectivity());
 
             for (int i = 0; i < obj.size(); i++) {
-                if(carShader.useMaterial()) carShader.loadMaterial(gl,obj.getMaterials().get(i));
+                if (carShader.useMaterial()) carShader.loadMaterial(gl, obj.getMaterials().get(i));
                 gl.glBindVertexArray(obj.getVao(i));
                 gl.glEnableVertexAttribArray(0);
                 gl.glEnableVertexAttribArray(1);
@@ -69,12 +70,12 @@ public class Car
         }
     }
 
-    private void prepare(GL3 gl){
+    private void prepare(GL3 gl) {
         carShader.start(gl);
 
-        carShader.loadProjectionMatrix(gl,projectionMatrix);
+        carShader.loadProjectionMatrix(gl, projectionMatrix);
         carShader.loadViewMatrix(gl, GS.camera.getViewMatrix());
-        carShader.loadLight(gl,GS.getLights().get(0));
+        carShader.loadLight(gl, GS.getLights().get(0));
         carShader.loadCameraPos(gl, GS.camera.getPosition());
         carShader.loadTextures(gl);
 
@@ -84,7 +85,7 @@ public class Car
 
     @Override
     public void draw(GL3 gl, ShadowShader shader) {
-        for(GraphicsObject obj : model.getAsset()){
+        for (GraphicsObject obj : model.getAsset()) {
             shader.loadModelMatrix(gl, getTransformationMatrix());
 
             for (int i = 0; i < obj.size(); i++) {
@@ -117,7 +118,7 @@ public class Car
         super.movement(action);
     }
 
-    public void setCarShaderVariables(CarShader shader, Matrix4f projectionMatrix){
+    public void setCarShaderVariables(CarShader shader, Matrix4f projectionMatrix) {
         this.carShader = shader;
         this.projectionMatrix = projectionMatrix;
     }
@@ -126,7 +127,6 @@ public class Car
     public char getSimpleRepr() {
         return '4';
     }
-}
 
 
     public void setShadowMap(int depthTexture) {

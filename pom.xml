@@ -94,7 +94,7 @@
             <version>1.0</version>
         </dependency>
 
-        <!-- Dependency for javatuples, used in neural network storing state-action-reward-state tuples-->
+        <!-- https://mvnrepository.com/artifact/org.javatuples/javatuples -->
         <dependency>
             <groupId>org.javatuples</groupId>
             <artifactId>javatuples</artifactId>

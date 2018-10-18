@@ -17,6 +17,8 @@ import org.deeplearning4j.optimize.api.BaseTrainingListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
+import org.javatuples.Quartet;
+import org.javatuples.Triplet;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.nd4j.linalg.activations.Activation;
@@ -42,6 +44,7 @@ import java.awt.geom.Point2D;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -63,23 +66,28 @@ public class AINN {
     final private long MILLIS_PER_UPDATE = 100L;
 
     private MultiLayerNetwork[] networks;
-    private MyLossFunction myLossFunction;
-    private MyIterator myIter;
+    private MyIterator myDrivingIter;
+    private MyIterator myTurningIter;
 
     final protected GridItemInstance instance;
-    final protected static int GRIDSIZE = 5;
+    final static int GRIDSIZE = 5;
     final private static String CSV;
     final private static List<Point2D.Float> COORDINATES;
-    final protected static List<String> labelNames;
-    final protected static int POSSIBLECLASSES = 3;
-    final protected static int BATCHSIZE = 5;
-    final protected static int LABELINDEX = 7;
+    final protected static List<Triplet<Point2D.Float, Float, Float>> OUTCOMES;
+    final static List<String> turnLabelNames;
+    final static List<String> driveLabelNames;
+    final private static int POSSIBLECLASSES = 3;
+    final private static int BATCHSIZE = 5;
+    final private static int LABELINDEXDRIVE = 7;
+    final private static int LABELINDEXTURN = 7;
 
-    // private List<Quartet<DataSet, Integer, Double, DataSet>> qMemory = new LinkedList<>();   // Memory for Q-learning
+    private List<Quartet<DataSet, Integer, Double, DataSet>> qMemory = new LinkedList<>();   // Memory for Q-learning
 
     // Static block for reading CSV once.
     static {
         COORDINATES = new ArrayList<>();
+        OUTCOMES = new ArrayList<>();
+
         String fileName = "nodes.csv";
         String filePath = GS.RESOURCE_DIR + "A_star_data";
         StringBuilder sb = new StringBuilder();
@@ -91,8 +99,14 @@ public class AINN {
             while ((line = r.readLine()) != null) {
                 sb.append(line);
                 sb.append(GS.LS);
+
                 String[] tokens = line.split(";");
-                COORDINATES.add(new Point2D.Float(Float.parseFloat(tokens[0]), Float.parseFloat(tokens[1])));
+                Point2D.Float coordinate = new Point2D.Float(Float.parseFloat(tokens[0]), Float.parseFloat(tokens[1]));
+                Float turn = Float.parseFloat(tokens[7]);
+                Float accel = Float.parseFloat(tokens[8]);
+
+                COORDINATES.add(coordinate);
+                OUTCOMES.add(new Triplet<>(coordinate, turn, accel));
             }
 
         } catch (IOException e) {
@@ -104,10 +118,16 @@ public class AINN {
         // Logger.write(new Object[]{"Reading CSV done.", CSV, COORDINATES}, Logger.Type.DEBUG);
 
         // Setting labelNames
-        labelNames = new LinkedList<>();
-        labelNames.add("Left / Backward");
-        labelNames.add("Nothing");
-        labelNames.add("Right / Forward");
+        turnLabelNames = new LinkedList<>();
+        driveLabelNames = new LinkedList<>();
+
+        turnLabelNames.add("Left");
+        turnLabelNames.add("Nothing");
+        turnLabelNames.add("Right");
+
+        driveLabelNames.add("Forward");
+        driveLabelNames.add("Nothing");
+        driveLabelNames.add("Backward");
     }
 
 
@@ -124,54 +144,95 @@ public class AINN {
             // Cast model to MultiLayerNetwork in order to get output.
             MultiLayerNetwork network = (MultiLayerNetwork) model;
 
-            INDArray out = null;                        // Network output as INDArray
-            float[] output = new float[]{0f, 1f, 0f};   // Actual action that is done.
-            double score = 0.0d;                        // Reward for current state
-
-            // Try to get output from network
-            try {
-                out = network.output(myIter.next().getFeatures());
-            } catch (Exception e) {
-                Logger.write(new Object[]{"Cannot get OUTPUT for model ", network.toString().replaceAll("\n", GS.LS), e,}, Logger.Type.ERROR);
-                e.printStackTrace();
-            }
-
-            // Logger.write(new Object[]{"out from network = " + out.toString().replaceAll("\n", GS.LS)}, Logger.Type.DEBUG);
-
-            // Try to convert INDArray output to integer output
-            try {
-                output = out.toFloatVector();
-            } catch (Exception e) {
-                Logger.write(new Object[]{"Cannot convert OUTPUT to INT for model" + model.toString(), e}, Logger.Type.ERROR);
-                e.printStackTrace();
-            }
-
-
-            // Logger.write(new Object[]{"output from out = " + out.toFloatVector()}, Logger.Type.DEBUG);
-
-            // Try to get score from network
-            try {
-                // TODO use score in Q-learning
-                score = network.score();
-            } catch (Exception e) {
-                Logger.write(new Object[]{"Cannot get network SCORE for model " + model.toString(), e}, Logger.Type.ERROR);
-                e.printStackTrace();
-            }
-
-            float outValue = 0f;
-            float max = out.maxNumber().floatValue();
-
-            if (output[0] == max) {
-                outValue = -max;
-            } else if (output[2] == max) {
-                outValue = max;
-            }
-
+            // For turning network
             if (model == networks[0]) {
+                INDArray out = null;                        // Network output as INDArray
+                float[] output = new float[]{0f, 1f, 0f};   // Actual action that is done.
+                double score;                        // Reward for current state
+
+                // Try to get output from network
+                try {
+                    out = network.output(myTurningIter.next().getFeatures());
+                } catch (Exception e) {
+                    Logger.write(new Object[]{"Cannot get OUTPUT for turning model ", network.toString().replaceAll("\n", GS.LS), e,}, Logger.Type.ERROR);
+                    e.printStackTrace();
+                }
+
+                // Try to convert INDArray output to integer output
+                try {
+                    output = out.toFloatVector();
+                } catch (Exception e) {
+                    Logger.write(new Object[]{"Cannot convert OUTPUT to float for turning model" + model.toString(), e}, Logger.Type.ERROR);
+                    e.printStackTrace();
+                }
+
+                // Try to get score from network
+                try {
+                    // TODO use score in Q-learning
+                    score = network.score();
+                    Logger.write(score);
+                } catch (Exception e) {
+                    Logger.write(new Object[]{"Cannot get network SCORE for model " + model.toString(), e}, Logger.Type.ERROR);
+                    e.printStackTrace();
+                }
+
+                float outValue = 0f;
+                float max = out.maxNumber().floatValue();
+
+                if (output[0] == max) {
+                    outValue = -max;
+                } else if (output[2] == max) {
+                    outValue = max;
+                }
+
+                Logger.write(new Object[]{"networks[0]", out.toString(), Arrays.toString(output), outValue, max});
+
                 curAction.turn = outValue;
             }
 
+            // For driving network
             if (model == networks[1]) {
+                INDArray out = null;                        // Network output as INDArray
+                float[] output = new float[]{0f, 1f, 0f};   // Actual action that is done.
+                double score;                        // Reward for current state
+
+                // Try to get output from network
+                try {
+                    out = network.output(myDrivingIter.next().getFeatures());
+                } catch (Exception e) {
+                    Logger.write(new Object[]{"Cannot get OUTPUT for driving model ", network.toString().replaceAll("\n", GS.LS), e,}, Logger.Type.ERROR);
+                    e.printStackTrace();
+                }
+
+                // Try to convert INDArray output to integer output
+                try {
+                    output = out.toFloatVector();
+                } catch (Exception e) {
+                    Logger.write(new Object[]{"Cannot convert OUTPUT to float for driving model" + model.toString(), e}, Logger.Type.ERROR);
+                    e.printStackTrace();
+                }
+
+                // Try to get score from network
+                try {
+                    // TODO use score in Q-learning
+                    score = network.score();
+                    Logger.write(score);
+                } catch (Exception e) {
+                    Logger.write(new Object[]{"Cannot get network SCORE for model " + model.toString(), e}, Logger.Type.ERROR);
+                    e.printStackTrace();
+                }
+
+                float outValue = 0f;
+                float max = out.maxNumber().floatValue();
+
+                if (output[0] == max) {
+                    outValue = -max;
+                } else if (output[2] == max) {
+                    outValue = max;
+                }
+
+                Logger.write(new Object[]{"networks[1]", out.toString(), Arrays.toString(output), outValue, max});
+
                 curAction.accel = outValue;
             }
         }
@@ -192,6 +253,7 @@ public class AINN {
      */
     public AINN(@NotNull GridItemInstance instance) {
         this.instance = instance;
+        MyLossFunction myLossFunction = new MyLossFunction(instance, OUTCOMES);
         limitThreadsToOne();
 
         // normalizer = new NormalizerStandardize();
@@ -199,7 +261,7 @@ public class AINN {
         curAction = new PStructAction(0, 0, 0, 1);
 
         // <editor-fold defaultstate="collapsed" desc="Configuration for network responsible for turning">
-        int in = 60;
+        int in = 70;
         int out = 3;
 
         int turnSeed = 1;
@@ -224,9 +286,7 @@ public class AINN {
                         1, new DenseLayer.Builder().nIn(turnHidden).nOut(turnHidden).build()
                 )
                 .layer(
-                        2, new OutputLayer.Builder().nIn(turnHidden).nOut(out).activation(Activation.SOFTMAX)
-                                .lossFunction(myLossFunction)
-                                .build()
+                        2, new OutputLayer.Builder().nIn(turnHidden).nOut(out).activation(Activation.SOFTMAX).lossFunction(myLossFunction).build()
                 )
                 .pretrain(false)
                 .backprop(true)
@@ -251,7 +311,7 @@ public class AINN {
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(in).nOut(driveHidden).build())
                 .layer(1, new DenseLayer.Builder().nIn(driveHidden).nOut(driveHidden).build())
-                .layer(2, new OutputLayer.Builder().nIn(driveHidden).nOut(out).activation(Activation.SOFTMAX).build())
+                .layer(2, new OutputLayer.Builder().nIn(driveHidden).nOut(out).activation(Activation.SOFTMAX).lossFunction(myLossFunction).build())
                 .pretrain(false)
                 .backprop(true)
                 .build();
@@ -290,7 +350,8 @@ public class AINN {
         GridItem[][][][] G = GS.grid.getItemsAround(instance, 2, 2, 2);
 
         try {
-            myIter = new MyIterator(aStarReader, BATCHSIZE, LABELINDEX, POSSIBLECLASSES, G);
+            myTurningIter = new MyIterator(aStarReader, BATCHSIZE, LABELINDEXTURN, POSSIBLECLASSES, G);
+            myDrivingIter = new MyIterator(aStarReader, BATCHSIZE, LABELINDEXDRIVE, POSSIBLECLASSES, G);
         } catch (Exception e) {
             Logger.write(new Object[]{"Iterator creation failure at AINN with id " + id, e}, Logger.Type.ERROR);
         }
@@ -302,7 +363,7 @@ public class AINN {
      *
      * @return index of closes point in coordinates.
      */
-    private int findIndexOfClosestPoint(Point2D.Float me) {
+    protected int findIndexOfClosestPoint(Point2D.Float me) {
         float minDist = Float.MAX_VALUE;
         Point2D.Float c = new Point2D.Float(me.x, me.y);
 
@@ -334,7 +395,7 @@ public class AINN {
     /**
      * Returns the point at which you are right now.
      */
-    private Point2D.Float findPoint() {
+    protected Point2D.Float findPoint() {
         Vector3f pos = instance.getCurPosition();
         return new Point2D.Float(pos.x, -pos.z);
     }
@@ -350,7 +411,8 @@ public class AINN {
         readAndCreateIter(findIndexOfClosestPoint(findPoint()));
 
         // get next()
-        DataSet nextSet = myIter.next();
+        DataSet turnSet = myTurningIter.next();
+        DataSet driveSet = myDrivingIter.next();
 
         // This data is correct.
         /* Logger.write(new Object[]{
@@ -389,7 +451,7 @@ public class AINN {
             }, Logger.Type.DEBUG);
             */
 
-            networks[0].fit(nextSet);
+            networks[0].fit(turnSet);
         } catch (Exception e) {
             Logger.write(new Object[]{"Fitting network[0] for turning failed " + id, e}, Logger.Type.ERROR);
             e.printStackTrace();
@@ -397,7 +459,7 @@ public class AINN {
 
         // Train driving net
         try {
-            networks[1].fit(nextSet);
+            networks[1].fit(driveSet);
         } catch (Exception e) {
             Logger.write(new Object[]{"Fitting network[1] for driving failed " + id, e}, Logger.Type.ERROR);
             e.printStackTrace();

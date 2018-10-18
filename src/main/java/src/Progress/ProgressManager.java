@@ -2,6 +2,7 @@ package src.Progress;
 
 
 // Own imports
+
 import src.tools.Cloneable;
 
 
@@ -16,8 +17,8 @@ public class ProgressManager
     public boolean finished = false;
     public int cpAm = 16; // modifiable
     public int lapTotal = 3; // modifiable
-    
-    
+
+
     public void manageProgress(Vector3f pos, int pointAmount, int curPoint) {
         if (curPoint > pointAmount * checkPoint / cpAm
                 && curPoint < pointAmount * (checkPoint + 1) / cpAm && !finished)
@@ -30,11 +31,10 @@ public class ProgressManager
                 if (lap == lapTotal + 1)
                     finished = true;
             }
-        }
-        else if (finished)
+        } else if (finished)
             System.out.println("FINISHED");
     }
-    
+
     @Override
     public ProgressManager clone() {
         ProgressManager clone = new ProgressManager();
@@ -45,6 +45,6 @@ public class ProgressManager
         clone.lapTotal = this.lapTotal;
         return clone;
     }
-    
-    
+
+
 }
