@@ -61,6 +61,8 @@ public class MaterialInstance
         
         if (type == SPACE_ROCK) {
             rotate(ranRotx, ranRoty, ranRotz);
+        } else if (type == Type.PLANET) {
+            rotate(0.2f, 0.2f, 0.2f);
         }
         
         prevTimeStamp = timeStamp;
