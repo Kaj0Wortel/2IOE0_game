@@ -59,7 +59,8 @@ import java.util.logging.LogManager;
 // JInput imports
 import net.java.games.input.ContrlEnv;
 import net.java.games.input.ControllerEnvironment;
-import src.gui.ScaleCanvas;
+import src.gui.GUIPanel;
+import src.music.MusicManager;
 
 
 /**
@@ -146,6 +147,7 @@ public class GS {
     private static GameState gameState = GameState.PLAYING;
     public static ControllerKeyDetector keyDet;
     public static MainPanel mainPanel;
+    public static GUIPanel guiPanel;
     public static Camera camera;
     public static CameraController cameraController;
     public static PlayerController playerController;
@@ -250,6 +252,9 @@ public class GS {
         animator.start();
         renderer.cleanup();
         
+        guiPanel = new GUIPanel();
+        GS.mainPanel.add(guiPanel);
+        
         Updater.start();
     }
     
@@ -274,6 +279,8 @@ public class GS {
                     new Rectangle[] {new Rectangle( 0, 56, 7,  7)}
                 }
         );
+        
+        ImageManager.registerSheet("game_icon.png", "GAME_ICON", 512, 512);
         
         ImageManager.registerSheet(GUI + "window.png", "BARS",
                 new Rectangle[][] {

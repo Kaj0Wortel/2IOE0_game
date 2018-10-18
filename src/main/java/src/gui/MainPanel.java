@@ -345,10 +345,9 @@ public class MainPanel
     }
     
     @Override
-    public Component add(Component c) {
-        super.add(c);
+    protected void addImpl(Component comp, Object constraints, int index) {
+        super.addImpl(comp, constraints, index);
         if (isInited) update();
-        return c;
     }
     
     /**
