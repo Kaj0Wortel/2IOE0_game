@@ -16,6 +16,8 @@ public class NodeGlueFinal {
     public NodeGlueFinal parentNode;     // Parent node position
     // extra
     public int rIndex;
+    public int turn;
+    public int accel;
 
        
     
@@ -33,7 +35,7 @@ public class NodeGlueFinal {
      */
     public NodeGlueFinal (Point2D.Double newPos, double newV, double newA,
             double newRot, double newRotV, double newG, double newH, 
-            int newNextCP, NodeGlueFinal newParentNode, int newRIndex) {
+            int newNextCP, NodeGlueFinal newParentNode, int newRIndex, int newTurn, int newAccel) {
         pos = newPos;
         v = newV;
         a = newA;
@@ -44,6 +46,8 @@ public class NodeGlueFinal {
         nextCP = newNextCP;
         parentNode = newParentNode;
         rIndex = newRIndex;
+        turn = newTurn;
+        accel = newAccel;
     }
     
     /**

@@ -160,7 +160,7 @@ public class AStar {
         
         // The algorithm:
         System.out.println("---------------A* Debug---------------");
-        VisualAStar visual = new VisualAStar();
+        VisualAStar visual = new VisualAStar(new Rectangle(0,-10,10,10));
         // Visuals for obstacle/void location
             visual.setForeground(Color.DARK_GRAY);
             Point2D.Double point1 = new Point2D.Double(6,-2);

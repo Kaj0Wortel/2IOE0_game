@@ -317,14 +317,15 @@ public class Physics {
                     i < Math.min(s.rIndex + 10, points.length); i++) {
                 if (Math.abs(s.box.pos().z - points[i].z) < 50) {
                     dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
-                            + (float)Math.pow(s.box.pos().y - points[i].y, 2)
-                            /*+ (float)Math.pow(s.box.pos().z - points[i].z, 2)*/);
+                            + (float)Math.pow(s.box.pos().y - points[i].y, 2));
                     if (dist < shortestDist) {
                         shortestDist = dist;
                         ind = i;
                     }
                 }
             }
+            
+            
             if (s.rIndex > points.length - 10) { // Early on track: check end points
                 for (int i = 0; i < 10; i++) {
                     if (Math.abs(s.box.pos().z - points[i].z) < 20) {
@@ -413,12 +414,12 @@ public class Physics {
             }
             // </editor-fold>
             else {
-                s.rotz += 0.015 * dt;
-                float change = (float) Math.pow(0.8, dt);
-                s.internTrans.mul(change);
-                s.internRotx *= change;
-                s.internRoty *= change;
-                s.internRotz *= change;
+                s.internRotx -= 0.15 * dt;
+//                float change = (float) Math.pow(0.8, dt);
+//                s.internTrans.mul(change);
+//                s.internRotx *= change;
+//                s.internRoty *= change;
+//                s.internRotz *= change;
             }
 
             // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
@@ -658,6 +659,22 @@ public class Physics {
                 s.verticalVelocity = 4;
                 s.onTrack = true;
                 eRot = finalRot;
+                //
+                float dist = 0;
+                float shortestDist = 1000000;
+                
+                for (int i = 0; i < points.length; i++) {
+                    if (Math.abs(s.box.pos().z - points[i].z) < 50) {
+                        dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
+                                + (float)Math.pow(s.box.pos().y - points[i].y, 2));
+                        if (dist < shortestDist) {
+                            shortestDist = dist;
+                            s.rIndex = i;
+                        }
+                    }
+                }
+                
+                //s.rIndex = (int)Math.floor(points.length * (progress.checkPoint / progress.cpAm));
                 // Drive again
                 s.isResetting = false;
             }
