@@ -444,8 +444,8 @@ public class Physics {
                 ).normalize();
                 float cosAngleCarTrack = curCarDir.dot(tangTrackDir) /
                         (curCarDir.length() * tangTrackDir.length());
-                s.internRotx = (float) (z_ang * cosAngleCarTrack);
-                s.internRotz = (float) (z_ang * Math.sin(Math.acos(cosAngleCarTrack)));
+                s.internRotx = (float) (z_ang * cosAngleCarTrack) * 1.1f;
+                s.internRotz = (float) (z_ang * Math.sin(Math.acos(cosAngleCarTrack))) * 1.1f;
                 // </editor-fold>
                 
                 // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
