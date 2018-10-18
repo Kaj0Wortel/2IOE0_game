@@ -127,7 +127,7 @@ public class GS {
     final public static String TEX_DIR = RESOURCE_DIR + "textures" + FS;
 
     /** Delimiter used in reading and writing CSV. */
-    final public static char DELIM = ',';
+    final public static char DELIM = ';'; // LEAVE THIS AT ; FOR GODS SAKE
 
     /** Image constants. */
     final public static String FRAME_ICON = "FRAME_ICON";
@@ -234,7 +234,7 @@ public class GS {
         GS.mainPanel.showSwitchPanel(false);
         GS.mainPanel.add(canvas);
         
-        grid = new Grid(0f, 0f, -10_000f, 20f, 20f, 20_000f);
+        grid = new Grid(0f, 0f, -10_000f, 40f, 20_000f, 40f);
 
         animator = new FPSAnimator(canvas, 60, true);
 

@@ -82,6 +82,10 @@ public class ThrowingItem
             destroy();
         }
     }
-    
-    
+
+    @Override
+    public char getSimpleRepr() {
+        // Ignore throwing items
+        return '0';
+    }
 }

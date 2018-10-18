@@ -63,6 +63,7 @@ public class AINN {
     final private long MILLIS_PER_UPDATE = 100L;
 
     private MultiLayerNetwork[] networks;
+    private MyLossFunction myLossFunction;
     private MyIterator myIter;
 
     final protected GridItemInstance instance;
@@ -123,9 +124,9 @@ public class AINN {
             // Cast model to MultiLayerNetwork in order to get output.
             MultiLayerNetwork network = (MultiLayerNetwork) model;
 
-            INDArray out = null;            // Network output as INDArray
-            int output = 0;                 // Actual action that is done.
-            double score = 0.0d;            // Reward for current state
+            INDArray out = null;                        // Network output as INDArray
+            float[] output = new float[]{0f, 1f, 0f};   // Actual action that is done.
+            double score = 0.0d;                        // Reward for current state
 
             // Try to get output from network
             try {
@@ -139,13 +140,14 @@ public class AINN {
 
             // Try to convert INDArray output to integer output
             try {
-                output = out.maxNumber().intValue();
+                output = out.toFloatVector();
             } catch (Exception e) {
                 Logger.write(new Object[]{"Cannot convert OUTPUT to INT for model" + model.toString(), e}, Logger.Type.ERROR);
                 e.printStackTrace();
             }
 
-            Logger.write(new Object[]{"output from out = " + output}, Logger.Type.DEBUG);
+
+            // Logger.write(new Object[]{"output from out = " + out.toFloatVector()}, Logger.Type.DEBUG);
 
             // Try to get score from network
             try {
@@ -156,12 +158,21 @@ public class AINN {
                 e.printStackTrace();
             }
 
+            float outValue = 0f;
+            float max = out.maxNumber().floatValue();
+
+            if (output[0] == max) {
+                outValue = -max;
+            } else if (output[2] == max) {
+                outValue = max;
+            }
+
             if (model == networks[0]) {
-                curAction.turn = output - 1;
+                curAction.turn = outValue;
             }
 
             if (model == networks[1]) {
-                curAction.accel = output - 1;
+                curAction.accel = outValue;
             }
         }
     };
@@ -206,11 +217,17 @@ public class AINN {
                 .inferenceWorkspaceMode(WorkspaceMode.NONE)
                 .trainingWorkspaceMode(WorkspaceMode.NONE)
                 .list()
-                .layer(0, new DenseLayer.Builder().nIn(in).nOut(turnHidden).build())
-                .layer(1, new DenseLayer.Builder().nIn(turnHidden).nOut(turnHidden).build())
-                .layer(2, new OutputLayer.Builder().nIn(turnHidden).nOut(out).activation(Activation.SOFTMAX).build())
-                // .lossFunction(new LossMCXENT(Nd4j.create(new double[]{0.5, 0.5, 1.0})))
-                // TODO: Q-learning comment: Create correct loss function.
+                .layer(
+                        0, new DenseLayer.Builder().nIn(in).nOut(turnHidden).build()
+                )
+                .layer(
+                        1, new DenseLayer.Builder().nIn(turnHidden).nOut(turnHidden).build()
+                )
+                .layer(
+                        2, new OutputLayer.Builder().nIn(turnHidden).nOut(out).activation(Activation.SOFTMAX)
+                                .lossFunction(myLossFunction)
+                                .build()
+                )
                 .pretrain(false)
                 .backprop(true)
                 .build();
@@ -336,11 +353,11 @@ public class AINN {
         DataSet nextSet = myIter.next();
 
         // This data is correct.
-        Logger.write(new Object[]{
+        /* Logger.write(new Object[]{
                 "Initial data non-normalised as in execute()" + id + ":",
                 nextSet.getFeatures().length() + "\n\t" + nextSet.getFeatures().toString().replaceAll("\n", GS.LS),
                 nextSet.getLabels().length() + "\n\t" + nextSet.getLabels().toString().replaceAll("\n", GS.LS),
-        }, Logger.Type.DEBUG);
+        }, Logger.Type.DEBUG); */
 
 
         // TODO Decide if we want this normalisation
@@ -457,6 +474,13 @@ public class AINN {
                     long curTime = System.currentTimeMillis();
                     long wait = MILLIS_PER_UPDATE - (curTime - prevTime);
                     prevTime = curTime;
+
+                    Logger.write(new Object[]{
+                            "AINN " + id + " did not finish within the "
+                                    + "time limit.",
+                            "(it took " + (MILLIS_PER_UPDATE - wait) + "ms)"
+                    }, Logger.Type.WARNING);
+
                     if (wait > 0) {
                         try {
                             Thread.sleep(wait);

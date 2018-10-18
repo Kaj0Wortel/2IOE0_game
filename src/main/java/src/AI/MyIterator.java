@@ -9,6 +9,9 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import src.grid.GridItem;
+import src.tools.log.Logger;
+
+import java.util.Arrays;
 
 public class MyIterator extends RecordReaderDataSetIterator {
     private GridItem[][][][] G;
@@ -62,24 +65,29 @@ public class MyIterator extends RecordReaderDataSetIterator {
         float[][][] gridData = new float[AINN.GRIDSIZE][AINN.GRIDSIZE][AINN.GRIDSIZE];
 
         for (int i = 0; (i < G.length && i < AINN.GRIDSIZE); i++) {
-            for (int j = 0; (j < G[i].length && j < AINN.GRIDSIZE); j++) {
-                for (int k = 0; (k < G[i][j].length && k < AINN.GRIDSIZE); k++) {
-                    gridData[i][k] = gridItemsToFloats(G[i][j][k]);
-                }
+            int j = AINN.GRIDSIZE / 2;
+            for (int k = 0; (k < G[i][j].length && k < AINN.GRIDSIZE); k++) {
+                gridData[i][k] = gridItemsToFloats(G[i][j][k]);
             }
         }
+
 
         // Create array of INDArray to hold correct data for new dataset DS.
         int size = dataFromCSV.numExamples();
         INDArray[] data = new INDArray[size];
         float[] floatData;
 
-        for (int i = 0; i < size; i++) {
+        for (
+                int i = 0;
+                i < size; i++) {
             data[i] = Nd4j.zeros(AINN.GRIDSIZE + AINN.LABELINDEX);
             floatData = dataFromCSV.get(i).getFeatures().toFloatVector();
 
             for (float[][] aGridData : gridData) {
                 for (float[] anAGridData : aGridData) {
+
+                    Logger.write(Arrays.toString(anAGridData));
+
                     float[] finalData = concatFloatArr(floatData, anAGridData);
                     FloatBuffer floatBufferForData = new FloatBuffer(finalData);
                     floatBufferForData.setData(finalData);
@@ -94,7 +102,9 @@ public class MyIterator extends RecordReaderDataSetIterator {
         // Populate new DataSet
         DataSet DS = new DataSet(data[0], dataFromCSV.get(0).getLabels());
 
-        for (int i = 1; i < size; i++) {
+        for (
+                int i = 1;
+                i < size; i++) {
             DS.addFeatureVector(data[i]);
         }
 
@@ -110,7 +120,9 @@ public class MyIterator extends RecordReaderDataSetIterator {
         */
 
         // In case size of DS is not equal to number of inputs
-        if (DS.getFeatures().length() != 60) {
+        if (DS.getFeatures().
+
+                length() != 60) {
             // Pad with zeroes.
             int l = ((int) DS.getFeatures().length());
             DS.addFeatureVector(Nd4j.zeros(60 - l));
