@@ -399,7 +399,7 @@ public class Physics {
                 double rotz = Math.atan2(x, yz);
 
                 //write the needed rotation to the rotation only do this with the final value
-                //s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));
+                s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));
                 s.rotx = (float) (-rotz * Math.cos(yz_ang - s.roty));
 
                 // </editor-fold>
