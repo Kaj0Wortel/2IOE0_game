@@ -415,11 +415,6 @@ public class Physics {
                     sign *= -1;
                 }
                 
-                //System.out.println(mapped_dist);
-                Vector2f dist2dVec = new Vector2f(
-                        s.box.pos().x - points[ind].x,
-                        s.box.pos().y - points[ind].y
-                );
                 //double dist2d = Math.sqrt(dist2dVec.dot(dist2dVec));
                 double dist2d = Math.sqrt(
                         Math.pow(s.box.pos().x - points[ind].x, 2) + 
