@@ -5,6 +5,7 @@ package src;
 // Jogamp imports
 
 import com.jogamp.opengl.GL3;
+import java.io.IOException;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import src.Assets.*;
@@ -21,6 +22,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static src.Simulator.TYPE.*;
+import src.tools.io.BufferedReaderPlus;
+import static src.tools.io.BufferedReaderPlus.NO_COMMENT;
+import static src.tools.io.BufferedReaderPlus.TYPE_CSV;
+import src.tools.log.Logger;
 
 // Own imports
 // Java imports
@@ -175,21 +180,38 @@ public class Simulator {
         addGUI(new TextureImg(gl,"test_icon.png"),
                 new Vector2f(-0.5f, -0.5f), new Vector2f(0.25f, 0.25f));
 
-        addToGamestate(TRACK, null, new Vector3f(0,1,-5), 3, 0,0,0, 0,
+        addToGamestate(TRACK, null, new Vector3f(0,1,-5), 3, 0, 0,0, 0,
                 new TextureImg(gl,"rainbow_road.png"),
                 new TextureImg(gl, "tileNormalMap.png"), null);
-
-        int range = 1000;
-        for(int i = 0; i < 1000; i++){
-            addRock(rocks.get(GS.rani(0, 3)), new Vector3f(
-                    GS.rani(-range, range),
-                    GS.rani(-range, range),
-                    GS.rani(-range, range)
-            ), GS.rani(1, 8), GS.rani(0, 90), GS.rani(0, 90), GS.rani(0, 90), 0,
-            new TextureImg(5, 3f));
+        
+        try (BufferedReaderPlus brp = new BufferedReaderPlus("test",
+                NO_COMMENT, TYPE_CSV)) {
+            
+            String line;
+            while ((line = brp.readCSVCell(false)) != null) {
+                try {
+                    Vector3f pos = new Vector3f(
+                            Float.parseFloat(line),
+                            Float.parseFloat(brp.readCSVCell(false)),
+                            Float.parseFloat(brp.readCSVCell(false))
+                    );
+                    
+                    addRock(rocks.get(GS.rani(0, 3)), pos, GS.rani(1, 8),
+                            GS.rani(0, 90), GS.rani(0, 90), GS.rani(0, 90), 0,
+                            new TextureImg(5, 3f),
+                            MaterialInstance.Type.SPACE_ROCK);
+                    
+                } catch (NumberFormatException e) {
+                    Logger.write(e);
+                }
+            }
+            
+        } catch (IOException e) {
+            Logger.write(e);
         }
 
-        addRock(planet.get(0), new Vector3f(310,-30,780), 25,0,0,0,0,new TextureImg(5, 3f));
+        addRock(planet.get(0), new Vector3f(310, -30, 780), 25, 0, 0, 0, 0,
+                new TextureImg(5, 3f), MaterialInstance.Type.PLANET);
 
         addSkybox();
         
@@ -319,7 +341,7 @@ public class Simulator {
     
     public void addRock(OBJObject rock, Vector3f position, int size,
             int rotx, int roty, int rotz, int integratedRotation,
-            TextureImg texture) {
+            TextureImg texture, MaterialInstance.Type type) {
         OBJCollection col = new OBJCollection();
         col.add(rock);
         OBJTexture texturedCube = new OBJTexture(col,
@@ -329,8 +351,7 @@ public class Simulator {
         box.translate(position);
         Instance cubeInstance = new MaterialInstance(box,
                 size, 0, 0, 0, texturedCube,
-                rotx, roty, rotz, new PhysicsContext(),
-                MaterialInstance.Type.SPACE_ROCK);
+                rotx, roty, rotz, new PhysicsContext(), type);
         GS.addMaterialAsset(cubeInstance);
     }
     
