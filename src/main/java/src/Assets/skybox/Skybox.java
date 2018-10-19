@@ -104,14 +104,14 @@ public class Skybox {
         return viewMatrix;
     }
 
-    private int getCubeMap(GL3 gl){
-
+    private int getCubeMap(GL3 gl) {
         IntBuffer cubeMap = Buffers.newDirectIntBuffer(1);
-        gl.glGenTextures(1,cubeMap);
+        gl.glGenTextures(1, cubeMap);
         gl.glActiveTexture(GL3.GL_TEXTURE0);
         gl.glBindTexture(GL3.GL_TEXTURE_CUBE_MAP, cubeMap.get(0));
+        gl.glEnable(GL3.GL_TEXTURE_CUBE_MAP);
 
-        for(int i = 0; i < files.length; i++){
+        for(int i = 0; i < files.length; i++) {
             SkyboxTexurePart skyboxTexurePart = getPartialCubeMap(
                     SKYBOX_DIR + files[i] + ".png");
             gl.glTexImage2D(GL3.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, 
@@ -125,6 +125,7 @@ public class Skybox {
         gl.glTexParameteri(GL3.GL_TEXTURE_CUBE_MAP, GL3.GL_TEXTURE_MIN_FILTER, GL3.GL_LINEAR);
         gl.glTexParameteri(GL3.GL_TEXTURE_CUBE_MAP, GL3.GL_TEXTURE_WRAP_S, GL3.GL_CLAMP_TO_EDGE);
         gl.glTexParameteri(GL3.GL_TEXTURE_CUBE_MAP, GL3.GL_TEXTURE_WRAP_T, GL3.GL_CLAMP_TO_EDGE);
+        gl.glDisable(GL3.GL_TEXTURE_CUBE_MAP);
         return cubeMap.get(0);
     }
 

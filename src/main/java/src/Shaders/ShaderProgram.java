@@ -16,14 +16,15 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import src.GS;
 
 public abstract class ShaderProgram {
 
-    private int ID;
+    private int id;
 
-    public ShaderProgram(GL3 gl, String vertex, String fragment){
-        ID = CreateShader(gl,LoadShaderFile(vertex),LoadShaderFile(fragment));
-
+    public ShaderProgram(GL3 gl, String vertex, String fragment) {
+        System.out.println(GS.LS + getClass().getName());
+        id = CreateShader(gl, loadShaderFile(vertex),loadShaderFile(fragment));
         getAllUniformLocations(gl);
     }
 
@@ -50,18 +51,18 @@ public abstract class ShaderProgram {
     public abstract boolean useMaterial();
 
     public int getUniformLocation(GL3 gl, String uni){
-        return gl.glGetUniformLocation(ID,uni);
+        return gl.glGetUniformLocation(id, uni);
     }
 
     public void bindAttr(GL3 gl, int attr, String name){
-        gl.glBindAttribLocation(ID,attr,name);
+        gl.glBindAttribLocation(id, attr, name);
     }
 
 
     public int CreateShader(GL3 gl, String[] vertex, String[] fragment){
         int program = gl.glCreateProgram();
-        int vertexShader = CompileShader(gl, vertex, GL2.GL_VERTEX_SHADER);
-        int fragmentShader = CompileShader(gl, fragment, GL2.GL_FRAGMENT_SHADER);
+        int vertexShader = compileShader(gl, vertex, GL2.GL_VERTEX_SHADER);
+        int fragmentShader = compileShader(gl, fragment, GL2.GL_FRAGMENT_SHADER);
 
         gl.glAttachShader(program, vertexShader);
         gl.glAttachShader(program, fragmentShader);
@@ -71,23 +72,24 @@ public abstract class ShaderProgram {
         gl.glLinkProgram(program);
         System.out.println("Link status:");
         IntBuffer b = Buffers.newDirectIntBuffer(1);
-        gl.glGetProgramiv(program,gl.GL_LINK_STATUS,b);
+        gl.glGetProgramiv(program, GL3.GL_LINK_STATUS, b);
+        
         //Error handling
-        if(b.get(0) == gl.GL_FALSE){
-            LogHandling(gl,program);
+        if (b.get(0) == GL3.GL_FALSE){
+            logHandling(gl, program);
             System.out.println("Unsuccesful.");
-        }else{
+        } else {
             System.out.println("Successful.");
         }
+        
         gl.glValidateProgram(program);
         System.out.println("Validate status");
         b = Buffers.newDirectIntBuffer(1);
-        gl.glGetProgramiv(program,gl.GL_VALIDATE_STATUS,b);
-        //Error handling
-        if(b.get(0) == gl.GL_FALSE){
-            LogHandling(gl,program);
+        gl.glGetProgramiv(program, GL3.GL_VALIDATE_STATUS, b);
+        if (b.get(0) == GL3.GL_FALSE) {
+            logHandling(gl, program);
             System.out.println("Unsuccessful.");
-        }else{
+        } else {
             System.out.println("Successful.");
         }
 
@@ -97,65 +99,71 @@ public abstract class ShaderProgram {
         return program;
     }
 
-    private int CompileShader(GL3 gl, String[] shaderInput, int type){
+    private int compileShader(GL3 gl, String[] shaderInput, int type){
         int shaderID = gl.glCreateShader(type);
 
         gl.glShaderSource(shaderID,1,shaderInput,null);
         gl.glCompileShader(shaderID);
 
-        ErrorHandling(gl,shaderID,type);
+        errorHandling(gl,shaderID,type);
 
         return shaderID;
     }
 
-    private String[] LoadShaderFile(String location){
-        String s = "";
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(location));
-            String line = reader.readLine();
-            while(line != null){
-                line += "\n";
-                s += line + "\n";
-                line = reader.readLine();
+    private String[] loadShaderFile(String location){
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(
+                new FileReader(location))) {
+            String line;
+            while((line = reader.readLine()) != null) {
+                sb.append(line);
+                sb.append("\n");
             }
-            reader.close();
+            
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             System.exit(-1);
+            
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return new String[] {s};
+        
+        return new String[] {sb.toString()};
     }
 
-    public int getProgramID(){
-        return this.ID;
+    public int getProgramID() {
+        return this.id;
     }
 
-    private void ErrorHandling(GL3 gl,int shaderID,int type){
+    private void errorHandling(GL3 gl,int shaderID,int type){
         //Error handling
         IntBuffer status = Buffers.newDirectIntBuffer(1);
         gl.glGetShaderiv(shaderID, GL2ES2.GL_COMPILE_STATUS, status);
-        if(status.get(0) == gl.GL_FALSE){
-            IntBuffer length_of_error = Buffers.newDirectIntBuffer(1);
-            gl.glGetShaderiv(shaderID, gl.GL_INFO_LOG_LENGTH, length_of_error);
+        if(status.get(0) == GL3.GL_FALSE){
+            IntBuffer lengthOfError = Buffers.newDirectIntBuffer(1);
+            gl.glGetShaderiv(shaderID, GL3.GL_INFO_LOG_LENGTH, lengthOfError);
 
-            ByteBuffer error = Buffers.newDirectByteBuffer(length_of_error.get(0));
-            gl.glGetShaderInfoLog(shaderID, length_of_error.get(),null, error);
+            ByteBuffer error = Buffers.newDirectByteBuffer(lengthOfError.get(0));
+            gl.glGetShaderInfoLog(shaderID, lengthOfError.get(), null, error);
 
-            System.out.println("Failed to compile " + (type == gl.GL_VERTEX_SHADER ? "Vertex Shader" : "Fragment Shader"));
-            String result = "";
-            for(int i = 0; i < length_of_error.get(0); i++){
-                result += (char)error.get(i);
+            System.out.println("Failed to compile "
+                    + (type == GL3.GL_VERTEX_SHADER
+                            ? "Vertex Shader"
+                            : "Fragment Shader"));
+            StringBuilder sb = new StringBuilder();
+            for(int i = 0; i < lengthOfError.get(0); i++){
+                sb.append((char) error.get(i));
             }
-            System.out.println(result);
-        }else{
-            System.out.println("Succesfully compiled the " + (type == gl.GL_VERTEX_SHADER ? "Vertex Shader" : "Fragment Shader"));
+            System.out.println(sb.toString());
+        } else {
+            System.out.println("Succesfully compiled the " 
+                    + (type == GL3.GL_VERTEX_SHADER
+                            ? "Vertex Shader"
+                            : "Fragment Shader"));
         }
     }
 
-    private void LogHandling(GL3 gl, int program){
+    private void logHandling(GL3 gl, int program){
         ByteBuffer str = Buffers.newDirectByteBuffer(100);
         gl.glGetProgramInfoLog(program,str.capacity(),null,str);
         String s = "";
@@ -189,11 +197,11 @@ public abstract class ShaderProgram {
     }
 
     public void start(GL3 gl){
-        gl.glUseProgram(ID);
+        gl.glUseProgram(id);
     }
 
     public void cleanUp(GL3 gl){
         stop(gl);
-        gl.glDeleteProgram(ID);
+        gl.glDeleteProgram(id);
     }
 }

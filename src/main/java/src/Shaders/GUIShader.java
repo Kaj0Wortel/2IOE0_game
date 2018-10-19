@@ -1,4 +1,6 @@
+
 package src.Shaders;
+
 
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
@@ -6,6 +8,7 @@ import org.joml.Vector3f;
 import src.Assets.Light;
 import src.GS;
 import src.OBJ.MTLObject;
+
 
 public class GUIShader
         extends ShaderProgram {
@@ -40,7 +43,6 @@ public class GUIShader
         testTextureLoc = getUniformLocation(gl, "itemInv");
         testTextureLoc = getUniformLocation(gl, "item");
         */
-        System.out.println(GS.LS + getClass().getName());
         System.out.println("Transformation Matrix: " + transformationMatrixLocation);
         System.out.println("TextureLocation: " + textureLocation);
         System.out.println("testTextureLoc: " + testTextureLoc);

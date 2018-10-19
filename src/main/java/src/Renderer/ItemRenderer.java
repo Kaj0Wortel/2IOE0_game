@@ -29,6 +29,7 @@ public class ItemRenderer {
         for(Instance asset : GS.getItems()){
             gl.glActiveTexture(GL3.GL_TEXTURE0);
             gl.glBindTexture(GL3.GL_TEXTURE_2D, asset.getModel().getTextureImg().getTexture());
+            gl.glEnable(GL3.GL_TEXTURE_2D);
             asset.draw(gl, defaultShader);
             gl.glDisable(GL3.GL_TEXTURE_2D);
         }

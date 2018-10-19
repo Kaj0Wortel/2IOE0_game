@@ -40,10 +40,13 @@ public class GUIRenderer {
         for (int i = 0; i < textures.length; i++) {
             gl.glActiveTexture(GL3.GL_TEXTURE0 + i);
             gl.glBindTexture(GL3.GL_TEXTURE_2D, textures[i]);
-            gl.glDrawArrays(GL3.GL_TRIANGLE_STRIP, 0, nrV);
-            gl.glDisable(GL3.GL_TEXTURE_2D);
         }
         
+        gl.glEnable(GL3.GL_TEXTURE_2D);
+        
+        gl.glDrawArrays(GL3.GL_TRIANGLE_STRIP, 0, nrV);
+        
+        gl.glDisable(GL3.GL_TEXTURE_2D);
         gl.glEnable(GL3.GL_DEPTH_TEST);
         gl.glDisable(GL3.GL_BLEND);
 

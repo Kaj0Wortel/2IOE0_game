@@ -1,10 +1,13 @@
+
 package src.shadows;
+
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL3;
 import src.GS;
 
 import java.nio.IntBuffer;
+
 
 public class ShadowFBO {
 
@@ -43,15 +46,18 @@ public class ShadowFBO {
         gl.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_T, GL3.GL_CLAMP_TO_EDGE);
         gl.glFramebufferTexture(GL3.GL_FRAMEBUFFER, GL3.GL_DEPTH_ATTACHMENT,
                 depthAttachment.get(0), 0);
+        gl.glEnable(GL3.GL_TEXTURE_2D);
     }
     
     public void bindFrameBuffer(GL3 gl) {
         gl.glBindTexture(GL3.GL_TEXTURE_2D, 0);
+        gl.glEnable(GL3.GL_TEXTURE_2D);
         gl.glBindFramebuffer(GL3.GL_DRAW_FRAMEBUFFER, fbo.get(0));
         gl.glViewport(0, 0, width, height);
     }
     
     public void unbindFrameBuffer(GL3 gl) {
+        gl.glDisable(GL3.GL_TEXTURE_2D);
         gl.glBindFramebuffer(GL3.GL_FRAMEBUFFER, 0);
         gl.glViewport(0, 0, GS.canvas.getWidth(), GS.canvas.getHeight());
     }

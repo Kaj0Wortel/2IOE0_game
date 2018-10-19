@@ -68,6 +68,8 @@ public class Car
             }
             gl.glBindVertexArray(0);
         }
+        
+        gl.glDisable(GL3.GL_TEXTURE_2D);
     }
 
     private void prepare(GL3 gl){
@@ -81,6 +83,7 @@ public class Car
 
         gl.glActiveTexture(GL3.GL_TEXTURE0);
         gl.glBindTexture(GL3.GL_TEXTURE_2D, shadowMap);
+        gl.glEnable(GL3.GL_TEXTURE_2D);
     }
 
     @Override
