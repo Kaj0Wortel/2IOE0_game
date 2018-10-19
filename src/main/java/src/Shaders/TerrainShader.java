@@ -76,6 +76,7 @@ public class TerrainShader extends ShaderProgram {
         loadUniformMatrix(gl, modelMatrixLocation, matrix);
     }
 
+    @Override
     public void loadLight(GL3 gl, Light light){
         loadUniformVector(gl, lightPositionLocation,light.getPosition());
         loadUniformVector(gl, lightColorLocation, light.getColor());
@@ -96,10 +97,12 @@ public class TerrainShader extends ShaderProgram {
         loadUniformFloat(gl, reflectivityLocation, reflectivity);
     }
 
+    @Override
     public void loadTime(GL3 gl, int time){
         loadUniformInt(gl,timeLocation,time);
     }
 
+    @Override
     public void loadCameraPos(GL3 gl, Vector3f cameraPos){
         loadUniformVector(gl, cameraPosLocation, cameraPos);
     }

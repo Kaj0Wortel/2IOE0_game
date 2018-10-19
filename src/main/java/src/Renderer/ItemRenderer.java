@@ -27,9 +27,10 @@ public class ItemRenderer {
 
 
         for(Instance asset : GS.getItems()){
-            gl.glActiveTexture(gl.GL_TEXTURE0);
-            gl.glBindTexture(gl.GL_TEXTURE_2D, asset.getModel().getTextureImg().getTexture());
+            gl.glActiveTexture(GL3.GL_TEXTURE0);
+            gl.glBindTexture(GL3.GL_TEXTURE_2D, asset.getModel().getTextureImg().getTexture());
             asset.draw(gl, defaultShader);
+            gl.glDisable(GL3.GL_TEXTURE_2D);
         }
 
         defaultShader.stop(gl);

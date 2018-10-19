@@ -4,41 +4,46 @@ import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.Light;
+import src.GS;
 import src.OBJ.MTLObject;
 
-public class GUIShader extends ShaderProgram {
-
-    final public static String FS = System.getProperty("file.separator");
-
+public class GUIShader
+        extends ShaderProgram {
     // Handy file paths.
-    final public static String WORKING_DIR = System.getProperty("user.dir")
-            + FS + "src" +  FS;
-
-    final public static String SHADERS_DIR = WORKING_DIR + "Shaders" + FS + "ShaderFiles" + FS;
-
-    final private static String vertex = SHADERS_DIR + "gui_vertex.glsl";
-    final private static String fragment = SHADERS_DIR + "gui_fragment.glsl";
+    final private static String VERTEX = GS.SHADER_DIR + "gui_vertex.glsl";
+    final private static String FRAGMENT = GS.SHADER_DIR + "gui_fragment.glsl";
 
     private int transformationMatrixLocation;
     private int textureLocation;
+    private int testTextureLoc;
 
     public GUIShader(GL3 gl) {
-        super(gl, vertex, fragment);
+        super(gl, VERTEX, FRAGMENT);
     }
 
     @Override
     protected void bindAttributes(GL3 gl) {
-        bindAttr(gl,0,"position");
-
+        bindAttr(gl, 0, "position");
+        
     }
-
+    
     @Override
     protected void getAllUniformLocations(GL3 gl) {
         transformationMatrixLocation = getUniformLocation(gl, "transformationMatrix");
         textureLocation = getUniformLocation(gl, "gui");
-
+        testTextureLoc = getUniformLocation(gl, "test");
+        /*
+        testTextureLoc = getUniformLocation(gl, "speedMeter");
+        testTextureLoc = getUniformLocation(gl, "speedNeedle");
+        testTextureLoc = getUniformLocation(gl, "time");
+        testTextureLoc = getUniformLocation(gl, "place");
+        testTextureLoc = getUniformLocation(gl, "itemInv");
+        testTextureLoc = getUniformLocation(gl, "item");
+        */
+        System.out.println(GS.LS + getClass().getName());
         System.out.println("Transformation Matrix: " + transformationMatrixLocation);
         System.out.println("TextureLocation: " + textureLocation);
+        System.out.println("testTextureLoc: " + testTextureLoc);
     }
 
     @Override
@@ -48,37 +53,37 @@ public class GUIShader extends ShaderProgram {
 
     @Override
     public void loadViewMatrix(GL3 gl, Matrix4f matrix) {
-
+        
     }
 
     @Override
     public void loadProjectionMatrix(GL3 gl, Matrix4f matrix4f) {
-
+        
     }
 
     @Override
     public void loadTextureLightValues(GL3 gl, float shininess, float reflectivity) {
-
+        
     }
 
     @Override
     public void loadTime(GL3 gl, int time) {
-
+        
     }
 
     @Override
     public void loadCameraPos(GL3 gl, Vector3f cameraPos) {
-
+        
     }
 
     @Override
     public void loadLight(GL3 gl, Light light) {
-
+        
     }
 
     @Override
     public void loadMaterial(GL3 gl, MTLObject mtl) {
-
+        
     }
 
     @Override
@@ -88,5 +93,6 @@ public class GUIShader extends ShaderProgram {
 
     public void loadTexture(GL3 gl){
         loadUniformInt(gl, textureLocation, 0);
+        loadUniformInt(gl, testTextureLoc, 1);
     }
 }

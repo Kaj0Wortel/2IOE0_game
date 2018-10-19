@@ -90,6 +90,7 @@ public class Skybox {
         gl.glActiveTexture(GL3.GL_TEXTURE0);
         gl.glBindTexture(GL3.GL_TEXTURE_CUBE_MAP, texture);
         gl.glDrawArrays(GL3.GL_TRIANGLES, 0, nrV);
+        gl.glDisable(GL3.GL_TEXTURE_CUBE_MAP);
         gl.glBindVertexArray(0);
         
         skyBoxShader.stop(gl);

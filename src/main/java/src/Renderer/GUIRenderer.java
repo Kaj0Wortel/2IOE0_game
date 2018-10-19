@@ -17,30 +17,35 @@ public class GUIRenderer {
 
     public GUIRenderer(GL3 gl) {
         guiShader = new GUIShader(gl);
-        float[] vertices = { -1, 1, -1, -1, 1, 1, 1, -1};
-        vao = Binder.loadVAO(gl, vertices,2);
+        float[] vertices = {-1, 1, -1, -1, 1, 1, 1, -1};
+        vao = Binder.loadVAO(gl, vertices, 1);
         nrV = vertices.length/2;
     }
 
-    public void render(GL3 gl){
+    public void render(GL3 gl) {
+        GUI gui = GS.getGUI();
+        if (gui == null) return;
+        
         guiShader.start(gl);
         gl.glBindVertexArray(vao.get(0));
         gl.glEnableVertexAttribArray(0);
-        gl.glActiveTexture(gl.GL_TEXTURE0);
         guiShader.loadTexture(gl);
 
-        gl.glEnable(gl.GL_BLEND);
-        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
-        gl.glDisable(gl.GL_DEPTH_TEST);
-
-        for(GUI gui : GS.getGUIs()){
-            guiShader.loadModelMatrix(gl, gui.getTransformationMatrix());
-            gl.glBindTexture(gl.GL_TEXTURE_2D, gui.getTexture());
-            gl.glDrawArrays(gl.GL_TRIANGLE_STRIP,0, nrV);
+        gl.glEnable(GL3.GL_BLEND);
+        gl.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
+        gl.glDisable(GL3.GL_DEPTH_TEST);
+        
+        guiShader.loadModelMatrix(gl, gui.getTransformationMatrix());
+        int[] textures = gui.getTextures();
+        for (int i = 0; i < textures.length; i++) {
+            gl.glActiveTexture(GL3.GL_TEXTURE0 + i);
+            gl.glBindTexture(GL3.GL_TEXTURE_2D, textures[i]);
+            gl.glDrawArrays(GL3.GL_TRIANGLE_STRIP, 0, nrV);
+            gl.glDisable(GL3.GL_TEXTURE_2D);
         }
-
-        gl.glEnable(gl.GL_DEPTH_TEST);
-        gl.glDisable(gl.GL_BLEND);
+        
+        gl.glEnable(GL3.GL_DEPTH_TEST);
+        gl.glDisable(GL3.GL_BLEND);
 
 
         gl.glDisableVertexAttribArray(0);

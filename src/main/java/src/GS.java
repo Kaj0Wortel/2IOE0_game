@@ -7,8 +7,6 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
-import net.java.games.input.ContrlEnv;
-import net.java.games.input.ControllerEnvironment;
 import org.joml.Vector3f;
 import src.Assets.GUI;
 import src.Assets.Light;
@@ -45,6 +43,7 @@ import java.util.*;
 import java.util.List;
 import java.util.logging.LogManager;
 
+import javax.swing.JLayeredPane;
 import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
@@ -54,8 +53,6 @@ import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 // JInput imports
 import net.java.games.input.ContrlEnv;
 import net.java.games.input.ControllerEnvironment;
-import src.gui.GUIPanel;
-import src.music.MusicManager;
 
 
 /**
@@ -111,7 +108,7 @@ public class GS {
     
     final public static String LOG_FILE = WORKING_DIR + "log.log";
     final public static String SHADER_DIR = WORKING_DIR
-            + "shaderPrograms" + FS;
+            + "Shaders" + FS + "ShaderFiles" + FS;
     
     final public static String DATA_DIR = WORKING_DIR + "data" + FS;
     final public static String KEYS_CONFIG = DATA_DIR + "keys.conf";
@@ -132,8 +129,8 @@ public class GS {
     final private static List<Instance> materialAssets = new ArrayList();
     final private static List<Instance> terrain = new ArrayList<>();
     final private static List<Light> lights = new ArrayList<>();
-    final private static List<GUI> guis = new ArrayList<>();
     final private static List<Item> items = new ArrayList<>();
+    private static GUI gui = null;
     
     
     /**-------------------------------------------------------------------------
@@ -143,7 +140,6 @@ public class GS {
     private static GameState gameState = GameState.PLAYING;
     public static ControllerKeyDetector keyDet;
     public static MainPanel mainPanel;
-    public static GUIPanel guiPanel;
     public static Camera camera;
     public static CameraController cameraController;
     public static PlayerController playerController;
@@ -228,8 +224,9 @@ public class GS {
         GLProfile profile = GLProfile.get(GLProfile.GL3);
         GLCapabilities cap = new GLCapabilities(profile);
         canvas = new GLCanvas(cap);
-        GS.mainPanel.showSwitchPanel(false);
-        GS.mainPanel.add(canvas);
+        mainPanel.showSwitchPanel(false);
+        mainPanel.add(canvas);
+        mainPanel.setLayer(canvas, JLayeredPane.DEFAULT_LAYER);
         
         grid = new Grid(0f, 0f, -10_000f, 20f, 20f, 20_000f);
 
@@ -247,9 +244,6 @@ public class GS {
 
         animator.start();
         renderer.cleanup();
-        
-        guiPanel = new GUIPanel();
-        GS.mainPanel.add(guiPanel);
         
         Updater.start();
     }
@@ -588,8 +582,8 @@ public class GS {
         return lights;
     }
 
-    public static List<GUI> getGUIs(){
-        return guis;
+    public static GUI getGUI(){
+        return gui;
     }
 
     public static List<Instance> getMaterialAssets(){
@@ -612,8 +606,8 @@ public class GS {
         materialAssets.add(asset);
     }
 
-    public static void addGUI(GUI gui){
-        guis.add(gui);
+    public static void setGUI(GUI gui){
+        gui = gui;
     }
     
     public static void addAsset(Instance asset){

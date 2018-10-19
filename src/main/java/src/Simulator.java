@@ -178,7 +178,7 @@ public class Simulator {
         addLight(new Vector3f(30000f, 50000f, 1f),
                 new Vector3f(1f, 1f, 1f));
 
-        addGUI(new TextureImg(gl,"test_icon.png"),
+        addGUI(gl, new TextureImg(gl,"test_icon.png"),
                 new Vector2f(-0.5f, -0.5f), new Vector2f(0.25f, 0.25f));
 
         addToGamestate(TRACK, null, new Vector3f(0,1,-5), 3, 0, 0,0, 0,
@@ -331,10 +331,10 @@ public class Simulator {
         return cubeInstance;
     }
 
-    public void addGUI(TextureImg texture, Vector2f topright, Vector2f size) {
-        GUI test = new GUI(texture.getTexture(),
+    public void addGUI(GL3 gl, TextureImg texture, Vector2f topright, Vector2f size) {
+        GUI test = new GUI(gl, texture.getTexture(),
                 topright, size);
-        GS.addGUI(test);
+        GS.setGUI(test);
     }
 
     public void addLight(Vector3f position, Vector3f color) {

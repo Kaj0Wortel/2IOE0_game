@@ -4,20 +4,14 @@ import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.Light;
+import src.GS;
 import src.OBJ.MTLObject;
 
-public class RacetrackShader extends ShaderProgram {
-
-    final public static String FS = System.getProperty("file.separator");
-
+public class RacetrackShader
+        extends ShaderProgram {
     // Handy file paths.
-    final public static String WORKING_DIR = System.getProperty("user.dir")
-            + FS + "src" +  FS;
-
-    final public static String SHADERS_DIR = WORKING_DIR + "Shaders" + FS + "ShaderFiles" + FS;
-
-    final private static String vertex = SHADERS_DIR + "racetrack_vertex.glsl";
-    final private static String fragment = SHADERS_DIR + "racetrack_fragment.glsl";
+    final private static String VERTEX = GS.SHADER_DIR + "racetrack_vertex.glsl";
+    final private static String FRAGMENT = GS.SHADER_DIR + "racetrack_fragment.glsl";
 
     private int projectionMatrixLocation;
     private int viewMatrixLocation;
@@ -34,7 +28,7 @@ public class RacetrackShader extends ShaderProgram {
     private int shadowMatrixLocation;
 
     public RacetrackShader(GL3 gl) {
-        super(gl, vertex, fragment);
+        super(gl, VERTEX, FRAGMENT);
     }
 
     @Override

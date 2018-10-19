@@ -181,7 +181,7 @@ public abstract class ShaderProgram {
     }
 
     public void loadUniformInt(GL3 gl, int location, int in){
-        gl.glUniform1i(location,in);
+        gl.glUniform1i(location, in);
     }
 
     public void stop(GL3 gl){
