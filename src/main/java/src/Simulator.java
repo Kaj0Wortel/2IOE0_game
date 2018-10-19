@@ -221,8 +221,8 @@ public class Simulator {
                 new TextureImg(5, 3f), MaterialInstance.Type.PLANET);
 
         addSkybox();
-        addBanner(banner, new Vector3f(0, 0, 40), 4, 0, 90, 0, 0,
-                new TextureImg(gl, "rainbow_road.png"), null);
+        //addBanner(banner, new Vector3f(0, 0, 40), 4, 0, 90, 0, 0,
+         //       new TextureImg(gl, "rainbow_road.png"), null);
         
         System.out.println("Assets initialized");
 
