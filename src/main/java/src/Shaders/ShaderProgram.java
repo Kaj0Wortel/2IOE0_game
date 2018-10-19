@@ -50,16 +50,16 @@ public abstract class ShaderProgram {
 
     public abstract boolean useMaterial();
 
-    public int getUniformLocation(GL3 gl, String uni){
+    public int getUniformLocation(GL3 gl, String uni) {
         return gl.glGetUniformLocation(id, uni);
     }
 
-    public void bindAttr(GL3 gl, int attr, String name){
+    public void bindAttr(GL3 gl, int attr, String name ) {
         gl.glBindAttribLocation(id, attr, name);
     }
 
 
-    public int CreateShader(GL3 gl, String[] vertex, String[] fragment){
+    public int CreateShader(GL3 gl, String[] vertex, String[] fragment) {
         int program = gl.glCreateProgram();
         int vertexShader = compileShader(gl, vertex, GL2.GL_VERTEX_SHADER);
         int fragmentShader = compileShader(gl, fragment, GL2.GL_FRAGMENT_SHADER);
@@ -75,7 +75,7 @@ public abstract class ShaderProgram {
         gl.glGetProgramiv(program, GL3.GL_LINK_STATUS, b);
         
         //Error handling
-        if (b.get(0) == GL3.GL_FALSE){
+        if (b.get(0) == GL3.GL_FALSE) {
             logHandling(gl, program);
             System.out.println("Unsuccesful.");
         } else {
@@ -99,18 +99,18 @@ public abstract class ShaderProgram {
         return program;
     }
 
-    private int compileShader(GL3 gl, String[] shaderInput, int type){
+    private int compileShader(GL3 gl, String[] shaderInput, int type) {
         int shaderID = gl.glCreateShader(type);
 
-        gl.glShaderSource(shaderID,1,shaderInput,null);
+        gl.glShaderSource(shaderID, 1, shaderInput,null);
         gl.glCompileShader(shaderID);
 
-        errorHandling(gl,shaderID,type);
+        errorHandling(gl, shaderID, type);
 
         return shaderID;
     }
 
-    private String[] loadShaderFile(String location){
+    private String[] loadShaderFile(String location) {
         StringBuilder sb = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(
                 new FileReader(location))) {
@@ -135,11 +135,11 @@ public abstract class ShaderProgram {
         return this.id;
     }
 
-    private void errorHandling(GL3 gl,int shaderID,int type){
+    private void errorHandling(GL3 gl,int shaderID,int type) {
         //Error handling
         IntBuffer status = Buffers.newDirectIntBuffer(1);
         gl.glGetShaderiv(shaderID, GL2ES2.GL_COMPILE_STATUS, status);
-        if(status.get(0) == GL3.GL_FALSE){
+        if(status.get(0) == GL3.GL_FALSE) {
             IntBuffer lengthOfError = Buffers.newDirectIntBuffer(1);
             gl.glGetShaderiv(shaderID, GL3.GL_INFO_LOG_LENGTH, lengthOfError);
 
@@ -151,7 +151,7 @@ public abstract class ShaderProgram {
                             ? "Vertex Shader"
                             : "Fragment Shader"));
             StringBuilder sb = new StringBuilder();
-            for(int i = 0; i < lengthOfError.get(0); i++){
+            for(int i = 0; i < lengthOfError.get(0); i++) {
                 sb.append((char) error.get(i));
             }
             System.out.println(sb.toString());
@@ -163,44 +163,44 @@ public abstract class ShaderProgram {
         }
     }
 
-    private void logHandling(GL3 gl, int program){
+    private void logHandling(GL3 gl, int program) {
         ByteBuffer str = Buffers.newDirectByteBuffer(100);
-        gl.glGetProgramInfoLog(program,str.capacity(),null,str);
-        String s = "";
-        for(int i = 0; i < str.capacity(); i++){
-            s += (char) str.get(i);
+        gl.glGetProgramInfoLog(program, str.capacity(), null, str);
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < str.capacity(); i++) {
+            sb.append((char) str.get(i));
         }
-        System.out.println(s);
+        System.out.println(sb.toString());
     }
 
-    public void loadUniformMatrix(GL3 gl, int location, Matrix4f matrix){
+    public void loadUniformMatrix(GL3 gl, int location, Matrix4f matrix) {
         FloatBuffer m = Buffers.newDirectFloatBuffer(16);
         matrix.get(m);
 
-        gl.glUniformMatrix4fv(location,1,false,m);
+        gl.glUniformMatrix4fv(location, 1, false, m);
     }
 
-    public void loadUniformVector(GL3 gl, int location, Vector3f vector){
-        gl.glUniform3f(location, vector.x,vector.y,vector.z);
+    public void loadUniformVector(GL3 gl, int location, Vector3f vector) { 
+        gl.glUniform3f(location, vector.x, vector.y, vector.z);
     }
 
-    public void loadUniformFloat(GL3 gl, int location, float fl){
-        gl.glUniform1f(location,fl);
+    public void loadUniformFloat(GL3 gl, int location, float fl) {
+        gl.glUniform1f(location, fl);
     }
 
-    public void loadUniformInt(GL3 gl, int location, int in){
+    public void loadUniformInt(GL3 gl, int location, int in) {
         gl.glUniform1i(location, in);
     }
 
-    public void stop(GL3 gl){
+    public void stop(GL3 gl) {
         gl.glUseProgram(0);
     }
 
-    public void start(GL3 gl){
+    public void start(GL3 gl) {
         gl.glUseProgram(id);
     }
 
-    public void cleanUp(GL3 gl){
+    public void cleanUp(GL3 gl) {
         stop(gl);
         gl.glDeleteProgram(id);
     }
