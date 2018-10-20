@@ -4,6 +4,8 @@ package src.glGUI;
 import com.jogamp.opengl.GL3;
 import org.joml.Vector2f;
 import src.Assets.TextureImg;
+import src.Assets.instance.Car;
+import src.Assets.instance.ThrowingItemFactory.ItemType;
 import src.GS;
 import src.Shaders.ShaderProgram;
 import src.Shaders.StaticGUIShader;
@@ -36,13 +38,14 @@ public class StaticGUI
     }
     
     @Override
-    public void loadShaderData(GL3 gl) {
+    public void loadShaderData(GL3 gl, Car car) {
         shader.loadTextures(gl);
         shader.loadVars(gl);
-        shader.loadTime(gl, (int) (GS.time / 1000L)); // TODO
+        shader.loadTime(gl, (int) (GS.time / 1000L));
         shader.loadModelMatrix(gl, getTransformationMatrix());
-        shader.loadItemNum(gl, (int) (GS.time / 1000L) % 4); // TODO
-        shader.loadPositionNum(gl, (int) (GS.time / 1000L) % 4); // TODO
+        ItemType item = car.getItem();
+        shader.loadItemNum(gl, (item == null ? 0 : item.ordinal() + 1));
+        shader.loadPositionNum(gl, car.getRacePosition());
         
         for (int i = 0; i < textures.length; i++) {
             gl.glActiveTexture(GL3.GL_TEXTURE0 + i);

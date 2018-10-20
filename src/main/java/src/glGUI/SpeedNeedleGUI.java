@@ -4,6 +4,7 @@ package src.glGUI;
 import com.jogamp.opengl.GL3;
 import org.joml.Vector2f;
 import src.Assets.TextureImg;
+import src.Assets.instance.Car;
 import src.Shaders.ShaderProgram;
 import src.Shaders.SpeedNeedleGUIShader;
 
@@ -30,17 +31,15 @@ public class SpeedNeedleGUI
         shader = new SpeedNeedleGUIShader(gl);
     }
     
-    float angle = 0;
+    //dfloat angle = 0;
     @Override
-    public void loadShaderData(GL3 gl) {
+    public void loadShaderData(GL3 gl, Car car) {
         shader.loadTextures(gl);
         shader.loadVars(gl);
-        angle += 0.05;
-        angle %= Math.PI * 2;
-        //System.out.println(angle);
-        shader.loadAngle(gl, angle);
-        //shader.loadAngle(gl, 0);
-        //shader.loadAngle(gl, (float) Math.PI / 2);
+        //angle += 0.05;
+        //angle %= Math.PI * 2;
+        //shader.loadAngle(gl, angle);
+        shader.loadAngle(gl, car.getSpeedAngle());
         shader.loadModelMatrix(gl, getTransformationMatrix());
         
         for (int i = 0; i < textures.length; i++) {

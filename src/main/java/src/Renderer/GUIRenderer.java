@@ -39,7 +39,7 @@ public class GUIRenderer {
         for (GUI gui : guis) {
             ShaderProgram guiShader = gui.getShader();
             guiShader.start(gl);
-            gui.loadShaderData(gl);
+            gui.loadShaderData(gl, GS.player);
             gl.glDrawArrays(GL3.GL_TRIANGLE_STRIP, 0, nrV);
             guiShader.stop(gl);
         }

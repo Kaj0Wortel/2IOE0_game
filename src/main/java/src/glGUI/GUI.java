@@ -6,6 +6,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import src.Assets.TextureImg;
+import src.Assets.instance.Car;
 import src.GS;
 import src.Shaders.ShaderProgram;
 import src.tools.MultiTool;
@@ -59,7 +60,7 @@ public abstract class GUI {
         return matrix;
     }
     
-    public abstract void loadShaderData(GL3 gl);
+    public abstract void loadShaderData(GL3 gl, Car car);
     
     public abstract ShaderProgram getShader();
     

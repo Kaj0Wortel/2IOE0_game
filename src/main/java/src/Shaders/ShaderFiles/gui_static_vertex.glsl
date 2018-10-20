@@ -49,7 +49,7 @@ void main() {
             vec2(0.1f, 0.1f),
             vec2(1.0f, 1.0f));
     
-    vec2 start = vec2(0.45, 0.975);
+    vec2 start = vec2(0.45, 0.975f);
     texNumber1 = calcTexCoordsKeepRatioAnchor(
             start + vec2(0.000f, 0),
             vec2(0.02f, 0.04f),

@@ -3,9 +3,6 @@ package src.Assets.instance;
 
 
 // Own imports
-
-import com.jogamp.opengl.GL3;
-import org.joml.Matrix4f;
 import src.Assets.GraphicsObject;
 import src.Assets.OBJTexture;
 import src.Assets.instance.ThrowingItemFactory.ItemType;
@@ -17,7 +14,10 @@ import src.Shaders.ShadowShader;
 import src.tools.PosHitBox3f;
 import src.tools.log.Logger;
 
+
 // Java imports
+import com.jogamp.opengl.GL3;
+import org.joml.Matrix4f;
 
 
 /**
@@ -120,8 +120,26 @@ public class Car
 
         super.movement(action);
     }
+    
+    /**
+     * @return the item this car has currently in it's inventory.
+     */
+    public ItemType getItem() {
+        return inventoryItem;
+    }
+    
+    /**
+     * @return the position this car is in the race, staring at 0.
+     */
+    public int getRacePosition() {
+        return 0;
+    }
+    
+    public float getSpeedAngle() {
+        return Math.min((float) Math.PI / 2, Math.abs(getState().velocity / 15));
+    }
 
-    public void setCarShaderVariables(CarShader shader, Matrix4f projectionMatrix){
+    public void setCarShaderVariables(CarShader shader, Matrix4f projectionMatrix) {
         this.carShader = shader;
         this.projectionMatrix = projectionMatrix;
     }

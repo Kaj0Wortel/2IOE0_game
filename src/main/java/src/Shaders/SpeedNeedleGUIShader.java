@@ -105,8 +105,8 @@ public class SpeedNeedleGUIShader
      * @param angle 
      */
     public void loadAngle(GL3 gl, float angle) {
-        loadUniformFloat(gl, angleSinLoc, (float) Math.sin(angle));
-        loadUniformFloat(gl, angleCosLoc, (float) Math.cos(angle));
+        loadUniformFloat(gl, angleSinLoc, (float) -Math.sin(angle));
+        loadUniformFloat(gl, angleCosLoc, (float) -Math.cos(angle));
     }
 
     @Override

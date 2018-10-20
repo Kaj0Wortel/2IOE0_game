@@ -18,11 +18,11 @@ vec2 calcTexCoordsKeepRatioAnchorRotate(vec2 pos, vec2 size, vec2 anchor,
 
 
 void main() {
-    gl_Position = transformationMatrix * vec4(position, 0.0, 1.0);
+    gl_Position = transformationMatrix * vec4(position, 0.0f, 1.0f);
     texSpeedNeedle = calcTexCoordsKeepRatioAnchorRotate(
             vec2(1.0f, 0.0f),
-            vec2(0.05f, 0.2f),
-            vec2(0.5, 0.11), sinAngle, cosAngle);
+            vec2(0.2f, 0.05f),
+            vec2(0.11f, 0.5f), sinAngle, cosAngle);
 }
 
 /**
