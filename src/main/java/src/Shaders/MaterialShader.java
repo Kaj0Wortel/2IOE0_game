@@ -70,6 +70,11 @@ public class MaterialShader
         System.out.println("Specular: " + materialSpecularLocation);
         System.out.println("Illumination: " + illuminationLocation);
     }
+    
+    @Override
+    public void loadVars(GL3 gl) {
+        
+    }
 
     @Override
     public void loadProjectionMatrix(GL3 gl, Matrix4f matrix){
@@ -86,6 +91,7 @@ public class MaterialShader
         loadUniformMatrix(gl, modelMatrixLocation, matrix);
     }
 
+    @Override
     public void loadLight(GL3 gl, Light light){
         loadUniformVector(gl, lightPositionLocation,light.getPosition());
         loadUniformVector(gl, lightColorLocation, light.getColor());
@@ -105,16 +111,26 @@ public class MaterialShader
         return true;
     }
 
+    @Override
     public void loadTextureLightValues(GL3 gl, float shininess, float reflectivity){
         loadUniformFloat(gl, shininessLocation, shininess);
         loadUniformFloat(gl, reflectivityLocation, reflectivity);
     }
 
+    @Override
     public void loadTime(GL3 gl, int time){
         loadUniformInt(gl,timeLocation,time);
     }
 
+    @Override
     public void loadCameraPos(GL3 gl, Vector3f cameraPos){
         loadUniformVector(gl, cameraPosLocation, cameraPos);
     }
+    
+    @Override
+    public void loadTextures(GL3 gl) {
+        
+    }
+    
+    
 }

@@ -6,8 +6,8 @@ import org.joml.Vector3f;
 import src.Assets.TextureImg;
 import src.GS;
 import src.Shaders.RacetrackShader;
-import src.shadows.ShadowShader;
 
+import src.Shaders.ShadowShader;
 import java.nio.IntBuffer;
 import org.joml.Matrix3f;
 

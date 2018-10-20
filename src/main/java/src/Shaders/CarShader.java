@@ -78,6 +78,11 @@ public class CarShader
         System.out.println("ShadowMap: "+ shadowMapLocation);
         System.out.println("ShadowMatrix: " + shadowMatrixLocation);
     }
+    
+    @Override
+    public void loadVars(GL3 gl) {
+        
+    }
 
     @Override
     public void loadProjectionMatrix(GL3 gl, Matrix4f matrix){
@@ -94,6 +99,7 @@ public class CarShader
         loadUniformMatrix(gl, modelMatrixLocation, matrix);
     }
 
+    @Override
     public void loadLight(GL3 gl, Light light){
         loadUniformVector(gl, lightPositionLocation,light.getPosition());
         loadUniformVector(gl, lightColorLocation, light.getColor());
@@ -121,7 +127,7 @@ public class CarShader
 
     @Override
     public void loadTime(GL3 gl, int time){
-        loadUniformInt(gl,timeLocation,time);
+        loadUniformInt(gl, timeLocation, time);
     }
 
     @Override
@@ -129,7 +135,8 @@ public class CarShader
         loadUniformVector(gl, cameraPosLocation, cameraPos);
     }
 
-    public void loadTextures(GL3 gl){
+    @Override
+    public void loadTextures(GL3 gl) {
         loadUniformInt(gl, shadowMapLocation, 0);
     }
 

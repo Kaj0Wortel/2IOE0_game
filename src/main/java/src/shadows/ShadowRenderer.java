@@ -1,5 +1,6 @@
 package src.shadows;
 
+import src.Shaders.ShadowShader;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;

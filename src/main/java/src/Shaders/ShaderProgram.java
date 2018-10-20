@@ -31,6 +31,8 @@ public abstract class ShaderProgram {
     protected abstract void bindAttributes(GL3 gl);
 
     protected abstract void getAllUniformLocations(GL3 gl);
+    
+    public abstract void loadVars(GL3 gl);
 
     public abstract void loadModelMatrix(GL3 gl, Matrix4f matrix);
 
@@ -47,6 +49,8 @@ public abstract class ShaderProgram {
     public abstract void loadLight(GL3 gl, Light light);
 
     public abstract void loadMaterial(GL3 gl, MTLObject mtl);
+    
+    public abstract void loadTextures(GL3 gl);
 
     public abstract boolean useMaterial();
 
@@ -164,7 +168,7 @@ public abstract class ShaderProgram {
     }
 
     private void logHandling(GL3 gl, int program) {
-        ByteBuffer str = Buffers.newDirectByteBuffer(100);
+        ByteBuffer str = Buffers.newDirectByteBuffer(150);
         gl.glGetProgramInfoLog(program, str.capacity(), null, str);
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < str.capacity(); i++) {

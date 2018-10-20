@@ -8,7 +8,7 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
 import org.joml.Vector3f;
-import src.Assets.GUI;
+import src.glGUI.GUI;
 import src.Assets.Light;
 import src.Assets.instance.Car;
 import src.Assets.instance.Instance;
@@ -130,7 +130,7 @@ public class GS {
     final private static List<Instance> terrain = new ArrayList<>();
     final private static List<Light> lights = new ArrayList<>();
     final private static List<Item> items = new ArrayList<>();
-    private static GUI gui = null;
+    final private static List<GUI> guis = new ArrayList<GUI>();
     
     
     /**-------------------------------------------------------------------------
@@ -582,10 +582,6 @@ public class GS {
         return lights;
     }
 
-    public static GUI getGUI(){
-        return gui;
-    }
-
     public static List<Instance> getMaterialAssets(){
         return materialAssets;
     }
@@ -606,8 +602,12 @@ public class GS {
         materialAssets.add(asset);
     }
 
-    public static void setGUI(GUI gui){
-        gui = gui;
+    public static void addGUI(GUI gui){
+        guis.add(gui);
+    }
+
+    public static List<GUI> getGUIs(){
+        return guis;
     }
     
     public static void addAsset(Instance asset){

@@ -23,7 +23,7 @@ public class TerrainRenderer {
         terrainShader.loadViewMatrix(gl, GS.camera.getViewMatrix());
         terrainShader.loadLight(gl,GS.getLights().get(0));
         terrainShader.loadCameraPos(gl, GS.camera.getPosition());
-        terrainShader.loadTexture(gl);
+        terrainShader.loadTextures(gl);
 
         for(Instance asset : GS.getTerrain()){
             terrainShader.loadTextureLightValues(gl, asset.getModel().getTextureImg().getShininess(), asset.getModel().getTextureImg().getReflectivity());

@@ -4,6 +4,7 @@ package src;
 
 // Jogamp imports
 
+import src.glGUI.GUI;
 import com.jogamp.opengl.GL3;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static src.Simulator.TYPE.*;
+import src.glGUI.StaticGUI;
 import static src.tools.io.BufferedReaderPlus.NO_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CSV;
 
@@ -177,10 +179,13 @@ public class Simulator {
 
         addLight(new Vector3f(30000f, 50000f, 1f),
                 new Vector3f(1f, 1f, 1f));
-
-        addGUI(gl, new TextureImg(gl,"test_icon.png"),
-                new Vector2f(-0.5f, -0.5f), new Vector2f(0.25f, 0.25f));
-
+        
+        // Add gui.
+        Vector2f guiPos = new Vector2f(-1f, -1f);
+        Vector2f guiSize = new Vector2f(2f, 2f);
+        new StaticGUI(gl, guiPos, guiSize);
+        
+        // Add track.
         addToGamestate(TRACK, null, new Vector3f(0,1,-5), 3, 0, 0,0, 0,
                 new TextureImg(gl,"rainbow_road.png"),
                 new TextureImg(gl, "tileNormalMap.png"), null);
@@ -329,12 +334,6 @@ public class Simulator {
         }
         
         return cubeInstance;
-    }
-
-    public void addGUI(GL3 gl, TextureImg texture, Vector2f topright, Vector2f size) {
-        GUI test = new GUI(gl, texture.getTexture(),
-                topright, size);
-        GS.setGUI(test);
     }
 
     public void addLight(Vector3f position, Vector3f color) {

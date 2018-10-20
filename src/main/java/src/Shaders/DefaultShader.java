@@ -56,6 +56,11 @@ public class DefaultShader
         System.out.println("Reflectivity: " + reflectivityLocation);
         System.out.println("CameraPos: " + cameraPosLocation);
     }
+    
+    @Override
+    public void loadVars(GL3 gl) {
+        
+    }
 
     @Override
     public void loadProjectionMatrix(GL3 gl, Matrix4f matrix){
@@ -103,4 +108,11 @@ public class DefaultShader
     public void loadCameraPos(GL3 gl, Vector3f cameraPos){
         loadUniformVector(gl, cameraPosLocation, cameraPos);
     }
+    
+    @Override
+    public void loadTextures(GL3 gl) {
+        
+    }
+    
+    
 }

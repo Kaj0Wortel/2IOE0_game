@@ -64,6 +64,11 @@ public class RacetrackShader
         System.out.println("ShadowMap: "+ shadowMapLocation);
         System.out.println("ShadowMatrix: " + shadowMatrixLocation);
     }
+    
+    @Override
+    public void loadVars(GL3 gl) {
+        
+    }
 
     @Override
     public void loadProjectionMatrix(GL3 gl, Matrix4f matrix){
@@ -80,6 +85,7 @@ public class RacetrackShader
         loadUniformMatrix(gl, modelMatrixLocation, matrix);
     }
 
+    @Override
     public void loadLight(GL3 gl, Light light){
         loadUniformVector(gl, lightPositionLocation,light.getPosition());
         loadUniformVector(gl, lightColorLocation, light.getColor());
@@ -100,14 +106,17 @@ public class RacetrackShader
         loadUniformFloat(gl, reflectivityLocation, reflectivity);
     }
 
+    @Override
     public void loadTime(GL3 gl, int time){
         loadUniformInt(gl,timeLocation,time);
     }
 
+    @Override
     public void loadCameraPos(GL3 gl, Vector3f cameraPos){
         loadUniformVector(gl, cameraPosLocation, cameraPos);
     }
 
+    @Override
     public void loadTextures(GL3 gl){
         loadUniformInt(gl, textureLocation, 0);
         loadUniformInt(gl, bumpMapLocation,1);
@@ -117,5 +126,6 @@ public class RacetrackShader
     public void loadShadowMatrix(GL3 gl, Matrix4f matrix){
         loadUniformMatrix(gl, shadowMatrixLocation, matrix);
     }
+    
 
 }

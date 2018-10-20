@@ -83,7 +83,7 @@ public class Skybox {
 
         skyBoxShader.loadProjectionMatrix(gl,projectionMatrix);
         skyBoxShader.loadViewMatrix(gl, getSkyboxViewMatrix());
-        skyBoxShader.loadTexture(gl);
+        skyBoxShader.loadTextures(gl);
 
         gl.glBindVertexArray(vao.get(0));
         gl.glEnableVertexAttribArray(0);

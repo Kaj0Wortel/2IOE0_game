@@ -37,6 +37,11 @@ public class SkyBoxShader
         System.out.println("View Matrix: " + viewMatrixLocation);
         System.out.println("TextureLocation: " + cubeMapLocation);
     }
+    
+    @Override
+    public void loadVars(GL3 gl) {
+        
+    }
 
     @Override
     public void loadModelMatrix(GL3 gl, Matrix4f matrix) {
@@ -83,7 +88,10 @@ public class SkyBoxShader
         return false;
     }
 
-    public void loadTexture(GL3 gl){
+    @Override
+    public void loadTextures(GL3 gl){
         loadUniformInt(gl, cubeMapLocation, 0);
     }
+    
+    
 }

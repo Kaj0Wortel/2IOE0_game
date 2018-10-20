@@ -13,7 +13,7 @@ import src.GS;
 import src.Physics.PStructAction;
 import src.Physics.PhysicsContext;
 import src.Shaders.CarShader;
-import src.shadows.ShadowShader;
+import src.Shaders.ShadowShader;
 import src.tools.PosHitBox3f;
 import src.tools.log.Logger;
 

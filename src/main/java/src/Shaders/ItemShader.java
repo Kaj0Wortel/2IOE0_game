@@ -59,6 +59,11 @@ public class ItemShader
         System.out.println("CameraPos: " + cameraPosLocation);
         System.out.println("TextureLocation: " + textureLocation);
     }
+    
+    @Override
+    public void loadVars(GL3 gl) {
+        
+    }
 
     @Override
     public void loadProjectionMatrix(GL3 gl, Matrix4f matrix){
@@ -97,6 +102,7 @@ public class ItemShader
         loadUniformFloat(gl, reflectivityLocation, reflectivity);
     }
 
+    @Override
     public void loadTextures(GL3 gl){
         loadUniformInt(gl, textureLocation, 0);
     }
@@ -110,4 +116,6 @@ public class ItemShader
     public void loadCameraPos(GL3 gl, Vector3f cameraPos){
         loadUniformVector(gl, cameraPosLocation, cameraPos);
     }
+    
+    
 }
