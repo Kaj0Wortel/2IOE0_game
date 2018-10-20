@@ -26,12 +26,16 @@ public class StaticGUIShader
     private int time3Loc;
     private int time4Loc;
     
+    private int curLapLoc;
+    private int maxLapLoc;
+    
     // Image locations.
     private int speedMeterLoc;
     private int itemBoxLoc;
     private int itemLoc;
     private int positionsLoc;
     private int numbersLoc;
+    private int lapLoc;
     
     
     public StaticGUIShader(GL3 gl) {
@@ -54,12 +58,15 @@ public class StaticGUIShader
         time2Loc = getUniformLocation(gl, "time2");
         time3Loc = getUniformLocation(gl, "time3");
         time4Loc = getUniformLocation(gl, "time4");
+        curLapLoc = getUniformLocation(gl, "curLap");
+        maxLapLoc = getUniformLocation(gl, "maxLap");
         
         speedMeterLoc = getUniformLocation(gl, "speedMeter");
         itemBoxLoc = getUniformLocation(gl, "itemBox");
         itemLoc = getUniformLocation(gl, "item");
         positionsLoc = getUniformLocation(gl, "positions");
         numbersLoc = getUniformLocation(gl, "numbers");
+        lapLoc = getUniformLocation(gl, "lap");
         
         // Variable locations.
         System.out.println("Transformation Matrix: " + transformationMatrixLoc);
@@ -70,6 +77,8 @@ public class StaticGUIShader
         System.out.println("time2Loc: " + time2Loc);
         System.out.println("time3Loc: " + time3Loc);
         System.out.println("time4Loc: " + time4Loc);
+        System.out.println("curLapLoc: " + curLapLoc);
+        System.out.println("maxLapLoc: " + maxLapLoc);
         
         // Image locations.
         System.out.println("speedMeterLoc: " + speedMeterLoc);
@@ -77,6 +86,7 @@ public class StaticGUIShader
         System.out.println("itemLoc: " + itemLoc);
         System.out.println("positionsLoc: " + positionsLoc);
         System.out.println("numbersLoc: " + numbersLoc);
+        System.out.println("lapLoc: " + lapLoc);
     }
     
     @Override
@@ -91,6 +101,11 @@ public class StaticGUIShader
     
     public void loadPositionNum(GL3 gl, int num) {
         loadUniformInt(gl, positionNumLoc, num);
+    }
+    
+    public void loadLapData(GL3 gl, int curLap, int maxLaps) {
+        loadUniformInt(gl, curLapLoc, curLap);
+        loadUniformInt(gl, maxLapLoc, maxLaps);
     }
     
     @Override
@@ -150,6 +165,7 @@ public class StaticGUIShader
         loadUniformInt(gl, itemLoc, 2);
         loadUniformInt(gl, positionsLoc, 3);
         loadUniformInt(gl, numbersLoc, 4);
+        loadUniformInt(gl, lapLoc, 5);
     }
     
     

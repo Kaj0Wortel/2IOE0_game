@@ -19,6 +19,10 @@ out vec2 texColon;
 out vec2 texNumber3;
 out vec2 texNumber4;
 
+out vec2 texLap;
+out vec2 texCurLap;
+out vec2 texMaxLap;
+
 
 // Functions
 vec2 calcTexCoords(vec2 pos, vec2 size);
@@ -45,13 +49,13 @@ void main() {
             vec2(0.0f, 1.0f));
     
     texPosition = calcTexCoordsKeepRatioAnchor(
-            vec2(1.0f, 1.0f),
+            vec2(1.0f, 0.85f),
             vec2(0.1f, 0.1f),
             vec2(1.0f, 1.0f));
     
     vec2 start = vec2(0.45, 0.975f);
     texNumber1 = calcTexCoordsKeepRatioAnchor(
-            start + vec2(0.000f, 0),
+            start,
             vec2(0.02f, 0.04f),
             vec2(0.0f, 1.0f));
     texNumber2 = calcTexCoordsKeepRatioAnchor(
@@ -70,6 +74,20 @@ void main() {
             start + vec2(0.100f, 0),
             vec2(0.02f, 0.04f),
             vec2(0.0f, 1.0f));
+    
+    start = vec2(0.99f, 0.98f);
+    texLap = calcTexCoordsKeepRatioAnchor(
+            start,
+            vec2(0.12f, 0.051f),
+            vec2(1.0f, 1.0f));
+    texCurLap = calcTexCoordsKeepRatioAnchor(
+            start + vec2(-0.045f, -0.01f),
+            vec2(0.02f, 0.04f),
+            vec2(1.0f, 1.0f));
+    texMaxLap = calcTexCoordsKeepRatioAnchor(
+            start + vec2(0, -0.01f),
+            vec2(0.02f, 0.04f),
+            vec2(1.0f, 1.0f));
 }
 
 /**

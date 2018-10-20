@@ -12,7 +12,7 @@ import org.joml.Vector3f;
 public class ProgressManager
         implements Cloneable {
     public int checkPoint = 1;
-    private int lap = 1;
+    public int lap = 1;
     public boolean finished = false;
     public int cpAm = 16; // modifiable
     public int lapTotal = 3; // modifiable

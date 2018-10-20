@@ -28,6 +28,13 @@ in vec2 texColon;
 in vec2 texNumber3;
 in vec2 texNumber4;
 
+uniform sampler2D lap;
+uniform int curLap;
+uniform int maxLap;
+in vec2 texLap;
+in vec2 texCurLap;
+in vec2 texMaxLap;
+
 
 // Constants and variables.
 // Number sheet
@@ -71,7 +78,12 @@ void main() {
     color += getNumColor(numbers, texColon, 10);
     color += getNumColor(numbers, texNumber3, time3);
     color += getNumColor(numbers, texNumber4, time4);
+    
+    color += getColor(lap, texLap);
+    color = addColor(color, getNumColor(numbers, texCurLap, curLap));
+    color = addColor(color, getNumColor(numbers, texMaxLap, maxLap));
 }
+
 
 vec4 getColor(sampler2D img, vec2 tex) {
     if (tex.x <= 0 || tex.x > 1 ||

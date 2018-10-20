@@ -7,6 +7,7 @@ import src.Assets.TextureImg;
 import src.Assets.instance.Car;
 import src.Assets.instance.ThrowingItemFactory.ItemType;
 import src.GS;
+import src.Progress.ProgressManager;
 import src.Shaders.ShaderProgram;
 import src.Shaders.StaticGUIShader;
 
@@ -31,7 +32,8 @@ public class StaticGUI
                 new TextureImg(gl, "test_border.png"),
                 new TextureImg(gl, "items.png"),
                 new TextureImg(gl, "positions.png"),
-                new TextureImg(gl, "numbers2.png")
+                new TextureImg(gl, "numbers2.png"),
+                new TextureImg(gl, "lap.png")
         );
         
         shader = new StaticGUIShader(gl);
@@ -43,6 +45,8 @@ public class StaticGUI
         shader.loadVars(gl);
         shader.loadTime(gl, (int) (GS.time / 1000L));
         shader.loadModelMatrix(gl, getTransformationMatrix());
+        ProgressManager pm = car.getProgressManager();
+        shader.loadLapData(gl, Math.min(pm.lap, pm.lapTotal), pm.lapTotal);
         ItemType item = car.getItem();
         shader.loadItemNum(gl, (item == null ? 0 : item.ordinal() + 1));
         shader.loadPositionNum(gl, car.getRacePosition());
