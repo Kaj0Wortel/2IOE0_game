@@ -7,9 +7,15 @@ uniform float screenRatio;
 
 // Texture output.
 out vec2 texSpeedMeter;
+
 out vec2 texItemBox;
+out vec2 texItem;
+
+out vec2 texPosition;
+
 out vec2 texNumber1;
 out vec2 texNumber2;
+out vec2 texColon;
 out vec2 texNumber3;
 out vec2 texNumber4;
 
@@ -18,58 +24,52 @@ out vec2 texNumber4;
 vec2 calcTexCoords(vec2 pos, vec2 size);
 vec2 calcTexCoordsKeepRatioTop(vec2 pos, vec2 size);
 vec2 calcTexCoordsKeepRatioBottom(vec2 pos, vec2 size);
-vec2 calcTexCoordsKeepRatioAnchorY(vec2 pos, vec2 size, float yAnchor);
+vec2 calcTexCoordsKeepRatioAnchor(vec2 pos, vec2 size, vec2 anchor);
 
 
 void main() {
     gl_Position = transformationMatrix * vec4(position, 0.0, 1.0);
     
-    texItemBox = calcTexCoordsKeepRatioAnchorY(
-            vec2(0.9f, 1.0f),
-            vec2(0.1f, 0.1f), 1.0f);
-    texSpeedMeter = calcTexCoordsKeepRatioAnchorY(
+    texSpeedMeter = calcTexCoordsKeepRatioAnchor(
             vec2(0.8f, 0.0f),
-            vec2(0.4f, 0.4f), 0.5f);
+            vec2(0.4f, 0.4f),
+            vec2(0.0f, 0.5f));
     
-    texNumber1 = calcTexCoordsKeepRatioAnchorY(
-            vec2(0.4f, 0.975f),
-            vec2(0.02f, 0.04f), 1.0f);
-    texNumber2 = calcTexCoordsKeepRatioAnchorY(
-            vec2(0.425f, 0.975f),
-            vec2(0.02f, 0.04f), 1.0f);
-    texNumber3 = calcTexCoordsKeepRatioAnchorY(
-            vec2(0.45f, 0.975f),
-            vec2(0.02f, 0.04f), 1.0f);
-    texNumber4 = calcTexCoordsKeepRatioAnchorY(
-            vec2(0.475f, 0.975f),
-            vec2(0.02f, 0.04f), 1.0f);
-}
-
-
-vec2 calcTexCoords(vec2 pos, vec2 size) {
-    return (position - pos) / size;
-}
-
-/**
- *  Old funcion.
- * Equivalent to:
- * {@code calcTexCoordsKeepRatioAnchorY(pos, size, 1.0f)}
- */
-vec2 calcTexCoordsKeepRatioTop(vec2 pos, vec2 size) {
-    vec2 p = vec2(position.x - pos.x,
-            position.y - (pos.y + size.y * (1 - screenRatio)));
-    return vec2(p.x / size.x, p.y / (size.y * screenRatio));
-}
-
-/**
- *  Old funcion.
- * Equivalent to:
- * {@code calcTexCoordsKeepRatioAnchorY(pos, size, 0.0f)}
- */
-vec2 calcTexCoordsKeepRatioBottom(vec2 pos, vec2 size) {
-    vec2 p = vec2(position.x - pos.x,
-            position.y - pos.y);
-    return vec2(p.x / size.x, p.y / (size.y * screenRatio));
+    texItemBox = calcTexCoordsKeepRatioAnchor(
+            vec2(0.0f, 1.0f),
+            vec2(0.1f, 0.1f),
+            vec2(0.0f, 1.0f));
+    texItem = calcTexCoordsKeepRatioAnchor(
+            vec2(0.0f, 1.0f),
+            vec2(0.1f, 0.1f),
+            vec2(0.0f, 1.0f));
+    
+    texPosition = calcTexCoordsKeepRatioAnchor(
+            vec2(1.0f, 1.0f),
+            vec2(0.1f, 0.1f),
+            vec2(1.0f, 1.0f));
+    
+    vec2 start = vec2(0.45, 0.975);
+    texNumber1 = calcTexCoordsKeepRatioAnchor(
+            start + vec2(0.000f, 0),
+            vec2(0.02f, 0.04f),
+            vec2(0.0f, 1.0f));
+    texNumber2 = calcTexCoordsKeepRatioAnchor(
+            start + vec2(0.025f, 0),
+            vec2(0.02f, 0.04f),
+            vec2(0.0f, 1.0f));
+    texColon = calcTexCoordsKeepRatioAnchor(
+            start + vec2(0.050f, 0),
+            vec2(0.02f, 0.04f),
+            vec2(0.0f, 1.0f));
+    texNumber3 = calcTexCoordsKeepRatioAnchor(
+            start + vec2(0.075f, 0),
+            vec2(0.02f, 0.04f),
+            vec2(0.0f, 1.0f));
+    texNumber4 = calcTexCoordsKeepRatioAnchor(
+            start + vec2(0.100f, 0),
+            vec2(0.02f, 0.04f),
+            vec2(0.0f, 1.0f));
 }
 
 /**
@@ -80,15 +80,12 @@ vec2 calcTexCoordsKeepRatioBottom(vec2 pos, vec2 size) {
  * @param pos the position of the image, lower-left corner is (0, 0),
  *     upper-right corner is (1, 1).
  * @param size the size of the image.
- * @param yAnchor the anchor of the image on the y axis.
- * 
- * Note that the image is only scale in the y-axis.
+ * @param anchor the anchor of the image.
  */
-vec2 calcTexCoordsKeepRatioAnchorY(vec2 pos, vec2 size, float yAnchor) {
-    vec2 dim = vec2(size.x, size.y * screenRatio);
-    vec2 p = vec2(position.x - pos.x,
-            (position.y - (pos.y - yAnchor*dim.y)));
-    return vec2(p.x / dim.x, p.y / dim.y);
+vec2 calcTexCoordsKeepRatioAnchor(vec2 pos, vec2 size, vec2 anchor) {
+    vec2 dim = vec2(size.x, size.y);
+    vec2 scaleWindow = vec2(1, screenRatio);
+    
+    return ((position - pos) / scaleWindow) / dim + anchor;
 }
-
 

@@ -13,13 +13,13 @@ out vec2 texSpeedNeedle;
 
 
 // Functions
-vec2 calcTexCoordsKeepRatioAnchor(vec2 pos, vec2 size, vec2 anchor,
+vec2 calcTexCoordsKeepRatioAnchorRotate(vec2 pos, vec2 size, vec2 anchor,
             float sinAngle, float cosAngle);
 
 
 void main() {
     gl_Position = transformationMatrix * vec4(position, 0.0, 1.0);
-    texSpeedNeedle = calcTexCoordsKeepRatioAnchor(
+    texSpeedNeedle = calcTexCoordsKeepRatioAnchorRotate(
             vec2(1.0f, 0.0f),
             vec2(0.05f, 0.2f),
             vec2(0.5, 0.11), sinAngle, cosAngle);
@@ -36,10 +36,8 @@ void main() {
  * @param anchor the anchor of the image.
  * @param sinAngle the sinus of the angle to rotate over.
  * @param cosAngle the cosine of the angle to rotate over.
- * 
- * Note that the image is only scale in the y-axis.
  */
-vec2 calcTexCoordsKeepRatioAnchor(vec2 pos, vec2 size, vec2 anchor,
+vec2 calcTexCoordsKeepRatioAnchorRotate(vec2 pos, vec2 size, vec2 anchor,
             float sinAngle, float cosAngle) {
     vec2 dim = vec2(size.x, size.y);
     mat2 rotMat = mat2(cosAngle, sinAngle, -sinAngle, cosAngle);

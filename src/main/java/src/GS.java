@@ -53,6 +53,7 @@ import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 // JInput imports
 import net.java.games.input.ContrlEnv;
 import net.java.games.input.ControllerEnvironment;
+import src.tools.update.Updateable;
 
 
 /**
@@ -132,6 +133,36 @@ public class GS {
     final private static List<Item> items = new ArrayList<>();
     final private static List<GUI> guis = new ArrayList<GUI>();
     
+    final private static Counter counter = new Counter();
+    private static class Counter
+            implements Updateable {
+        
+        private long prevTimeStamp = 0;
+        
+        @Override
+        public void performUpdate(long timeStamp)
+                throws InterruptedException {
+            long dt = timeStamp - prevTimeStamp;
+            if (dt > 0 && dt < 100) {
+                time += dt;
+            }
+            prevTimeStamp = timeStamp;
+        }
+        
+        @Override
+        public void ignoreUpdate(long timeStamp)
+                throws InterruptedException {
+            prevTimeStamp = timeStamp;
+        }
+        
+        @Override
+        public Priority getPriority() {
+            return Priority.ONLY_WHEN_RUNNING;
+        }
+        
+        
+    }
+    
     
     /**-------------------------------------------------------------------------
      * Variables.
@@ -153,6 +184,7 @@ public class GS {
     private static FPSAnimator animator;
     private static Track raceTrack;
     private static Skybox skybox;
+    public static long time;
     
     public static List<Car> cars = new ArrayList<>();
     public static Car player;
@@ -246,6 +278,7 @@ public class GS {
         renderer.cleanup();
         
         Updater.start();
+        Updater.addTask(counter);
     }
     
     /**

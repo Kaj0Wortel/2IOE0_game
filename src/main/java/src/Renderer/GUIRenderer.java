@@ -3,7 +3,6 @@ package src.Renderer;
 import com.jogamp.opengl.GL3;
 import src.glGUI.GUI;
 import src.GS;
-import src.Shaders.StaticGUIShader;
 import src.tools.Binder;
 
 import java.nio.IntBuffer;

@@ -15,18 +15,24 @@ public class StaticGUIShader
     // Handy file paths.
     final private static String VERTEX = GS.SHADER_DIR + "gui_static_vertex.glsl";
     final private static String FRAGMENT = GS.SHADER_DIR + "gui_static_fragment.glsl";
-
+    
+    // Variable locations.
     private int transformationMatrixLoc;
     private int screenRatioLoc;
+    private int itemNumLoc;
+    private int positionNumLoc;
     private int time1Loc;
     private int time2Loc;
     private int time3Loc;
     private int time4Loc;
     
+    // Image locations.
     private int speedMeterLoc;
     private int itemBoxLoc;
+    private int itemLoc;
+    private int positionsLoc;
     private int numbersLoc;
-
+    
     
     public StaticGUIShader(GL3 gl) {
         super(gl, VERTEX, FRAGMENT);
@@ -42,6 +48,8 @@ public class StaticGUIShader
     protected void getAllUniformLocations(GL3 gl) {
         transformationMatrixLoc = getUniformLocation(gl, "transformationMatrix");
         screenRatioLoc = getUniformLocation(gl, "screenRatio");
+        itemNumLoc = getUniformLocation(gl, "itemNum");
+        positionNumLoc = getUniformLocation(gl, "positionNum");
         time1Loc = getUniformLocation(gl, "time1");
         time2Loc = getUniformLocation(gl, "time2");
         time3Loc = getUniformLocation(gl, "time3");
@@ -49,17 +57,25 @@ public class StaticGUIShader
         
         speedMeterLoc = getUniformLocation(gl, "speedMeter");
         itemBoxLoc = getUniformLocation(gl, "itemBox");
+        itemLoc = getUniformLocation(gl, "item");
+        positionsLoc = getUniformLocation(gl, "positions");
         numbersLoc = getUniformLocation(gl, "numbers");
         
+        // Variable locations.
         System.out.println("Transformation Matrix: " + transformationMatrixLoc);
         System.out.println("screenRatioLoc: " + screenRatioLoc);
+        System.out.println("itemNumLoc: " + itemNumLoc);
+        System.out.println("positionNumPos: " + positionNumLoc);
         System.out.println("time1Loc: " + time1Loc);
         System.out.println("time2Loc: " + time2Loc);
         System.out.println("time3Loc: " + time3Loc);
         System.out.println("time4Loc: " + time4Loc);
         
+        // Image locations.
         System.out.println("speedMeterLoc: " + speedMeterLoc);
         System.out.println("itemBoxLoc: " + itemBoxLoc);
+        System.out.println("itemLoc: " + itemLoc);
+        System.out.println("positionsLoc: " + positionsLoc);
         System.out.println("numbersLoc: " + numbersLoc);
     }
     
@@ -68,7 +84,15 @@ public class StaticGUIShader
         float ratio = ((float) GS.canvas.getWidth()) / GS.canvas.getHeight();
         loadUniformFloat(gl, screenRatioLoc, ratio);
     }
-
+    
+    public void loadItemNum(GL3 gl, int num) {
+        loadUniformInt(gl, itemNumLoc, num);
+    }
+    
+    public void loadPositionNum(GL3 gl, int num) {
+        loadUniformInt(gl, positionNumLoc, num);
+    }
+    
     @Override
     public void loadModelMatrix(GL3 gl, Matrix4f matrix) {
         loadUniformMatrix(gl, transformationMatrixLoc, matrix);
@@ -123,7 +147,9 @@ public class StaticGUIShader
     public void loadTextures(GL3 gl) {
         loadUniformInt(gl, speedMeterLoc, 0);
         loadUniformInt(gl, itemBoxLoc, 1);
-        loadUniformInt(gl, numbersLoc, 2);
+        loadUniformInt(gl, itemLoc, 2);
+        loadUniformInt(gl, positionsLoc, 3);
+        loadUniformInt(gl, numbersLoc, 4);
     }
     
     
