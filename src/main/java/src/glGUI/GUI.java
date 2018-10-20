@@ -7,6 +7,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import src.Assets.TextureImg;
 import src.GS;
+import src.Shaders.ShaderProgram;
 import src.tools.MultiTool;
 
 
@@ -57,6 +58,10 @@ public abstract class GUI {
         matrix.scale(size.x, size.y, 1.0f);
         return matrix;
     }
+    
+    public abstract void loadShaderData(GL3 gl);
+    
+    public abstract ShaderProgram getShader();
     
     
 }

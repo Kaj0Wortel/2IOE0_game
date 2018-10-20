@@ -4,7 +4,6 @@ package src;
 
 // Jogamp imports
 
-import src.glGUI.GUI;
 import com.jogamp.opengl.GL3;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -25,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static src.Simulator.TYPE.*;
+import src.glGUI.SpeedNeedleGUI;
 import src.glGUI.StaticGUI;
 import static src.tools.io.BufferedReaderPlus.NO_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CSV;
@@ -180,10 +180,11 @@ public class Simulator {
         addLight(new Vector3f(30000f, 50000f, 1f),
                 new Vector3f(1f, 1f, 1f));
         
-        // Add gui.
+        // Add GUIs (in this exact order!)
         Vector2f guiPos = new Vector2f(-1f, -1f);
         Vector2f guiSize = new Vector2f(2f, 2f);
         new StaticGUI(gl, guiPos, guiSize);
+        new SpeedNeedleGUI(gl, guiPos, guiSize);
         
         // Add track.
         addToGamestate(TRACK, null, new Vector3f(0,1,-5), 3, 0, 0,0, 0,

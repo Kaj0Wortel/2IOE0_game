@@ -2,7 +2,7 @@
 
 layout(location = 0) out vec4 color;
 
-// Images
+// Images and texture coords.
 uniform sampler2D speedMeter;
 in vec2 texSpeedMeter;
 
@@ -20,10 +20,11 @@ in vec2 texNumber3;
 in vec2 texNumber4;
 
 
-// Functions
+// Functions.
 vec4 getColor(sampler2D img, vec2 tex);
 vec4 getNumColor(sampler2D img, vec2 tex, int num);
 
+// Constants and variables.
 #define NUMBER_WIDTH 25.0f
 #define NUMBER_SHEET_WIDTH 256
 
@@ -50,8 +51,8 @@ vec4 getColor(sampler2D img, vec2 tex) {
 }
 
 vec4 getNumColor(sampler2D img, vec2 tex, int num) {
-    if (tex.x <= 0 || tex.x > 1 ||
-            tex.y <= 0 || tex.y > 1) {
+    if (tex.x <= 0 || tex.x >= 1 ||
+            tex.y <= 0 || tex.y >= 1) {
         return vec4(0, 0, 0, 0);
     } else {
         return texture(img, vec2((tex.x + num) * numberFactor, tex.y));
