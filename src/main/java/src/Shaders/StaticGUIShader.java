@@ -91,9 +91,11 @@ public class StaticGUIShader
 
     @Override
     public void loadTime(GL3 gl, int time) {
-        loadUniformInt(gl, time1Loc, (time % 10000) / 1000);
-        loadUniformInt(gl, time2Loc, (time % 1000) / 100);
-        loadUniformInt(gl, time3Loc, (time % 100) / 10);
+        // Minutes.
+        loadUniformInt(gl, time1Loc, (time / 600) % 6 );
+        loadUniformInt(gl, time2Loc, (time / 60 ) % 10);
+        // Seconds.
+        loadUniformInt(gl, time3Loc, (time / 10) % 6);
         loadUniformInt(gl, time4Loc, time % 10);
     }
 
