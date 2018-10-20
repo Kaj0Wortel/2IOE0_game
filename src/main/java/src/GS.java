@@ -41,6 +41,7 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.LogManager;
 
 import javax.swing.JLayeredPane;
@@ -120,18 +121,17 @@ public class GS {
     final public static String OBJ_DIR = RESOURCE_DIR + "obj" + FS;
     final public static String TEX_DIR = RESOURCE_DIR + "textures" + FS;
     
-    
     /** Image constants. */
     final public static String FRAME_ICON = "FRAME_ICON";
     final public static String ASTROID_POSITIONS = DATA_DIR + "astroidPositions.csv";
     
     /** Assets and camera. */
-    final private static List<Instance> assets = new ArrayList<>();
-    final private static List<Instance> materialAssets = new ArrayList();
-    final private static List<Instance> terrain = new ArrayList<>();
-    final private static List<Light> lights = new ArrayList<>();
-    final private static List<Item> items = new ArrayList<>();
-    final private static List<GUI> guis = new ArrayList<GUI>();
+    final private static List<Instance> assets = new CopyOnWriteArrayList<>();
+    final private static List<Instance> materialAssets = new CopyOnWriteArrayList();
+    final private static List<Instance> terrain = new CopyOnWriteArrayList<>();
+    final private static List<Light> lights = new CopyOnWriteArrayList<>();
+    final private static List<Item> items = new CopyOnWriteArrayList<>();
+    final private static List<GUI> guis = new CopyOnWriteArrayList<>();
     
     final private static Counter counter = new Counter();
     private static class Counter
@@ -186,7 +186,7 @@ public class GS {
     private static Skybox skybox;
     public static long time;
     
-    public static List<Car> cars = new ArrayList<>();
+    public static List<Car> cars = new CopyOnWriteArrayList<>();
     public static Car player;
     
     public static int WIDTH = 1080;
@@ -603,19 +603,19 @@ public class GS {
         Logger.write("");
     }
     
-    public static List<Instance> getAssets(){
+    public static List<Instance> getAssets() {
         return assets;
     }
 
-    public static List<Instance> getTerrain(){
+    public static List<Instance> getTerrain() {
         return terrain;
     }
 
-    public static List<Light> getLights(){
+    public static List<Light> getLights() {
         return lights;
     }
 
-    public static List<Instance> getMaterialAssets(){
+    public static List<Instance> getMaterialAssets() {
         return materialAssets;
     }
 
@@ -623,7 +623,7 @@ public class GS {
         return items;
     }
 
-    public static void addItem(Item item){
+    public static void addItem(Item item) {
         items.add(item);
     }
     
@@ -635,23 +635,23 @@ public class GS {
         materialAssets.add(asset);
     }
 
-    public static void addGUI(GUI gui){
+    public static void addGUI(GUI gui) {
         guis.add(gui);
     }
 
-    public static List<GUI> getGUIs(){
+    public static List<GUI> getGUIs() {
         return guis;
     }
     
-    public static void addAsset(Instance asset){
+    public static void addAsset(Instance asset) {
         assets.add(asset);
     }
 
-    public static void addTerrain(Instance asset){
+    public static void addTerrain(Instance asset) {
         terrain.add(asset);
     }
 
-    public static void addLight(Light light){
+    public static void addLight(Light light) {
         lights.add(light);
     }
 
@@ -672,11 +672,11 @@ public class GS {
         raceTrack = track;
     }
 
-    public static void setSkybox(Skybox box){
+    public static void setSkybox(Skybox box) {
         skybox = box;
     }
 
-    public static Skybox getSkybox(){
+    public static Skybox getSkybox() {
         return skybox;
     }
     
