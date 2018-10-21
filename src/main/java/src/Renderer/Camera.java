@@ -239,64 +239,78 @@ public class Camera
     }
     
     public void calculateInstanceValues() {
-        rubberBand();
-        speedFOV();
-        State state = focusedOn.getState();
-        float angle = state.roty + angleAroundAsset;
-        float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
-        float verDistance = (float) (distanceToAsset * Math.sin(Math.toRadians(pitch)));
-        float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
-        float z = (float) (horDistance * Math.cos(Math.toRadians(angle)));
-        
-        if (GS.getCameraMode() == GS.CameraMode.DEFAULT) {
-            position.x = state.box.pos().x + x;
-            position.y = state.box.pos().y + verDistance;
-            position.z = state.box.pos().z + z;
-            this.yaw = -(state.roty + angleAroundAsset);
+        lock.lock();
+        try {
+            rubberBand();
+            speedFOV();
+            State state = focusedOn.getState();
+            float angle = state.roty + angleAroundAsset;
             
-        } else if (GS.getCameraMode() == GS.CameraMode.FIRST_PERSON) {
-            this.pitch = -state.rotx;
-            this.yaw = -(state.roty + angleAroundAsset);
-            this.roll = state.rotz;
+            if (GS.getCameraMode() == GS.CameraMode.DEFAULT) {
+                float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
+                float verDistance = (float) (distanceToAsset * Math.sin(Math.toRadians(pitch)));
+                float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
+                float z = (float) (horDistance * Math.cos(Math.toRadians(angle)));
+                
+                position.x = state.box.pos().x + x;
+                position.y = state.box.pos().y + verDistance;
+                position.z = state.box.pos().z + z;
+                this.yaw = -(state.roty + angleAroundAsset);
+                
+            } else if (GS.getCameraMode() == GS.CameraMode.FIRST_PERSON) {
+                this.pitch = -state.rotx;
+                this.yaw = -(state.roty + angleAroundAsset);
+                this.roll = state.rotz;
+                
+                float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
+                float verDistance = (float) Math.abs(distanceToAsset * Math.sin(Math.toRadians(pitch)));
+                float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
+                float z = (float) (horDistance * Math.cos(Math.toRadians(angle)));
+                
+                position.x = state.box.pos().x - x * 0.25f;
+                position.y = state.box.pos().y + 3f + verDistance * 0.25f;
+                position.z = state.box.pos().z - z * 0.25f;
+                
+            } else if (GS.getCameraMode() == GS.CameraMode.BACK) {
+                float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
+                float verDistance = (float) (distanceToAsset * Math.sin(Math.toRadians(pitch)));
+                float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
+                float z = (float) (horDistance * Math.cos(Math.toRadians(angle)));
+                
+                position.x = state.box.pos().x - x;
+                position.y = state.box.pos().y + verDistance;
+                position.z = state.box.pos().z - z;
+                this.yaw = -(state.roty + angleAroundAsset) + 180;
+                
+            } else {
+                Logger.write("Unknown camera mode: " + GS.getCameraMode(),
+                        Logger.Type.ERROR);
+                System.exit(-1);
+            }
+            this.yaw %= 360;
             
-            horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
-            verDistance = (float) Math.abs(distanceToAsset * Math.sin(Math.toRadians(pitch)));
-            x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
-            z = (float) (horDistance * Math.cos(Math.toRadians(angle)));
-            
-            position.x = state.box.pos().x - x * 0.25f;
-            position.y = state.box.pos().y + 3f + verDistance * 0.25f;
-            position.z = state.box.pos().z - z * 0.25f;
-            
-        } else if (GS.getCameraMode() == GS.CameraMode.BACK) {
-            position.x = state.box.pos().x - x;
-            position.y = state.box.pos().y + verDistance;
-            position.z = state.box.pos().z - z;
-            this.yaw = -(state.roty + angleAroundAsset) + 180;
-            
-        } else {
-            Logger.write("Unknown camera mode: " + GS.getCameraMode(),
-                    Logger.Type.ERROR);
-            System.exit(-1);
+        } finally {
+            lock.unlock();
         }
-        this.yaw %= 360;
-
     }
 
     public Matrix4f getViewMatrixInverse() {
-        Matrix4f viewMatrixRotation = new Matrix4f();
-        viewMatrixRotation.rotate((float) Math.toRadians(yaw), new Vector3f(0, 1, 0));
-        viewMatrixRotation.rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0));
-        viewMatrixRotation.rotate((float) Math.toRadians(roll), new Vector3f(0, 0, 1));
-        viewMatrixRotation.transpose();
+        lock.lock();
+        try {
+            Matrix4f viewMatrixRotation = new Matrix4f()
+                    .rotate((float) Math.toRadians(yaw), new Vector3f(0, 1, 0))
+                    .rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0))
+                    .rotate((float) Math.toRadians(roll), new Vector3f(0, 0, 1))
+                    .transpose();
 
-        Matrix4f viewMatrixTranslation = new Matrix4f();
-        viewMatrixTranslation.translate(position);
+            Matrix4f viewMatrixTranslation = new Matrix4f()
+                    .translate(position);
 
-        Matrix4f result = new Matrix4f();
-        viewMatrixTranslation.mul(viewMatrixRotation, result);
-
-        return result;
+            return viewMatrixTranslation.mul(viewMatrixRotation);
+            
+        } finally {
+            lock.unlock();
+        }
     }
     
     @Override

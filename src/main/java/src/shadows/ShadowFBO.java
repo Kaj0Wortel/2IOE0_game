@@ -36,7 +36,7 @@ public class ShadowFBO {
     private void generateDepthAttachment(GL3 gl) {
         depthAttachment = Buffers.newDirectIntBuffer(1);
         gl.glGenTextures(1, depthAttachment);
-        gl.glBindTexture(GL3.GL_TEXTURE_2D,depthAttachment.get(0));
+        gl.glBindTexture(GL3.GL_TEXTURE_2D, depthAttachment.get(0));
         gl.glTexImage2D(GL3.GL_TEXTURE_2D, 0, GL3.GL_DEPTH_COMPONENT16,
                 width, height, 0,
                 GL3.GL_DEPTH_COMPONENT, GL3.GL_FLOAT, null);
@@ -46,7 +46,7 @@ public class ShadowFBO {
         gl.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_T, GL3.GL_CLAMP_TO_EDGE);
         gl.glFramebufferTexture(GL3.GL_FRAMEBUFFER, GL3.GL_DEPTH_ATTACHMENT,
                 depthAttachment.get(0), 0);
-        gl.glEnable(GL3.GL_TEXTURE_2D);
+        //gl.glEnable(GL3.GL_TEXTURE_2D);
     }
     
     public void bindFrameBuffer(GL3 gl) {
