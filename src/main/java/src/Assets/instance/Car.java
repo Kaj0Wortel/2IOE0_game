@@ -17,6 +17,7 @@ import src.tools.log.Logger;
 
 // Java imports
 import com.jogamp.opengl.GL3;
+import java.util.Comparator;
 import org.joml.Matrix4f;
 
 
@@ -30,6 +31,14 @@ public class Car
     private CarShader carShader;
     private Matrix4f projectionMatrix;
     private int shadowMap;
+    
+    /**
+     * Comparator for comparing the progress of two cars.
+     */
+    public static Comparator<Car> progressComparator = (Car c1, Car c2) -> {
+        return c1.progress.compareTo(c2.progress);
+    };
+    
 
     public Car(PosHitBox3f box, float size,
                float rotx, float roty, float rotz,
@@ -130,8 +139,19 @@ public class Car
     
     /**
      * @return the position this car is in the race, staring at 0.
+     * 
+     * Here we use a non-optimized approach, but still in O(n).
      */
     public int getRacePosition() {
+        GS.cars.sort(progressComparator);
+        int num = 0;
+        for (Car car : GS.cars) {
+            if (car == this) {
+                return num;
+            }
+            num++;
+        }
+        
         return 0;
     }
     

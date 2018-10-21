@@ -132,6 +132,7 @@ public class GS {
     final private static List<Light> lights = new CopyOnWriteArrayList<>();
     final private static List<Item> items = new CopyOnWriteArrayList<>();
     final private static List<GUI> guis = new CopyOnWriteArrayList<>();
+    final public static List<Car> cars = new CopyOnWriteArrayList<>();
     
     final private static Counter counter = new Counter();
     private static class Counter
@@ -186,7 +187,6 @@ public class GS {
     private static Skybox skybox;
     public static long time;
     
-    public static List<Car> cars = new CopyOnWriteArrayList<>();
     public static Car player;
     
     public static int WIDTH = 1080;
