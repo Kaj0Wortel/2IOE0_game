@@ -21,7 +21,12 @@ public class VisualAStar
     
     //final static private Rectangle SIZE = new Rectangle(-130, -300, 460, 460);
     //final static private Rectangle SIZE = new Rectangle(-25, -25, 50, 50);
+    // Full track
     final static private Rectangle SIZE = new Rectangle(-1200, -750, 1300, 1300);
+    // Difficult corners
+    //final static private Rectangle SIZE = new Rectangle(-1200, -150, 700, 700);
+    //final static private Rectangle SIZE = new Rectangle(-700, -350, 900, 900);
+    
     final private int IMG_SIZE = 5000;
     final private int CIRCLE_SIZE = 50;//20
     final private Color BACK = Color.BLACK;
