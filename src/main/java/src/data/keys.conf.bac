@@ -45,6 +45,9 @@ src.tools.event.keyAction.PlayerKeyAction=1,JUMP
 src.tools.event.ControllerKey=true,Keyboard,E,1.0
 src.tools.event.keyAction.PlayerKeyAction=1,THROW_ITEM
 
+src.tools.event.ControllerKey=true,Keyboard,F,1.0
+src.tools.event.keyAction.PlayerKeyAction=1,CHANGE_CAM
+
 # Player 2 movement.
 src.tools.event.ControllerKey=true,Keyboard,J,1.0
 src.tools.event.keyAction.PlayerKeyAction=2,LEFT

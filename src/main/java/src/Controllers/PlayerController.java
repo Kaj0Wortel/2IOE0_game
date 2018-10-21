@@ -11,10 +11,10 @@ import src.tools.event.keyAction.action.PlayerMovementAction;
 
 public class PlayerController
         extends Controller<Car> {
-
-    Instance player;
     
     final private PlayerKeyAction[] playerActions;
+    
+    private boolean prevCamChanged = false;
 
     public PlayerController(Car player, int id) {
         super(player);
@@ -32,6 +32,7 @@ public class PlayerController
         float acc = 0;
         float vertV = 0;
         boolean throwItem = false;
+        boolean camChanged = false;
         
         for (PlayerKeyAction action : playerActions) {
             List<ControllerKey> keys = GS.getKeys(action);
@@ -57,8 +58,14 @@ public class PlayerController
                 if (action.getAction() == PlayerMovementAction.THROW_ITEM) {
                     throwItem = true;
                 }
+                if (action.getAction() == PlayerMovementAction.CHANGE_CAM) {
+                    if (!prevCamChanged) GS.cycleNextCameraMode();
+                    camChanged = true;
+
+                }
             }
         }
+        prevCamChanged = camChanged;
         
         // Movement physics determine new position, rotation and velocity
         return new PStructAction(turn, acc, vertV, throwItem, dt);

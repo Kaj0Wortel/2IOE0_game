@@ -76,7 +76,7 @@ public class GS {
      * TODO.
      */
     public static enum CameraMode {
-        SOME_MODE;
+        DEFAULT, FIRST_PERSON, BACK;
     }
     
     
@@ -175,7 +175,7 @@ public class GS {
     public static CameraController cameraController;
     public static PlayerController playerController;
     public static Grid grid;
-    private static CameraMode cameraMode;
+    private static CameraMode cameraMode = CameraMode.DEFAULT;
     private static boolean fullScreen = false;
     private static Map<KeyAction, List<ControllerKey>> keyMap = new HashMap<>();
     private static Simulator simulator;
@@ -655,12 +655,22 @@ public class GS {
         lights.add(light);
     }
 
-    public static CameraMode isCameraMode() {
+    public static CameraMode getCameraMode() {
         return cameraMode;
     }
     
     public static void setCameraMode(CameraMode cameraMode) {
         GS.cameraMode = cameraMode;
+    }
+    
+    public static void cycleNextCameraMode() {
+        if (GS.cameraMode == null) {
+            GS.cameraMode = CameraMode.DEFAULT;
+        } else {
+            CameraMode[] values = CameraMode.values();
+            cameraMode = values[(cameraMode.ordinal() + 1) % values.length];
+            
+        }
     }
 
     public static PlayerController getPlayerController() {
