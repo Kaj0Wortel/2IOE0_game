@@ -108,15 +108,37 @@ public class AStarPointersGlueFinal {
         
         // <editor-fold defaultstate="collapsed" desc="VARIABLES">
         // Checkpoints and start position
-        List<Point2D.Double> checkPoints = new ArrayList<Point2D.Double>();        
-        for (int i = 0; i < 1; i++) {
-            for (int k = 100; k < (int)(points.length*1f); k = k + 100) {
+        List<Point2D.Double> checkPoints = new ArrayList<Point2D.Double>(); 
+        //checkPoints.add(new Point2D.Double(points[1800].x, points[1800].y));
+        //checkPoints.add(new Point2D.Double(points[2000].x, points[2000].y));
+        //checkPoints.add(new Point2D.Double(points[2200].x, points[2200].y));
+        for (int i = 0; i < 3; i++) {
+            for (int k = 50; k < (int)(points.length*1f); k = k + 100) {
+                if (k != 2950 && k != 3050 && k != 4950 && k != 5450 && k != 5550 && k != 5950 && k != 6050) {
                 checkPoints.add(new Point2D.Double(points[k].x, points[k].y));
+                }
+                if (k == 2950) {
+                    checkPoints.add(new Point2D.Double(points[k].x, points[k].y + 10));
+                    checkPoints.add(new Point2D.Double(points[k+20].x, points[k+20].y + 10));
+                    checkPoints.add(new Point2D.Double(points[k+60].x, points[k+60].y + 5));
+                }
+                if (k == 4950) {
+                    checkPoints.add(new Point2D.Double(points[k-30].x, points[k-30].y + 5));
+                }
+                if (k == 5450) {
+                    checkPoints.add(new Point2D.Double(points[k].x-5, points[k].y));
+                    checkPoints.add(new Point2D.Double(points[k+50].x, points[k+50].y));
+                }
+                if (k == 5950) {
+                    checkPoints.add(new Point2D.Double(points[k-20].x, points[k-20].y-5));
+                    checkPoints.add(new Point2D.Double(points[k+20].x, points[k+20].y));
+                }
+                //System.out.println(checkPoints.size() + ", " + k);
             }
         }
         Point2D.Double firstPos = new Point2D.Double(points[0].x, points[0].y);
         Point2D.Double startPos = firstPos;
-        
+        NodeGlueFinal cpStart;
         
         // Time interval between actions/itterations
         float tInt = 0.1f;
@@ -126,7 +148,7 @@ public class AStarPointersGlueFinal {
         // Physics context
         float a = 0.8f; // Maximum acceleration
         float rotvMax = (float) Math.PI / 14f; // Maximum angular velocity (rad/sec)
-        float vMax = 8/*15*/; // Maximum velocity (can be something else than +/-max or 0)
+        float vMax = 15;//8; // Maximum velocity (can be something else than +/-max or 0)
         float frictionConstant = 0.8f;
         float turnCorrection = 7f;
         float brakeAccel = 2;
@@ -184,8 +206,6 @@ public class AStarPointersGlueFinal {
             visual.addLine(new Point2D.Double(points[n].x - 2*normal.x, -(points[n].y - 2*normal.y)),
                     new Point2D.Double(points[n+1].x - 2*normal.x, -(points[n+1].y - 2*normal.y)));
         }
-        
-        //visual.setForeground(Color.WHITE);
         //for (int n = 0; n < points.length; n++) {
             //visual.addPoint(new Point2D.Double(points[n].x, -points[n].y));
         //}
@@ -209,10 +229,11 @@ public class AStarPointersGlueFinal {
 
         NodeGlueFinal start = new NodeGlueFinal(startPos, 0, 0, Math.PI, 0, 0, h, 0, null, 0, 0, 0);
         openlist.add(start);
-        
+
         // LOOP: until openlist is empty left OR when the goal is reached.
         // <editor-fold defaultstate="collapsed" desc="LOOP">
-        for (int iter = 0; !openlist.isEmpty() && iter < iterAllowed; iter++) {
+        
+        for (int iter = 0; !openlist.isEmpty() && iter < iterAllowed; iter++) {            
             // Consider node with smallest f (g+h) in openlist.
             curNode = openlist.get(0);
             for (NodeGlueFinal o : openlist) {
@@ -223,10 +244,10 @@ public class AStarPointersGlueFinal {
                     curNode = o;
                 }
             }
-            
             // curNode is added to the closed list.
             closedlist.add(curNode);
             openlist.remove(curNode);
+                
             // Check if the current node has reached the target
             if (curNode.h < 1/*0.2*/) { // ? does this number even matter?
                 pathList.add(curNode);
@@ -258,7 +279,6 @@ public class AStarPointersGlueFinal {
                     // vFactor
                     Vector3f carDir, u, uNorm, vFactor;
                     float udist;
-                    
                     // road position index number
                     int rIndex = curNode.rIndex;
                     
@@ -266,10 +286,7 @@ public class AStarPointersGlueFinal {
                     Point2D.Double sPos;
                     // Used in Node
                     double sV, sA, sRot, sRotV;
-                    // Not used in Node
-                    //double deltaRot, r, sr, s_deltaX, s_deltaY;
-                    //double distTravelled = curNode.v * tInt + 0.5*(j*a)*tInt*tInt;
-                    
+
                     // Reset physics constants
                     a = 0.8f; // Maximum acceleration
                     
@@ -316,6 +333,19 @@ public class AStarPointersGlueFinal {
                     
                     // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
                     // (acc) Max speed regulation
+                    //HARDCODE
+                    /*if (iter > 1000 && iter < 1100) {
+                        if (curNode.v > 8) {
+                            acc = -1;
+                        }
+                    }*/
+                    
+                    /*System.out.println(vMax);
+                    if (curNode.nextCP > 29 && curNode.nextCP < 32) {
+                        vMax = 5;
+                    }*/
+                    
+                    // Do not have friction if you stay on max speed
                     boolean noFriction = false;
                     if ((acc > 0 && curNode.v + a*dt > vMax) ||
                             (acc < 0 && curNode.v - a*dt < -vMax)) {
@@ -433,33 +463,33 @@ public class AStarPointersGlueFinal {
                             sh = sh + 1.25*Math.sqrt(Math.pow(curHPos.x - CP.x, 2)
                                 + Math.pow(curHPos.y - CP.y, 2));
                         } else if (sNextCP + 1 == k) {
-                            sh = sh + 0.2*Math.sqrt(Math.pow(curHPos.x - CP.x, 2)
+                            sh = sh + 0.3*Math.sqrt(Math.pow(curHPos.x - CP.x, 2)
                                 + Math.pow(curHPos.y - CP.y, 2));
                         }                            
                         // Check if close to currently closest checkpoint
-                        if (sh < 5/*1.75*/) {
+                        if (sh < 10/*5*/) {
                             sNextCP++;
                             reachedCP = true;
                         }
                     }
                     // </editor-fold>
                     
-                    //CASE I: already in closed
+                    //CASE I: already in open
                     Point2D.Double compPos = new Point2D.Double
                         ((int)(10000*sPos.x), (int)(10000*sPos.y));
                     for (NodeGlueFinal o : openlist) {
                         if ((int)(10000*o.pos.x) == compPos.x && (int)(10000*o.pos.y) == compPos.y) {
                             alreadyInList = true;
                             /*System.err.println("Unexpected node found in "
-                                    + "closed list: " + o);*/
+                                    + "open list: " + o);*/
                         }
                     }
-                    //CASE II: already in open
+                    //CASE II: already in closed
                     for (NodeGlueFinal c : closedlist) {
                         if ((int)(10000*c.pos.x) == compPos.x && (int)(10000*c.pos.y) == compPos.y) {
                             alreadyInList = true;
-                            System.err.println("Unexpected node found in "
-                                    + "opened list: " + c);
+                            //System.err.println("Unexpected node found in "
+                            //        + "closed list: " + c);
                         }
                     }
                     //CASE III: not in any list
@@ -489,7 +519,7 @@ public class AStarPointersGlueFinal {
             }
             
             // Show evaluated position
-            if (curNode.parentNode != null) {
+            if (curNode.parentNode != null && false) {
                 System.out.println(iter + ": (" + curNode.pos.x + ", "
                     + curNode.pos.y + ")->" 
                     + curNode.h
@@ -506,12 +536,12 @@ public class AStarPointersGlueFinal {
         }
         // </editor-fold>
         
-        try (NodeWriter nw = new NodeWriter("C:\\Users\\s152102\\Documents\\101_Courses\\Y3Q1 DBL interactive intelligent systems\\Gitkraken game folder\\2IOE0_game\\src\\main\\java\\src\\res\\A_star_data\\Node.csv")) {
+        /*try (NodeWriter nw = new NodeWriter("C:\\Users\\s152102\\Documents\\101_Courses\\Y3Q1 DBL interactive intelligent systems\\Gitkraken game folder\\2IOE0_game\\src\\main\\java\\src\\res\\A_star_data\\Node.csv")) {
             nw.writeNodeChain(curNode);
             
         } catch (IOException e) {
             Logger.write(e);
-        }
+        }*/
         
         // <editor-fold defaultstate="collapsed" desc="PATH CREATION">
         // If goal could be reached, create a path to it.
