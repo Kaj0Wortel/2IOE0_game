@@ -5,6 +5,7 @@ import src.Assets.instance.Car;
 import src.Assets.instance.Instance;
 import src.GS;
 import src.Physics.PStructAction;
+import src.music.MusicManager;
 import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.PlayerKeyAction;
 import src.tools.event.keyAction.action.PlayerMovementAction;
@@ -13,6 +14,7 @@ public class PlayerController
         extends Controller<Car> {
     
     final private PlayerKeyAction[] playerActions;
+    private static boolean playBoing;
     
     private boolean prevCamChanged = false;
 

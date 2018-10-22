@@ -45,6 +45,7 @@ public class Physics {
         public boolean inAir;
         public int rIndex;
         public boolean isResetting;
+        public boolean playBoing;
         
         // Conversion matrix from model -> physics.
         final public static Matrix3f CONV_MAT = new Matrix3f(
@@ -184,6 +185,7 @@ public class Physics {
     private static Vector3f[] tangents = new Vector3f[0];
     private static float trackSize = 0;
     private static float trackWidth = 0;
+    private static boolean playBoing;
     
     
     /**
@@ -388,6 +390,7 @@ public class Physics {
                     s.box.pos().z = gndZ;
                 } else {
                     inAir = true;
+
                     //System.out.println(s.velocity + ": " + (s.box.pos().z - gndZ));
                 }
                 // </editor-fold>
@@ -549,6 +552,12 @@ public class Physics {
             // Do not jump if already jumping
             if (s.verticalVelocity == 0 && !s.inAir)
                 s.verticalVelocity += pStruct.verticalVelocity;
+            // Play boing if jumping
+            if(playBoing){
+                MusicManager.play("boing.wav", MusicManager.MUSIC_SFX);
+                playBoing = false;
+            }
+
             // forced air detection when jumping
             if (s.verticalVelocity > 0.3) {
                 s.inAir = true;
@@ -558,14 +567,18 @@ public class Physics {
             if (s.inAir || !s.onTrack)  {
                 s.verticalVelocity += pc.gravity * dt;
                 ePos.z += deltaZ;
+                playBoing = false;
             }
             // When bouncing on the ground
             else if (Math.abs(s.verticalVelocity) > 0.01 && s.onTrack) {
-            s.verticalVelocity = -s.verticalVelocity * pc.bounceFactor;
+                s.verticalVelocity = -s.verticalVelocity * pc.bounceFactor;
+                playBoing = true;
             } 
             // When kinda done bouncing
-            else
+            else {
                 s.verticalVelocity = 0;
+                playBoing = false;
+            }
 
             // Limit upwards velocity
             if (s.verticalVelocity > 20)

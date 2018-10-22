@@ -78,7 +78,7 @@ public class GS {
      * TODO.
      */
     public static enum CameraMode {
-        DEFAULT, FIRST_PERSON, BACK;
+        DEFAULT, FIRST_PERSON, BACK, HIGH_UP;
     }
     
     

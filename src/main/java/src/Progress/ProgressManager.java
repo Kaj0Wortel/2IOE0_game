@@ -4,9 +4,12 @@ package src.Progress;
 // Own imports
 
 import org.joml.Vector3f;
+import src.music.MusicManager;
 import src.tools.Cloneable;
 
+
 // Java imports
+import org.joml.Vector3f;
 
 
 public class ProgressManager
@@ -15,7 +18,7 @@ public class ProgressManager
     public int lap = 1;
     public boolean finished = false;
     public int cpAm = 16; // modifiable
-    public int lapTotal = 1; // modifiable
+    public int lapTotal = 3; // modifiable
     
     
     public void manageProgress(Vector3f pos, int pointAmount, int curPoint) {
@@ -31,7 +34,9 @@ public class ProgressManager
                     finished = true;
             }
         }
-        else if (finished);
+        else if (finished)
+            System.out.println("FINISHED");
+            //MusicManager.play("win.wav", MusicManager.MUSIC_SFX)
     }
     
     @Override

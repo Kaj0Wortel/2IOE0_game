@@ -38,6 +38,12 @@ public class Camera
     private float minRubberDistance = 25f;
     private float rubberVelocityFactor = 0.5f;
     private float fovVelocityFactor = 2.0f;
+
+    private Vector3f highPosition = new Vector3f(400.0f, 70.0f, 1000.0f);
+    private float highPitch = 90.0f;
+    private float highYaw = 0.0f;
+    private float highRoll = 0.0f;
+
     private Lock lock = new ReentrantLock();
     
     
@@ -126,6 +132,7 @@ public class Camera
         position = new Vector3f(instance.getPosition());
         pitch = 20;
         instance.addObserver(this);
+        System.out.println("I am called for some reason every frame");
     }
     
     public void removeFocus() {
@@ -158,6 +165,8 @@ public class Camera
                 
             } else if (GS.getCameraMode() == GS.CameraMode.BACK) {
                 pitch = Math.min(-focusedOn.getState().velocity * 0.4f + 20, 20);
+            } else if (GS.getCameraMode() == GS.CameraMode.HIGH_UP){
+                pitch = highPitch;
             }
             
             if (angleAroundAsset >= -maxRubberAngle && angleAroundAsset <= maxRubberAngle) {
@@ -241,12 +250,13 @@ public class Camera
     public void calculateInstanceValues() {
         lock.lock();
         try {
-            rubberBand();
+
             speedFOV();
             State state = focusedOn.getState();
             float angle = state.roty + angleAroundAsset;
-            
+
             if (GS.getCameraMode() == GS.CameraMode.DEFAULT) {
+                rubberBand();
                 float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
                 float verDistance = (float) (distanceToAsset * Math.sin(Math.toRadians(pitch)));
                 float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
@@ -256,8 +266,11 @@ public class Camera
                 position.y = state.box.pos().y + verDistance;
                 position.z = state.box.pos().z + z;
                 this.yaw = -(state.roty + angleAroundAsset);
-                
+                //System.out.println("Camera values 2: x: "+position.x+" y: "+position.y+" z: "+position.z+" yaw: "+yaw+" roll: "+roll+" pitch: "+pitch);
+
+
             } else if (GS.getCameraMode() == GS.CameraMode.FIRST_PERSON) {
+                rubberBand();
                 this.pitch = -state.rotx;
                 this.yaw = -(state.roty + angleAroundAsset);
                 this.roll = state.rotz;
@@ -272,16 +285,30 @@ public class Camera
                 position.z = state.box.pos().z - z * 0.25f;
                 
             } else if (GS.getCameraMode() == GS.CameraMode.BACK) {
+                rubberBand();
                 float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
                 float verDistance = (float) (distanceToAsset * Math.sin(Math.toRadians(pitch)));
                 float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
                 float z = (float) (horDistance * Math.cos(Math.toRadians(angle)));
-                
+
                 position.x = state.box.pos().x - x;
                 position.y = state.box.pos().y + verDistance;
                 position.z = state.box.pos().z - z;
                 this.yaw = -(state.roty + angleAroundAsset) + 180;
-                
+
+            } else if (GS.getCameraMode() == GS.CameraMode.HIGH_UP){
+                position.x = highPosition.x;
+                position.y = highPosition.y;
+                position.z = highPosition.z;
+                //System.out.println("Camera values 1: x: "+position.x+" y: "+position.y+" z: "+position.z+" yaw: "+yaw+" roll: "+roll+" pitch: "+pitch);
+
+                this.yaw = highYaw;
+                this.pitch = highPitch;
+                this.roll = highRoll;
+                angleAroundAsset = 0;
+
+                //System.out.println("Camera values 2: x: "+position.x+" y: "+position.y+" z: "+position.z+" yaw: "+yaw+" roll: "+roll+" pitch: "+pitch);
+
             } else {
                 Logger.write("Unknown camera mode: " + GS.getCameraMode(),
                         Logger.Type.ERROR);
