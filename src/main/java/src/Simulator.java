@@ -174,8 +174,8 @@ public class Simulator {
         addToGamestate(PLAYER, car2, new Vector3f(0, 2, -30), 3,
                 0, 180, 0, 0, new TextureImg(5, 3f), null, null);
         
-        addToGamestate(PLAYER, car, new Vector3f(0, 2, 0), 5,
-                0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
+        //addToGamestate(PLAYER, car, new Vector3f(0, 2, 0), 5,
+        //        0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
 
         addLight(new Vector3f(30000f, 50000f, 1f),
                 new Vector3f(1f, 1f, 1f));
@@ -225,8 +225,13 @@ public class Simulator {
 
         addRock(planet.get(0), new Vector3f(310, -30, 780), 25, 0, 0, 0, 0,
                 new TextureImg(5, 3f), MaterialInstance.Type.PLANET);
-
+        
         addSkybox();
+        /*
+        for (Car player : GS.getPlayers()) {
+            addSkybox(player);
+        }
+        */
         //addBanner(banner, new Vector3f(0, 0, 40), 4, 0, 90, 0, 0,
          //       new TextureImg(gl, "rainbow_road.png"), null);
         
@@ -344,6 +349,7 @@ public class Simulator {
 
     public void addSkybox() {
         Skybox skybox = new Skybox(gl);
+        //GS.setSkybox(player, skybox);
         GS.setSkybox(skybox);
     }
     

@@ -47,7 +47,7 @@ public class ShadowFBO {
         gl.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_T, GL3.GL_CLAMP_TO_EDGE);
         gl.glFramebufferTexture(GL3.GL_FRAMEBUFFER, GL3.GL_DEPTH_ATTACHMENT,
                 depthAttachment.get(0), 0);
-        //gl.glEnable(GL3.GL_TEXTURE_2D);
+        gl.glEnable(GL3.GL_TEXTURE_2D);
     }
     
     public void bindFrameBuffer(GL3 gl) {
@@ -61,13 +61,10 @@ public class ShadowFBO {
         gl.glDisable(GL3.GL_TEXTURE_2D);
         gl.glBindFramebuffer(GL3.GL_FRAMEBUFFER, 0);
         
-        //gl.glViewport(0, 0, GS.canvas.getWidth(), GS.canvas.getHeight());
         int screenID = GS.getPlayerScreenID(player);
         int partWidth = GS.canvas.getWidth() / GS.getNumPlayers();
         gl.glViewport(screenID * partWidth, 0,
                 partWidth, GS.canvas.getHeight());
-        //gl.glViewport(0, 0, partWidth, GS.canvas.getHeight());
-        //gl.glViewport(0, 0, GS.canvas.getWidth(), GS.canvas.getHeight());
     }
     
     public IntBuffer getDepthAttachment() {

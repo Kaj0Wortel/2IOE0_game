@@ -16,7 +16,7 @@ public class FrustrumBox {
     private float fov;
     private float near;
     private float far;
-    private float windowWidth;
+    private float windowWidth; // TODO
     private float windowHeight;
 
     final private float SHADOW_DISTANCE = 300;
@@ -108,7 +108,7 @@ public class FrustrumBox {
     }
 
     private float getAspectRatio() {
-        return windowWidth/windowHeight;
+        return windowWidth / windowHeight;
     }
 
     public Matrix4f getOrthographicProjectionMatrix() {

@@ -132,6 +132,7 @@ public class GS {
     final private static Map<Car, PlayerController> playerControllers = new ConcurrentHashMap<>();
     final private static Map<Camera, CameraController> cameraControllers = new ConcurrentHashMap<>();
     final private static Map<Car, Integer> playerScreenID = new ConcurrentHashMap<>();
+    private static Skybox skybox;
     
     
     final private static Counter counter = new Counter();
@@ -180,7 +181,6 @@ public class GS {
     public static GLCanvas canvas;
     private static FPSAnimator animator;
     private static Track raceTrack;
-    private static Skybox skybox;
     public static long time;
     
     public static int WIDTH = 1080;
@@ -652,7 +652,7 @@ public class GS {
         Physics.setTrack(track);
         raceTrack = track;
     }
-
+    
     public static void setSkybox(Skybox box) {
         skybox = box;
     }

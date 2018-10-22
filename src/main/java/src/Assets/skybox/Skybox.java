@@ -1,18 +1,29 @@
+
 package src.Assets.skybox;
 
+// Jogamp imports
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL3;
-import de.matthiasmann.twl.utils.PNGDecoder;
 import org.joml.Matrix4f;
+
+
+// Other imports
+import de.matthiasmann.twl.utils.PNGDecoder;
+
+
+// Own imports
+import src.Assets.instance.Car;
 import src.GS;
 import src.Shaders.SkyBoxShader;
 import src.tools.Binder;
 import src.tools.log.Logger;
 
+
+// Java imports
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import src.Assets.instance.Car;
+
 
 public class Skybox {
 
@@ -24,7 +35,7 @@ public class Skybox {
     private SkyBoxShader skyBoxShader;
     private int texture;
 
-    private final float SIZE = 1000f;
+    final private static float SIZE = 1000f;
 
     private final float[] skyBoxVertices = {
             -SIZE,  SIZE, -SIZE,
@@ -79,10 +90,10 @@ public class Skybox {
         this.skyBoxShader = new SkyBoxShader(gl);
     }
     
-    public void draw(GL3 gl, Car player, Matrix4f projectionMatrix) {
+    public void draw(GL3 gl, Car player) {
         skyBoxShader.start(gl);
         
-        skyBoxShader.loadProjectionMatrix(gl, projectionMatrix);
+        skyBoxShader.loadProjectionMatrix(gl, GS.getCam(player).getProjectionMatrix());
         skyBoxShader.loadViewMatrix(gl, getSkyboxViewMatrix(player));
         skyBoxShader.loadTextures(gl);
 

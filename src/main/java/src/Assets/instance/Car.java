@@ -29,7 +29,6 @@ public class Car
 
     private ItemType inventoryItem = ItemType.RED_SHELL; // = null
     private CarShader carShader;
-    private Matrix4f projectionMatrix;
     private int shadowMap;
     
     /**
@@ -84,7 +83,7 @@ public class Car
     private void prepare(GL3 gl, Car player) {
         carShader.start(gl);
 
-        carShader.loadProjectionMatrix(gl,projectionMatrix);
+        carShader.loadProjectionMatrix(gl, GS.getCam(player).getProjectionMatrix());
         carShader.loadViewMatrix(gl, GS.getCam(player).getViewMatrix());
         carShader.loadLight(gl,GS.getLights().get(0));
         carShader.loadCameraPos(gl, GS.getCam(player).getPosition());
@@ -159,9 +158,8 @@ public class Car
         return Math.min((float) Math.PI / 2, Math.abs(getState().velocity / 15));
     }
 
-    public void setCarShaderVariables(CarShader shader, Matrix4f projectionMatrix) {
+    public void setCarShaderVariables(CarShader shader) {
         this.carShader = shader;
-        this.projectionMatrix = projectionMatrix;
     }
 
 

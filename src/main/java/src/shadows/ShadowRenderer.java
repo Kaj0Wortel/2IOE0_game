@@ -3,6 +3,8 @@ package src.shadows;
 import src.Shaders.ShadowShader;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.instance.Car;
@@ -49,11 +51,11 @@ public class ShadowRenderer {
             asset.draw(gl, shadowShader);
         }
 
-        for(Instance asset : GS.getTerrain()){
+        for(Instance asset : GS.getTerrain()) {
             asset.draw(gl, shadowShader);
         }
         
-        for (Car p : GS.getPlayers()) {
+        for (Car p : GS.cars) {
             p.draw(gl, shadowShader);
         }
 

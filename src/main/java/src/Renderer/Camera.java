@@ -24,6 +24,9 @@ public class Camera
     private float pitch;
     private float yaw;
     private float roll;
+    private float fov;
+    private float fovOffset;
+    private boolean fovChange;
     
     int speed = 2;
     
@@ -45,7 +48,7 @@ public class Camera
     private float fovVelocityFactor = 2.0f;
     private Lock lock = new ReentrantLock();
     private CameraMode cameraMode = CameraMode.DEFAULT;
-    
+    private Matrix4f projectionMatrix;
     
     
     public Camera (Vector3f position, float pitch, float yaw, float roll){
@@ -207,7 +210,7 @@ public class Camera
     }
 
     public void speedFOV() {
-        Renderer.changeFOV(fovVelocityFactor * focusedOn.getState().velocity);
+        changeFOV(fovVelocityFactor * focusedOn.getState().velocity);
     }
     
     public boolean isOnPlayer() {
@@ -303,9 +306,11 @@ public class Camera
     public Matrix4f getViewMatrixInverse() {
         lock.lock();
         try {
+            return new Matrix4f(getViewMatrix()).invert();
+            /*
             Matrix4f viewMatrixRotation = new Matrix4f()
-                    .rotate((float) Math.toRadians(yaw), new Vector3f(0, 1, 0))
                     .rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0))
+                    .rotate((float) Math.toRadians(yaw), new Vector3f(0, 1, 0))
                     .rotate((float) Math.toRadians(roll), new Vector3f(0, 0, 1))
                     .transpose();
 
@@ -313,7 +318,7 @@ public class Camera
                     .translate(position);
 
             return viewMatrixTranslation.mul(viewMatrixRotation);
-            
+            */
         } finally {
             lock.unlock();
         }
@@ -324,6 +329,7 @@ public class Camera
         if (!(o instanceof Instance) ||
                 !(arg instanceof State)) return;
         calculateInstanceValues();
+        calcProjectionMatrix();
     }
 
     public CameraMode getCameraMode() {
@@ -341,6 +347,54 @@ public class Camera
             CameraMode[] values = CameraMode.values();
             cameraMode = values[(cameraMode.ordinal() + 1) % values.length];
             
+        }
+    }
+
+    public void changeFOV(float fovOffset){
+        fov = 70 + fovOffset / 1.3f;
+        fovChange = true;
+    }
+    
+    public boolean hasFOVChange() {
+        return fovChange;
+    }
+    
+    public void resetFOVChange() {
+        fovChange = false;
+    }
+    
+    public float fov() {
+        return fov;
+    }
+    
+    public void calcProjectionMatrix() {
+        float ratio = Renderer.width / Renderer.height;
+        float y = (float) (1f / Math.tan(Math.toRadians(fov/2f)));
+        float x = y / ratio;
+        float delta = Renderer.FAR - Renderer.NEAR;
+
+        lock.lock();
+        try {
+            projectionMatrix = new Matrix4f();
+            projectionMatrix.m00(x);
+            projectionMatrix.m11(y);
+            projectionMatrix.m22(-((Renderer.NEAR + Renderer.FAR)/delta));
+            projectionMatrix.m23(-1);
+            projectionMatrix.m32(-(2*Renderer.NEAR*Renderer.FAR)/delta);
+            projectionMatrix.m33(0);
+            
+        } finally {
+            lock.unlock();
+        }
+    }
+    
+    public Matrix4f getProjectionMatrix() {
+        lock.lock();
+        try {
+            return new Matrix4f(projectionMatrix);
+            
+        } finally {
+            lock.unlock();
         }
     }
     

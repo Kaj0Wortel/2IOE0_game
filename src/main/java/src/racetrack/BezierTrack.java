@@ -74,10 +74,8 @@ public class BezierTrack
     }
 
     @Override
-    public void setShaderAndRenderMatrices(RacetrackShader shader, Matrix4f projectionMatrix, Matrix4f viewMatrix) {
+    public void setShader(RacetrackShader shader) {
         this.shader = shader;
-        this.projectionMatrix = projectionMatrix;
-        this.viewMatrix = viewMatrix;
     }
 
     @Override
@@ -101,10 +99,10 @@ public class BezierTrack
     }
 
     final private static Matrix4f mTranspose = new Matrix4f(
-            -1, 3, -3, 1,
-            3, -6, 3, 0,
-            -3, 3, 0, 0,
-            1, 0, 0, 0
+            -1,  3, -3, 1,
+             3, -6,  3, 0,
+            -3,  3,  0, 0,
+             1,  0,  0, 0
     );
 
     /**

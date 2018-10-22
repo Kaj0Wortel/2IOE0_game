@@ -31,21 +31,17 @@ public class Renderer
     private GL3 gl;
     private GLU glu;
 
-    private static float fov = 70;
-    private static boolean fovChange = false;
-    private final float NEAR = 0.1f;
-    private final float FAR = 2000f;
-    private float width = 1080;
-    private float height = 720;
-
-    private Matrix4f projectionMatrix;
+    final static public float NEAR = 0.1f;
+    final static public float FAR = 2000f;
+    public static float width = 1080;
+    public static float height = 720;
 
     private ObjectRenderer objectRenderer;
     private TerrainRenderer terrainRenderer;
     private MaterialRenderer materialRenderer;
     private ItemRenderer itemRenderer;
-    private GUIRenderer guiRenderer;
     private Map<Car, ShadowRenderer> shadowRenderers = new ConcurrentHashMap<>();
+    private Map<Car, GUIRenderer> guiRenderers = new ConcurrentHashMap<>();
 
     public Renderer(Simulator simulator, float width, float height) {
         this.simulator = simulator;
@@ -67,25 +63,22 @@ public class Renderer
             simulator.setGL(gl);
             simulator.initAssets();
 
-            getProjectionMatrix();
-            objectRenderer = new ObjectRenderer(gl,projectionMatrix);
-            materialRenderer = new MaterialRenderer(gl, projectionMatrix);
-            terrainRenderer = new TerrainRenderer(gl, projectionMatrix);
-            itemRenderer = new ItemRenderer(gl, projectionMatrix);
-            guiRenderer = new GUIRenderer(gl);
+            objectRenderer = new ObjectRenderer(gl);
+            materialRenderer = new MaterialRenderer(gl);
+            terrainRenderer = new TerrainRenderer(gl);
+            itemRenderer = new ItemRenderer(gl);
             RacetrackShader racetrackShader = new RacetrackShader(gl);
-
-            Logger.write(GS.getPlayers());
-            if (GS.getPlayers().isEmpty()) System.out.println("NO PLAYERS!");
+                GS.getTrack().setShader(racetrackShader);
             for (Car player : GS.getPlayers()) {
-                ShadowRenderer sr = new ShadowRenderer(gl, player, fov, NEAR, FAR, width, height);
+                Camera cam = GS.getCam(player);
+                cam.calcProjectionMatrix();
+                guiRenderers.put(player, new GUIRenderer(gl, player));
+                ShadowRenderer sr = new ShadowRenderer(gl, player,
+                        GS.getCam(player).fov(), NEAR, FAR, width, height);
                 shadowRenderers.put(player, sr);
                 GS.getTrack().setShadowMap(sr.getDepthTexture());
                 player.setShadowMap(sr.getDepthTexture());
-                player.setCarShaderVariables(new CarShader(gl), projectionMatrix);
-
-                GS.getTrack().setShaderAndRenderMatrices(racetrackShader,
-                        projectionMatrix, GS.getCam(player).getViewMatrix());
+                player.setCarShaderVariables(new CarShader(gl));
             }
 
             gl.glEnable(GL3.GL_DEPTH_TEST);
@@ -110,11 +103,15 @@ public class Renderer
             int partWidth = GS.canvas.getWidth() / GS.getNumPlayers();
             int playerCounter = 0;
             for (Car player : GS.getPlayers()) {
+                Camera cam = GS.getCam(player);
                 gl.glViewport(0, 0, partWidth, GS.canvas.getHeight());
                 gl.glScissor(playerCounter * partWidth, 0,
                         partWidth, GS.canvas.getHeight());
 
-                shadowRenderers.get(player).render(gl, player);
+                ShadowRenderer sr = shadowRenderers.get(player);
+                sr.render(gl, player);
+                player.setShadowMap(sr.getDepthTexture());
+                GS.getTrack().setShadowMap(sr.getDepthTexture());
 
                 gl.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_COLOR_BUFFER_BIT);
                 gl.glClearColor(0f, 0f, 1f, 1f);
@@ -122,10 +119,10 @@ public class Renderer
                 gl.glEnable(GL3.GL_CULL_FACE);
                 gl.glCullFace(GL3.GL_BACK);
 
-                if (fovChange){
-                    getProjectionMatrix();
-                    fovChange = false;
-                }
+                //if (GS.getCam(player).hasFOVChange()) {
+                    cam.calcProjectionMatrix();
+                    GS.getCam(player).resetFOVChange();
+                //}
 
                 objectRenderer.render(gl, player);
                 materialRenderer.render(gl, player);
@@ -137,9 +134,9 @@ public class Renderer
                 }
 
                 gl.glDisable(GL3.GL_CULL_FACE);
-                GS.getTrack().draw(gl, player, shadowRenderers.get(player).getShadowMatrix());
-                GS.getSkybox().draw(gl, player, projectionMatrix);
-                guiRenderer.render(gl, player);
+                GS.getTrack().draw(gl, player, sr.getShadowMatrix());
+                GS.getSkybox().draw(gl, player);
+                guiRenderers.get(player).render(gl, player);
 
                 playerCounter++;
             }
@@ -158,31 +155,8 @@ public class Renderer
         
     }
 
-    private void getProjectionMatrix(){
-        float ratio = width / height;
-        float y = (float) (1f / Math.tan(Math.toRadians(fov/2f)));
-        float x = y / ratio;
-        float delta = FAR - NEAR;
-
-        Matrix4f pMatrix = new Matrix4f();
-        pMatrix.m00(x);
-        pMatrix.m11(y);
-        pMatrix.m22(-((NEAR + FAR)/delta));
-        pMatrix.m23(-1);
-        pMatrix.m32(-(2*NEAR*FAR)/delta);
-        pMatrix.m33(0);
-
-        projectionMatrix = new Matrix4f((pMatrix));
-    }
-
     public void cleanup(){
         simulator.cleanup();
-    }
-
-    public static void changeFOV(float fovOffset){
-        fov = 70 + fovOffset/1.3f;
-        fovChange = true;
-        //System.out.println("fov Change " + fov);
     }
 
 }

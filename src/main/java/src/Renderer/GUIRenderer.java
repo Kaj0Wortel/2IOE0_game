@@ -14,7 +14,7 @@ public class GUIRenderer {
     private IntBuffer vao;
     private int nrV;
 
-    public GUIRenderer(GL3 gl) {
+    public GUIRenderer(GL3 gl, Car player) {
         float[] vertices = {
             0, 1,
             0, 0,
