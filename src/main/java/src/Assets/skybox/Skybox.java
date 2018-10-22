@@ -12,6 +12,7 @@ import src.tools.log.Logger;
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import src.Assets.instance.Car;
 
 public class Skybox {
 
@@ -78,11 +79,11 @@ public class Skybox {
         this.skyBoxShader = new SkyBoxShader(gl);
     }
     
-    public void draw(GL3 gl, Matrix4f projectionMatrix) {
+    public void draw(GL3 gl, Car player, Matrix4f projectionMatrix) {
         skyBoxShader.start(gl);
 
         skyBoxShader.loadProjectionMatrix(gl,projectionMatrix);
-        skyBoxShader.loadViewMatrix(gl, getSkyboxViewMatrix());
+        skyBoxShader.loadViewMatrix(gl, getSkyboxViewMatrix(player));
         skyBoxShader.loadTextures(gl);
 
         gl.glBindVertexArray(vao.get(0));
@@ -96,8 +97,8 @@ public class Skybox {
         skyBoxShader.stop(gl);
     }
 
-    private Matrix4f getSkyboxViewMatrix() {
-        Matrix4f viewMatrix = new Matrix4f(GS.camera.getViewMatrix());
+    private Matrix4f getSkyboxViewMatrix(Car player) {
+        Matrix4f viewMatrix = new Matrix4f(GS.getCam(player).getViewMatrix());
         viewMatrix.m30(0);
         viewMatrix.m31(0);
         viewMatrix.m32(0);

@@ -3,6 +3,7 @@ package src.shadows;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import src.Assets.instance.Car;
 import src.GS;
 
 public class FrustrumBox {
@@ -20,7 +21,8 @@ public class FrustrumBox {
 
     final private float SHADOW_DISTANCE = 300;
 
-    public FrustrumBox(float FOV, float NEAR, float FAR, float windowWidth, float windowHeight){
+    public FrustrumBox(Car player, float FOV, float NEAR, float FAR,
+            float windowWidth, float windowHeight) {
         this.fov = FOV;
         this.near = NEAR;
         this.far = FAR;
@@ -31,10 +33,10 @@ public class FrustrumBox {
         height = 0;
         depth = 0;
 
-        update();
+        update(player);
     }
 
-    public void update() {
+    public void update(Car player) {
         float hhn = (float) Math.tan(Math.toRadians(fov/2)) * near;
         float hwn = getAspectRatio() * hhn;
         float hhf = (float) Math.tan(Math.toRadians(fov/2)) * SHADOW_DISTANCE;
@@ -52,7 +54,7 @@ public class FrustrumBox {
             new Vector4f( hwf, -hhf, -SHADOW_DISTANCE, 1)
         };
         
-        transform(eyeVertices, GS.camera.getViewMatrixInverse());
+        transform(eyeVertices, GS.getCam(player).getViewMatrixInverse());
         transform(eyeVertices, GS.getLights().get(0).getRotationMatrix());
         
         getBoundingBox(eyeVertices);

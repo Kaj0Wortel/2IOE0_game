@@ -2,6 +2,7 @@ package src.Renderer;
 
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
+import src.Assets.instance.Car;
 import src.Assets.instance.Instance;
 import src.GS;
 import src.Shaders.TerrainShader;
@@ -11,18 +12,18 @@ public class TerrainRenderer {
     private TerrainShader terrainShader;
     private Matrix4f projectionMatrix;
 
-    public TerrainRenderer(GL3 gl, Matrix4f projectionMatrix){
+    public TerrainRenderer(GL3 gl, Matrix4f projectionMatrix) {
         this.terrainShader = new TerrainShader(gl);
         this.projectionMatrix = projectionMatrix;
     }
 
-    public void render(GL3 gl){
+    public void render(GL3 gl, Car player) {
         terrainShader.start(gl);
 
         terrainShader.loadProjectionMatrix(gl,projectionMatrix);
-        terrainShader.loadViewMatrix(gl, GS.camera.getViewMatrix());
+        terrainShader.loadViewMatrix(gl, GS.getCam(player).getViewMatrix());
         terrainShader.loadLight(gl,GS.getLights().get(0));
-        terrainShader.loadCameraPos(gl, GS.camera.getPosition());
+        terrainShader.loadCameraPos(gl, GS.getCam(player).getPosition());
         terrainShader.loadTextures(gl);
 
         for(Instance asset : GS.getTerrain()){

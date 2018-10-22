@@ -10,6 +10,7 @@ import src.Shaders.RacetrackShader;
 import src.Shaders.ShadowShader;
 import java.nio.IntBuffer;
 import org.joml.Matrix3f;
+import src.Assets.instance.Car;
 
 public abstract class Track {
 
@@ -82,8 +83,8 @@ public abstract class Track {
         return nrOfSegments;
     }
 
-    public void draw(GL3 gl, Matrix4f shadowMatrix){
-        prepare(gl);
+    public void draw(GL3 gl, Car player, Matrix4f shadowMatrix){
+        prepare(gl, player);
         shader.loadShadowMatrix(gl, shadowMatrix);
 
         gl.glBindVertexArray(vao.get(0));
@@ -140,13 +141,13 @@ public abstract class Track {
     }
     
 
-    private void prepare(GL3 gl){
+    private void prepare(GL3 gl, Car player) {
         shader.start(gl);
 
         shader.loadProjectionMatrix(gl,projectionMatrix);
-        shader.loadViewMatrix(gl, GS.camera.getViewMatrix());
+        shader.loadViewMatrix(gl, GS.getCam(player).getViewMatrix());
         shader.loadLight(gl,GS.getLights().get(0));
-        shader.loadCameraPos(gl, GS.camera.getPosition());
+        shader.loadCameraPos(gl, GS.getCam(player).getPosition());
         shader.loadTextures(gl);
 
         shader.loadModelMatrix(gl, getTransformationMatrix());

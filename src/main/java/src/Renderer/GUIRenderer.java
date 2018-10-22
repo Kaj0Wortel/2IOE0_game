@@ -7,6 +7,7 @@ import src.tools.Binder;
 
 import java.nio.IntBuffer;
 import java.util.List;
+import src.Assets.instance.Car;
 import src.Shaders.ShaderProgram;
 
 public class GUIRenderer {
@@ -24,7 +25,7 @@ public class GUIRenderer {
         nrV = vertices.length / 2;
     }
 
-    public void render(GL3 gl) {
+    public void render(GL3 gl, Car player) {
         List<GUI> guis = GS.getGUIs();
         if (guis.isEmpty()) return;
         
@@ -39,7 +40,7 @@ public class GUIRenderer {
         for (GUI gui : guis) {
             ShaderProgram guiShader = gui.getShader();
             guiShader.start(gl);
-            gui.loadShaderData(gl, GS.player);
+            gui.loadShaderData(gl, player);
             gl.glDrawArrays(GL3.GL_TRIANGLE_STRIP, 0, nrV);
             guiShader.stop(gl);
         }

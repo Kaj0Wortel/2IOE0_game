@@ -7,6 +7,7 @@ import com.jogamp.opengl.GL3;
 import src.GS;
 
 import java.nio.IntBuffer;
+import src.Assets.instance.Car;
 
 
 public class ShadowFBO {
@@ -17,12 +18,12 @@ public class ShadowFBO {
     private IntBuffer fbo;
     private IntBuffer depthAttachment;
 
-    public ShadowFBO(GL3 gl, int width, int height){
+    public ShadowFBO(GL3 gl, Car player, int width, int height){
         this.width = width;
         this.height = height;
         generateFBO(gl);
         generateDepthAttachment(gl);
-        unbindFrameBuffer(gl);
+        unbindFrameBuffer(gl, player);
     }
 
     private void generateFBO(GL3 gl) {
@@ -56,10 +57,17 @@ public class ShadowFBO {
         gl.glViewport(0, 0, width, height);
     }
     
-    public void unbindFrameBuffer(GL3 gl) {
+    public void unbindFrameBuffer(GL3 gl, Car player) {
         gl.glDisable(GL3.GL_TEXTURE_2D);
         gl.glBindFramebuffer(GL3.GL_FRAMEBUFFER, 0);
-        gl.glViewport(0, 0, GS.canvas.getWidth(), GS.canvas.getHeight());
+        
+        //gl.glViewport(0, 0, GS.canvas.getWidth(), GS.canvas.getHeight());
+        int screenID = GS.getPlayerScreenID(player);
+        int partWidth = GS.canvas.getWidth() / GS.getNumPlayers();
+        gl.glViewport(screenID * partWidth, 0,
+                partWidth, GS.canvas.getHeight());
+        //gl.glViewport(0, 0, partWidth, GS.canvas.getHeight());
+        //gl.glViewport(0, 0, GS.canvas.getWidth(), GS.canvas.getHeight());
     }
     
     public IntBuffer getDepthAttachment() {

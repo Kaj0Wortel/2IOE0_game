@@ -10,11 +10,16 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import src.GS;
 import src.tools.log.Logger;
+
 
 public class Camera
         implements Observer {
+    
+    public static enum CameraMode {
+        DEFAULT, FIRST_PERSON, BACK;
+    }
+    
     private Vector3f position;
     private float pitch;
     private float yaw;
@@ -39,6 +44,7 @@ public class Camera
     private float rubberVelocityFactor = 0.5f;
     private float fovVelocityFactor = 2.0f;
     private Lock lock = new ReentrantLock();
+    private CameraMode cameraMode = CameraMode.DEFAULT;
     
     
     
@@ -150,13 +156,13 @@ public class Camera
             distanceToAsset = Math.max(focusedOn.getState()
                     .velocity * rubberVelocityFactor + minRubberDistance, minRubberDistance);
             
-            if (GS.getCameraMode() == GS.CameraMode.DEFAULT) {
+            if (cameraMode == CameraMode.DEFAULT) {
                 pitch = Math.max(focusedOn.getState().velocity * 0.4f + 20, 20);
                 
-            } else if (GS.getCameraMode() == GS.CameraMode.FIRST_PERSON) {
+            } else if (cameraMode == CameraMode.FIRST_PERSON) {
                 pitch = 0;
                 
-            } else if (GS.getCameraMode() == GS.CameraMode.BACK) {
+            } else if (cameraMode == CameraMode.BACK) {
                 pitch = Math.min(-focusedOn.getState().velocity * 0.4f + 20, 20);
             }
             
@@ -184,13 +190,13 @@ public class Camera
         }
         
         float targetPitch = 0;
-        if (GS.getCameraMode() == GS.CameraMode.DEFAULT) {
+        if (cameraMode == CameraMode.DEFAULT) {
             targetPitch = 20 - focusedOn.getRotx();
 
-        } else if (GS.getCameraMode() == GS.CameraMode.FIRST_PERSON) {
+        } else if (cameraMode == CameraMode.FIRST_PERSON) {
             targetPitch = 0;
 
-        } else if (GS.getCameraMode() == GS.CameraMode.BACK) {
+        } else if (cameraMode == CameraMode.BACK) {
             targetPitch = 20 + focusedOn.getRotx();
         }
         
@@ -246,7 +252,7 @@ public class Camera
             State state = focusedOn.getState();
             float angle = state.roty + angleAroundAsset;
             
-            if (GS.getCameraMode() == GS.CameraMode.DEFAULT) {
+            if (cameraMode == CameraMode.DEFAULT) {
                 float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
                 float verDistance = (float) (distanceToAsset * Math.sin(Math.toRadians(pitch)));
                 float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
@@ -257,7 +263,7 @@ public class Camera
                 position.z = state.box.pos().z + z;
                 this.yaw = -(state.roty + angleAroundAsset);
                 
-            } else if (GS.getCameraMode() == GS.CameraMode.FIRST_PERSON) {
+            } else if (cameraMode == CameraMode.FIRST_PERSON) {
                 this.pitch = -state.rotx;
                 this.yaw = -(state.roty + angleAroundAsset);
                 this.roll = state.rotz;
@@ -271,7 +277,7 @@ public class Camera
                 position.y = state.box.pos().y + 3f + verDistance * 0.25f;
                 position.z = state.box.pos().z - z * 0.25f;
                 
-            } else if (GS.getCameraMode() == GS.CameraMode.BACK) {
+            } else if (cameraMode == CameraMode.BACK) {
                 float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
                 float verDistance = (float) (distanceToAsset * Math.sin(Math.toRadians(pitch)));
                 float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
@@ -283,7 +289,7 @@ public class Camera
                 this.yaw = -(state.roty + angleAroundAsset) + 180;
                 
             } else {
-                Logger.write("Unknown camera mode: " + GS.getCameraMode(),
+                Logger.write("Unknown camera mode: " + cameraMode,
                         Logger.Type.ERROR);
                 System.exit(-1);
             }
@@ -318,6 +324,24 @@ public class Camera
         if (!(o instanceof Instance) ||
                 !(arg instanceof State)) return;
         calculateInstanceValues();
+    }
+
+    public CameraMode getCameraMode() {
+        return cameraMode;
+    }
+    
+    public void setCameraMode(CameraMode cameraMode) {
+        this.cameraMode = cameraMode;
+    }
+    
+    public void cycleNextCameraMode() {
+        if (cameraMode == null) {
+            cameraMode = CameraMode.DEFAULT;
+        } else {
+            CameraMode[] values = CameraMode.values();
+            cameraMode = values[(cameraMode.ordinal() + 1) % values.length];
+            
+        }
     }
     
     

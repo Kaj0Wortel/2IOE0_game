@@ -1,8 +1,8 @@
 package src.Controllers;
 
+import java.util.Arrays;
 import java.util.List;
 import src.Assets.instance.Car;
-import src.Assets.instance.Instance;
 import src.GS;
 import src.Physics.PStructAction;
 import src.tools.event.ControllerKey;
@@ -59,7 +59,7 @@ public class PlayerController
                     throwItem = true;
                 }
                 if (action.getAction() == PlayerMovementAction.CHANGE_CAM) {
-                    if (!prevCamChanged) GS.cycleNextCameraMode();
+                    if (!prevCamChanged) GS.getCam(instance).cycleNextCameraMode();
                     camChanged = true;
 
                 }

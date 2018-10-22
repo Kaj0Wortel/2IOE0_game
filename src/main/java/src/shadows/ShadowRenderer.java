@@ -5,6 +5,7 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import src.Assets.instance.Car;
 import src.Assets.instance.Instance;
 import src.GS;
 
@@ -17,23 +18,23 @@ public class ShadowRenderer {
     private ShadowFBO shadowFBO;
     
     
-    public ShadowRenderer(GL3 gl, float fov, float near, float far,
+    public ShadowRenderer(GL3 gl, Car player, float fov, float near, float far,
             float width, float height) {
         shadowShader = new ShadowShader(gl);
-        shadowFBO = new ShadowFBO(gl, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
-        frustrumBox = new FrustrumBox(fov, near, far, width, height);
+        shadowFBO = new ShadowFBO(gl, player, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
+        frustrumBox = new FrustrumBox(player, fov, near, far, width, height);
     }
     
     
-    public void render(GL3 gl) {
-        frustrumBox.update();
+    public void render(GL3 gl, Car player) {
+        frustrumBox.update(player);
         shadowFBO.bindFrameBuffer(gl);
         gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
         shadowShader.start(gl);
 
         gl.glEnable(GL3.GL_DEPTH_TEST);
 
-        shadowShader.loadProjectionMatrix(gl,frustrumBox.getOrthographicProjectionMatrix());
+        shadowShader.loadProjectionMatrix(gl, frustrumBox.getOrthographicProjectionMatrix());
         shadowShader.loadViewMatrix(gl, frustrumBox.getLightViewMatrix());
 
         for(Instance asset : GS.getAssets()) {
@@ -53,10 +54,10 @@ public class ShadowRenderer {
         }
 
         GS.getTrack().draw(gl, shadowShader);
-        GS.player.draw(gl, shadowShader);
+        player.draw(gl, shadowShader);
 
         shadowShader.stop(gl);
-        shadowFBO.unbindFrameBuffer(gl);
+        shadowFBO.unbindFrameBuffer(gl, player);
     }
 
     public int getDepthTexture() {

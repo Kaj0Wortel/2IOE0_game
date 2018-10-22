@@ -3,10 +3,12 @@ package src;
 
 
 // Jogamp imports
-
 import com.jogamp.opengl.GL3;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+
+
+// Own imports
 import src.Assets.*;
 import src.Assets.instance.*;
 import src.Assets.skybox.Skybox;
@@ -18,19 +20,17 @@ import src.tools.Binder;
 import src.tools.PosHitBox3f;
 import src.tools.io.BufferedReaderPlus;
 import src.tools.log.Logger;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import static src.Simulator.TYPE.*;
 import src.glGUI.SpeedNeedleGUI;
 import src.glGUI.StaticGUI;
 import static src.tools.io.BufferedReaderPlus.NO_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CSV;
 
-// Own imports
+
 // Java imports
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class Simulator {
@@ -75,7 +75,7 @@ public class Simulator {
         OBJCollection rock = LoadOBJ.load(gl, GS.OBJ_DIR + "Low-Poly_models.obj");
         OBJCollection planet = LoadOBJ.load(gl, GS.OBJ_DIR + "planet.obj");
         OBJCollection banner = LoadOBJ.load(gl, GS.OBJ_DIR + "startBanner.obj");
-
+        
         Map<Integer, OBJObject> rocks = new HashMap<Integer, OBJObject>();
         rocks.put(0, rock.get(0));
         rocks.put(1, rock.get(1));
@@ -170,12 +170,12 @@ public class Simulator {
                 new TextureImg(5,0.5f),null,null);
         new AIController((Car) aiCar);
         */
-        Car player2 = (Car) addToGamestate(CAR, car, new Vector3f(0, 2, 0), 5,
-                0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
-        new PlayerController(player2, 2);
 
         addToGamestate(PLAYER, car2, new Vector3f(0, 2, -30), 3,
                 0, 180, 0, 0, new TextureImg(5, 3f), null, null);
+        
+        addToGamestate(PLAYER, car, new Vector3f(0, 2, 0), 5,
+                0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
 
         addLight(new Vector3f(30000f, 50000f, 1f),
                 new Vector3f(1f, 1f, 1f));
@@ -311,9 +311,9 @@ public class Simulator {
                 cubeInstance = new Car(box,
                         size/1.75f, rotx, roty, rotz, texturedCube, 
                         integratedRotation, new PhysicsContext());
-                GS.player = (Car) cubeInstance;
+                GS.addPlayer((Car) cubeInstance);
                 GS.cars.add((Car) cubeInstance);
-                GS.camera.setFocus(GS.player);
+                GS.addMaterialAsset(cubeInstance);
                 break;
             }
             case OTHER:{
