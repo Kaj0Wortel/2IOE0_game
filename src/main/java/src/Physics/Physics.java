@@ -418,11 +418,6 @@ public class Physics {
             // </editor-fold>
             else {
                 s.internRotx -= 0.15 * dt;
-//                float change = (float) Math.pow(0.8, dt);
-//                s.internTrans.mul(change);
-//                s.internRotx *= change;
-//                s.internRoty *= change;
-//                s.internRotz *= change;
             }
 
             // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
@@ -469,7 +464,7 @@ public class Physics {
                 pStruct.turn = 0;
             else if (Math.abs(s.velocity) < pc.turnCorrection)
                 rotationalVelocity *= (Math.abs(s.velocity) / pc.turnCorrection);
-
+            
             // (TURN) Turn correction for negative velocities
             if (s.velocity < 0)
                 pStruct.turn = -pStruct.turn;

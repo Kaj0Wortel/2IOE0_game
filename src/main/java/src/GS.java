@@ -7,10 +7,8 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
-import net.java.games.input.ContrlEnv;
-import net.java.games.input.ControllerEnvironment;
 import org.joml.Vector3f;
-import src.Assets.GUI;
+import src.glGUI.GUI;
 import src.Assets.Light;
 import src.Assets.instance.Car;
 import src.Assets.instance.Instance;
@@ -44,8 +42,10 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.LogManager;
 
+import javax.swing.JLayeredPane;
 import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
@@ -53,6 +53,9 @@ import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 // Own imports
 // Java imports
 // JInput imports
+import net.java.games.input.ContrlEnv;
+import net.java.games.input.ControllerEnvironment;
+import src.tools.update.Updateable;
 
 
 /**
@@ -74,7 +77,7 @@ public class GS {
      * TODO.
      */
     public static enum CameraMode {
-        SOME_MODE;
+        DEFAULT, FIRST_PERSON, BACK;
     }
     
     
@@ -108,7 +111,7 @@ public class GS {
     
     final public static String LOG_FILE = WORKING_DIR + "log.log";
     final public static String SHADER_DIR = WORKING_DIR
-            + "shaderPrograms" + FS;
+            + "Shaders" + FS + "ShaderFiles" + FS;
     
     final public static String DATA_DIR = WORKING_DIR + "data" + FS;
     final public static String KEYS_CONFIG = DATA_DIR + "keys.conf";
@@ -119,18 +122,48 @@ public class GS {
     final public static String OBJ_DIR = RESOURCE_DIR + "obj" + FS;
     final public static String TEX_DIR = RESOURCE_DIR + "textures" + FS;
     
-    
     /** Image constants. */
     final public static String FRAME_ICON = "FRAME_ICON";
     final public static String ASTROID_POSITIONS = DATA_DIR + "astroidPositions.csv";
     
     /** Assets and camera. */
-    final private static List<Instance> assets = new ArrayList<>();
-    final private static List<Instance> materialAssets = new ArrayList();
-    final private static List<Instance> terrain = new ArrayList<>();
-    final private static List<Light> lights = new ArrayList<>();
-    final private static List<GUI> guis = new ArrayList<>();
-    final private static List<Item> items = new ArrayList<>();
+    final private static List<Instance> assets = new CopyOnWriteArrayList<>();
+    final private static List<Instance> materialAssets = new CopyOnWriteArrayList();
+    final private static List<Instance> terrain = new CopyOnWriteArrayList<>();
+    final private static List<Light> lights = new CopyOnWriteArrayList<>();
+    final private static List<Item> items = new CopyOnWriteArrayList<>();
+    final private static List<GUI> guis = new CopyOnWriteArrayList<>();
+    final public static List<Car> cars = new CopyOnWriteArrayList<>();
+    
+    final private static Counter counter = new Counter();
+    private static class Counter
+            implements Updateable {
+        
+        private long prevTimeStamp = 0;
+        
+        @Override
+        public void performUpdate(long timeStamp)
+                throws InterruptedException {
+            long dt = timeStamp - prevTimeStamp;
+            if (dt > 0 && dt < 100) {
+                time += dt;
+            }
+            prevTimeStamp = timeStamp;
+        }
+        
+        @Override
+        public void ignoreUpdate(long timeStamp)
+                throws InterruptedException {
+            prevTimeStamp = timeStamp;
+        }
+        
+        @Override
+        public Priority getPriority() {
+            return Priority.ONLY_WHEN_RUNNING;
+        }
+        
+        
+    }
     
     
     /**-------------------------------------------------------------------------
@@ -144,7 +177,7 @@ public class GS {
     public static CameraController cameraController;
     public static PlayerController playerController;
     public static Grid grid;
-    private static CameraMode cameraMode;
+    private static CameraMode cameraMode = CameraMode.DEFAULT;
     private static boolean fullScreen = false;
     private static Map<KeyAction, List<ControllerKey>> keyMap = new HashMap<>();
     private static Simulator simulator;
@@ -153,8 +186,8 @@ public class GS {
     private static FPSAnimator animator;
     private static Track raceTrack;
     private static Skybox skybox;
+    public static long time;
     
-    public static List<Car> cars = new ArrayList<>();
     public static Car player;
     
     public static int WIDTH = 1080;
@@ -228,8 +261,9 @@ public class GS {
         GLProfile profile = GLProfile.get(GLProfile.GL3);
         GLCapabilities cap = new GLCapabilities(profile);
         canvas = new GLCanvas(cap);
-        GS.mainPanel.showSwitchPanel(false);
-        GS.mainPanel.add(canvas);
+        mainPanel.showSwitchPanel(false);
+        mainPanel.add(canvas);
+        mainPanel.setLayer(canvas, JLayeredPane.DEFAULT_LAYER);
         
         grid = new Grid(0f, 0f, -10_000f, 20f, 20f, 20_000f);
 
@@ -249,6 +283,7 @@ public class GS {
         renderer.cleanup();
 
         Updater.start();
+        Updater.addTask(counter);
     }
     
     /**
@@ -272,6 +307,8 @@ public class GS {
                     new Rectangle[] {new Rectangle( 0, 56, 7,  7)}
                 }
         );
+        
+        ImageManager.registerSheet("game_icon.png", "GAME_ICON", 512, 512);
         
         ImageManager.registerSheet(GUI + "window.png", "BARS",
                 new Rectangle[][] {
@@ -571,23 +608,19 @@ public class GS {
         Logger.write("");
     }
     
-    public static List<Instance> getAssets(){
+    public static List<Instance> getAssets() {
         return assets;
     }
 
-    public static List<Instance> getTerrain(){
+    public static List<Instance> getTerrain() {
         return terrain;
     }
 
-    public static List<Light> getLights(){
+    public static List<Light> getLights() {
         return lights;
     }
 
-    public static List<GUI> getGUIs(){
-        return guis;
-    }
-
-    public static List<Instance> getMaterialAssets(){
+    public static List<Instance> getMaterialAssets() {
         return materialAssets;
     }
 
@@ -595,7 +628,7 @@ public class GS {
         return items;
     }
 
-    public static void addItem(Item item){
+    public static void addItem(Item item) {
         items.add(item);
     }
     
@@ -607,28 +640,42 @@ public class GS {
         materialAssets.add(asset);
     }
 
-    public static void addGUI(GUI gui){
+    public static void addGUI(GUI gui) {
         guis.add(gui);
     }
+
+    public static List<GUI> getGUIs() {
+        return guis;
+    }
     
-    public static void addAsset(Instance asset){
+    public static void addAsset(Instance asset) {
         assets.add(asset);
     }
 
-    public static void addTerrain(Instance asset){
+    public static void addTerrain(Instance asset) {
         terrain.add(asset);
     }
 
-    public static void addLight(Light light){
+    public static void addLight(Light light) {
         lights.add(light);
     }
 
-    public static CameraMode isCameraMode() {
+    public static CameraMode getCameraMode() {
         return cameraMode;
     }
     
     public static void setCameraMode(CameraMode cameraMode) {
         GS.cameraMode = cameraMode;
+    }
+    
+    public static void cycleNextCameraMode() {
+        if (GS.cameraMode == null) {
+            GS.cameraMode = CameraMode.DEFAULT;
+        } else {
+            CameraMode[] values = CameraMode.values();
+            cameraMode = values[(cameraMode.ordinal() + 1) % values.length];
+            
+        }
     }
 
     public static PlayerController getPlayerController() {
@@ -640,11 +687,11 @@ public class GS {
         raceTrack = track;
     }
 
-    public static void setSkybox(Skybox box){
+    public static void setSkybox(Skybox box) {
         skybox = box;
     }
 
-    public static Skybox getSkybox(){
+    public static Skybox getSkybox() {
         return skybox;
     }
     

@@ -23,13 +23,14 @@ public class TerrainRenderer {
         terrainShader.loadViewMatrix(gl, GS.camera.getViewMatrix());
         terrainShader.loadLight(gl,GS.getLights().get(0));
         terrainShader.loadCameraPos(gl, GS.camera.getPosition());
-        terrainShader.loadTexture(gl);
+        terrainShader.loadTextures(gl);
 
         for(Instance asset : GS.getTerrain()){
             terrainShader.loadTextureLightValues(gl, asset.getModel().getTextureImg().getShininess(), asset.getModel().getTextureImg().getReflectivity());
-            gl.glActiveTexture(gl.GL_TEXTURE0);
-            gl.glBindTexture(gl.GL_TEXTURE_2D, asset.getModel().getTextureImg().getTexture());
+            gl.glActiveTexture(GL3.GL_TEXTURE0);
+            gl.glBindTexture(GL3.GL_TEXTURE_2D, asset.getModel().getTextureImg().getTexture());
             asset.draw(gl, terrainShader);
+            gl.glDisable(GL3.GL_TEXTURE_2D);
         }
 
         terrainShader.stop(gl);

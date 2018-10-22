@@ -3,9 +3,6 @@ package src.Assets.instance;
 
 
 // Own imports
-
-import com.jogamp.opengl.GL3;
-import org.joml.Matrix4f;
 import src.Assets.GraphicsObject;
 import src.Assets.OBJTexture;
 import src.Assets.instance.ThrowingItemFactory.ItemType;
@@ -13,11 +10,15 @@ import src.GS;
 import src.Physics.PStructAction;
 import src.Physics.PhysicsContext;
 import src.Shaders.CarShader;
-import src.shadows.ShadowShader;
+import src.Shaders.ShadowShader;
 import src.tools.PosHitBox3f;
 import src.tools.log.Logger;
 
+
 // Java imports
+import com.jogamp.opengl.GL3;
+import java.util.Comparator;
+import org.joml.Matrix4f;
 
 
 /**
@@ -30,6 +31,14 @@ public class Car
     private CarShader carShader;
     private Matrix4f projectionMatrix;
     private int shadowMap;
+    
+    /**
+     * Comparator for comparing the progress of two cars.
+     */
+    public static Comparator<Car> progressComparator = (Car c1, Car c2) -> {
+        return c1.progress.compareTo(c2.progress);
+    };
+    
 
     public Car(PosHitBox3f box, float size,
                float rotx, float roty, float rotz,
@@ -68,6 +77,8 @@ public class Car
             }
             gl.glBindVertexArray(0);
         }
+        
+        gl.glDisable(GL3.GL_TEXTURE_2D);
     }
 
     private void prepare(GL3 gl){
@@ -81,6 +92,7 @@ public class Car
 
         gl.glActiveTexture(GL3.GL_TEXTURE0);
         gl.glBindTexture(GL3.GL_TEXTURE_2D, shadowMap);
+        gl.glEnable(GL3.GL_TEXTURE_2D);
     }
 
     @Override
@@ -117,8 +129,37 @@ public class Car
 
         super.movement(action);
     }
+    
+    /**
+     * @return the item this car has currently in it's inventory.
+     */
+    public ItemType getItem() {
+        return inventoryItem;
+    }
+    
+    /**
+     * @return the position this car is in the race, staring at 0.
+     * 
+     * Here we use a non-optimized approach, but still in O(n).
+     */
+    public int getRacePosition() {
+        GS.cars.sort(progressComparator);
+        int num = 0;
+        for (Car car : GS.cars) {
+            if (car == this) {
+                return num;
+            }
+            num++;
+        }
+        
+        return 0;
+    }
+    
+    public float getSpeedAngle() {
+        return Math.min((float) Math.PI / 2, Math.abs(getState().velocity / 15));
+    }
 
-    public void setCarShaderVariables(CarShader shader, Matrix4f projectionMatrix){
+    public void setCarShaderVariables(CarShader shader, Matrix4f projectionMatrix) {
         this.carShader = shader;
         this.projectionMatrix = projectionMatrix;
     }

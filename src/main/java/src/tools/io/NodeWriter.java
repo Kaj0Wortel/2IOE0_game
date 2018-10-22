@@ -151,5 +151,4 @@ public class NodeWriter
             System.err.println(e);
         }
     }
-    
 }

@@ -13,7 +13,7 @@ import src.Physics.Physics;
 import src.Physics.PhysicsContext;
 import src.Progress.ProgressManager;
 import src.Shaders.ShaderProgram;
-import src.shadows.ShadowShader;
+import src.Shaders.ShadowShader;
 import src.tools.PosHitBox3f;
 
 import javax.swing.*;

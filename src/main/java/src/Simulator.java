@@ -13,15 +13,21 @@ import src.Assets.skybox.Skybox;
 import src.Controllers.PlayerController;
 import src.OBJ.LoadOBJ;
 import src.Physics.PhysicsContext;
-import src.music.MusicManager;
 import src.racetrack.BezierTrack;
 import src.tools.Binder;
 import src.tools.PosHitBox3f;
+import src.tools.io.BufferedReaderPlus;
+import src.tools.log.Logger;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import static src.Simulator.TYPE.*;
+import src.glGUI.SpeedNeedleGUI;
+import src.glGUI.StaticGUI;
+import static src.tools.io.BufferedReaderPlus.NO_COMMENT;
+import static src.tools.io.BufferedReaderPlus.TYPE_CSV;
 
 // Own imports
 // Java imports
@@ -68,6 +74,7 @@ public class Simulator {
         OBJCollection car2 = LoadOBJ.load(gl, GS.OBJ_DIR + "offroadcar_better.obj");
         OBJCollection rock = LoadOBJ.load(gl, GS.OBJ_DIR + "Low-Poly_models.obj");
         OBJCollection planet = LoadOBJ.load(gl, GS.OBJ_DIR + "planet.obj");
+        OBJCollection banner = LoadOBJ.load(gl, GS.OBJ_DIR + "startBanner.obj");
 
         Map<Integer, OBJObject> rocks = new HashMap<Integer, OBJObject>();
         rocks.put(0, rock.get(0));
@@ -172,29 +179,56 @@ public class Simulator {
 
         addLight(new Vector3f(30000f, 50000f, 1f),
                 new Vector3f(1f, 1f, 1f));
-
-        addGUI(new TextureImg(gl,"test_icon.png"),
-                new Vector2f(-0.5f, -0.5f), new Vector2f(0.25f, 0.25f));
-
-        addToGamestate(TRACK, null, new Vector3f(0,1,-5), 3, 0,0,0, 0,
+        
+        // Add GUIs (in this exact order!)
+        Vector2f guiPos = new Vector2f(-1f, -1f);
+        Vector2f guiSize = new Vector2f(2f, 2f);
+        new StaticGUI(gl, guiPos, guiSize);
+        new SpeedNeedleGUI(gl, guiPos, guiSize);
+        
+        // Add track.
+        addToGamestate(TRACK, null, new Vector3f(0,1,-5), 3, 0, 0,0, 0,
                 new TextureImg(gl,"rainbow_road.png"),
                 new TextureImg(gl, "tileNormalMap.png"), null);
+        
+        try (BufferedReaderPlus brp = new BufferedReaderPlus(GS.ASTROID_POSITIONS,
+                NO_COMMENT, TYPE_CSV)) {
+            
+            String line;
+            while ((line = brp.readCSVCell(false)) != null) {
+                try {
+                    int rocktype = Integer.parseInt(line);
+                    Vector3f pos = new Vector3f(
+                            Integer.parseInt(brp.readCSVCell(false)),
+                            Integer.parseInt(brp.readCSVCell(false)),
+                            Integer.parseInt(brp.readCSVCell(false))
+                    );
 
-        int range = 1000;
-        for(int i = 0; i < 1000; i++){
-            addRock(rocks.get(GS.rani(0, 3)), new Vector3f(
-                    GS.rani(-range, range),
-                    GS.rani(-range, range),
-                    GS.rani(-range, range)
-            ), GS.rani(1, 8), GS.rani(0, 90), GS.rani(0, 90), GS.rani(0, 90), 0,
-            new TextureImg(5, 3f));
+                    int size =  Integer.parseInt(brp.readCSVCell(false));
+                    int angle1 = Integer.parseInt(brp.readCSVCell(false));
+                    int angle2 = Integer.parseInt(brp.readCSVCell(false));
+                    int angle3 = Integer.parseInt(brp.readCSVCell(false));
+
+                    addRock(rocks.get(rocktype), pos, size,
+                            angle1, angle2, angle3, 0,
+                            new TextureImg(5, 3f),
+                            MaterialInstance.Type.SPACE_ROCK);
+                    
+                } catch (NumberFormatException e) {
+                    Logger.write(e);
+                }
+            }
+            
+        } catch (IOException e) {
+            Logger.write(e);
         }
 
-        addRock(planet.get(0), new Vector3f(310,-30,780), 25,0,0,0,0,new TextureImg(5, 3f));
+        addRock(planet.get(0), new Vector3f(310, -30, 780), 25, 0, 0, 0, 0,
+                new TextureImg(5, 3f), MaterialInstance.Type.PLANET);
 
         addSkybox();
-
-
+        //addBanner(banner, new Vector3f(0, 0, 40), 4, 0, 90, 0, 0,
+         //       new TextureImg(gl, "rainbow_road.png"), null);
         
         System.out.println("Assets initialized");
 
@@ -303,12 +337,6 @@ public class Simulator {
         return cubeInstance;
     }
 
-    public void addGUI(TextureImg texture, Vector2f topright, Vector2f size) {
-        GUI test = new GUI(texture.getTexture(),
-                topright, size);
-        GS.addGUI(test);
-    }
-
     public void addLight(Vector3f position, Vector3f color) {
         Light light = new Light(position,
                 color);
@@ -322,7 +350,7 @@ public class Simulator {
     
     public void addRock(OBJObject rock, Vector3f position, int size,
             int rotx, int roty, int rotz, int integratedRotation,
-            TextureImg texture) {
+            TextureImg texture, MaterialInstance.Type type) {
         OBJCollection col = new OBJCollection();
         col.add(rock);
         OBJTexture texturedCube = new OBJTexture(col,
@@ -332,9 +360,23 @@ public class Simulator {
         box.translate(position);
         Instance cubeInstance = new MaterialInstance(box,
                 size, 0, 0, 0, texturedCube,
-                rotx, roty, rotz, new PhysicsContext(),
-                MaterialInstance.Type.SPACE_ROCK);
+                rotx, roty, rotz, new PhysicsContext(), type);
         GS.addMaterialAsset(cubeInstance);
+    }
+
+    public void addBanner(OBJCollection col, Vector3f position, int size,
+                          int rotx, int roty, int rotz, int integratedRotation,
+                          TextureImg texture, MaterialInstance.Type type){
+
+        OBJTexture texturedCube = new OBJTexture(col,
+                texture);
+        //box = new Box3f(new Vector3f(0f, -60f, 500f));
+        PosHitBox3f box = col.createBoundingBox();
+        box.translate(position);
+        Instance cubeInstance = new MaterialInstance(box,
+                size, 0, 0, 0, texturedCube,
+                rotx, roty, rotz, new PhysicsContext(), type);
+        GS.addTerrain(cubeInstance);
     }
     
     

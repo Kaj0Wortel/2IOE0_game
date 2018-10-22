@@ -42,7 +42,6 @@ public class MaterialInstance
         this.type = type;
         
         if (type == Type.PLANET || GS.R.nextFloat() < 0.5) {
-            System.out.println(type);
             SwingUtilities.invokeLater(() -> {
                 Updater.addTask(this);
             });

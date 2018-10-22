@@ -6,8 +6,8 @@ import org.joml.Vector3f;
 import src.Assets.TextureImg;
 import src.GS;
 import src.Shaders.RacetrackShader;
-import src.shadows.ShadowShader;
 
+import src.Shaders.ShadowShader;
 import java.nio.IntBuffer;
 import org.joml.Matrix3f;
 
@@ -90,8 +90,10 @@ public abstract class Track {
         gl.glEnableVertexAttribArray(0);
         gl.glEnableVertexAttribArray(1);
         gl.glEnableVertexAttribArray(2);
+        
         gl.glDrawElements(GL3.GL_TRIANGLES, nrV,
                 GL3.GL_UNSIGNED_INT, 0);
+        
         gl.glDisableVertexAttribArray(0);
         gl.glDisableVertexAttribArray(1);
         gl.glDisableVertexAttribArray(2);
@@ -154,6 +156,7 @@ public abstract class Track {
         gl.glBindTexture(GL3.GL_TEXTURE_2D, bumpmap.getTexture());
         gl.glActiveTexture(GL3.GL_TEXTURE2);
         gl.glBindTexture(GL3.GL_TEXTURE_2D, shadowMap);
+        gl.glEnable(GL3.GL_TEXTURE_2D);
     }
 
     public void draw(GL3 gl, ShadowShader shader){
@@ -164,7 +167,7 @@ public abstract class Track {
         gl.glDrawElements(GL3.GL_TRIANGLES, nrV,
                 GL3.GL_UNSIGNED_INT, 0);
         gl.glDisableVertexAttribArray(0);
-
+        gl.glDisable(GL3.GL_TEXTURE_2D);
         gl.glBindVertexArray(0);
     }
 

@@ -5,11 +5,13 @@ import org.joml.Vector3f;
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
 
-import static java.lang.Float.max;
 import static java.lang.Math.signum;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import src.GS;
+import src.tools.log.Logger;
 
 public class Camera
         implements Observer {
@@ -17,8 +19,6 @@ public class Camera
     private float pitch;
     private float yaw;
     private float roll;
-    
-    Matrix4f viewMatrix = new Matrix4f();
     
     int speed = 2;
     
@@ -38,6 +38,9 @@ public class Camera
     private float minRubberDistance = 25f;
     private float rubberVelocityFactor = 0.5f;
     private float fovVelocityFactor = 2.0f;
+    private Lock lock = new ReentrantLock();
+    
+    
     
     public Camera (Vector3f position, float pitch, float yaw, float roll){
         this.position = position;
@@ -49,17 +52,22 @@ public class Camera
         calculateViewMatrix();
     }
     
-    public void calculateViewMatrix(){
-        viewMatrix.identity();
-        viewMatrix.rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0));
-        viewMatrix.rotate((float) Math.toRadians(yaw), new Vector3f(0, 1, 0));
-        viewMatrix.rotate((float) Math.toRadians(roll), new Vector3f(0, 0, 1));
-        viewMatrix.translate(new Vector3f(position).negate());
+    public Matrix4f calculateViewMatrix() {
+        lock.lock();
+        try {
+            return new Matrix4f()
+                    .rotate((float) Math.toRadians(pitch), 1, 0, 0)
+                    .rotate((float) Math.toRadians(yaw),   0, 1, 0)
+                    .rotate((float) Math.toRadians(roll),  0, 0, 1)
+                    .translate(new Vector3f(position).negate());
+            
+        } finally {
+            lock.unlock();
+        }
     }
     
-    public Matrix4f getViewMatrix(){
-        calculateViewMatrix();
-        return viewMatrix;
+    public Matrix4f getViewMatrix() {
+        return calculateViewMatrix();
     }
     
     public void yaw(float amt) {
@@ -134,16 +142,24 @@ public class Camera
 
     public void rubberBand() {
         boolean turned = false;
-        if(focusedOn == null && rubberBandEnabled) {
-
-        } else {
-            angleAroundAsset *=-1;
+        if (focusedOn != null && rubberBandEnabled) {
+            angleAroundAsset *= -1;
             currentRotation = focusedOn.getRoty();
             //if(currentRotation < 0) currentRotation *= -1;
             //System.out.println(focusedOn.getRotz());
-            distanceToAsset = max(focusedOn.getState()
+            distanceToAsset = Math.max(focusedOn.getState()
                     .velocity * rubberVelocityFactor + minRubberDistance, minRubberDistance);
-            pitch = max(focusedOn.getState().velocity * 0.4f + 20, 20);
+            
+            if (GS.getCameraMode() == GS.CameraMode.DEFAULT) {
+                pitch = Math.max(focusedOn.getState().velocity * 0.4f + 20, 20);
+                
+            } else if (GS.getCameraMode() == GS.CameraMode.FIRST_PERSON) {
+                pitch = 0;
+                
+            } else if (GS.getCameraMode() == GS.CameraMode.BACK) {
+                pitch = Math.min(-focusedOn.getState().velocity * 0.4f + 20, 20);
+            }
+            
             if (angleAroundAsset >= -maxRubberAngle && angleAroundAsset <= maxRubberAngle) {
                 if (-rubberSmoothness > currentRotation - previousRotation ||
                         currentRotation - previousRotation  > rubberSmoothness) {
@@ -166,12 +182,22 @@ public class Camera
             previousRotation = currentRotation;
             angleAroundAsset *= -1;
         }
-        float targetPitch = 20 - focusedOn.getRotx();
+        
+        float targetPitch = 0;
+        if (GS.getCameraMode() == GS.CameraMode.DEFAULT) {
+            targetPitch = 20 - focusedOn.getRotx();
+
+        } else if (GS.getCameraMode() == GS.CameraMode.FIRST_PERSON) {
+            targetPitch = 0;
+
+        } else if (GS.getCameraMode() == GS.CameraMode.BACK) {
+            targetPitch = 20 + focusedOn.getRotx();
+        }
+        
         //System.out.println("targetPitch" + targetPitch);
         if (Math.abs(targetPitch - pitch) > 0.01f)
-        pitch = targetPitch;
+            pitch = targetPitch;
         //System.out.println("pitch" + pitch);
-
     }
 
     public void speedFOV() {
@@ -213,44 +239,84 @@ public class Camera
     }
     
     public void calculateInstanceValues() {
-        rubberBand();
-        speedFOV();
-        State state = focusedOn.getState();
-        float angle = state.roty + angleAroundAsset;
-        float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
-        float verDistance = (float) (distanceToAsset * Math.sin(Math.toRadians(pitch)));
-        float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
-        float z = (float) (horDistance * Math.cos(Math.toRadians(angle)));
-        position.x = state.box.pos().x + x;
-        position.y = state.box.pos().y + verDistance;
-        position.z = state.box.pos().z + z;
-        this.yaw = - (state.roty + angleAroundAsset);
-        this.yaw %= 360;
-
+        lock.lock();
+        try {
+            rubberBand();
+            speedFOV();
+            State state = focusedOn.getState();
+            float angle = state.roty + angleAroundAsset;
+            
+            if (GS.getCameraMode() == GS.CameraMode.DEFAULT) {
+                float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
+                float verDistance = (float) (distanceToAsset * Math.sin(Math.toRadians(pitch)));
+                float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
+                float z = (float) (horDistance * Math.cos(Math.toRadians(angle)));
+                
+                position.x = state.box.pos().x + x;
+                position.y = state.box.pos().y + verDistance;
+                position.z = state.box.pos().z + z;
+                this.yaw = -(state.roty + angleAroundAsset);
+                
+            } else if (GS.getCameraMode() == GS.CameraMode.FIRST_PERSON) {
+                this.pitch = -state.rotx;
+                this.yaw = -(state.roty + angleAroundAsset);
+                this.roll = state.rotz;
+                
+                float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
+                float verDistance = (float) Math.abs(distanceToAsset * Math.sin(Math.toRadians(pitch)));
+                float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
+                float z = (float) (horDistance * Math.cos(Math.toRadians(angle)));
+                
+                position.x = state.box.pos().x - x * 0.25f;
+                position.y = state.box.pos().y + 3f + verDistance * 0.25f;
+                position.z = state.box.pos().z - z * 0.25f;
+                
+            } else if (GS.getCameraMode() == GS.CameraMode.BACK) {
+                float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
+                float verDistance = (float) (distanceToAsset * Math.sin(Math.toRadians(pitch)));
+                float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
+                float z = (float) (horDistance * Math.cos(Math.toRadians(angle)));
+                
+                position.x = state.box.pos().x - x;
+                position.y = state.box.pos().y + verDistance;
+                position.z = state.box.pos().z - z;
+                this.yaw = -(state.roty + angleAroundAsset) + 180;
+                
+            } else {
+                Logger.write("Unknown camera mode: " + GS.getCameraMode(),
+                        Logger.Type.ERROR);
+                System.exit(-1);
+            }
+            this.yaw %= 360;
+            
+        } finally {
+            lock.unlock();
+        }
     }
 
     public Matrix4f getViewMatrixInverse() {
-        Matrix4f viewMatrixRotation = new Matrix4f();
-        viewMatrixRotation.rotate((float) Math.toRadians(yaw), new Vector3f(0, 1, 0));
-        viewMatrixRotation.rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0));
-        viewMatrixRotation.rotate((float) Math.toRadians(roll), new Vector3f(0, 0, 1));
-        viewMatrixRotation.transpose();
+        lock.lock();
+        try {
+            Matrix4f viewMatrixRotation = new Matrix4f()
+                    .rotate((float) Math.toRadians(yaw), new Vector3f(0, 1, 0))
+                    .rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0))
+                    .rotate((float) Math.toRadians(roll), new Vector3f(0, 0, 1))
+                    .transpose();
 
-        Matrix4f viewMatrixTranslation = new Matrix4f();
-        viewMatrixTranslation.translate(new Vector3f(position.x, position.y, position.z));
+            Matrix4f viewMatrixTranslation = new Matrix4f()
+                    .translate(position);
 
-        Matrix4f result = new Matrix4f();
-        viewMatrixTranslation.mul(viewMatrixRotation, result);
-
-        return result;
+            return viewMatrixTranslation.mul(viewMatrixRotation);
+            
+        } finally {
+            lock.unlock();
+        }
     }
     
     @Override
     public void update(Observable o, Object arg) {
         if (!(o instanceof Instance) ||
                 !(arg instanceof State)) return;
-        Instance source = (Instance) o;
-        State s = (State) arg;
         calculateInstanceValues();
     }
     
