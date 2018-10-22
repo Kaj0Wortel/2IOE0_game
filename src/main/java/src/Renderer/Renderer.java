@@ -97,7 +97,7 @@ public class Renderer
         gl.glEnable(GL3.GL_CULL_FACE);
         gl.glCullFace(GL3.GL_BACK);
 
-        if (fovChange){
+        if (fovChange) {
             getProjectionMatrix();
             fovChange = false;
         }

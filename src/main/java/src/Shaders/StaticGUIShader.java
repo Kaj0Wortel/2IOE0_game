@@ -36,6 +36,10 @@ public class StaticGUIShader
     private int positionsLoc;
     private int numbersLoc;
     private int lapLoc;
+
+    private int finishedLoc;
+    private int wonLoc;
+    private int lostLoc;
     
     
     public StaticGUIShader(GL3 gl) {
@@ -67,6 +71,10 @@ public class StaticGUIShader
         positionsLoc = getUniformLocation(gl, "positions");
         numbersLoc = getUniformLocation(gl, "numbers");
         lapLoc = getUniformLocation(gl, "lap");
+        finishedLoc = getUniformLocation(gl, "finished");
+        wonLoc = getUniformLocation(gl, "wonImg");
+        lostLoc = getUniformLocation(gl, "lostImg");
+
         
         // Variable locations.
         System.out.println("Transformation Matrix: " + transformationMatrixLoc);
@@ -166,6 +174,12 @@ public class StaticGUIShader
         loadUniformInt(gl, positionsLoc, 3);
         loadUniformInt(gl, numbersLoc, 4);
         loadUniformInt(gl, lapLoc, 5);
+        loadUniformInt(gl, wonLoc, 6);
+        loadUniformInt(gl, lostLoc, 7);
+    }
+
+    public void loadFinished(GL3 gl, boolean finished){
+        loadUniformBool(gl, finishedLoc, finished);
     }
     
     
