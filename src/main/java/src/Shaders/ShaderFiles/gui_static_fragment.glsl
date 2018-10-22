@@ -40,6 +40,7 @@ in vec2 texMaxLap;
 uniform sampler2D wonImg;
 uniform sampler2D lostImg;
 in vec2 texWin;
+uniform bool first;
 
 // Constants and variables.
 // Number sheet
@@ -89,7 +90,11 @@ void main() {
         color = addColor(color, getNumColor(numbers, texCurLap, curLap));
         color = addColor(color, getNumColor(numbers, texMaxLap, maxLap));
     } else{
-        color += getColor(wonImg, texWin);
+        if(first){
+            color += getColor(wonImg, texWin);
+        }else{
+            color+= getColor(lostImg, texWin);
+        }
     }
 }
 

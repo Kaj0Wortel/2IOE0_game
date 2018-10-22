@@ -4,7 +4,6 @@ package src.Progress;
 // Own imports
 
 import org.joml.Vector3f;
-import src.GS;
 import src.tools.Cloneable;
 
 // Java imports
@@ -32,8 +31,7 @@ public class ProgressManager
                     finished = true;
             }
         }
-        else if (finished)
-            GS.finished = true;
+        else if (finished);
     }
     
     @Override

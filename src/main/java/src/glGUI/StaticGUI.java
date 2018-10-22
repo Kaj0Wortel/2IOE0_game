@@ -35,7 +35,7 @@ public class StaticGUI
                 new TextureImg(gl, "numbers2.png"),
                 new TextureImg(gl, "lap.png"),
                 new TextureImg(gl, "youwon.png"),
-                new TextureImg(gl, "youwont.png")
+                new TextureImg(gl, "You_lose.png")
         );
         
         shader = new StaticGUIShader(gl);
@@ -53,6 +53,7 @@ public class StaticGUI
         shader.loadItemNum(gl, (item == null ? 0 : item.ordinal() + 1));
         shader.loadPositionNum(gl, car.getRacePosition());
         shader.loadFinished(gl, car.isFinished());
+        if(car.isFinished()) shader.loadFirst(gl, car.isFirst());
         
         for (int i = 0; i < textures.length; i++) {
             gl.glActiveTexture(GL3.GL_TEXTURE0 + i);

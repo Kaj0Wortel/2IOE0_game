@@ -40,6 +40,7 @@ public class StaticGUIShader
     private int finishedLoc;
     private int wonLoc;
     private int lostLoc;
+    private int firstLoc;
     
     
     public StaticGUIShader(GL3 gl) {
@@ -74,6 +75,7 @@ public class StaticGUIShader
         finishedLoc = getUniformLocation(gl, "finished");
         wonLoc = getUniformLocation(gl, "wonImg");
         lostLoc = getUniformLocation(gl, "lostImg");
+        firstLoc = getUniformLocation(gl, "first");
 
         
         // Variable locations.
@@ -180,6 +182,10 @@ public class StaticGUIShader
 
     public void loadFinished(GL3 gl, boolean finished){
         loadUniformBool(gl, finishedLoc, finished);
+    }
+
+    public void loadFirst(GL3 gl, boolean first){
+        loadUniformBool(gl, firstLoc, first);
     }
     
     

@@ -61,7 +61,7 @@ import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
  * Global state.
  */
 public class GS {
-    public static boolean finished = false;
+    public static Car first = null;
     /**-------------------------------------------------------------------------
      * Enums.
      * -------------------------------------------------------------------------

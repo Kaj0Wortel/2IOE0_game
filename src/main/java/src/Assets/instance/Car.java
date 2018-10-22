@@ -121,6 +121,10 @@ public class Car
 
     @Override
     public void movement(PStructAction action) {
+        if(isFinished() && GS.first == null){
+            GS.first = this;
+        }
+
         if (action.throwItem) {
             System.out.println("throw!");
             ThrowingItemFactory.createItem(inventoryItem, this);
@@ -172,4 +176,10 @@ public class Car
     public boolean isFinished(){
         return getProgressManager().lap > getProgressManager().lapTotal;
     }
+
+    public boolean isFirst(){
+        return GS.first == this;
+    }
+
+
 }
