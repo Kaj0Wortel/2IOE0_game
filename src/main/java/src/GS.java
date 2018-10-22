@@ -7,8 +7,9 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
+import net.java.games.input.ContrlEnv;
+import net.java.games.input.ControllerEnvironment;
 import org.joml.Vector3f;
-import src.glGUI.GUI;
 import src.Assets.Light;
 import src.Assets.instance.Car;
 import src.Assets.instance.Instance;
@@ -19,6 +20,7 @@ import src.Controllers.PlayerController;
 import src.Physics.Physics;
 import src.Renderer.Camera;
 import src.Renderer.Renderer;
+import src.glGUI.GUI;
 import src.grid.Grid;
 import src.gui.MainPanel;
 import src.music.MusicManager;
@@ -34,8 +36,10 @@ import src.tools.font.FontLoader;
 import src.tools.io.BufferedReaderPlus;
 import src.tools.io.ImageManager;
 import src.tools.log.*;
+import src.tools.update.Updateable;
 import src.tools.update.Updater;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -45,7 +49,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.LogManager;
 
-import javax.swing.JLayeredPane;
 import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
@@ -53,15 +56,13 @@ import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
 // Own imports
 // Java imports
 // JInput imports
-import net.java.games.input.ContrlEnv;
-import net.java.games.input.ControllerEnvironment;
-import src.tools.update.Updateable;
 
 
 /**
  * Global state.
  */
 public class GS {
+    public static Car first = null;
     /**-------------------------------------------------------------------------
      * Enums.
      * -------------------------------------------------------------------------

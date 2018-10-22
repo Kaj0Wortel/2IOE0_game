@@ -41,6 +41,7 @@ public class SpeedNeedleGUI
         //shader.loadAngle(gl, angle);
         shader.loadAngle(gl, car.getSpeedAngle());
         shader.loadModelMatrix(gl, getTransformationMatrix());
+        shader.loadFinished(gl, car.isFinished());
         
         for (int i = 0; i < textures.length; i++) {
             gl.glActiveTexture(GL3.GL_TEXTURE0 + i);
