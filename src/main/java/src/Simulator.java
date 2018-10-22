@@ -313,7 +313,6 @@ public class Simulator {
                         integratedRotation, new PhysicsContext());
                 GS.addPlayer((Car) cubeInstance);
                 GS.cars.add((Car) cubeInstance);
-                GS.addMaterialAsset(cubeInstance);
                 break;
             }
             case OTHER:{

@@ -52,9 +52,12 @@ public class ShadowRenderer {
         for(Instance asset : GS.getTerrain()){
             asset.draw(gl, shadowShader);
         }
+        
+        for (Car p : GS.getPlayers()) {
+            p.draw(gl, shadowShader);
+        }
 
         GS.getTrack().draw(gl, shadowShader);
-        player.draw(gl, shadowShader);
 
         shadowShader.stop(gl);
         shadowFBO.unbindFrameBuffer(gl, player);

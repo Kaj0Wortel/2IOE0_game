@@ -131,8 +131,10 @@ public class Renderer
                 materialRenderer.render(gl, player);
                 terrainRenderer.render(gl, player);
                 itemRenderer.render(gl, player);
-
-                player.draw(gl, player, shadowRenderers.get(player).getShadowMatrix());
+                
+                for (Car p : GS.getPlayers()) {
+                    p.draw(gl, player, shadowRenderers.get(player).getShadowMatrix());
+                }
 
                 gl.glDisable(GL3.GL_CULL_FACE);
                 GS.getTrack().draw(gl, player, shadowRenderers.get(player).getShadowMatrix());

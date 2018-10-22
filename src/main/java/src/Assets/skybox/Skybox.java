@@ -81,8 +81,8 @@ public class Skybox {
     
     public void draw(GL3 gl, Car player, Matrix4f projectionMatrix) {
         skyBoxShader.start(gl);
-
-        skyBoxShader.loadProjectionMatrix(gl,projectionMatrix);
+        
+        skyBoxShader.loadProjectionMatrix(gl, projectionMatrix);
         skyBoxShader.loadViewMatrix(gl, getSkyboxViewMatrix(player));
         skyBoxShader.loadTextures(gl);
 
