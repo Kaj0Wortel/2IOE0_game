@@ -401,7 +401,6 @@ public class Physics {
                 //write the needed rotation to the rotation only do this with the final value
                 s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));
                 s.rotx = (float) (-rotz * Math.cos(yz_ang - s.roty));
-
                 // </editor-fold>
                 
                 // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
@@ -414,7 +413,7 @@ public class Physics {
             }
             // </editor-fold>
             else {
-                s.internRotx -= 0.15 * dt;
+                s.internRotx -= 0.15 * dt * s.velocity/Math.abs(s.velocity);
             }
 
             // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
@@ -645,18 +644,27 @@ public class Physics {
             double yz = Math.sqrt(Math.pow(y,2) + Math.pow(z,2));
             double yz_ang = Math.atan2(y, z);
             double rotz = Math.atan2(x, yz);
-            float rotzDif = (float) (rotz * Math.cos(yz_ang - s.roty) - s.rotz);            
-            float rotxDif = (float) (rotz * Math.sin(yz_ang - s.roty) - s.rotx);
-            s.rotz += 0.1*rotzDif;
-            s.rotx += 0.1*rotxDif;
+            float rotzDif = (float) (rotz * Math.sin(yz_ang - s.roty));            
+            float rotxDif = (float) (rotz * Math.cos(yz_ang - s.roty));
+//            s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));
+            s.rotx = (float) (-rotz * Math.cos(yz_ang - s.roty));
+            s.rotz += 0.1*(rotzDif - s.rotz);
+//            s.rotx += 0.1*(rotxDif - s.rotx);
             // Final velocity
             eV = 0;
 
+//                s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));           
+            s.internRotx -= 0.1 * s.internRotx;
+//            s.internRotz += 0.1*(x - s.internRotz);
+//            s.internRoty = 0;
+//            s.internRotz = 0;
+            
             if (Math.sqrt(diffPos.x*diffPos.x + diffPos.y*diffPos.y + diffPos.z*diffPos.z) < 1) {
                 s.collisionVelocity = 0;
                 s.verticalVelocity = 4;
                 s.onTrack = true;
                 eRot = finalRot;
+                s.internRotx = 0;
                 //
                 float dist = 0;
                 float shortestDist = 1000000;
@@ -677,13 +685,11 @@ public class Physics {
                 s.isResetting = false;
             }
             
-            s.internRotx = 0;
-            s.internRoty = 0;
-            s.internRotz = 0;
-            s.internTrans = new Vector3f();
+//            s.internTrans = new Vector3f(); 
+            System.out.println("rotz = " + s.rotz);
         }
         // </editor-fold>
-        
+
         // Update the state.
         s.box.setPosition(ePos);
         s.velocity = eV;
