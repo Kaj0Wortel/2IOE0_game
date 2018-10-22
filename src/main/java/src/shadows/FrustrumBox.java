@@ -5,6 +5,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import src.Assets.instance.Car;
 import src.GS;
+import src.tools.log.Logger;
 
 public class FrustrumBox {
 
@@ -56,6 +57,7 @@ public class FrustrumBox {
         
         transform(eyeVertices, GS.getCam(player).getViewMatrixInverse());
         transform(eyeVertices, GS.getLights().get(0).getRotationMatrix());
+        Logger.write(GS.getCam(player).getViewMatrixInverse());
         
         getBoundingBox(eyeVertices);
     }

@@ -306,11 +306,9 @@ public class Camera
     public Matrix4f getViewMatrixInverse() {
         lock.lock();
         try {
-            return new Matrix4f(getViewMatrix()).invert();
-            /*
             Matrix4f viewMatrixRotation = new Matrix4f()
-                    .rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0))
                     .rotate((float) Math.toRadians(yaw), new Vector3f(0, 1, 0))
+                    .rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0))
                     .rotate((float) Math.toRadians(roll), new Vector3f(0, 0, 1))
                     .transpose();
 
@@ -318,7 +316,6 @@ public class Camera
                     .translate(position);
 
             return viewMatrixTranslation.mul(viewMatrixRotation);
-            */
         } finally {
             lock.unlock();
         }
