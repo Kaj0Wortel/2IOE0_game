@@ -7,6 +7,7 @@ import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.Light;
+import src.GS;
 import src.OBJ.MTLObject;
 
 import java.io.BufferedReader;
@@ -16,7 +17,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import src.GS;
 
 public abstract class ShaderProgram {
 
@@ -194,6 +194,11 @@ public abstract class ShaderProgram {
 
     public void loadUniformInt(GL3 gl, int location, int in) {
         gl.glUniform1i(location, in);
+    }
+
+    public void loadUniformBool(GL3 gl, int location, boolean bool){
+        if(bool) gl.glUniform1i(location, 1);
+        else gl.glUniform1i(location,0);
     }
 
     public void stop(GL3 gl) {

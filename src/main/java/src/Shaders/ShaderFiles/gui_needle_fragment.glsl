@@ -6,6 +6,8 @@ layout(location = 0) out vec4 color;
 uniform sampler2D speedNeedle;
 in vec2 texSpeedNeedle;
 
+uniform bool finished;
+
 
 // Functions
 vec4 getColor(sampler2D img, vec2 tex);
@@ -13,7 +15,9 @@ vec4 getColor(sampler2D img, vec2 tex);
 
 void main() {
     color = vec4(0, 0, 0, 0);
-    color += getColor(speedNeedle, texSpeedNeedle);
+    if(!finished){
+        color += getColor(speedNeedle, texSpeedNeedle);
+    }
 }
 
 vec4 getColor(sampler2D img, vec2 tex) {

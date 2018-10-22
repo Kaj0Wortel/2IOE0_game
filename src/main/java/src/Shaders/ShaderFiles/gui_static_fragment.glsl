@@ -2,6 +2,8 @@
 
 layout(location = 0) out vec4 color;
 
+uniform bool finished;
+
 // Images and texture coords.
 uniform sampler2D speedMeter;
 in vec2 texSpeedMeter;
@@ -35,6 +37,10 @@ in vec2 texLap;
 in vec2 texCurLap;
 in vec2 texMaxLap;
 
+uniform sampler2D wonImg;
+uniform sampler2D lostImg;
+in vec2 texWin;
+uniform bool first;
 
 // Constants and variables.
 // Number sheet
@@ -64,24 +70,32 @@ vec4 addColor(vec4 back, vec4 front);
 
 void main() {
     color = vec4(0, 0, 0, 0);
-    
-    color += getColor(itemBox, texItemBox);
-    color = addColor(color,
-            getMultiImage(item, texItem, vec2(itemNum, 0), ITEM_DIM));
 
-    color += getColor(speedMeter, texSpeedMeter);
-    
-    color += getMultiImage(positions, texPosition, vec2(positionNum, 0), POS_DIM);
-    
-    color += getNumColor(numbers, texNumber1, time1);
-    color += getNumColor(numbers, texNumber2, time2);
-    color += getNumColor(numbers, texColon, 10);
-    color += getNumColor(numbers, texNumber3, time3);
-    color += getNumColor(numbers, texNumber4, time4);
-    
-    color += getColor(lap, texLap);
-    color = addColor(color, getNumColor(numbers, texCurLap, curLap));
-    color = addColor(color, getNumColor(numbers, texMaxLap, maxLap));
+    if(!finished){
+        color += getColor(itemBox, texItemBox);
+        color = addColor(color,
+                getMultiImage(item, texItem, vec2(itemNum, 0), ITEM_DIM));
+
+        color += getColor(speedMeter, texSpeedMeter);
+
+        color += getMultiImage(positions, texPosition, vec2(positionNum, 0), POS_DIM);
+
+        color += getNumColor(numbers, texNumber1, time1);
+        color += getNumColor(numbers, texNumber2, time2);
+        color += getNumColor(numbers, texColon, 10);
+        color += getNumColor(numbers, texNumber3, time3);
+        color += getNumColor(numbers, texNumber4, time4);
+
+        color += getColor(lap, texLap);
+        color = addColor(color, getNumColor(numbers, texCurLap, curLap));
+        color = addColor(color, getNumColor(numbers, texMaxLap, maxLap));
+    } else{
+        if(first){
+            color += getColor(wonImg, texWin);
+        }else{
+            color+= getColor(lostImg, texWin);
+        }
+    }
 }
 
 

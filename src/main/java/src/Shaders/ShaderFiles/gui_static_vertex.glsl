@@ -23,6 +23,7 @@ out vec2 texLap;
 out vec2 texCurLap;
 out vec2 texMaxLap;
 
+out vec2 texWin;
 
 // Functions
 vec2 calcTexCoords(vec2 pos, vec2 size);
@@ -52,6 +53,11 @@ void main() {
             vec2(1.0f, 0.85f),
             vec2(0.1f, 0.1f),
             vec2(1.0f, 1.0f));
+
+    texWin = calcTexCoordsKeepRatioAnchor(
+                 vec2(0.5f, 0.5f),
+                 vec2(0.5f, 0.5f),
+                 vec2(0.5f, 0.5f));
     
     vec2 start = vec2(0.45, 0.975f);
     texNumber1 = calcTexCoordsKeepRatioAnchor(

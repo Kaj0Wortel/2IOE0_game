@@ -3,6 +3,8 @@ package src.Assets.instance;
 
 
 // Own imports
+import com.jogamp.opengl.GL3;
+import org.joml.Matrix4f;
 import src.Assets.GraphicsObject;
 import src.Assets.OBJTexture;
 import src.Assets.instance.ThrowingItemFactory.ItemType;
@@ -14,11 +16,9 @@ import src.Shaders.ShadowShader;
 import src.tools.PosHitBox3f;
 import src.tools.log.Logger;
 
+import java.util.Comparator;
 
 // Java imports
-import com.jogamp.opengl.GL3;
-import java.util.Comparator;
-import org.joml.Matrix4f;
 
 
 /**
@@ -121,6 +121,10 @@ public class Car
 
     @Override
     public void movement(PStructAction action) {
+        if(isFinished() && GS.first == null){
+            GS.first = this;
+        }
+
         if (action.throwItem) {
             System.out.println("throw!");
             ThrowingItemFactory.createItem(inventoryItem, this);
@@ -168,4 +172,14 @@ public class Car
     public void setShadowMap(int depthTexture) {
         this.shadowMap = depthTexture;
     }
+
+    public boolean isFinished(){
+        return getProgressManager().lap > getProgressManager().lapTotal;
+    }
+
+    public boolean isFirst(){
+        return GS.first == this;
+    }
+
+
 }

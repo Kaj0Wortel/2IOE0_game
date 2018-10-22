@@ -22,6 +22,7 @@ public class SpeedNeedleGUIShader
     private int angleSinLoc;
     
     private int speedNeedleLoc;
+    private int finishedLoc;
 
     
     public SpeedNeedleGUIShader(GL3 gl) {
@@ -42,6 +43,7 @@ public class SpeedNeedleGUIShader
         angleCosLoc = getUniformLocation(gl, "cosAngle");
         
         speedNeedleLoc = getUniformLocation(gl, "speedNeedle");
+        finishedLoc = getUniformLocation(gl, "finished");
         
         System.out.println("Transformation Matrix: " + transformationMatrixLoc);
         System.out.println("screenRatioLoc: " + screenRatioLoc);
@@ -117,6 +119,10 @@ public class SpeedNeedleGUIShader
     @Override
     public void loadTextures(GL3 gl) {
         loadUniformInt(gl, speedNeedleLoc, 0);
+    }
+
+    public void loadFinished(GL3 gl, boolean bool){
+        loadUniformBool(gl, finishedLoc, bool);
     }
     
     
