@@ -189,7 +189,6 @@ public class DequeRequestReader
         }
     }
     public static void main(String[] args) {
-        /*
         try (FileWriter fw = new FileWriter(testFile, false)) {
             for (int i = 1; i <= 10_000; i++) {
                 fw.write("line " + i + System.getProperty("line.separator"));
@@ -198,7 +197,6 @@ public class DequeRequestReader
         } catch (IOException e) {
             System.err.println(e);
         }
-        *//*
         try (DequeRequestReader drr = new DequeRequestReader(new File(testFile), 1000)) {
             Thread.sleep(100);
             for (int j = 0; j < 10; j++) {
@@ -213,7 +211,7 @@ public class DequeRequestReader
         } finally {
             
         }
-        /**/
-    }
+        
+    }/**/
     
 }
