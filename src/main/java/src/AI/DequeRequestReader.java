@@ -62,7 +62,7 @@ public class DequeRequestReader
                         // wait for an item to be pulled.
                         lock.lock();
                         try {
-                            if (buffer.size() >= queueSize) {
+                            if (buffer.size() >= DequeRequestReader.this.queueSize) {
                                 producerIsWaiting = true;
                                 bufferFull.await();
                                 producerIsWaiting = false;
