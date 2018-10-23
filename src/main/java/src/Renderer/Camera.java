@@ -24,7 +24,7 @@ public class Camera
     private float pitch;
     private float yaw;
     private float roll;
-    private float fov;
+    private float fov = 70;
     private float fovOffset;
     private boolean fovChange;
     
