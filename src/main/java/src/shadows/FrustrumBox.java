@@ -5,7 +5,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import src.Assets.instance.Car;
 import src.GS;
-import src.tools.log.Logger;
+import src.Renderer.Camera;
 
 public class FrustrumBox {
 
@@ -14,7 +14,6 @@ public class FrustrumBox {
     private float depth;
     private Vector3f center = new Vector3f();
 
-    private float fov;
     private float near;
     private float far;
     private float windowWidth; // TODO
@@ -22,9 +21,8 @@ public class FrustrumBox {
 
     final private float SHADOW_DISTANCE = 300;
 
-    public FrustrumBox(Car player, float FOV, float NEAR, float FAR,
+    public FrustrumBox(Car player, float NEAR, float FAR,
             float windowWidth, float windowHeight) {
-        this.fov = FOV;
         this.near = NEAR;
         this.far = FAR;
         this.windowWidth = windowWidth;
@@ -38,9 +36,10 @@ public class FrustrumBox {
     }
 
     public void update(Car player) {
-        float hhn = (float) Math.tan(Math.toRadians(fov/2)) * near;
+        Camera cam = GS.getCam(player);
+        float hhn = (float) Math.tan(Math.toRadians(cam.fov()/2)) * near;
         float hwn = getAspectRatio() * hhn;
-        float hhf = (float) Math.tan(Math.toRadians(fov/2)) * SHADOW_DISTANCE;
+        float hhf = (float) Math.tan(Math.toRadians(cam.fov()/2)) * SHADOW_DISTANCE;
         float hwf = getAspectRatio() * hhf;
         
         Vector4f[] eyeVertices = new Vector4f[] {

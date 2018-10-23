@@ -74,7 +74,7 @@ public class Renderer
                 cam.calcProjectionMatrix();
                 guiRenderers.put(player, new GUIRenderer(gl, player));
                 ShadowRenderer sr = new ShadowRenderer(gl, player,
-                        GS.getCam(player).fov(), NEAR, FAR, width, height);
+                        NEAR, FAR, width, height);
                 shadowRenderers.put(player, sr);
                 GS.getTrack().setShadowMap(sr.getDepthTexture());
                 player.setShadowMap(sr.getDepthTexture());

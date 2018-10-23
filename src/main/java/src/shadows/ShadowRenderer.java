@@ -3,8 +3,6 @@ package src.shadows;
 import src.Shaders.ShadowShader;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.instance.Car;
@@ -20,11 +18,11 @@ public class ShadowRenderer {
     private ShadowFBO shadowFBO;
     
     
-    public ShadowRenderer(GL3 gl, Car player, float fov, float near, float far,
+    public ShadowRenderer(GL3 gl, Car player, float near, float far,
             float width, float height) {
         shadowShader = new ShadowShader(gl);
         shadowFBO = new ShadowFBO(gl, player, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
-        frustrumBox = new FrustrumBox(player, fov, near, far, width, height);
+        frustrumBox = new FrustrumBox(player, near, far, width, height);
     }
     
     
