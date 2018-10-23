@@ -129,12 +129,14 @@ public class Renderer
                 terrainRenderer.render(gl, player);
                 itemRenderer.render(gl, player);
                 
+                Matrix4f shadowMatrix = sr.getShadowMatrix();
+                
                 for (Car p : GS.getPlayers()) {
-                    p.draw(gl, player, shadowRenderers.get(player).getShadowMatrix());
+                    p.draw(gl, player, shadowMatrix);
                 }
 
                 gl.glDisable(GL3.GL_CULL_FACE);
-                GS.getTrack().draw(gl, player, sr.getShadowMatrix());
+                GS.getTrack().draw(gl, player, shadowMatrix);
                 GS.getSkybox().draw(gl, player);
                 guiRenderers.get(player).render(gl, player);
 
