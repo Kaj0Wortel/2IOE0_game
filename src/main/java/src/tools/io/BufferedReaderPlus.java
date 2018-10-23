@@ -45,7 +45,7 @@ import java.util.List;
  */
 public class BufferedReaderPlus
         extends BufferedReader
-        implements Closeable, AutoCloseable {
+        implements Closeable {
     
     // Types of supported comments.
     final public static int NO_COMMENT = -1;

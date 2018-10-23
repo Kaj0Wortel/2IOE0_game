@@ -70,6 +70,7 @@ public class ThrowingItemFactory {
         ThrowingItem item = sourceMap.get(type).clone();
         State is = item.getState();
         State ss = source.getState();
+        /*
         item.setState(new State(new PosHitBox3f(
                 new Vector3f(pos).add(new Vector3f(0, 5, 10)),
                 new Vector3f(is.box.relPos()),
@@ -79,7 +80,7 @@ public class ThrowingItemFactory {
                 ss.internRotx, ss.internRoty, ss.internRotz,
                 ss.internTrans, ss.velocity, 0, ss.verticalVelocity,
                 true, false, 0, false)
-        );
+        );*/
         item.setProgressManager(source.getProgressManager().clone());
         
         Logger.write(item.getState().isResetting);
