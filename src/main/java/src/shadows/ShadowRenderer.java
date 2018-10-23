@@ -7,6 +7,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.instance.Car;
 import src.Assets.instance.Instance;
+import src.Assets.instance.Item;
 import src.GS;
 
 public class ShadowRenderer {
@@ -41,7 +42,7 @@ public class ShadowRenderer {
             asset.draw(gl, shadowShader);
         }
 
-        for(Instance item : GS.getItems()) {
+        for(Item item : GS.getItems()) {
             item.draw(gl, shadowShader);
         }
 
