@@ -46,6 +46,7 @@ public abstract class Instance
         
         final public float velocity;
         final public float collisionVelocity;
+        final public float colAngle;
         final public float verticalVelocity;
         final public boolean onTrack;
         final public boolean inAir;
@@ -57,7 +58,7 @@ public abstract class Instance
                 float rotx, float roty, float rotz,
                 float internRotx, float internRoty, float internRotz,
                 Vector3f internTrans, float velocity, float collisionVelocity,
-                float verticalVelocity, boolean onTrack, boolean inAir, 
+                float colAngle, float verticalVelocity, boolean onTrack, boolean inAir, 
                 int rIndex, boolean isResetting) {
             this.box = box;
             this.sizex = sizex;
@@ -72,6 +73,7 @@ public abstract class Instance
             this.internTrans = internTrans;
             this.velocity = velocity;
             this.collisionVelocity = collisionVelocity;
+            this.colAngle = colAngle;
             this.verticalVelocity = verticalVelocity;
             this.onTrack = onTrack;
             this.inAir = inAir;
@@ -112,7 +114,7 @@ public abstract class Instance
         box.scaleHitBox(sizex, sizey, sizez);
         setState(new State(box, sizex, sizey, sizez,
                 rotx, roty, rotz,
-                internRotx, internRoty, internRotz, new Vector3f(), 0, 0, 0, 
+                internRotx, internRoty, internRotz, new Vector3f(), 0, 0, 0, 0, 
                 true, false, 0, false));
         
         this.model = model;
@@ -195,7 +197,7 @@ public abstract class Instance
         setState(new State(s.box, s.sizex, s.sizey, s.sizez,
                 (s.rotx + rot) % 360, s.roty, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
-                s.internTrans, s.velocity, s.collisionVelocity,
+                s.internTrans, s.velocity, s.collisionVelocity, s.colAngle,
                 s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
     }
     
@@ -209,7 +211,7 @@ public abstract class Instance
         setState(new State(s.box, s.sizex, s.sizey, s.sizez,
                 s.rotx, (s.roty + rot) % 360, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
-                s.internTrans, s.velocity, s.collisionVelocity,
+                s.internTrans, s.velocity, s.collisionVelocity, s.colAngle,
                 s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
     }
 
@@ -223,7 +225,7 @@ public abstract class Instance
         setState(new State(s.box, s.sizex, s.sizey, s.sizez,
                 s.rotx, s.roty, (s.rotz + rot) % 360,
                 s.internRotx, s.internRoty, s.internRotz,
-                s.internTrans, s.velocity, s.collisionVelocity,
+                s.internTrans, s.velocity, s.collisionVelocity, s.colAngle,
                 s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
     }
     
@@ -232,7 +234,7 @@ public abstract class Instance
         setState(new State(s.box, s.sizex, s.sizey, s.sizez,
                 (s.rotx + rotx) % 360, (s.roty + roty) % 360, (s.rotz + rotz) % 360,
                 s.internRotx, s.internRoty, s.internRotz,
-                s.internTrans, s.velocity, s.collisionVelocity,
+                s.internTrans, s.velocity, s.collisionVelocity, s.colAngle,
                 s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
     }
 
@@ -249,7 +251,7 @@ public abstract class Instance
         setState(new State(newBox, s.sizex, s.sizey, s.sizez,
                 s.rotx, s.roty, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
-                s.internTrans, s.velocity, s.collisionVelocity,
+                s.internTrans, s.velocity, s.collisionVelocity, s.colAngle,
                 s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
     }
 

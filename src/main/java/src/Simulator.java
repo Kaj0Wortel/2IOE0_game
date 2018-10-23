@@ -116,16 +116,6 @@ public class Simulator {
                     EnvironmentItem.Type.SLOW_DOWN);
             GS.addAsset(cubeInstance);
         }*/
-        // SLOPE TEST
-        /*for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj,
-                    new TextureImg(5, 0.5f));
-            box = new Box3f(new Vector3f(-100f, -81f, -100f), 2f, 2f, 6f);
-            Instance cubeInstance = new EnvironmentItem(box,
-                    150f, 0, -45, -35.26438968f, texturedCube, 0, new PhysicsContext(),
-                    EnvironmentItem.Type.SLOW_DOWN);
-            GS.addAsset(cubeInstance);
-        }*/
         
         /*
         addToGamestate(ITEM, col, new Vector3f(0f, -115f, 540f), 1, 45, 45, 45, 0,

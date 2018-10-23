@@ -112,7 +112,7 @@ public class AStarPointersGlueFinal {
         //checkPoints.add(new Point2D.Double(points[1800].x, points[1800].y));
         //checkPoints.add(new Point2D.Double(points[2000].x, points[2000].y));
         //checkPoints.add(new Point2D.Double(points[2200].x, points[2200].y));
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 1; i++) {
             for (int k = 50; k < (int)(points.length*1f); k = k + 100) {
                 if (k != 2950 && k != 3050 && k != 4950 && k != 5450 && k != 5550 && k != 5950 && k != 6050) {
                 checkPoints.add(new Point2D.Double(points[k].x, points[k].y));
@@ -140,8 +140,6 @@ public class AStarPointersGlueFinal {
         Point2D.Double startPos = firstPos;
         NodeGlueFinal cpStart;
         
-        // Time interval between actions/itterations
-        float tInt = 0.1f;
         // Amount of itterations/time allowed per pathfind
         int iterAllowed = 50000;
         
@@ -244,6 +242,7 @@ public class AStarPointersGlueFinal {
                     curNode = o;
                 }
             }
+            System.out.println(curNode.pos +": "+curNode.turn+","+curNode.accel);
             // curNode is added to the closed list.
             closedlist.add(curNode);
             openlist.remove(curNode);
@@ -275,7 +274,7 @@ public class AStarPointersGlueFinal {
                     int acc = j;
                     
                     // delta time
-                    float dt = 0.1f;
+                    float dt = 0.05f;
                     // vFactor
                     Vector3f carDir, u, uNorm, vFactor;
                     float udist;
@@ -449,7 +448,7 @@ public class AStarPointersGlueFinal {
                     // <editor-fold defaultstate="collapsed" desc="G & H">
                     double sg, sh;
                     // Determine g
-                    sg = curNode.g + curNode.v * tInt;
+                    sg = curNode.g + curNode.v * dt;
                     
                     // Determine h  
                     sh = 0;
@@ -574,6 +573,14 @@ public class AStarPointersGlueFinal {
                     -pathList.get(0).pos.y));
             // First path element should be start, not end
             Collections.reverse(pathList);
+            
+            // <editor-fold defaultstate="collapsed" desc="TEST AI">
+            System.out.println("--------------------------------------");
+            for (NodeGlueFinal p : pathList) {
+                System.out.println("AIList.add(new Vector3f("
+                        + (p.pos.x) + "f," + (p.pos.y) + "f,0f));");
+            }
+            // </editor-fold>
             
         } else {
             System.err.println("NO PATH COULD BE MADE");

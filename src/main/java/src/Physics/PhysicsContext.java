@@ -75,7 +75,7 @@ public class PhysicsContext
         this.knockbackDur = 0.9f;
         this.accBlockDur = 5f;
         this.largeSlowDown = 4f;
-        this.bounceFactor = 0.5f;//0.5
+        this.bounceFactor = 0.5f;
         this.airControl = 0.6f;
         this.brakeAccel = 2;
     }
