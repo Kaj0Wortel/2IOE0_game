@@ -57,7 +57,6 @@ public class FrustrumBox {
         
         transform(eyeVertices, GS.getCam(player).getViewMatrixInverse());
         transform(eyeVertices, GS.getLights().get(0).getRotationMatrix());
-        Logger.write("\n" + GS.getCam(player).getViewMatrixInverse());
         
         getBoundingBox(eyeVertices);
     }
