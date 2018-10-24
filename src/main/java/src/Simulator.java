@@ -156,8 +156,8 @@ public class Simulator {
                 new TextureImg(5, 0.5f), null, null);
 
         
-        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0,2,0), 5,0,180,0,90,
-                new TextureImg(5,0.5f),null,null);
+        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0, 2, 0), 9,
+                0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
         aiCar.setAI(true);
         new AIController((Car) aiCar);
         
@@ -165,8 +165,8 @@ public class Simulator {
         addToGamestate(PLAYER, car2, new Vector3f(0, 2, -30), 3,
                 0, 180, 0, 0, new TextureImg(5, 3f), null, null);
         
-        addToGamestate(PLAYER, car, new Vector3f(0, 2, 0), 9,
-                0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
+        //addToGamestate(PLAYER, car, new Vector3f(0, 2, 0), 9,
+        //        0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
 
         addLight(new Vector3f(30000f, 50000f, 1f),
                 new Vector3f(1f, 1f, 1f));
@@ -292,7 +292,7 @@ public class Simulator {
                         size, rotx, roty, rotz, texturedCube,
                         integratedRotation, new PhysicsContext());
                 GS.cars.add((Car) cubeInstance);
-                GS.addMaterialAsset(cubeInstance);
+                //GS.addMaterialAsset(cubeInstance);
                 break;
             }
             case PLAYER:{
