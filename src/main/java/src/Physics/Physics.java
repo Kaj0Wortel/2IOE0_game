@@ -460,9 +460,9 @@ public class Physics {
                 // (ACCEL) Block manual acceleration when collision just happened
                 if (s.collisionVelocity > pc.knockback / pc.accBlockDur) {
                     if (s.velocity > 1) {
-                        s.velocity--;
+                        s.velocity -= 0.5f;
                     } else if (s.velocity < -1) {
-                        s.velocity++;
+                        s.velocity += 0.5f;
                     }
 
                     //pStruct.accel = 0;
@@ -791,22 +791,24 @@ public class Physics {
         
         // Can only receive knockback once the last knockback is sufficiently small
         if (e1.ms.collisionVelocity < 1) {
-            float difAngle1 = (float)Math.min(Math.abs(e1.ms.internRoty - colAngle), 
-                            Math.abs(colAngle - e1.ms.internRoty));
-            float difAngle2 = (float)Math.min(Math.abs(e2.ms.internRoty - colAngle), 
-                            Math.abs(colAngle - e2.ms.internRoty));
+            float difAngle1 = (float)Math.abs(e1.ms.internRoty - colAngle);
+            if (difAngle1 > Math.PI/2)
+                difAngle1 -= Math.PI/2;
+            float difAngle2 = (float)Math.abs(e2.ms.internRoty - colAngle);
+            if (difAngle2 > Math.PI/2)
+                difAngle2 -= Math.PI/2;
             
-            e1.ms.collisionVelocity = Math.abs(e1.ms.velocity) * e1.mpc.knockback * 0.5f;
-                    //* (float)Math.cos(difAngle1);
+            e1.ms.collisionVelocity = Math.abs(e1.ms.velocity) * e1.mpc.knockback * 0.5f
+                    *(1f + (float)Math.cos(difAngle1)*0.5f);
             e1.ms.box.pos().x += e1.ms.collisionVelocity * Math.cos(colAngle);
             e1.ms.box.pos().y += e1.ms.collisionVelocity * Math.sin(colAngle);
-            e1.ms.verticalVelocity = 1f + Math.abs(e1.ms.velocity)/4;
+            e1.ms.verticalVelocity = 1f + Math.abs(e1.ms.velocity)/8;
             
-            e2.ms.collisionVelocity = Math.abs(e1.ms.velocity) * e1.mpc.knockback * 0.5f;
-                    //* (float)Math.cos(difAngle2);
+            e2.ms.collisionVelocity = Math.abs(e1.ms.velocity) * e1.mpc.knockback * 0.5f
+                    *(1 + (float)Math.cos(difAngle2)*0.5f);
             e2.ms.box.pos().x += e1.ms.collisionVelocity * Math.cos(colAngle+Math.PI);
             e2.ms.box.pos().y += e1.ms.collisionVelocity * Math.sin(colAngle+Math.PI);
-            e2.ms.verticalVelocity = 1f + Math.abs(e1.ms.velocity)/4;
+            e2.ms.verticalVelocity = 1f + Math.abs(e1.ms.velocity)/8;
         }
         e1.ms.colAngle = (float)colAngle;
     }
