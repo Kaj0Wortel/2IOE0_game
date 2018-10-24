@@ -21,17 +21,11 @@ public class StartupPanel
     
     final private RacingButton start;
     final private RacingButton keyBindings;
+    final private FixedJComboBox<Integer> players;
     
     public StartupPanel() {
         super(null);
         setName("startup panel");
-        
-        start = new RacingButton("Start");
-        add(start);
-        start.addActionListener((e) -> {
-            GS.startRendering();
-            start.reset();
-        });
         
         keyBindings = new RacingButton("Key bindings");
         add(keyBindings);
@@ -40,12 +34,25 @@ public class StartupPanel
             keyBindings.reset();
         });
         
-        
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 update();
             }
+        });
+        
+        players = new FixedJComboBox<Integer>();
+        players.addItem(1);
+        players.addItem(2);
+        players.addItem(3);
+        players.addItem(4);
+        add(players);
+        
+        start = new RacingButton("Start");
+        add(start);
+        start.addActionListener((e) -> {
+            GS.startRendering((Integer) players.getSelectedItem());
+            start.reset();
         });
         
         update(); 
@@ -59,6 +66,10 @@ public class StartupPanel
         keyBindings.setLocation(start.getX(),
                 start.getY() + start.getHeight() + SPACING);
         keyBindings.setSize(getWidth() / 5, getHeight() / 5);
+        
+        players.setLocation(keyBindings.getX(),
+                keyBindings.getY() + keyBindings.getHeight() + SPACING);
+        players.setSize(getWidth() / 5, getHeight() / 20);
     }
     
     

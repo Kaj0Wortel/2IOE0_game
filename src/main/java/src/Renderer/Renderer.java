@@ -100,13 +100,21 @@ public class Renderer
     public void display(GLAutoDrawable glAutoDrawable) {
         try {
             if (GS.getPlayers().isEmpty()) return;
-            int partWidth = GS.canvas.getWidth() / GS.getNumPlayers();
+            int partWidth = (GS.amtOfPlayers <= 1
+                    ? GS.canvas.getWidth()
+                    : GS.canvas.getWidth() / 2);
+            int partHeight = (GS.amtOfPlayers <= 2
+                    ? GS.canvas.getHeight()
+                    : GS.canvas.getHeight() / 2);
             int playerCounter = 0;
             for (Car player : GS.getPlayers()) {
                 Camera cam = GS.getCam(player);
-                gl.glViewport(0, 0, partWidth, GS.canvas.getHeight());
-                gl.glScissor(playerCounter * partWidth, 0,
-                        partWidth, GS.canvas.getHeight());
+                gl.glViewport((playerCounter % 2) * partWidth,
+                        (playerCounter / 2) * partHeight,
+                        partWidth, partHeight);
+                gl.glScissor((playerCounter % 2) * partWidth,
+                        (playerCounter / 2) * partHeight,
+                        partWidth, partHeight);
 
                 ShadowRenderer sr = shadowRenderers.get(player);
                 gl.glDisable(GL3.GL_SCISSOR_TEST);

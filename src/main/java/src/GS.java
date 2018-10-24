@@ -93,7 +93,7 @@ public class GS {
     final private static boolean DISABLE_JAVA_LOGGING = true;
     
     /** The amount of user controlled players. */
-    final public static int MAX_PLAYERS = 2;
+    final public static int MAX_PLAYERS = 4;
     
     /** Random number generator. */
     final public static Random R = new Random();
@@ -184,7 +184,9 @@ public class GS {
     public static GLCanvas canvas;
     private static FPSAnimator animator;
     private static Track raceTrack;
-    public static long time = -8000;
+    public static long time = -6000;
+    public static int amtOfPlayers;
+    private static int numPlayers = 0;
     
     public static int WIDTH = 1080;
     public static int HEIGHT = 720;
@@ -247,9 +249,13 @@ public class GS {
     
     /**
      * Function to start running the actual game.
+     * 
+     * @param numPlayers the amount of players.
      */
-    public static void startRendering() {
-
+    public static void startRendering(Integer numPlayers) {
+        if (numPlayers == null) numPlayers = 1;
+        GS.amtOfPlayers = numPlayers;
+        
         // Start background music
         MusicManager.play("shooting_stars_background.wav", MusicManager.MUSIC_BACKGROUND);
 
@@ -680,7 +686,6 @@ public class GS {
         return cameras.get(player);
     }
     
-    private static int numPlayers = 0;
     public static int getNumPlayers() {
         return numPlayers;
     }

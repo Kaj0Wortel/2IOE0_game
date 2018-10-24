@@ -62,9 +62,16 @@ public class ShadowFBO {
         gl.glBindFramebuffer(GL3.GL_FRAMEBUFFER, 0);
         
         int screenID = GS.getPlayerScreenID(player);
-        int partWidth = GS.canvas.getWidth() / GS.getNumPlayers();
-        gl.glViewport(screenID * partWidth, 0,
-                partWidth, GS.canvas.getHeight());
+        int partWidth = (GS.amtOfPlayers <= 1
+                ? GS.canvas.getWidth()
+                : GS.canvas.getWidth() / 2);
+        int partHeight = (GS.amtOfPlayers <= 2
+                ? GS.canvas.getHeight()
+                : GS.canvas.getHeight() / 2);
+        
+        gl.glViewport((screenID % 2) * partWidth,
+                (screenID / 2) * partHeight,
+                partWidth, partHeight);
     }
     
     public IntBuffer getDepthAttachment() {
