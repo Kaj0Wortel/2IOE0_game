@@ -303,7 +303,7 @@ public class MainPanel
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             frame.setLocation(0, 0);
             frame.setSize((int) screenSize.getWidth(),
-                    (int) screenSize.getHeight() - 1);// -1 is tmp!
+                    (int) screenSize.getHeight());// -1 is tmp!
             setBorder(null);
             remove(exit);
             remove(fullScreen);

@@ -68,10 +68,12 @@ public class ShadowFBO {
         int partHeight = (GS.amtOfPlayers <= 2
                 ? GS.canvas.getHeight()
                 : GS.canvas.getHeight() / 2);
+        int xPos = (screenID % 2) * partWidth;
+        int yPos = (GS.amtOfPlayers <= 2
+                ? 0
+                : Math.abs(1 - screenID / 2) * partHeight);
         
-        gl.glViewport((screenID % 2) * partWidth,
-                (1 - screenID / 2) * partHeight,
-                partWidth, partHeight);
+        gl.glViewport(xPos, yPos, partWidth, partHeight);
     }
     
     public IntBuffer getDepthAttachment() {

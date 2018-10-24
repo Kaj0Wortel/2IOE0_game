@@ -109,12 +109,12 @@ public class Renderer
             int playerCounter = 0;
             for (Car player : GS.getPlayers()) {
                 Camera cam = GS.getCam(player);
-                gl.glViewport((playerCounter % 2) * partWidth,
-                        (1 - playerCounter / 2) * partHeight,
-                        partWidth, partHeight);
-                gl.glScissor((playerCounter % 2) * partWidth,
-                        (1 - playerCounter / 2) * partHeight,
-                        partWidth, partHeight);
+                int xPos = (playerCounter % 2) * partWidth;
+                int yPos = (GS.amtOfPlayers <= 2
+                        ? 0
+                        : Math.abs(1 - playerCounter / 2) * partHeight);
+                gl.glViewport(xPos, yPos, partWidth, partHeight);
+                gl.glScissor(xPos, yPos, partWidth, partHeight);
 
                 ShadowRenderer sr = shadowRenderers.get(player);
                 gl.glDisable(GL3.GL_SCISSOR_TEST);
