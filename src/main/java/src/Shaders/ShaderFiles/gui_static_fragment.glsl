@@ -72,27 +72,28 @@ void main() {
     color = vec4(0, 0, 0, 0);
 
     if(!finished){
-        color += getColor(itemBox, texItemBox);
-        color = addColor(color,
-                getMultiImage(item, texItem, vec2(itemNum, 0), ITEM_DIM));
-
-        color += getColor(speedMeter, texSpeedMeter);
-
-        color += getMultiImage(positions, texPosition, vec2(positionNum, 0), POS_DIM);
-
         color += getNumColor(numbers, texNumber1, time1);
         color += getNumColor(numbers, texNumber2, time2);
         color += getNumColor(numbers, texColon, 10);
         color += getNumColor(numbers, texNumber3, time3);
         color += getNumColor(numbers, texNumber4, time4);
 
-        color += getColor(lap, texLap);
+        color += getColor(itemBox, texItemBox);
+        color = addColor(color,
+                getMultiImage(item, texItem, vec2(itemNum, 0), ITEM_DIM));
+
+        color += getColor(speedMeter, texSpeedMeter);
+
+        color = addColor(color, getMultiImage(positions, texPosition, vec2(positionNum, 0), POS_DIM));
+
+        color = addColor(color, getColor(lap, texLap));
         color = addColor(color, getNumColor(numbers, texCurLap, curLap));
         color = addColor(color, getNumColor(numbers, texMaxLap, maxLap));
-    } else{
-        if(first){
+
+    } else {
+        if (first) {
             color += getColor(wonImg, texWin);
-        }else{
+        } else {
             color+= getColor(lostImg, texWin);
         }
     }

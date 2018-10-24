@@ -29,7 +29,7 @@ public class StaticGUI
     public StaticGUI(GL3 gl, Vector2f position, Vector2f size) {
         super(gl, position, size,
                 new TextureImg(gl, "Speedometer.png"),
-                new TextureImg(gl, "test_border.png"),
+                new TextureImg(gl, "Panel2.png"),
                 new TextureImg(gl, "items.png"),
                 new TextureImg(gl, "positions.png"),
                 new TextureImg(gl, "numbers2.png"),
