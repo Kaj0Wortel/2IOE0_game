@@ -211,8 +211,22 @@ public class Physics {
     public static void registerReader(Instance inst, File file,
             Processor<AStarDataPack> processor) {
         try {
-            readers.put(inst, new DequeRequestReader<AStarDataPack>(
-                    file, 1000, processor));
+            DequeRequestReader<AStarDataPack> reader = new DequeRequestReader<>(
+                    file, 1000, processor);
+            readers.put(inst, reader);
+            
+            AStarDataPack data = reader.getNextData();
+            State s = inst.getState();
+            Vector3f pos = s.box.pos();
+            pos.x = data.pos.x;
+            pos.y = data.pos.y;
+            pos.z = data.pos.z;
+            inst.setState(new State(s.box, s.sizex, s.sizey, s.sizez,
+                s.rotx, s.roty, s.rotz,
+                s.internRotx, s.internRoty, s.internRotz,
+                s.internTrans, s.velocity, s.collisionVelocity, s.colAngle,
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting,
+                s.curItem, s.activeItems));
             
         } catch (IOException e) {
             Logger.write(e);
@@ -712,11 +726,14 @@ public class Physics {
                 }
                 // </editor-fold>
             } else {
+                if (GS.time < 0) return;
+                
                 // <editor-fold defaultstate="collapsed" desc="TEST AI">
                 DequeRequestReader<AStarDataPack> reader = readers.get(source);
                 AStarDataPack data = reader.getNextData();
                 ePos = data.pos;
-
+                System.out.println("new AI pos: " + ePos);
+                
                 // Height calculation
                 float shortestDist = Float.POSITIVE_INFINITY;
                 float dist;
@@ -826,7 +843,7 @@ public class Physics {
         
         if (e2 == null) {
             Logger.write("collision e2 entry is empty", Logger.Type.ERROR);
-            System.out.println(col.getOther() + " " + e1.inst);
+            return;
         }
         
         // <editor-fold defaultstate="collapsed" desc="COLLISION CALCULATIONS"> 

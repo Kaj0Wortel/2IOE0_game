@@ -162,10 +162,10 @@ public class Simulator {
         new AIController((Car) aiCar);
         
 
-        addToGamestate(PLAYER, car2, new Vector3f(0, 2, -30), 2f,
+        addToGamestate(PLAYER, car2, new Vector3f(-7, 2, -20), 2f,
                 0, 180, 0, 0, new TextureImg(5, 3f), null, null);
         
-        addToGamestate(PLAYER, car, new Vector3f(0, 2, 0), 6f,
+        addToGamestate(PLAYER, car, new Vector3f(7, 2, -20), 6f,
                 0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
 
         addLight(new Vector3f(30000f, 50000f, 1f),
