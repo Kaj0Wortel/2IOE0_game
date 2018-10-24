@@ -284,6 +284,8 @@ public class Physics {
      * startStruct: begin position
      * velocity and rotation
      */
+    static boolean raceStarted = false;
+    
     public static void calcPhysics(Instance source, PStructAction pStruct,
             PhysicsContext pc, State state, Set<Instance> collisions, ProgressManager progress) {
         // <editor-fold defaultstate="collapsed" desc="ROUND START COUNTDOWN">
@@ -313,7 +315,10 @@ public class Physics {
                 //System.out.println("Time is"+GS.time);
                 beepCounter = 4;
             }
+        } else {
+            raceStarted = true;
         }
+        // </editor-fold>
 
         // Create a modifyable state to reduce the number of objects creations.
         ModState s = new ModState(state);
@@ -725,9 +730,8 @@ public class Physics {
                     s.collisionVelocity = 0;
                 }
                 // </editor-fold>
-            } else {
+            } else if (raceStarted) {
                 if (GS.time < 0) return;
-                
                 // <editor-fold defaultstate="collapsed" desc="TEST AI">
                 DequeRequestReader<AStarDataPack> reader = readers.get(source);
                 AStarDataPack data = reader.getNextData();
@@ -754,6 +758,10 @@ public class Physics {
                 eV = 0;
                 eRot = (float)Math.PI;
                 // </editor-fold>
+            } else {
+                ePos = new Vector3f(0,0,0);
+                eV = 0;
+                eRot = -180;
             }
         }
         // <editor-fold defaultstate="collapsed" desc="RESET MOTION">
