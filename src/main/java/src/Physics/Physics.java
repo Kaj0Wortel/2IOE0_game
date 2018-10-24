@@ -754,7 +754,7 @@ public class Physics {
                 eRot = data.rot - (float)Math.PI/2;
                 // </editor-fold>
             } else {
-                ePos = new Vector3f(0,10,0);
+                ePos = new Vector3f(4.5f,0,2.5f);
                 eV = 0;
                 eRot = (float)Math.PI/2;
             }
@@ -849,7 +849,7 @@ public class Physics {
             return;
         }
         
-        if (!e2.inst.isAI()) {
+        if (!e2.inst.isAI() && !e1.inst.isAI()) {
             // <editor-fold defaultstate="collapsed" desc="COLLISION CALCULATIONS"> 
             double colAngle = Math.atan2( e1.ms.box.pos().x - e2.ms.box.pos().x, 
                     e1.ms.box.pos().y - e2.ms.box.pos().y);
