@@ -732,7 +732,6 @@ public class Physics {
                 DequeRequestReader<AStarDataPack> reader = readers.get(source);
                 AStarDataPack data = reader.getNextData();
                 ePos = data.pos;
-                System.out.println("new AI pos: " + ePos);
                 
                 // Height calculation
                 float shortestDist = Float.POSITIVE_INFINITY;
