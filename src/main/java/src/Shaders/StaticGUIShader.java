@@ -141,6 +141,7 @@ public class StaticGUIShader
     @Override
     public void loadTime(GL3 gl, int time) {
         // Minutes.
+        time = Math.abs(time);
         loadUniformInt(gl, time1Loc, (time / 600) % 6 );
         loadUniformInt(gl, time2Loc, (time / 60 ) % 10);
         // Seconds.
