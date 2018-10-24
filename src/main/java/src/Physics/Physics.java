@@ -2,6 +2,8 @@ package src.Physics;
 
 
 // Own imports
+import java.io.File;
+import java.io.IOException;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 import src.Assets.instance.Instance;
@@ -18,7 +20,11 @@ import src.music.MusicManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import src.AI.DequeRequestReader;
+import src.AI.Processor;
 
 //Java imports
 
@@ -188,6 +194,19 @@ public class Physics {
     private static float trackSize = 0;
     private static float trackWidth = 0;
     private static boolean playBoing;
+    private static Map<Instance, DequeRequestReader<Vector3f>> readers
+            = new ConcurrentHashMap<>();
+    
+    
+    public static void registerReader(Instance inst, File file,
+            Processor<Vector3f> processor) {
+        try {
+            readers.put(inst, new DequeRequestReader<Vector3f>(file, 1000, processor));
+            
+        } catch (IOException e) {
+            Logger.write(e);
+        }
+    }
     
     
     /**

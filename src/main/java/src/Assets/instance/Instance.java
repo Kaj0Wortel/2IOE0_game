@@ -387,8 +387,13 @@ public abstract class Instance
     public void setProgressManager(ProgressManager pm) {
         this.progress = pm;
     }
+    
     public boolean isAI () {
         return isAI;
+    }
+    
+    public void setAI(boolean ai) {
+     this.isAI = ai;
     }
     
     /**
