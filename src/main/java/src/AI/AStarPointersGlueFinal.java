@@ -105,7 +105,7 @@ public class AStarPointersGlueFinal {
     public static void runAlgorithm () {
         // Project imports
         VisualAStar visual = new VisualAStar();
-        BezierTrack track = new BezierTrack(new Vector3f(0,0,0),0,0,0,0,new TextureImg(0,0),new TextureImg(0,0));
+        BezierTrack track = new BezierTrack(new Vector3f(0,0,30),0,0,0,0,new TextureImg(0,0),new TextureImg(0,0));
         setTrack(track);
         ProgressManager progress = new ProgressManager();
         

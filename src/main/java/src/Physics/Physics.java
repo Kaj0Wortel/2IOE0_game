@@ -761,7 +761,6 @@ public class Physics {
             }
             
 //            s.internTrans = new Vector3f(); 
-            System.out.println("rotz = " + s.rotz);
         }
         // </editor-fold>
 
