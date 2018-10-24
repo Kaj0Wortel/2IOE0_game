@@ -10,7 +10,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Djava.library.path="..\..\..\target\natives" -classpath %classpath src.Main</exec.args>
+                <exec.args>-Djava.library.path="..\..\..\target\natives" -classpath %classpath src.AI.AStarPointersGlueFinal</exec.args>
                 <exec.executable>java</exec.executable>
                 <exec.workingdir>src\main\java\</exec.workingdir>
             </properties>
@@ -25,7 +25,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -Djava.library.path="..\..\..\target\natives" -classpath %classpath src.Main</exec.args>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -Djava.library.path="..\..\..\target\natives" -classpath %classpath src.AI.AStarPointersGlueFinal</exec.args>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
                 <exec.workingdir>src\main\java\</exec.workingdir>
@@ -41,7 +41,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Djava.library.path="..\..\..\target\natives" -classpath %classpath src.Main</exec.args>
+                <exec.args>-Djava.library.path="..\..\..\target\natives" -classpath %classpath src.AI.AStarPointersGlueFinal</exec.args>
                 <exec.executable>java</exec.executable>
                 <exec.workingdir>src\main\java\</exec.workingdir>
             </properties>

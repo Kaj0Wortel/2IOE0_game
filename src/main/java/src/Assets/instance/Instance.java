@@ -1,6 +1,7 @@
 package src.Assets.instance;
 
 import com.jogamp.opengl.GL3;
+import java.io.File;
 import java.util.Observable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -18,6 +19,7 @@ import src.tools.PosHitBox3f;
 
 import javax.swing.*;
 import java.util.Set;
+import src.AI.Processor;
 
 
 public abstract class Instance
@@ -392,8 +394,23 @@ public abstract class Instance
         return isAI;
     }
     
+    final private static File A_STAR_DATA = new File(GS.DATA_DIR + "AStarData.csv");
+    final private static Processor<Vector3f> vectorProcessor = (String data) -> {
+        String[] split = data.split(";");
+        return new Vector3f(
+            Float.parseFloat(split[0]),
+            Float.parseFloat(split[1]),
+            Float.parseFloat(split[2])
+        );
+    };
+    
     public void setAI(boolean ai) {
-     this.isAI = ai;
+        if (ai != isAI) {
+            this.isAI = ai;
+            if (ai) {
+                Physics.registerReader(this, A_STAR_DATA, vectorProcessor);
+            }
+        }
     }
     
     /**

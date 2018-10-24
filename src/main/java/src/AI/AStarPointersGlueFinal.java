@@ -5,16 +5,19 @@ import src.testing.VisualAStar; // Debug visualization
 // Java imports
 import java.awt.*; // 2D graphics helper
 import java.awt.geom.Point2D; // Point2D.Doubles
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList; // Arralylists
 import java.util.Collections; // Reverse Arraylist
 import java.util.List; // ArrayLists
 import org.joml.Vector3f;
 import src.Assets.TextureImg;
+import src.GS;
 import src.Progress.ProgressManager;
 import src.racetrack.BezierTrack;
 import src.racetrack.Track;
-import src.tools.io.NodeWriter;
 import src.tools.log.Logger;
 
 public class AStarPointersGlueFinal {
@@ -576,9 +579,15 @@ public class AStarPointersGlueFinal {
             
             // <editor-fold defaultstate="collapsed" desc="TEST AI">
             System.out.println("--------------------------------------");
-            for (NodeGlueFinal p : pathList) {
-                System.out.println("AIList.add(new Vector3f("
-                        + (p.pos.x) + "f," + (p.pos.y) + "f,0f));");
+            File file = new File(GS.DATA_DIR + "AStarData.csv");
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+                for (NodeGlueFinal p : pathList) {
+                    //System.out.println("AIList.add(new Vector3f("
+                    //        + (p.pos.x) + "f," + (p.pos.y) + "f,0f));");
+                    bw.write(p.pos.x + ";" + p.pos.y + ";0f" + GS.LS);
+                }
+            } catch (IOException e) {
+                Logger.write(e);
             }
             // </editor-fold>
             
