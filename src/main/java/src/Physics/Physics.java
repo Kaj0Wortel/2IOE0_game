@@ -3,6 +3,7 @@ package src.Physics;
 
 // Own imports
 import java.io.File;
+import java.io.IOException;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 import src.Assets.instance.Instance;
@@ -195,7 +196,12 @@ public class Physics {
     
     
     public static void registerReader(Instance inst, File file, Processor<Vector3f> processor) {
-        readers.put(inst, new DequeRequestReader<Vector3f>(file, 1000, processor));
+        try {
+            readers.put(inst, new DequeRequestReader<Vector3f>(file, 1000, processor));
+            
+        } catch (IOException e) {
+            Logger.write(e);
+        }
     }
     
     /**
