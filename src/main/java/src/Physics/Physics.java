@@ -9,6 +9,7 @@ import src.Assets.Items.ItemInterface;
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
 import src.Assets.instance.Item;
+import src.GS;
 import src.Progress.ProgressManager;
 import src.music.MusicManager;
 import src.racetrack.Track;
@@ -217,6 +218,9 @@ public class Physics {
             Logger.write(e);
         }
     }
+
+    private static int beepCounter = 0;
+    private static long lastBeepTime = 0;
     
     
     /**
@@ -268,6 +272,35 @@ public class Physics {
      */
     public static void calcPhysics(Instance source, PStructAction pStruct,
             PhysicsContext pc, State state, Set<Instance> collisions, ProgressManager progress) {
+        // <editor-fold defaultstate="collapsed" desc="ROUND START COUNTDOWN">
+        if(beepCounter < 4){
+            //System.out.println("Time is"+GS.time);
+            pStruct.turn = 0.0f;
+            pStruct.throwItem = false;
+            pStruct.accel = 0.0f;
+            pStruct.verticalVelocity = 0.0f;
+            if (GS.time >= -4000 && beepCounter == 0){
+                MusicManager.play("start_beep.wav", MusicManager.MUSIC_SFX);
+                lastBeepTime = GS.time;
+                beepCounter = 1;
+                //System.out.println("Time is"+GS.time);
+            } else if ((GS.time - lastBeepTime) >= 1000 && beepCounter == 1){
+                MusicManager.play("start_beep.wav", MusicManager.MUSIC_SFX);
+                lastBeepTime = GS.time;
+                beepCounter = 2;
+                //System.out.println("Time is"+GS.time);
+            } else if ((GS.time - lastBeepTime) >= 1000 && beepCounter == 2){
+                MusicManager.play("start_beep.wav", MusicManager.MUSIC_SFX);
+                lastBeepTime = GS.time;
+                beepCounter = 3;
+                //System.out.println("Time is"+GS.time);
+            } else if ((GS.time - lastBeepTime) >= 1000 && beepCounter == 3){
+                MusicManager.play("start_start.wav", MusicManager.MUSIC_SFX);
+                //System.out.println("Time is"+GS.time);
+                beepCounter = 4;
+            }
+        }
+
         // Create a modifyable state to reduce the number of objects creations.
         ModState s = new ModState(state);
         

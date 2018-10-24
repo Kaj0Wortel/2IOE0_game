@@ -171,6 +171,7 @@ public class Car
     }
     
     public float getSpeedAngle() {
+        GS.finishSFX();
         return Math.min((float) Math.PI - 0.4f , Math.abs(getState().velocity / 9)) - 0.4f;
     }
 

@@ -149,6 +149,7 @@ public class GS {
             long dt = timeStamp - prevTimeStamp;
             if (dt > 0 && dt < 100) {
                 time += dt;
+                //System.out.println("Time is: "+time);
             }
             prevTimeStamp = timeStamp;
         }
@@ -183,7 +184,7 @@ public class GS {
     public static GLCanvas canvas;
     private static FPSAnimator animator;
     private static Track raceTrack;
-    public static long time;
+    public static long time = -8000;
     
     public static int WIDTH = 1080;
     public static int HEIGHT = 720;
@@ -697,6 +698,18 @@ public class GS {
     public static int getPlayerScreenID(Car player) {
         return playerScreenID.get(player);
     }
-    
+    private static boolean winner = false;
+    private static boolean looser = false;
+    public static void finishSFX(){
+        for(Car carI:players){
+            if(carI.isFinished() && carI.isFirst() && !winner){
+                MusicManager.play("win.wav", MusicManager.MUSIC_SFX);
+                winner = true;
+            } else if (carI.isFinished() && !carI.isFirst() && !looser && winner){
+                MusicManager.play("lose.wav", MusicManager.MUSIC_SFX);
+                looser = true;
+            }
+        }
+    }
     
 }
