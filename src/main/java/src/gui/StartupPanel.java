@@ -22,6 +22,8 @@ public class StartupPanel
     final private RacingButton start;
     final private RacingButton keyBindings;
     final private FixedJComboBox<Integer> players;
+    final private FixedJComboBox<Boolean> useAI;
+    
     
     public StartupPanel() {
         super(null);
@@ -48,10 +50,17 @@ public class StartupPanel
         players.addItem(4);
         add(players);
         
+        useAI = new FixedJComboBox<Boolean>();
+        useAI.addItem(true);
+        useAI.addItem(false);
+        add(useAI);
+        
         start = new RacingButton("Start");
         add(start);
         start.addActionListener((e) -> {
-            GS.startRendering((Integer) players.getSelectedItem());
+            GS.startRendering(
+                    (Integer) players.getSelectedItem(),
+                    (Boolean) useAI.getSelectedItem());
             start.reset();
         });
         
@@ -70,7 +79,10 @@ public class StartupPanel
         players.setLocation(keyBindings.getX(),
                 keyBindings.getY() + keyBindings.getHeight() + SPACING);
         players.setSize(getWidth() / 5, getHeight() / 20);
+        
+        useAI.setLocation(players.getX(),
+                players.getY() + players.getHeight() + SPACING);
+        useAI.setSize(getWidth() / 5, getHeight() / 20);
     }
-    
     
 }

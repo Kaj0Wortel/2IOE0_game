@@ -186,6 +186,7 @@ public class GS {
     private static Track raceTrack;
     public static long time = -6000;
     public static int amtOfPlayers;
+    public static boolean useAI;
     private static int numPlayers = 0;
     
     public static int WIDTH = 1080;
@@ -252,9 +253,11 @@ public class GS {
      * 
      * @param numPlayers the amount of players.
      */
-    public static void startRendering(Integer numPlayers) {
+    public static void startRendering(Integer numPlayers, Boolean useAI) {
         if (numPlayers == null) numPlayers = 1;
         GS.amtOfPlayers = numPlayers;
+        if (useAI == null) useAI = true;
+        GS.useAI = useAI;
         
         // Start background music
         MusicManager.play("shooting_stars_background.wav", MusicManager.MUSIC_BACKGROUND);
