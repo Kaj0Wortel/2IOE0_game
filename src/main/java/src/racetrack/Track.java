@@ -10,6 +10,7 @@ import src.Shaders.RacetrackShader;
 import src.Shaders.ShadowShader;
 import java.nio.IntBuffer;
 import org.joml.Matrix3f;
+import src.Assets.instance.Car;
 
 public abstract class Track {
 
@@ -34,8 +35,6 @@ public abstract class Track {
     protected int shadowMap;
 
     protected RacetrackShader shader;
-    protected Matrix4f projectionMatrix;
-    protected Matrix4f viewMatrix;
 
     public Track(Vector3f position, float size, float rotx, float roty,
             float rotz, TextureImg texture, TextureImg bumpmap) {
@@ -48,8 +47,7 @@ public abstract class Track {
         this.bumpmap = bumpmap;
     }
 
-    public abstract void setShaderAndRenderMatrices(RacetrackShader shader,
-            Matrix4f projectionMatrix, Matrix4f viewMatrix);
+    public abstract void setShader(RacetrackShader shader);
 
     public abstract Vector3f getPoint(int segment, float t);
     public abstract Vector3f getTangent(int segment, float t);
@@ -61,7 +59,7 @@ public abstract class Track {
         this.controlPoints = controlPoints;
     }
 
-    public void setSegments(int nr){
+    public void setSegments(int nr) {
         nrOfSegments = nr;
     }
 
@@ -82,8 +80,8 @@ public abstract class Track {
         return nrOfSegments;
     }
 
-    public void draw(GL3 gl, Matrix4f shadowMatrix){
-        prepare(gl);
+    public void draw(GL3 gl, Car player, Matrix4f shadowMatrix) {
+        prepare(gl, player);
         shader.loadShadowMatrix(gl, shadowMatrix);
 
         gl.glBindVertexArray(vao.get(0));
@@ -102,16 +100,12 @@ public abstract class Track {
     }
 
     public Matrix4f getTransformationMatrix() {
-        Matrix4f transformationMatrix = new Matrix4f();
-        transformationMatrix.identity();
-        transformationMatrix.translate(position);
-        transformationMatrix.rotate((float) Math.toRadians(rotx), 1, 0, 0);
-        transformationMatrix.rotate(
-                (float) Math.toRadians(roty), 0, 1, 0);
-        transformationMatrix.rotate((float) Math.toRadians(rotz), 0, 0, 1);
-        transformationMatrix.scale(size, size, size);
-
-        return transformationMatrix;
+        return new Matrix4f()
+                .translate(position)
+                .rotate((float) Math.toRadians(rotx), 1, 0, 0)
+                .rotate((float) Math.toRadians(roty), 0, 1, 0)
+                .rotate((float) Math.toRadians(rotz), 0, 0, 1)
+                .scale(size, size, size);
     }
     
     /**
@@ -127,26 +121,16 @@ public abstract class Track {
         sideVector.normalize();
         return tangent.cross(sideVector);
     }
-    
-    public static Vector3f rotateNormal(Vector3f roadPos, Vector3f carPos,
-            Vector3f norm, Vector3f tangent, float dist) {
-        Vector3f relPos = new Vector3f(roadPos).sub(carPos).normalize();
-        float angle = 45;//dist;//(float) Math.acos(norm.dot(relPos));
-        
-        Matrix3f rotMat = new Matrix3f().rotate(angle, tangent);
-        
-        //return new Vector3f(norm).mul(rotMat);
-        return norm;
-    }
-    
 
-    private void prepare(GL3 gl){
+    private void prepare(GL3 gl, Car player) {
         shader.start(gl);
 
-        shader.loadProjectionMatrix(gl,projectionMatrix);
-        shader.loadViewMatrix(gl, GS.camera.getViewMatrix());
+        shader.loadProjectionMatrix(gl, GS.getCam(player).getProjectionMatrix());
+        //shader.loadProjectionMatrix(gl, projectionMatrix);
+        shader.loadViewMatrix(gl, GS.getCam(player).getViewMatrix());
+        //shader.loadViewMatrix(gl, viewMatrix);
         shader.loadLight(gl,GS.getLights().get(0));
-        shader.loadCameraPos(gl, GS.camera.getPosition());
+        shader.loadCameraPos(gl, GS.getCam(player).getPosition());
         shader.loadTextures(gl);
 
         shader.loadModelMatrix(gl, getTransformationMatrix());

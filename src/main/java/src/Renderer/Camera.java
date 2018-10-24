@@ -10,15 +10,23 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import src.GS;
 import src.tools.log.Logger;
+
 
 public class Camera
         implements Observer {
+    
+    public static enum CameraMode {
+        DEFAULT, FIRST_PERSON, BACK, HIGH_UP;
+    }
+    
     private Vector3f position;
     private float pitch;
     private float yaw;
     private float roll;
+    private float fov = 70;
+    private float fovOffset;
+    private boolean fovChange;
     
     int speed = 2;
     
@@ -45,7 +53,8 @@ public class Camera
     private float highRoll = 0.0f;
 
     private Lock lock = new ReentrantLock();
-    
+    private CameraMode cameraMode = CameraMode.DEFAULT;
+    private Matrix4f projectionMatrix;
     
     
     public Camera (Vector3f position, float pitch, float yaw, float roll){
@@ -157,15 +166,15 @@ public class Camera
             distanceToAsset = Math.max(focusedOn.getState()
                     .velocity * rubberVelocityFactor + minRubberDistance, minRubberDistance);
             
-            if (GS.getCameraMode() == GS.CameraMode.DEFAULT) {
+            if (cameraMode == CameraMode.DEFAULT) {
                 pitch = Math.max(focusedOn.getState().velocity * 0.4f + 20, 20);
                 
-            } else if (GS.getCameraMode() == GS.CameraMode.FIRST_PERSON) {
+            } else if (cameraMode == CameraMode.FIRST_PERSON) {
                 pitch = 0;
                 
-            } else if (GS.getCameraMode() == GS.CameraMode.BACK) {
+            } else if (cameraMode == CameraMode.BACK) {
                 pitch = Math.min(-focusedOn.getState().velocity * 0.4f + 20, 20);
-            } else if (GS.getCameraMode() == GS.CameraMode.HIGH_UP){
+            } else if (cameraMode == CameraMode.HIGH_UP){
                 pitch = highPitch;
             }
             
@@ -193,13 +202,13 @@ public class Camera
         }
         
         float targetPitch = 0;
-        if (GS.getCameraMode() == GS.CameraMode.DEFAULT) {
+        if (cameraMode == CameraMode.DEFAULT) {
             targetPitch = 20 - focusedOn.getRotx();
 
-        } else if (GS.getCameraMode() == GS.CameraMode.FIRST_PERSON) {
+        } else if (cameraMode == CameraMode.FIRST_PERSON) {
             targetPitch = 0;
 
-        } else if (GS.getCameraMode() == GS.CameraMode.BACK) {
+        } else if (cameraMode == CameraMode.BACK) {
             targetPitch = 20 + focusedOn.getRotx();
         }
         
@@ -210,7 +219,7 @@ public class Camera
     }
 
     public void speedFOV() {
-        Renderer.changeFOV(fovVelocityFactor * focusedOn.getState().velocity);
+        changeFOV(fovVelocityFactor * focusedOn.getState().velocity);
     }
     
     public boolean isOnPlayer() {
@@ -252,11 +261,11 @@ public class Camera
         try {
 
             speedFOV();
+            rubberBand();
             State state = focusedOn.getState();
             float angle = state.roty + angleAroundAsset;
-
-            if (GS.getCameraMode() == GS.CameraMode.DEFAULT) {
-                rubberBand();
+            
+            if (cameraMode == CameraMode.DEFAULT) {
                 float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
                 float verDistance = (float) (distanceToAsset * Math.sin(Math.toRadians(pitch)));
                 float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
@@ -266,11 +275,8 @@ public class Camera
                 position.y = state.box.pos().y + verDistance;
                 position.z = state.box.pos().z + z;
                 this.yaw = -(state.roty + angleAroundAsset);
-                //System.out.println("Camera values 2: x: "+position.x+" y: "+position.y+" z: "+position.z+" yaw: "+yaw+" roll: "+roll+" pitch: "+pitch);
-
-
-            } else if (GS.getCameraMode() == GS.CameraMode.FIRST_PERSON) {
-                rubberBand();
+                
+            } else if (cameraMode == CameraMode.FIRST_PERSON) {
                 this.pitch = -state.rotx;
                 this.yaw = -(state.roty + angleAroundAsset);
                 this.roll = state.rotz;
@@ -284,8 +290,7 @@ public class Camera
                 position.y = state.box.pos().y + 3f + verDistance * 0.25f;
                 position.z = state.box.pos().z - z * 0.25f;
                 
-            } else if (GS.getCameraMode() == GS.CameraMode.BACK) {
-                rubberBand();
+            } else if (cameraMode == CameraMode.BACK) {
                 float horDistance = (float) (distanceToAsset * Math.cos(Math.toRadians(pitch)));
                 float verDistance = (float) (distanceToAsset * Math.sin(Math.toRadians(pitch)));
                 float x = (float) (horDistance * Math.sin(Math.toRadians(angle)));
@@ -296,7 +301,7 @@ public class Camera
                 position.z = state.box.pos().z - z;
                 this.yaw = -(state.roty + angleAroundAsset) + 180;
 
-            } else if (GS.getCameraMode() == GS.CameraMode.HIGH_UP){
+            } else if (cameraMode == CameraMode.HIGH_UP){
                 position.x = highPosition.x;
                 position.y = highPosition.y;
                 position.z = highPosition.z;
@@ -310,7 +315,7 @@ public class Camera
                 //System.out.println("Camera values 2: x: "+position.x+" y: "+position.y+" z: "+position.z+" yaw: "+yaw+" roll: "+roll+" pitch: "+pitch);
 
             } else {
-                Logger.write("Unknown camera mode: " + GS.getCameraMode(),
+                Logger.write("Unknown camera mode: " + cameraMode,
                         Logger.Type.ERROR);
                 System.exit(-1);
             }
@@ -334,7 +339,6 @@ public class Camera
                     .translate(position);
 
             return viewMatrixTranslation.mul(viewMatrixRotation);
-            
         } finally {
             lock.unlock();
         }
@@ -345,6 +349,73 @@ public class Camera
         if (!(o instanceof Instance) ||
                 !(arg instanceof State)) return;
         calculateInstanceValues();
+        calcProjectionMatrix();
+    }
+
+    public CameraMode getCameraMode() {
+        return cameraMode;
+    }
+    
+    public void setCameraMode(CameraMode cameraMode) {
+        this.cameraMode = cameraMode;
+    }
+    
+    public void cycleNextCameraMode() {
+        if (cameraMode == null) {
+            cameraMode = CameraMode.DEFAULT;
+        } else {
+            CameraMode[] values = CameraMode.values();
+            cameraMode = values[(cameraMode.ordinal() + 1) % values.length];
+            
+        }
+    }
+
+    public void changeFOV(float fovOffset){
+        fov = 70 + fovOffset / 1.3f;
+        fovChange = true;
+    }
+    
+    public boolean hasFOVChange() {
+        return fovChange;
+    }
+    
+    public void resetFOVChange() {
+        fovChange = false;
+    }
+    
+    public float fov() {
+        return fov;
+    }
+    
+    public void calcProjectionMatrix() {
+        float ratio = Renderer.width / Renderer.height;
+        float y = (float) (1f / Math.tan(Math.toRadians(fov/2f)));
+        float x = y / ratio;
+        float delta = Renderer.FAR - Renderer.NEAR;
+
+        lock.lock();
+        try {
+            projectionMatrix = new Matrix4f();
+            projectionMatrix.m00(x);
+            projectionMatrix.m11(y);
+            projectionMatrix.m22(-((Renderer.NEAR + Renderer.FAR)/delta));
+            projectionMatrix.m23(-1);
+            projectionMatrix.m32(-(2*Renderer.NEAR*Renderer.FAR)/delta);
+            projectionMatrix.m33(0);
+            
+        } finally {
+            lock.unlock();
+        }
+    }
+    
+    public Matrix4f getProjectionMatrix() {
+        lock.lock();
+        try {
+            return new Matrix4f(projectionMatrix);
+            
+        } finally {
+            lock.unlock();
+        }
     }
     
     

@@ -3,7 +3,9 @@ package src.shadows;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import src.Assets.instance.Car;
 import src.GS;
+import src.Renderer.Camera;
 
 public class FrustrumBox {
 
@@ -12,16 +14,15 @@ public class FrustrumBox {
     private float depth;
     private Vector3f center = new Vector3f();
 
-    private float fov;
     private float near;
     private float far;
-    private float windowWidth;
+    private float windowWidth; // TODO
     private float windowHeight;
 
     final private float SHADOW_DISTANCE = 300;
 
-    public FrustrumBox(float FOV, float NEAR, float FAR, float windowWidth, float windowHeight){
-        this.fov = FOV;
+    public FrustrumBox(Car player, float NEAR, float FAR,
+            float windowWidth, float windowHeight) {
         this.near = NEAR;
         this.far = FAR;
         this.windowWidth = windowWidth;
@@ -31,13 +32,14 @@ public class FrustrumBox {
         height = 0;
         depth = 0;
 
-        update();
+        update(player);
     }
 
-    public void update() {
-        float hhn = (float) Math.tan(Math.toRadians(fov/2)) * near;
+    public void update(Car player) {
+        Camera cam = GS.getCam(player);
+        float hhn = (float) Math.tan(Math.toRadians(cam.fov()/2)) * near;
         float hwn = getAspectRatio() * hhn;
-        float hhf = (float) Math.tan(Math.toRadians(fov/2)) * SHADOW_DISTANCE;
+        float hhf = (float) Math.tan(Math.toRadians(cam.fov()/2)) * SHADOW_DISTANCE;
         float hwf = getAspectRatio() * hhf;
         
         Vector4f[] eyeVertices = new Vector4f[] {
@@ -52,7 +54,7 @@ public class FrustrumBox {
             new Vector4f( hwf, -hhf, -SHADOW_DISTANCE, 1)
         };
         
-        transform(eyeVertices, GS.camera.getViewMatrixInverse());
+        transform(eyeVertices, GS.getCam(player).getViewMatrixInverse());
         transform(eyeVertices, GS.getLights().get(0).getRotationMatrix());
         
         getBoundingBox(eyeVertices);
@@ -106,7 +108,7 @@ public class FrustrumBox {
     }
 
     private float getAspectRatio() {
-        return windowWidth/windowHeight;
+        return windowWidth / windowHeight;
     }
 
     public Matrix4f getOrthographicProjectionMatrix() {

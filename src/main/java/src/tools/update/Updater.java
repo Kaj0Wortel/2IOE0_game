@@ -181,6 +181,7 @@ public class Updater {
         }
         
         /** Update Camera. */
+        /*
         CameraController camContr = GS.cameraController;
         if (camContr == null) return;
         try {
@@ -197,7 +198,7 @@ public class Updater {
                 "Exception occured in Camera controller:",
                 e,
             }, Logger.Type.ERROR);
-        }
+        }*/
     });
     static {
         tt.setPriority(Thread.MAX_PRIORITY);

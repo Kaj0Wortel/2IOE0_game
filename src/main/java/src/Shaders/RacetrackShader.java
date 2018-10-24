@@ -71,22 +71,22 @@ public class RacetrackShader
     }
 
     @Override
-    public void loadProjectionMatrix(GL3 gl, Matrix4f matrix){
+    public void loadProjectionMatrix(GL3 gl, Matrix4f matrix) {
         loadUniformMatrix(gl, projectionMatrixLocation, matrix);
     }
 
     @Override
-    public void loadViewMatrix(GL3 gl, Matrix4f matrix){
+    public void loadViewMatrix(GL3 gl, Matrix4f matrix) {
         loadUniformMatrix(gl, viewMatrixLocation, matrix);
     }
 
     @Override
-    public void loadModelMatrix(GL3 gl, Matrix4f matrix){
+    public void loadModelMatrix(GL3 gl, Matrix4f matrix) {
         loadUniformMatrix(gl, modelMatrixLocation, matrix);
     }
 
     @Override
-    public void loadLight(GL3 gl, Light light){
+    public void loadLight(GL3 gl, Light light) {
         loadUniformVector(gl, lightPositionLocation,light.getPosition());
         loadUniformVector(gl, lightColorLocation, light.getColor());
     }
@@ -101,29 +101,30 @@ public class RacetrackShader
         return false;
     }
 
-    public void loadTextureLightValues(GL3 gl, float shininess, float reflectivity){
+    @Override
+    public void loadTextureLightValues(GL3 gl, float shininess, float reflectivity) {
         loadUniformFloat(gl, shininessLocation, shininess);
         loadUniformFloat(gl, reflectivityLocation, reflectivity);
     }
 
     @Override
-    public void loadTime(GL3 gl, int time){
+    public void loadTime(GL3 gl, int time) {
         loadUniformInt(gl,timeLocation,time);
     }
 
     @Override
-    public void loadCameraPos(GL3 gl, Vector3f cameraPos){
+    public void loadCameraPos(GL3 gl, Vector3f cameraPos) {
         loadUniformVector(gl, cameraPosLocation, cameraPos);
     }
 
     @Override
-    public void loadTextures(GL3 gl){
+    public void loadTextures(GL3 gl) {
         loadUniformInt(gl, textureLocation, 0);
         loadUniformInt(gl, bumpMapLocation,1);
         loadUniformInt(gl, shadowMapLocation, 2);
     }
 
-    public void loadShadowMatrix(GL3 gl, Matrix4f matrix){
+    public void loadShadowMatrix(GL3 gl, Matrix4f matrix) {
         loadUniformMatrix(gl, shadowMatrixLocation, matrix);
     }
     

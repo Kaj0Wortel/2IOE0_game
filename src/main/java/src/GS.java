@@ -46,6 +46,7 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.LogManager;
 
@@ -74,13 +75,6 @@ public class GS {
         PLAYING, PAUSED, STOPPED;
     }
     
-    /**
-     * TODO.
-     */
-    public static enum CameraMode {
-        DEFAULT, FIRST_PERSON, BACK, HIGH_UP;
-    }
-    
     
     /**-------------------------------------------------------------------------
      * Constants.
@@ -99,7 +93,7 @@ public class GS {
     final private static boolean DISABLE_JAVA_LOGGING = true;
     
     /** The amount of user controlled players. */
-    final public static int MAX_PLAYERS = 1;
+    final public static int MAX_PLAYERS = 2;
     
     /** Random number generator. */
     final public static Random R = new Random();
@@ -134,7 +128,14 @@ public class GS {
     final private static List<Light> lights = new CopyOnWriteArrayList<>();
     final private static List<Item> items = new CopyOnWriteArrayList<>();
     final private static List<GUI> guis = new CopyOnWriteArrayList<>();
+    final private static List<Car> players = new CopyOnWriteArrayList<>();
     final public static List<Car> cars = new CopyOnWriteArrayList<>();
+    final private static Map<Car, Camera> cameras = new ConcurrentHashMap<>();
+    final private static Map<Car, PlayerController> playerControllers = new ConcurrentHashMap<>();
+    final private static Map<Camera, CameraController> cameraControllers = new ConcurrentHashMap<>();
+    final private static Map<Car, Integer> playerScreenID = new ConcurrentHashMap<>();
+    private static Skybox skybox;
+    
     
     final private static Counter counter = new Counter();
     private static class Counter
@@ -174,11 +175,7 @@ public class GS {
     private static GameState gameState = GameState.PLAYING;
     public static ControllerKeyDetector keyDet;
     public static MainPanel mainPanel;
-    public static Camera camera;
-    public static CameraController cameraController;
-    public static PlayerController playerController;
     public static Grid grid;
-    private static CameraMode cameraMode = CameraMode.DEFAULT;
     private static boolean fullScreen = false;
     private static Map<KeyAction, List<ControllerKey>> keyMap = new HashMap<>();
     private static Simulator simulator;
@@ -186,10 +183,7 @@ public class GS {
     public static GLCanvas canvas;
     private static FPSAnimator animator;
     private static Track raceTrack;
-    private static Skybox skybox;
     public static long time;
-    
-    public static Car player;
     
     public static int WIDTH = 1080;
     public static int HEIGHT = 720;
@@ -242,7 +236,6 @@ public class GS {
             Logger.write("Logging via \"java.util.logging.Logger\" has "
                     + "now been disabled!", Logger.Type.INFO);
         }
-        
         registerImageSheets();
         reloadKeyMap();
         
@@ -269,10 +262,6 @@ public class GS {
         grid = new Grid(0f, 0f, -10_000f, 20f, 20f, 20_000f);
 
         animator = new FPSAnimator(canvas, 60, true);
-
-        camera = new Camera(new Vector3f(0, 5, 20), 0, 0, 0);
-        cameraController = new CameraController(camera);
-        Locker.add(cameraController);
 
         simulator = new Simulator();
         renderer = new Renderer(simulator, WIDTH, HEIGHT);
@@ -366,7 +355,7 @@ public class GS {
         ImageManager.registerSheet(GUI + "IOBorder_img_TYPE_006.png",
                 "DEFAULT_BARS", 0, 32, 64, 64, 16, 16);
         Logger.write(new String[] {
-            "======= END REGISTERING IMAGE SHEETS =======",
+            "======= FINISHED REGISTERING IMAGE SHEETS =======",
             ""
         }, Logger.Type.INFO);
     }
@@ -661,33 +650,15 @@ public class GS {
         lights.add(light);
     }
 
-    public static CameraMode getCameraMode() {
-        return cameraMode;
-    }
-    
-    public static void setCameraMode(CameraMode cameraMode) {
-        GS.cameraMode = cameraMode;
-    }
-    
-    public static void cycleNextCameraMode() {
-        if (GS.cameraMode == null) {
-            GS.cameraMode = CameraMode.DEFAULT;
-        } else {
-            CameraMode[] values = CameraMode.values();
-            cameraMode = values[(cameraMode.ordinal() + 1) % values.length];
-            
-        }
-    }
-
-    public static PlayerController getPlayerController() {
-        return  playerController;
+    public static PlayerController getPlayerController(Car player) {
+        return playerControllers.get(player);
     }
     
     public static void setTrack(Track track) {
         Physics.setTrack(track);
         raceTrack = track;
     }
-
+    
     public static void setSkybox(Skybox box) {
         skybox = box;
     }
@@ -698,6 +669,33 @@ public class GS {
     
     public static Track getTrack() {
         return raceTrack;
+    }
+    
+    public static List<Car> getPlayers() {
+        return players;
+    }
+    
+    public static Camera getCam(Car player) {
+        return cameras.get(player);
+    }
+    
+    private static int numPlayers = 0;
+    public static int getNumPlayers() {
+        return numPlayers;
+    }
+    
+    public static void addPlayer(Car player) {
+        players.add(player);
+        Camera cam = new Camera(new Vector3f(0, 5, 20), 0, 0, 0);
+        cameras.put(player, cam);
+        playerScreenID.put(player, numPlayers);
+        playerControllers.put(player, new PlayerController(player, numPlayers++ + 1));
+        cameraControllers.put(cam, new CameraController(cam));
+        cam.setFocus(player);
+    }
+    
+    public static int getPlayerScreenID(Car player) {
+        return playerScreenID.get(player);
     }
     
     
