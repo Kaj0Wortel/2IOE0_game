@@ -17,7 +17,11 @@ import src.tools.update.CollisionManager.Entry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import src.AI.DequeRequestReader;
+import src.AI.Processor;
 
 //Java imports
 
@@ -185,7 +189,13 @@ public class Physics {
     private static Vector3f[] tangents = new Vector3f[0];
     private static float trackSize = 0;
     private static float trackWidth = 0;
+    private static Map<Instance, DequeRequestReader<Vector3f>> readers
+            = new ConcurrentHashMap<>();
     
+    
+    public static void registerReader(Instance inst, Processor<Vector3f> processor) {
+        readers.put(inst, processor);
+    }
     
     /**
      * Computes the position, velocity and rotation after a key input
