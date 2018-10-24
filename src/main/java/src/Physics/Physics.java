@@ -16,6 +16,7 @@ import src.tools.log.Logger;
 import src.tools.update.CollisionManager;
 import src.tools.update.CollisionManager.Collision;
 import src.tools.update.CollisionManager.Entry;
+import src.music.MusicManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +52,7 @@ public class Physics {
         public boolean inAir;
         public int rIndex;
         public boolean isResetting;
+        public boolean playBoing;
         
         // Conversion matrix from model -> physics.
         final public static Matrix3f CONV_MAT = new Matrix3f(
@@ -191,8 +193,12 @@ public class Physics {
     private static Vector3f[] tangents = new Vector3f[0];
     private static float trackSize = 0;
     private static float trackWidth = 0;
+    
     private static Map<Instance, DequeRequestReader<Vector3f>> readers
             = new ConcurrentHashMap<>();
+    
+    private static boolean playBoing;
+    
     
     
     public static void registerReader(Instance inst, File file, Processor<Vector3f> processor) {
@@ -372,65 +378,46 @@ public class Physics {
                         }
                     }
                 }
-                // Update the globally last reached road index
-                if (s.onTrack)
-                    s.rIndex = ind;
-                // Find distance from the middle road curve
-                float t = ((points[ind].x - s.box.pos().x)*tangents[ind].x
-                        + (points[ind].y - s.box.pos().y)*tangents[ind].y
-                        + (points[ind].z - s.box.pos().z)*tangents[ind].z)/
-                        -(tangents[ind].x*tangents[ind].x + tangents[ind].y*tangents[ind].y 
-                        + tangents[ind].z*tangents[ind].z);
-                // direction and magnitude towards the track
-                Vector3f dDir = new Vector3f(points[ind].x - s.box.pos().x + tangents[ind].x*t,
-                        points[ind].y - s.box.pos().y + tangents[ind].y*t,
-                        points[ind].z - s.box.pos().z + tangents[ind].z*t);
-                dist = (float)Math.sqrt(dDir.x*dDir.x + dDir.y*dDir.y + dDir.z*dDir.z);
-                // If you are outside of the track
-                if (dist > trackWidth)
-                    s.onTrack = false;
-                //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
-                //        , (float)Math.sqrt(6)/3);
-                Vector3f roadPos = new Vector3f(points[ind]);
-                Vector3f rN = normals[ind];
-                // </editor-fold>
 
-                if (s.onTrack) {
-                    // <editor-fold defaultstate="collapsed" desc="AIR TIME DETECTION"> 
-                    gndZ = roadPos.z 
-                            - (s.box.pos().x - roadPos.x) * normals[ind].x / normals[ind].z
-                            - (s.box.pos().y - roadPos.y) * normals[ind].y / normals[ind].z;
-                    // extra part after gnd is to compensate for small rounding errors
-                    if (s.box.pos().z - gndZ < gndClamp && s.verticalVelocity <= 0.01) {
-                        s.inAir = false;
-                        s.box.pos().z = gndZ;
-                    } else {
-                        inAir = true;
-                        //System.out.println(s.velocity + ": " + (s.box.pos().z - gndZ));
-                    }
-                    // </editor-fold>
+            }
+            // Update the globally last reached road index
+            if (s.onTrack)
+                s.rIndex = ind;
+            // Find distance from the middle road curve
+            float t = ((points[ind].x - s.box.pos().x)*tangents[ind].x
+                    + (points[ind].y - s.box.pos().y)*tangents[ind].y
+                    + (points[ind].z - s.box.pos().z)*tangents[ind].z)/
+                    -(tangents[ind].x*tangents[ind].x + tangents[ind].y*tangents[ind].y 
+                    + tangents[ind].z*tangents[ind].z);
+            // direction and magnitude towards the track
+            Vector3f dDir = new Vector3f(points[ind].x - s.box.pos().x + tangents[ind].x*t,
+                    points[ind].y - s.box.pos().y + tangents[ind].y*t,
+                    points[ind].z - s.box.pos().z + tangents[ind].z*t);
+            dist = (float)Math.sqrt(dDir.x*dDir.x + dDir.y*dDir.y + dDir.z*dDir.z);
+            // If you are outside of the track
+            if (dist > trackWidth && s.onTrack) {
+                s.onTrack = false;
+                MusicManager.play("will_scream.wav", MusicManager.MUSIC_SFX);
+            }
+            //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
+            //        , (float)Math.sqrt(6)/3);
+            Vector3f roadPos = new Vector3f(points[ind]);
+            Vector3f rN = normals[ind];
+            // </editor-fold>
 
-                    // <editor-fold defaultstate="collapsed" desc="HORIZONTAL ROTATION"> 
-                    double y = normals[ind].y;
-                    double x = normals[ind].x;
-                    double z = normals[ind].z;
-                    //calculating the values needed
-                    double yz = Math.sqrt(y*y + z*z);
-                    double yz_ang = Math.atan2(y, z);
-                    double rotz = Math.atan2(x, yz);
+            if (s.onTrack) {
+                // <editor-fold defaultstate="collapsed" desc="AIR TIME DETECTION"> 
+                gndZ = roadPos.z 
+                        - (s.box.pos().x - roadPos.x) * normals[ind].x / normals[ind].z
+                        - (s.box.pos().y - roadPos.y) * normals[ind].y / normals[ind].z;
+                // extra part after gnd is to compensate for small rounding errors
+                if (s.box.pos().z - gndZ < gndClamp && s.verticalVelocity <= 0.01) {
+                    s.inAir = false;
+                    s.box.pos().z = gndZ;
+                } else {
+                    inAir = true;
 
-                    //write the needed rotation to the rotation only do this with the final value
-                    s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));
-                    s.rotx = (float) (-rotz * Math.cos(yz_ang - s.roty));
-                    // </editor-fold>
-
-                    // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
-                    progress.manageProgress(s.box.pos(), points.length, ind);
-                    if (progress.finished) {
-                        pStruct.accel = 0;
-                        pStruct.turn = 0;
-                    }
-                    // </editor-fold>
+                    //System.out.println(s.velocity + ": " + (s.box.pos().z - gndZ));
                 }
                 // </editor-fold>
                 else {
@@ -516,6 +503,7 @@ public class Physics {
                             rN.z*uNorm.x - rN.x*uNorm.z,
                             rN.x*uNorm.y - rN.y*uNorm.x); // vFactor = roadTan
 
+<<<<<<< HEAD
                     // Calculate the end position
                     ePos = new Vector3f (
                             (float) (s.box.pos().x + vFactor.x * distTravelled),
@@ -540,6 +528,50 @@ public class Physics {
                     distTravelled = (float)Math.sqrt(deltaX*deltaX + deltaY*deltaY);
                     double distAngle = Math.atan2(deltaX, deltaY);
                     distAngle = (-(distAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
+=======
+            // <editor-fold defaultstate="collapsed" desc="VERTICAL MOVEMENT CALCULATIONS"> 
+            // Do not jump if already jumping
+            if (s.verticalVelocity == 0 && !s.inAir)
+                s.verticalVelocity += pStruct.verticalVelocity;
+            // Play boing if jumping
+            if(playBoing){
+                MusicManager.play("boing.wav", MusicManager.MUSIC_SFX);
+                playBoing = false;
+            }
+
+            // forced air detection when jumping
+            if (s.verticalVelocity > 0.3) {
+                s.inAir = true;
+            }
+            
+            // When in the air
+            if (s.inAir || !s.onTrack)  {
+                s.verticalVelocity += pc.gravity * dt;
+                ePos.z += deltaZ;
+                playBoing = false;
+            }
+            // When bouncing on the ground
+            else if (Math.abs(s.verticalVelocity) > 0.01 && s.onTrack) {
+                s.verticalVelocity = -s.verticalVelocity * pc.bounceFactor;
+                playBoing = true;
+            } 
+            // When kinda done bouncing
+            else {
+                s.verticalVelocity = 0;
+                playBoing = false;
+            }
+
+            // Limit upwards velocity
+            if (s.verticalVelocity > 20)
+                s.verticalVelocity = 10;
+            //Death barrier: reset
+            if (ePos.z < points[s.rIndex].z - 50)
+                s.isResetting = true;
+            // If in air this update, make decisions on that next update
+            if (inAir)
+                s.inAir = true;
+            // </editor-fold>
+>>>>>>> develop
 
                     // Calculate the vFactor in the direction of XY movement
                     carDir = new Vector3f (

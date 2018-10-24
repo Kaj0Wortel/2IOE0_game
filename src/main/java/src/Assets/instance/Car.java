@@ -29,7 +29,6 @@ public class Car
 
     private ItemType inventoryItem = ItemType.RED_SHELL; // = null
     private CarShader carShader;
-    private Matrix4f projectionMatrix;
     private int shadowMap;
     
     /**
@@ -53,8 +52,8 @@ public class Car
         return false;
     }
 
-    public void draw(GL3 gl, Matrix4f shadowMatrix) {
-        prepare(gl);
+    public void draw(GL3 gl, Car player, Matrix4f shadowMatrix) {
+        prepare(gl, player);
 
         carShader.loadShadowMatrix(gl, shadowMatrix);
 
@@ -81,13 +80,13 @@ public class Car
         gl.glDisable(GL3.GL_TEXTURE_2D);
     }
 
-    private void prepare(GL3 gl){
+    private void prepare(GL3 gl, Car player) {
         carShader.start(gl);
 
-        carShader.loadProjectionMatrix(gl,projectionMatrix);
-        carShader.loadViewMatrix(gl, GS.camera.getViewMatrix());
+        carShader.loadProjectionMatrix(gl, GS.getCam(player).getProjectionMatrix());
+        carShader.loadViewMatrix(gl, GS.getCam(player).getViewMatrix());
         carShader.loadLight(gl,GS.getLights().get(0));
-        carShader.loadCameraPos(gl, GS.camera.getPosition());
+        carShader.loadCameraPos(gl, GS.getCam(player).getPosition());
         carShader.loadTextures(gl);
 
         gl.glActiveTexture(GL3.GL_TEXTURE0);
@@ -97,7 +96,7 @@ public class Car
 
     @Override
     public void draw(GL3 gl, ShadowShader shader) {
-        for(GraphicsObject obj : model.getAsset()){
+        for (GraphicsObject obj : model.getAsset()) {
             shader.loadModelMatrix(gl, getTransformationMatrix());
 
             for (int i = 0; i < obj.size(); i++) {
@@ -160,12 +159,11 @@ public class Car
     }
     
     public float getSpeedAngle() {
-        return Math.min((float) Math.PI / 2, Math.abs(getState().velocity / 15));
+        return Math.min((float) Math.PI - 0.4f , Math.abs(getState().velocity / 9)) - 0.4f;
     }
 
-    public void setCarShaderVariables(CarShader shader, Matrix4f projectionMatrix) {
+    public void setCarShaderVariables(CarShader shader) {
         this.carShader = shader;
-        this.projectionMatrix = projectionMatrix;
     }
 
 
