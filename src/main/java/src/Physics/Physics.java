@@ -503,11 +503,8 @@ public class Physics {
                         pStruct.turn = 0;
                     }
                     // </editor-fold>
-                }
-                // </editor-fold>
-                else {
+                } else
                     s.internRotx -= 0.15 * dt * s.velocity/Math.abs(s.velocity);
-                }
 
                 // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
                 // (ACCEL) Max speed regulation
@@ -733,7 +730,7 @@ public class Physics {
                 AStarDataPack data = reader.getNextData();
                 ePos = data.pos;
                 
-                // Height calculation
+                // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
                 float shortestDist = Float.POSITIVE_INFINITY;
                 float dist;
                 int ind = 0; // Current road point index
@@ -748,10 +745,35 @@ public class Physics {
                         }
                     }
                 }
+                // </editor-fold>
+                // Height calculation
                 ePos.z = points[ind].z + 0.5f;
+                
+                // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
+                    progress.manageProgress(s.box.pos(), points.length, ind);
+                    if (progress.finished) {
+                        pStruct.accel = 0;
+                        pStruct.turn = 0;
+                    }
+                    // </editor-fold>
+                
                 
                 eV = data.v;
                 eRot = data.rot - (float)Math.PI/2;
+                
+                // <editor-fold defaultstate="collapsed" desc="HORIZONTAL ROTATION"> 
+                double y = normals[ind].y;
+                double x = normals[ind].x;
+                double z = normals[ind].z;
+                //calculating the values needed
+                double yz = Math.sqrt(y*y + z*z);
+                double yz_ang = Math.atan2(y, z);
+                double rotz = Math.atan2(x, yz);
+
+                //write the needed rotation to the rotation only do this with the final value
+                s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));
+                s.rotx = (float) (-rotz * Math.cos(yz_ang - s.roty));
+                // </editor-fold>
                 // </editor-fold>
             } else {
                 ePos = new Vector3f(4.5f,0,2.5f);
