@@ -745,6 +745,7 @@ public class Physics {
                         }
                     }
                 }
+                s.rIndex = ind;
                 // </editor-fold>
                 // Height calculation
                 ePos.z = points[ind].z + 0.5f;
@@ -771,8 +772,8 @@ public class Physics {
                 double rotz = Math.atan2(x, yz);
 
                 //write the needed rotation to the rotation only do this with the final value
-                s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));
-                s.rotx = (float) (-rotz * Math.cos(yz_ang - s.roty));
+                s.rotx = (float) (-rotz * Math.sin(yz_ang - s.roty));
+                s.rotz = (float) (rotz * Math.cos(yz_ang - s.roty));
                 // </editor-fold>
                 // </editor-fold>
             } else {
