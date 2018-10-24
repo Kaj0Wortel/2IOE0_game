@@ -115,7 +115,7 @@ public class AStarPointersGlueFinal {
         //checkPoints.add(new Point2D.Double(points[1800].x, points[1800].y));
         //checkPoints.add(new Point2D.Double(points[2000].x, points[2000].y));
         //checkPoints.add(new Point2D.Double(points[2200].x, points[2200].y));
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 4; i++) {
             for (int k = 50; k < (int)(points.length*1f); k = k + 100) {
                 if (k != 2950 && k != 3050 && k != 4950 && k != 5450 && k != 5550 && k != 5950 && k != 6050) {
                 checkPoints.add(new Point2D.Double(points[k].x, points[k].y));
@@ -277,7 +277,7 @@ public class AStarPointersGlueFinal {
                     int acc = j;
                     
                     // delta time
-                    float dt = 0.05f;
+                    float dt = 0.08f;
                     // vFactor
                     Vector3f carDir, u, uNorm, vFactor;
                     float udist;
@@ -500,12 +500,14 @@ public class AStarPointersGlueFinal {
                                 sg, sh, sNextCP, curNode, ind, i, j));
                         // Debug succesor logs
                         if(iter == 0) {
+                            /*
                             System.out.println("-"+(iter+1)+"->a: " + sA 
                                     + ", rotV: " + sRotV 
                                     + ", h: " + sh
                                     + ", g: " + sg
                                     + ", X: " + sPos.x + ", Y: " + sPos.y
                                     + ", Rot: "+sRot);
+                            */
                         }
                         // Debug visuals
                         if (iter < 50000 /*&& false*/) {
@@ -584,7 +586,7 @@ public class AStarPointersGlueFinal {
                 for (NodeGlueFinal p : pathList) {
                     //System.out.println("AIList.add(new Vector3f("
                     //        + (p.pos.x) + "f," + (p.pos.y) + "f,0f));");
-                    bw.write(p.pos.x + ";" + p.pos.y + ";0f" + GS.LS);
+                    bw.write(p.pos.x + ";" + p.pos.y + ";0f" + ";" + p.rot + ";" + p.v + GS.LS);
                 }
             } catch (IOException e) {
                 Logger.write(e);

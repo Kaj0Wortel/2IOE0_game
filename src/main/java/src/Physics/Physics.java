@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import src.AI.AStarDataPack;
 import src.AI.DequeRequestReader;
 import src.AI.Processor;
 
@@ -194,14 +195,15 @@ public class Physics {
     private static float trackSize = 0;
     private static float trackWidth = 0;
     private static boolean playBoing;
-    private static Map<Instance, DequeRequestReader<Vector3f>> readers
+    private static Map<Instance, DequeRequestReader<AStarDataPack>> readers
             = new ConcurrentHashMap<>();
     
     
     public static void registerReader(Instance inst, File file,
-            Processor<Vector3f> processor) {
+            Processor<AStarDataPack> processor) {
         try {
-            readers.put(inst, new DequeRequestReader<Vector3f>(file, 1000, processor));
+            readers.put(inst, new DequeRequestReader<AStarDataPack>(
+                    file, 1000, processor));
             
         } catch (IOException e) {
             Logger.write(e);
@@ -666,8 +668,9 @@ public class Physics {
                 // </editor-fold>
             } else {
                 // <editor-fold defaultstate="collapsed" desc="TEST AI">
-                DequeRequestReader<Vector3f> reader = readers.get(source);
-                ePos = reader.getNextData();
+                DequeRequestReader<AStarDataPack> reader = readers.get(source);
+                AStarDataPack data = reader.getNextData();
+                ePos = data.pos;
 
                 // Height calculation
                 float shortestDist = Float.POSITIVE_INFINITY;

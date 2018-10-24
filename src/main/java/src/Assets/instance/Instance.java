@@ -19,6 +19,7 @@ import src.tools.PosHitBox3f;
 
 import javax.swing.*;
 import java.util.Set;
+import src.AI.AStarDataPack;
 import src.AI.Processor;
 
 
@@ -395,20 +396,23 @@ public abstract class Instance
     }
     
     final private static File A_STAR_DATA = new File(GS.DATA_DIR + "AStarData.csv");
-    final private static Processor<Vector3f> vectorProcessor = (String data) -> {
+    final private static Processor<AStarDataPack> processor = (String data) -> {
         String[] split = data.split(";");
-        return new Vector3f(
-            Float.parseFloat(split[0]),
-            Float.parseFloat(split[1]),
-            Float.parseFloat(split[2])
+        return new AStarDataPack(
+                new Vector3f(
+                        Float.parseFloat(split[0]),
+                        Float.parseFloat(split[1]),
+                        Float.parseFloat(split[2])
+                ), Float.parseFloat(split[3]), Float.parseFloat(split[4])
         );
+        
     };
     
     public void setAI(boolean ai) {
         if (ai != isAI) {
             this.isAI = ai;
             if (ai) {
-                Physics.registerReader(this, A_STAR_DATA, vectorProcessor);
+                Physics.registerReader(this, A_STAR_DATA, processor);
             }
         }
     }
