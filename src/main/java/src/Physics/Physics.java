@@ -748,7 +748,7 @@ public class Physics {
                 s.rIndex = ind;
                 // </editor-fold>
                 // Height calculation
-                ePos.z = points[ind].z + 0.5f;
+                ePos.z = points[ind].z;
                 
                 // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
                     progress.manageProgress(s.box.pos(), points.length, ind);
@@ -773,7 +773,7 @@ public class Physics {
 
                 //write the needed rotation to the rotation only do this with the final value
                 s.rotx = (float) (-rotz * Math.sin(yz_ang - s.roty));
-                s.rotz = (float) (rotz * Math.cos(yz_ang - s.roty));
+                s.rotz = (float) (-rotz * Math.cos(yz_ang - s.roty));
                 // </editor-fold>
                 // </editor-fold>
             } else {
@@ -940,7 +940,7 @@ public class Physics {
                 // positions
                 pointList.add(new Vector3f(-(track.getPoint(i, t).z - 1.5f) * trackSize,
                 -track.getPoint(i, t).x * trackSize, 
-                track.getPoint(i, t).y * trackSize + 2f));
+                track.getPoint(i, t).y * trackSize + 2.3f));
                 // normals
                 normalList.add(new Vector3f(-Track.calcNormal(track.getTangent(i, t)).z,
                 -Track.calcNormal(track.getTangent(i, t)).x,

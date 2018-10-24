@@ -277,7 +277,7 @@ public class AStarPointersGlueFinal {
                     int acc = j;
                     
                     // delta time
-                    float dt = 0.08f;
+                    float dt = 0.1f;
                     // vFactor
                     Vector3f carDir, u, uNorm, vFactor;
                     float udist;
