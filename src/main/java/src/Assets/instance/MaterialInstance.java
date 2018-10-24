@@ -24,7 +24,7 @@ public class MaterialInstance
         implements Updateable {
     
     public static enum Type {
-        SPACE_ROCK;
+        SPACE_ROCK, PLANET;
     }
     
     final private Type type;
@@ -41,7 +41,7 @@ public class MaterialInstance
                 internRotx, internRoty, internRotz, physicConst);
         this.type = type;
         
-        if (GS.R.nextFloat() < 0.5) {
+        if (type == Type.PLANET || GS.R.nextFloat() < 0.5) {
             SwingUtilities.invokeLater(() -> {
                 Updater.addTask(this);
             });
@@ -60,6 +60,8 @@ public class MaterialInstance
         
         if (type == SPACE_ROCK) {
             rotate(ranRotx, ranRoty, ranRotz);
+        } else if (type == Type.PLANET) {
+            rotate(0.2f, 0.2f, 0.2f);
         }
         
         prevTimeStamp = timeStamp;

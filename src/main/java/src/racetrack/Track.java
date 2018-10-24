@@ -6,11 +6,17 @@ import org.joml.Vector3f;
 import src.Assets.TextureImg;
 import src.GS;
 import src.Shaders.RacetrackShader;
-import src.shadows.ShadowShader;
 
+import src.Shaders.ShadowShader;
 import java.nio.IntBuffer;
+import org.joml.Matrix3f;
 
 public abstract class Track {
+
+    final protected static int NR_SEGMENT_VERTICES_COL = 150;
+    final protected static int NR_SEGMENTS_VERTICES_ROW = 17; //Must be odd
+    protected int laneWidth = 7;
+    protected int scalePoints = 10;
 
     protected Vector3f[] controlPoints;
     protected int nrOfSegments;
@@ -31,7 +37,8 @@ public abstract class Track {
     protected Matrix4f projectionMatrix;
     protected Matrix4f viewMatrix;
 
-    public Track(Vector3f position, float size, float rotx, float roty, float rotz, TextureImg texture, TextureImg bumpmap) {
+    public Track(Vector3f position, float size, float rotx, float roty,
+            float rotz, TextureImg texture, TextureImg bumpmap) {
         this.position = position;
         this.size = size;
         this.rotx = rotx;
@@ -41,7 +48,8 @@ public abstract class Track {
         this.bumpmap = bumpmap;
     }
 
-    public abstract void setShaderAndRenderMatrices(RacetrackShader shader, Matrix4f projectionMatrix, Matrix4f viewMatrix);
+    public abstract void setShaderAndRenderMatrices(RacetrackShader shader,
+            Matrix4f projectionMatrix, Matrix4f viewMatrix);
 
     public abstract Vector3f getPoint(int segment, float t);
     public abstract Vector3f getTangent(int segment, float t);
@@ -82,8 +90,10 @@ public abstract class Track {
         gl.glEnableVertexAttribArray(0);
         gl.glEnableVertexAttribArray(1);
         gl.glEnableVertexAttribArray(2);
+        
         gl.glDrawElements(GL3.GL_TRIANGLES, nrV,
                 GL3.GL_UNSIGNED_INT, 0);
+        
         gl.glDisableVertexAttribArray(0);
         gl.glDisableVertexAttribArray(1);
         gl.glDisableVertexAttribArray(2);
@@ -118,6 +128,17 @@ public abstract class Track {
         return tangent.cross(sideVector);
     }
     
+    public static Vector3f rotateNormal(Vector3f roadPos, Vector3f carPos,
+            Vector3f norm, Vector3f tangent, float dist) {
+        Vector3f relPos = new Vector3f(roadPos).sub(carPos).normalize();
+        float angle = 45;//dist;//(float) Math.acos(norm.dot(relPos));
+        
+        Matrix3f rotMat = new Matrix3f().rotate(angle, tangent);
+        
+        //return new Vector3f(norm).mul(rotMat);
+        return norm;
+    }
+    
 
     private void prepare(GL3 gl){
         shader.start(gl);
@@ -135,6 +156,7 @@ public abstract class Track {
         gl.glBindTexture(GL3.GL_TEXTURE_2D, bumpmap.getTexture());
         gl.glActiveTexture(GL3.GL_TEXTURE2);
         gl.glBindTexture(GL3.GL_TEXTURE_2D, shadowMap);
+        gl.glEnable(GL3.GL_TEXTURE_2D);
     }
 
     public void draw(GL3 gl, ShadowShader shader){
@@ -145,11 +167,13 @@ public abstract class Track {
         gl.glDrawElements(GL3.GL_TRIANGLES, nrV,
                 GL3.GL_UNSIGNED_INT, 0);
         gl.glDisableVertexAttribArray(0);
-
+        gl.glDisable(GL3.GL_TEXTURE_2D);
         gl.glBindVertexArray(0);
     }
 
     private void prepare(GL3 gl, ShadowShader shader){
         shader.loadModelMatrix(gl, getTransformationMatrix());
     }
+    
+    
 }

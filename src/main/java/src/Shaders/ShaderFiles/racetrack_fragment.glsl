@@ -16,10 +16,14 @@ uniform float reflectivity;
 uniform sampler2D textureRoad;
 uniform sampler2D bumpmap;
 uniform sampler2D shadowMap;
-uniform mat4 modelMatrix;
 
 const int pcfPixels = 3;
 const float totalPcfPixels = pow((pcfPixels * 2 + 1),2);
+const vec2 poisson[4] = vec2[](
+                vec2( -0.94201624, -0.39906216 ),
+                vec2( 0.94558609, -0.76890725 ),
+                vec2( -0.094184101, -0.92938870 ),
+                vec2( 0.34495938, 0.29387760 ));
 
 void main() {
 
@@ -37,10 +41,17 @@ void main() {
         }
     }
 
-
     visible /= totalPcfPixels;
 
-    float inShadow = 1.0 - (shadowTextureCoords.w*visible*0.6f);
+    float inShadow = 1.0 - (shadowTextureCoords.w*visible*0.7f);
+/*
+    float inShadow;
+    float depth = texture(shadowMap, shadowTextureCoords.xy).r;
+    if(shadowTextureCoords.z - 0.001f > depth){
+        inShadow = 1.0 - (shadowTextureCoords.w*0.4f);
+    }else{
+        inShadow = 1.0f;
+    }*/
 
     vec2 tex = texPass;
     tex.x *= 10;

@@ -108,31 +108,50 @@ public class AStarPointersGlueFinal {
         
         // <editor-fold defaultstate="collapsed" desc="VARIABLES">
         // Checkpoints and start position
-        List<Point2D.Double> checkPoints = new ArrayList<Point2D.Double>();        
-        for (int i = 0; i < 1; i++) {
-            checkPoints.add(new Point2D.Double(0, -20));
-            /*checkPoints.add(new Point2D.Double(8.5, 8.5));
-            checkPoints.add(new Point2D.Double(5.5, 8.5));
-            checkPoints.add(new Point2D.Double(5, 5.5));
-            checkPoints.add(new Point2D.Double(1.1, 5.3));
-            checkPoints.add(new Point2D.Double(1.4, 1.4));
-            checkPoints.add(new Point2D.Double(8.6, 1.4));*/
+        List<Point2D.Double> checkPoints = new ArrayList<Point2D.Double>(); 
+        //checkPoints.add(new Point2D.Double(points[1800].x, points[1800].y));
+        //checkPoints.add(new Point2D.Double(points[2000].x, points[2000].y));
+        //checkPoints.add(new Point2D.Double(points[2200].x, points[2200].y));
+        for (int i = 0; i < 3; i++) {
+            for (int k = 50; k < (int)(points.length*1f); k = k + 100) {
+                if (k != 2950 && k != 3050 && k != 4950 && k != 5450 && k != 5550 && k != 5950 && k != 6050) {
+                checkPoints.add(new Point2D.Double(points[k].x, points[k].y));
+                }
+                if (k == 2950) {
+                    checkPoints.add(new Point2D.Double(points[k].x, points[k].y + 10));
+                    checkPoints.add(new Point2D.Double(points[k+20].x, points[k+20].y + 10));
+                    checkPoints.add(new Point2D.Double(points[k+60].x, points[k+60].y + 5));
+                }
+                if (k == 4950) {
+                    checkPoints.add(new Point2D.Double(points[k-30].x, points[k-30].y + 5));
+                }
+                if (k == 5450) {
+                    checkPoints.add(new Point2D.Double(points[k].x-5, points[k].y));
+                    checkPoints.add(new Point2D.Double(points[k+50].x, points[k+50].y));
+                }
+                if (k == 5950) {
+                    checkPoints.add(new Point2D.Double(points[k-20].x, points[k-20].y-5));
+                    checkPoints.add(new Point2D.Double(points[k+20].x, points[k+20].y));
+                }
+                //System.out.println(checkPoints.size() + ", " + k);
+            }
         }
-        //checkPoints.add(new Point2D.Double(9, 6.2));
-        //Point2D.Double firstPos = new Point2D.Double(9, 5);
         Point2D.Double firstPos = new Point2D.Double(points[0].x, points[0].y);
         Point2D.Double startPos = firstPos;
+        NodeGlueFinal cpStart;
         
-        // Maximum velocity (can be something else than +/-max or 0)
-        double vMax = 2.01;
-        // Maximum acceleration
-        double a = 1;
-        // Maximum angular velocity (rad/sec)
-        double rotvMax = Math.PI/2;
         // Time interval between actions/itterations
-        double tInt = 0.1;
+        float tInt = 0.1f;
         // Amount of itterations/time allowed per pathfind
         int iterAllowed = 50000;
+        
+        // Physics context
+        float a = 0.8f; // Maximum acceleration
+        float rotvMax = (float) Math.PI / 14f; // Maximum angular velocity (rad/sec)
+        float vMax = 15;//8; // Maximum velocity (can be something else than +/-max or 0)
+        float frictionConstant = 0.8f;
+        float turnCorrection = 7f;
+        float brakeAccel = 2;
         
         // Loop variables
         boolean alreadyInList = false;
@@ -164,12 +183,32 @@ public class AStarPointersGlueFinal {
         // Visuals for checkpoint locations
             visual.setForeground(Color.CYAN);
             for (Point2D.Double cp : checkPoints){
-                if (checkPoints.indexOf(cp) < checkPoints.size() - 1)
+                if (checkPoints.indexOf(cp) < checkPoints.size())
                     visual.addPointBig (new Point2D.Double(cp.x, -cp.y));
             }
         // Visuals for finish location
             visual.setForeground(Color.CYAN);
             visual.addLine(new Point2D.Double(8,-5), new Point2D.Double(10,-5));
+        
+
+        // Visuals for track
+        visual.setForeground(Color.LIGHT_GRAY);
+        Vector3f normal = new Vector3f();
+        normal.cross(new Vector3f(0,0,1)).normalize().mul(1f).mul((float)(7));
+        for (int n = 0; n < points.length - 1; n++) {
+            normal = new Vector3f(tangents[n]);
+            normal.cross(new Vector3f(0,0,1)).normalize().mul(1f).mul((float)(7)-1f);
+            //visual.addPoint(new Point2D.Double(points[n].x + 2*normal.x, -(points[n].y + 2*normal.y)));
+            //visual.addPoint(new Point2D.Double(points[n].x - 2*normal.x, -(points[n].y - 2*normal.y)));
+            
+            visual.addLine(new Point2D.Double(points[n].x + 2*normal.x, -(points[n].y + 2*normal.y)),
+                    new Point2D.Double(points[n+1].x + 2*normal.x, -(points[n+1].y + 2*normal.y)));
+            visual.addLine(new Point2D.Double(points[n].x - 2*normal.x, -(points[n].y - 2*normal.y)),
+                    new Point2D.Double(points[n+1].x - 2*normal.x, -(points[n+1].y - 2*normal.y)));
+        }
+        //for (int n = 0; n < points.length; n++) {
+            //visual.addPoint(new Point2D.Double(points[n].x, -points[n].y));
+        //}
         // </editor-fold>
             
         // Initialize open- and closed-list
@@ -188,12 +227,13 @@ public class AStarPointersGlueFinal {
             curHPos = CP;
         }
 
-        NodeGlueFinal start = new NodeGlueFinal(startPos, 0, 0, Math.PI/2, 0, 0, h, 0, null, 0);
+        NodeGlueFinal start = new NodeGlueFinal(startPos, 0, 0, Math.PI, 0, 0, h, 0, null, 0, 0, 0);
         openlist.add(start);
-        
+
         // LOOP: until openlist is empty left OR when the goal is reached.
         // <editor-fold defaultstate="collapsed" desc="LOOP">
-        for (int iter = 0; !openlist.isEmpty() && iter < iterAllowed; iter++) {
+        
+        for (int iter = 0; !openlist.isEmpty() && iter < iterAllowed; iter++) {            
             // Consider node with smallest f (g+h) in openlist.
             curNode = openlist.get(0);
             for (NodeGlueFinal o : openlist) {
@@ -204,12 +244,12 @@ public class AStarPointersGlueFinal {
                     curNode = o;
                 }
             }
-            
             // curNode is added to the closed list.
             closedlist.add(curNode);
             openlist.remove(curNode);
+                
             // Check if the current node has reached the target
-            if (curNode.h < 0.2) { // ? does this number even matter?
+            if (curNode.h < 1/*0.2*/) { // ? does this number even matter?
                 pathList.add(curNode);
                 pathComplete = true;
                 // Goal print statement
@@ -231,26 +271,24 @@ public class AStarPointersGlueFinal {
                 for (int j = -1; j <= 1; j++) {
                     // <editor-fold defaultstate="collapsed" desc="PHYSICS">
                     //VARIABLES
+                    int turn = i;
+                    int acc = j;
+                    
                     // delta time
                     float dt = 0.1f;
                     // vFactor
                     Vector3f carDir, u, uNorm, vFactor;
                     float udist;
-                    // end variables
-                    //float sV;
-                    //float sRot;
-                    //Vector3f sPos;
-                    
-                    // TEST
+                    // road position index number
                     int rIndex = curNode.rIndex;
                     
                     // Calculate succesor node variables
                     Point2D.Double sPos;
                     // Used in Node
                     double sV, sA, sRot, sRotV;
-                    // Not used in Node
-                    double deltaRot, r, sr, s_deltaX, s_deltaY;
-                    double distTravelled = curNode.v * tInt + 0.5*(j*a)*tInt*tInt;
+
+                    // Reset physics constants
+                    a = 0.8f; // Maximum acceleration
                     
                     
                     // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
@@ -288,124 +326,130 @@ public class AStarPointersGlueFinal {
                             }
                         }
                     }
-                    System.out.println(ind);
+                    Vector3f rN = normals[ind];
+                    Vector3f roadPos = new Vector3f(points[ind].x, points[ind].y, points[ind].z);
+                    //System.out.println(ind);
                     // </editor-fold>
                     
-                    /*
-                    // <editor-fold defaultstate="collapsed" desc="HORIZONTAL MOVEMENT CALCULATIONS"> 
-            if (pStruct.turn == 0) { // Straight
-                distTravelled = dt * (s.velocity + 0.5f * linAccel * dt);
-                // Calculate end rotation and velocity
-                eV = s.velocity + linAccel * dt;
-                eRot = s.roty;
-                // Calculate the vFactor in the direction of XY movement
-                carDir = new Vector3f ((float)Math.cos(s.roty), (float)Math.sin(s.roty), 0);
-                u = new Vector3f(carDir.y*rN.z - carDir.z*rN.y,
-                        carDir.z*rN.x - carDir.x*rN.z,
-                        carDir.x*rN.y - carDir.y*rN.x);
-                udist = (float)Math.sqrt(u.x*u.x + u.y*u.y + u.z*u.z);
-                uNorm = new Vector3f(u.x/udist, u.y/udist, u.z/udist);
-                vFactor = new Vector3f(rN.y*uNorm.z - rN.z*uNorm.y,
-                        rN.z*uNorm.x - rN.x*uNorm.z,
-                        rN.x*uNorm.y - rN.y*uNorm.x); // vFactor = roadTan
-
-                // Calculate the end position
-                ePos = new Vector3f (
-                        (float) (s.box.pos().x + vFactor.x * distTravelled),
-                        (float) (s.box.pos().y + vFactor.y * distTravelled),
-                        (float) (s.box.pos().z + vFactor.z * distTravelled));
-
-            } else { // Turn
-                rotationalVelocity = pStruct.turn * rotationalVelocity;
-                // Calculate end rotation and velocity
-                eV = s.velocity + linAccel * dt;
-                eRot = s.roty + rotationalVelocity * dt;
-                // Calculate direction and magnitude of XY movement during this frame
-                float aRotVSquared = linAccel / (rotationalVelocity * rotationalVelocity);
-                float deltaX = (float) ((eV / rotationalVelocity) * Math.sin(eRot)
-                            + aRotVSquared * Math.cos(eRot)
-                            - (s.velocity / rotationalVelocity) * Math.sin(s.roty)
-                            - aRotVSquared * Math.cos(s.roty));
-                float deltaY = (float) (-(eV / rotationalVelocity) * Math.cos(eRot)
-                            + aRotVSquared * Math.sin(eRot)
-                            + (s.velocity / rotationalVelocity) * Math.cos(s.roty)
-                            - aRotVSquared * Math.sin(s.roty));
-                distTravelled = (float)Math.sqrt(deltaX*deltaX + deltaY*deltaY);
-                double distAngle = Math.atan2(deltaX, deltaY);
-                distAngle = (-(distAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
-
-                // Calculate the vFactor in the direction of XY movement
-                carDir = new Vector3f ((float)Math.cos(distAngle), (float)Math.sin(distAngle), 0);
-                u = new Vector3f(carDir.y*rN.z - carDir.z*rN.y,
-                        carDir.z*rN.x - carDir.x*rN.z,
-                        carDir.x*rN.y - carDir.y*rN.x);
-                udist = (float)Math.sqrt(u.x*u.x + u.y*u.y + u.z*u.z);
-                uNorm = new Vector3f(u.x/udist, u.y/udist, u.z/udist);
-                vFactor = new Vector3f(rN.y*uNorm.z - rN.z*uNorm.y,
-                        rN.z*uNorm.x - rN.x*uNorm.z,
-                        rN.x*uNorm.y - rN.y*uNorm.x); // vFactor = roadTan
-                // Calculate the end position
-                ePos = new Vector3f(
-                        (float)(s.box.pos().x + vFactor.x * distTravelled),
-                        (float)(s.box.pos().y + vFactor.y * distTravelled), 
-                        (float)(s.box.pos().z + vFactor.z * distTravelled));
-            }
-            // </editor-fold>
-                    */
+                    // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
+                    // (acc) Max speed regulation
+                    //HARDCODE
+                    /*if (iter > 1000 && iter < 1100) {
+                        if (curNode.v > 8) {
+                            acc = -1;
+                        }
+                    }*/
                     
+                    /*System.out.println(vMax);
+                    if (curNode.nextCP > 29 && curNode.nextCP < 32) {
+                        vMax = 5;
+                    }*/
                     
-                    if (i == 0) { // AI goes straight
-                        sV = curNode.v + (j*a) * tInt;
-                        sA = j * a;
-                        sRot = curNode.rot;
-                        sRotV = 0;
-                        sPos = new Point2D.Double(
-                            curNode.pos.x + Math.cos(curNode.rot)*distTravelled,
-                            curNode.pos.y + Math.sin(curNode.rot)*distTravelled
-                        );
-                    } else { //AI turns
-                        deltaRot = tInt*(i*rotvMax);
-                        sV = curNode.v + (j*a)*tInt;
-                        sA = j*a;
-                        sRot = curNode.rot + deltaRot;
-                        sRotV = i*rotvMax;
-                        // Position
-                        double sY = - (sV / sRotV)
-                                        * Math.cos(curNode.rot + sRotV*tInt)
-                                    + (sA / (sRotV*sRotV))
-                                        * Math.sin(curNode.rot + sRotV*tInt)
-                                    + (curNode.v / sRotV)
-                                        * Math.cos(curNode.rot)
-                                    - (sA / (sRotV*sRotV))
-                                        * Math.sin(curNode.rot);
-                        double sX = + (sV / sRotV)
-                                        * Math.sin(curNode.rot + sRotV*tInt)
-                                    + (sA / (sRotV*sRotV))
-                                        * Math.cos(curNode.rot + sRotV*tInt)
-                                    - (curNode.v / sRotV)
-                                        * Math.sin(curNode.rot)
-                                    - (sA / (sRotV*sRotV))
-                                        * Math.cos(curNode.rot);
-                        sPos = new Point2D.Double(
-                                curNode.pos.x + sX,
-                                curNode.pos.y + sY);
+                    // Do not have friction if you stay on max speed
+                    boolean noFriction = false;
+                    if ((acc > 0 && curNode.v + a*dt > vMax) ||
+                            (acc < 0 && curNode.v - a*dt < -vMax)) {
+                        acc = 0;
+                        noFriction = true;
                     }
 
+                    // (a)/(v) Friction: When acceleration is 0, abs(v) decreases
+                    if (acc == 0 && !noFriction) {
+                        if (curNode.v > a * frictionConstant * dt)
+                            a *= -frictionConstant;
+                        else if (curNode.v < -a * frictionConstant * dt)
+                            a *= frictionConstant;
+                        else { // Stop moving when v close to 0
+                            curNode.v = 0;
+                            a = 0;
+                        }
+                    } else { // When accelerate
+                        if (curNode.v > a * frictionConstant * dt && acc < 0 
+                                || curNode.v < -a* frictionConstant * dt && acc > 0) {
+                            a *= brakeAccel;
+                        }
+                        a *= acc;
+                    }
+                    // </editor-fold>
                     
+                    // <editor-fold defaultstate="collapsed" desc="ROTATIONAL IMPROVEMENTS"> 
+                    // (turn)/(rotvmax) Turn correction for small velocities
+                    if (Math.abs(curNode.v) == 0) // not 0: causes teleport bug
+                        turn = 0;
+                    /*else if (Math.abs(curNode.v) < turnCorrection)
+                        rotvMax *= (Math.abs(curNode.v) / turnCorrection);
+                    */
+                    // (turn) Turn correction for negative velocities
+                    if (curNode.v < 0)
+                        turn = -turn;
+                    // </editor-fold>
+                    
+                    
+                    // <editor-fold defaultstate="collapsed" desc="HORIZONTAL MOVEMENT CALCULATIONS"> 
+                    sA = a;
+                    if (turn == 0) { // Straight
+                        double distTravelled = dt * (curNode.v + 0.5f * a * dt);
+                        // Calculate end rotation and velocity
+                        sV = curNode.v + a * dt;
+                        sRot = curNode.rot;
+                        sRotV = 0;
+                        // Calculate the vFactor in the direction of XY movement
+                        carDir = new Vector3f ((float)Math.cos(curNode.rot), (float)Math.sin(curNode.rot), 0);
+                        u = new Vector3f(carDir.y*rN.z - carDir.z*rN.y,
+                                carDir.z*rN.x - carDir.x*rN.z,
+                                carDir.x*rN.y - carDir.y*rN.x);
+                        udist = (float)Math.sqrt(u.x*u.x + u.y*u.y + u.z*u.z);
+                        uNorm = new Vector3f(u.x/udist, u.y/udist, u.z/udist);
+                        vFactor = new Vector3f(rN.y*uNorm.z - rN.z*uNorm.y,
+                                rN.z*uNorm.x - rN.x*uNorm.z,
+                                rN.x*uNorm.y - rN.y*uNorm.x); // vFactor = roadTan
+
+                        // Calculate the end position
+                        sPos = new Point2D.Double (
+                                curNode.pos.x + vFactor.x * distTravelled,
+                                curNode.pos.y + vFactor.y * distTravelled);
+
+                    } else { // Turn
+                        sRotV = turn * rotvMax;
+                        // Calculate end rotation and velocity
+                        sV = curNode.v + a * dt;
+                        sRot = curNode.rot + sRotV * dt;
+                        // Calculate direction and magnitude of XY movement during this frame
+                        float aRotVSquared = (float)(a / (sRotV * sRotV));
+                        float deltaX = (float) ((sV / sRotV) * Math.sin(sRot)
+                                    + aRotVSquared * Math.cos(sRot)
+                                    - (curNode.v / sRotV) * Math.sin(curNode.rot)
+                                    - aRotVSquared * Math.cos(curNode.rot));
+                        float deltaY = (float) (-(sV / sRotV) * Math.cos(sRot)
+                                    + aRotVSquared * Math.sin(sRot)
+                                    + (curNode.v / sRotV) * Math.cos(curNode.rot)
+                                    - aRotVSquared * Math.sin(curNode.rot));
+                        double distTravelled = (float)Math.sqrt(deltaX*deltaX + deltaY*deltaY);
+                        double distAngle = Math.atan2(deltaX, deltaY);
+                        distAngle = (-(distAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
+
+                        // Calculate the vFactor in the direction of XY movement
+                        carDir = new Vector3f ((float)Math.cos(distAngle), (float)Math.sin(distAngle), 0);
+                        u = new Vector3f(carDir.y*rN.z - carDir.z*rN.y,
+                                carDir.z*rN.x - carDir.x*rN.z,
+                                carDir.x*rN.y - carDir.y*rN.x);
+                        udist = (float)Math.sqrt(u.x*u.x + u.y*u.y + u.z*u.z);
+                        uNorm = new Vector3f(u.x/udist, u.y/udist, u.z/udist);
+                        vFactor = new Vector3f(rN.y*uNorm.z - rN.z*uNorm.y,
+                                rN.z*uNorm.x - rN.x*uNorm.z,
+                                rN.x*uNorm.y - rN.y*uNorm.x); // vFactor = roadTan
+                        // Calculate the end position
+                        sPos = new Point2D.Double(
+                                curNode.pos.x + vFactor.x * distTravelled,
+                                curNode.pos.y + vFactor.y * distTravelled);
+                    }
+                    // </editor-fold>
                     // </editor-fold>
                     
                     // <editor-fold defaultstate="collapsed" desc="G & H">
                     double sg, sh;
                     // Determine g
                     sg = curNode.g + curNode.v * tInt;
-                    //Extra costs if new position is off track
-                    if (sPos.x > 6 && sPos.x < 8 && sPos.y > 2 && sPos.y < 8) {
-                        sg = sg + 10;
-                    } else if (sPos.x > 2 && sPos.x < 6 && sPos.y > 2 && sPos.y < 5) {
-                        sg = sg + 10;
-                    } else if (sPos.x > 3 && sPos.x < 4 && sPos.y > 6 && sPos.y < 10) {
-                        sg = sg + 10;
-                    }
                     
                     // Determine h  
                     sh = 0;
@@ -419,41 +463,41 @@ public class AStarPointersGlueFinal {
                             sh = sh + 1.25*Math.sqrt(Math.pow(curHPos.x - CP.x, 2)
                                 + Math.pow(curHPos.y - CP.y, 2));
                         } else if (sNextCP + 1 == k) {
-                            sh = sh + 0.2*Math.sqrt(Math.pow(curHPos.x - CP.x, 2)
+                            sh = sh + 0.3*Math.sqrt(Math.pow(curHPos.x - CP.x, 2)
                                 + Math.pow(curHPos.y - CP.y, 2));
                         }                            
                         // Check if close to currently closest checkpoint
-                        if (sh < 1.75) {
+                        if (sh < 10/*5*/) {
                             sNextCP++;
                             reachedCP = true;
                         }
                     }
                     // </editor-fold>
                     
-                    //CASE I: already in closed
+                    //CASE I: already in open
                     Point2D.Double compPos = new Point2D.Double
                         ((int)(10000*sPos.x), (int)(10000*sPos.y));
                     for (NodeGlueFinal o : openlist) {
                         if ((int)(10000*o.pos.x) == compPos.x && (int)(10000*o.pos.y) == compPos.y) {
                             alreadyInList = true;
                             /*System.err.println("Unexpected node found in "
-                                    + "closed list: " + o);*/
+                                    + "open list: " + o);*/
                         }
                     }
-                    //CASE II: already in open
+                    //CASE II: already in closed
                     for (NodeGlueFinal c : closedlist) {
                         if ((int)(10000*c.pos.x) == compPos.x && (int)(10000*c.pos.y) == compPos.y) {
                             alreadyInList = true;
-                            System.err.println("Unexpected node found in "
-                                    + "opened list: " + c);
+                            //System.err.println("Unexpected node found in "
+                            //        + "closed list: " + c);
                         }
                     }
                     //CASE III: not in any list
                     if (!alreadyInList) {
                         openlist.add(new NodeGlueFinal(sPos, sV, sA, sRot, sRotV,
-                                sg, sh, sNextCP, curNode, ind));
+                                sg, sh, sNextCP, curNode, ind, i, j));
                         // Debug succesor logs
-                        if(iter == 22) {
+                        if(iter == 0) {
                             System.out.println("-"+(iter+1)+"->a: " + sA 
                                     + ", rotV: " + sRotV 
                                     + ", h: " + sh
@@ -462,7 +506,7 @@ public class AStarPointersGlueFinal {
                                     + ", Rot: "+sRot);
                         }
                         // Debug visuals
-                        if (iter < 50000 && false) {
+                        if (iter < 50000 /*&& false*/) {
                             visual.setForeground(Color.LIGHT_GRAY);
                             visual.addPoint(new Point2D.Double(sPos.x, -sPos.y));
                             visual.setForeground(Color.WHITE);
@@ -475,7 +519,7 @@ public class AStarPointersGlueFinal {
             }
             
             // Show evaluated position
-            if (curNode.parentNode != null) {
+            if (curNode.parentNode != null && false) {
                 System.out.println(iter + ": (" + curNode.pos.x + ", "
                     + curNode.pos.y + ")->" 
                     + curNode.h
@@ -491,6 +535,13 @@ public class AStarPointersGlueFinal {
                 System.out.println(iter);
         }
         // </editor-fold>
+        
+        /*try (NodeWriter nw = new NodeWriter("C:\\Users\\s152102\\Documents\\101_Courses\\Y3Q1 DBL interactive intelligent systems\\Gitkraken game folder\\2IOE0_game\\src\\main\\java\\src\\res\\A_star_data\\Node.csv")) {
+            nw.writeNodeChain(curNode);
+            
+        } catch (IOException e) {
+            Logger.write(e);
+        }*/
         
         // <editor-fold defaultstate="collapsed" desc="PATH CREATION">
         // If goal could be reached, create a path to it.

@@ -2,6 +2,9 @@ package src.Progress;
 
 
 // Own imports
+
+import org.joml.Vector3f;
+import src.music.MusicManager;
 import src.tools.Cloneable;
 
 
@@ -10,9 +13,9 @@ import org.joml.Vector3f;
 
 
 public class ProgressManager
-        implements Cloneable {
+        implements Cloneable, Comparable<ProgressManager> {
     public int checkPoint = 1;
-    private int lap = 1;
+    public int lap = 1;
     public boolean finished = false;
     public int cpAm = 16; // modifiable
     public int lapTotal = 3; // modifiable
@@ -22,7 +25,7 @@ public class ProgressManager
         if (curPoint > pointAmount * checkPoint / cpAm
                 && curPoint < pointAmount * (checkPoint + 1) / cpAm && !finished)
             checkPoint++;
-        else if (checkPoint == cpAm) {
+        else if (checkPoint >= cpAm) {
             if (curPoint > 0 && curPoint < pointAmount / cpAm) {
                 lap++;
                 checkPoint = 1;
@@ -33,6 +36,7 @@ public class ProgressManager
         }
         else if (finished)
             System.out.println("FINISHED");
+            //MusicManager.play("win.wav", MusicManager.MUSIC_SFX)
     }
     
     @Override
@@ -44,6 +48,13 @@ public class ProgressManager
         clone.cpAm = this.cpAm;
         clone.lapTotal = this.lapTotal;
         return clone;
+    }
+    
+    @Override
+    public int compareTo(ProgressManager other) {
+        int thisValue = cpAm * lap + checkPoint;
+        int otherValue = cpAm * other.lap + other.checkPoint;
+        return otherValue - thisValue;
     }
     
     

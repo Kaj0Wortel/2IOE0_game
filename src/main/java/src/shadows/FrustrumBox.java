@@ -85,7 +85,7 @@ public class FrustrumBox {
             minZ = Math.min(minZ, v.z);
         }
         
-        maxZ += 10; // Some random increment that fixes everything.
+        minZ -= 50; // Some random increment that fixes everything.
         
         width  = maxX - minX;
         height = maxY - minY;

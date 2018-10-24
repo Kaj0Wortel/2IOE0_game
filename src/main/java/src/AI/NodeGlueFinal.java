@@ -16,6 +16,8 @@ public class NodeGlueFinal {
     public NodeGlueFinal parentNode;     // Parent node position
     // extra
     public int rIndex;
+    public int turn;
+    public int accel;
 
        
     
@@ -33,7 +35,7 @@ public class NodeGlueFinal {
      */
     public NodeGlueFinal (Point2D.Double newPos, double newV, double newA,
             double newRot, double newRotV, double newG, double newH, 
-            int newNextCP, NodeGlueFinal newParentNode, int newRIndex) {
+            int newNextCP, NodeGlueFinal newParentNode, int newRIndex, int newTurn, int newAccel) {
         pos = newPos;
         v = newV;
         a = newA;
@@ -44,6 +46,8 @@ public class NodeGlueFinal {
         nextCP = newNextCP;
         parentNode = newParentNode;
         rIndex = newRIndex;
+        turn = newTurn;
+        accel = newAccel;
     }
     
     /**
@@ -57,9 +61,9 @@ public class NodeGlueFinal {
         if (arr == null)
             throw new IllegalArgumentException(
                     "Expected a non-null array, but found null!");
-        if (arr.length != 9)
+        if (arr.length != 11)
             throw new IllegalArgumentException(
-                    "Expected an array of length 9, but found length "
+                    "Expected an array of length 11, but found length "
                             + arr.length + "!");
         
         pos = new Point2D.Double(arr[0], arr[1]);
@@ -70,6 +74,8 @@ public class NodeGlueFinal {
         g = arr[6];
         h = arr[7];
         nextCP = (int) arr[8];
+        turn = (int) arr[9];
+        accel = (int) arr[10];
     }
     
     /**
@@ -89,7 +95,9 @@ public class NodeGlueFinal {
             rotV,
             g,
             h,
-            nextCP
+            nextCP,
+            turn,
+            accel
         };
     }
     
@@ -105,7 +113,10 @@ public class NodeGlueFinal {
                 rotV == node.rotV &&
                 g == node.g &&
                 h == node.h &&
-                nextCP == node.nextCP;
+                nextCP == node.nextCP &&
+                turn == node.turn &&
+                accel == node.accel;
+                
     }
     
     @Override
@@ -134,7 +145,7 @@ public class NodeGlueFinal {
      */
     @Override
     public int hashCode() {
-        return MultiTool.calcHashCode(pos, v, a, rot, rotV, g, h, nextCP);
+        return MultiTool.calcHashCode(pos, v, a, rot, rotV, g, h, nextCP, turn, accel);
     }
     
     

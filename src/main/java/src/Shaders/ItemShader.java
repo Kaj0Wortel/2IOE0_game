@@ -4,20 +4,14 @@ import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.Light;
+import src.GS;
 import src.OBJ.MTLObject;
 
-public class ItemShader extends ShaderProgram {
-
-    final public static String FS = System.getProperty("file.separator");
-
+public class ItemShader
+        extends ShaderProgram {
     // Handy file paths.
-    final public static String WORKING_DIR = System.getProperty("user.dir")
-            + FS + "src" +  FS;
-
-    final public static String SHADERS_DIR = WORKING_DIR + "Shaders" + FS + "ShaderFiles" + FS;
-
-    final private static String vertex = SHADERS_DIR + "item_vertex.glsl";
-    final private static String fragment = SHADERS_DIR + "item_fragment.glsl";
+    final private static String VERTEX = GS.SHADER_DIR + "item_vertex.glsl";
+    final private static String FRAGMENT = GS.SHADER_DIR + "item_fragment.glsl";
 
     private int projectionMatrixLocation;
     private int viewMatrixLocation;
@@ -31,7 +25,7 @@ public class ItemShader extends ShaderProgram {
     private int textureLocation;
 
     public ItemShader(GL3 gl) {
-        super(gl, vertex, fragment);
+        super(gl, VERTEX, FRAGMENT);
     }
 
     @Override
@@ -65,6 +59,11 @@ public class ItemShader extends ShaderProgram {
         System.out.println("CameraPos: " + cameraPosLocation);
         System.out.println("TextureLocation: " + textureLocation);
     }
+    
+    @Override
+    public void loadVars(GL3 gl) {
+        
+    }
 
     @Override
     public void loadProjectionMatrix(GL3 gl, Matrix4f matrix){
@@ -81,6 +80,7 @@ public class ItemShader extends ShaderProgram {
         loadUniformMatrix(gl, modelMatrixLocation, matrix);
     }
 
+    @Override
     public void loadLight(GL3 gl, Light light){
         loadUniformVector(gl, lightPositionLocation,light.getPosition());
         loadUniformVector(gl, lightColorLocation, light.getColor());
@@ -96,20 +96,26 @@ public class ItemShader extends ShaderProgram {
         return false;
     }
 
+    @Override
     public void loadTextureLightValues(GL3 gl, float shininess, float reflectivity){
         loadUniformFloat(gl, shininessLocation, shininess);
         loadUniformFloat(gl, reflectivityLocation, reflectivity);
     }
 
+    @Override
     public void loadTextures(GL3 gl){
         loadUniformInt(gl, textureLocation, 0);
     }
 
+    @Override
     public void loadTime(GL3 gl, int time){
         loadUniformInt(gl,timeLocation,time);
     }
 
+    @Override
     public void loadCameraPos(GL3 gl, Vector3f cameraPos){
         loadUniformVector(gl, cameraPosLocation, cameraPos);
     }
+    
+    
 }

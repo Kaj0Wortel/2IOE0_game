@@ -369,8 +369,8 @@ public class PosHitBox3f
      */
     public Matrix3f calcRotMatrix() {
         return new Matrix3f()
-                .rotate((float) Math.toRadians(rotx), 1, 0, 0)
                 .rotate((float) Math.toRadians(roty), 0, 1, 0)
+                .rotate((float) Math.toRadians(rotx), 1, 0, 0)
                 .rotate((float) Math.toRadians(rotz), 0, 0, 1);
     }
     

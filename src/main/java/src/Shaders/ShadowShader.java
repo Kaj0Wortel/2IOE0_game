@@ -1,13 +1,13 @@
-package src.shadows;
+package src.Shaders;
 
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.Light;
 import src.OBJ.MTLObject;
-import src.Shaders.ShaderProgram;
 
-public class ShadowShader extends ShaderProgram {
+public class ShadowShader
+        extends ShaderProgram {
 
     final public static String FS = System.getProperty("file.separator");
 
@@ -44,6 +44,11 @@ public class ShadowShader extends ShaderProgram {
         System.out.println("ViewMatrix Location: " + viewMatrixLocation);
         System.out.println("TransformationMatrix Location: " + modelMatrixLocation);
 
+    }
+    
+    @Override
+    public void loadVars(GL3 gl) {
+        
     }
 
     @Override
@@ -90,5 +95,11 @@ public class ShadowShader extends ShaderProgram {
     public void loadCameraPos(GL3 gl, Vector3f cameraPos) {
 
     }
+
+    @Override
+    public void loadTextures(GL3 gl) {
+        
+    }
+    
 
 }

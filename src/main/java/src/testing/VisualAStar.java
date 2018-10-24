@@ -19,9 +19,14 @@ import org.joml.Vector2f;
 public class VisualAStar
         extends JPanel {
     
-    //final static private Rectangle SIZE = new Rectangle(0,-10,10,10);
-    //final static private Rectangle SIZE = new Rectangle(-200, -115, 460, 460);
-    final static private Rectangle SIZE = new Rectangle(-100, -15, 160, 160);
+    //final static private Rectangle SIZE = new Rectangle(-130, -300, 460, 460);
+    //final static private Rectangle SIZE = new Rectangle(-25, -25, 50, 50);
+    // Full track
+    final static private Rectangle SIZE = new Rectangle(-1200, -750, 1300, 1300);
+    // Difficult corners
+    //final static private Rectangle SIZE = new Rectangle(-1200, -150, 700, 700);
+    //final static private Rectangle SIZE = new Rectangle(-700, -350, 900, 900);
+    
     final private int IMG_SIZE = 5000;
     final private int CIRCLE_SIZE = 50;//20
     final private Color BACK = Color.BLACK;
@@ -118,7 +123,36 @@ public class VisualAStar
         for(int i = 0; i < nr_of_segments; i++){
             for(int col = 0; col < nr_segment_vertices_col; col ++){
                 float t = (float)col/(float) nr_segment_vertices_col;
-                Vector3f point = getPoint(i,t);
+                Vector3f point = new Vector3f(getPoint(i,t).x, getPoint(i,t).y, getPoint(i,t).z);
+                Vector3f tangent = new Vector3f (getTangent(i,t));
+                Vector3f addedTang = new Vector3f();
+                point.add(tangent, addedTang);
+                
+                //addLine(new Point2D.Double(point.x,point.z), new Point2D.Double(addedTang.x,addedTang.z));
+                for(int j = 0; j < nr_segment_vertices_row; j++) {
+                    Vector3f normal = new Vector3f(tangent);
+                    normal.cross(UP).normalize().mul(1f).mul((float)(j*7)-1f);
+                    Vector3f addedNormal = new Vector3f();
+                    point.add(normal, addedNormal);
+                    
+                    // for finish visualisation
+                    if (j == 0 && i == 0 && col == 0)
+                        fPoint1 = new Point2D.Double(addedNormal.x, addedNormal.z);
+                    if (j == 2 && i == 0 && col == 0)
+                        fPoint2 = new Point2D.Double(addedNormal.x, addedNormal.z);
+                    if (j != 1) {
+                        //addLine(new Point2D.Double(addedNormal.z, -addedNormal.x)
+                        //        , new Point2D.Double(addedNormal.z + 2*(addedTang.z - point.z)
+                        //                , -(addedNormal.x + 2*(addedTang.x - point.x))));
+                    }
+                }
+            }
+        }
+        /*
+        for(int i = 0; i < nr_of_segments; i++){
+            for(int col = 0; col < nr_segment_vertices_col; col ++){
+                float t = (float)col/(float) nr_segment_vertices_col;
+                Vector3f point = new Vector3f(getPoint(i,t).x, getPoint(i,t).y, getPoint(i,t).z);
                 Vector3f tangent = getTangent(i,t);
                 Vector3f addedTang = new Vector3f();
                 point.add(tangent, addedTang);
@@ -136,7 +170,6 @@ public class VisualAStar
                     if (j == 2 && i == 0 && col == 0)
                         fPoint2 = new Point2D.Double(addedNormal.x, addedNormal.z);
                     if (j != 1) {
-                        //addPoint(new Point2D.Double(addedNormal.x, addedNormal.z));
                         addLine(new Point2D.Double(addedNormal.x, addedNormal.z)
                                 , new Point2D.Double(addedNormal.x + 2*(addedTang.x - point.x)
                                         , addedNormal.z + 2*(addedTang.z - point.z)));
@@ -144,6 +177,7 @@ public class VisualAStar
                 }
             }
         }
+        */
         setForeground(Color.GREEN);
         addLine(fPoint1, fPoint2);
         setForeground(Color.WHITE);
