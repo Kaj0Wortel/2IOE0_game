@@ -135,7 +135,7 @@ public class Car
             setState(new State(s.box, s.sizex, s.sizey, s.sizez,
                     s.rotx, s.roty, s.rotz,
                     s.internRotx, s.internRoty, s.internRotz,
-                    s.internTrans, s.velocity, s.collisionVelocity,
+                    s.internTrans, s.velocity, s.collisionVelocity, s.colAngle,
                     s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting,
                     null, s.activeItems));
         }

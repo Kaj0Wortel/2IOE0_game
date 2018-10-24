@@ -12,7 +12,6 @@ import org.joml.Vector3f;
 import src.Assets.*;
 import src.Assets.instance.*;
 import src.Assets.skybox.Skybox;
-import src.Controllers.PlayerController;
 import src.OBJ.LoadOBJ;
 import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
@@ -31,6 +30,7 @@ import static src.tools.io.BufferedReaderPlus.TYPE_CSV;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import src.Controllers.AIController;
 
 
 public class Simulator {
@@ -116,16 +116,6 @@ public class Simulator {
                     EnvironmentItem.Type.SLOW_DOWN);
             GS.addAsset(cubeInstance);
         }*/
-        // SLOPE TEST
-        /*for (OBJObject obj : col) {
-            OBJTexture texturedCube = new OBJTexture(obj,
-                    new TextureImg(5, 0.5f));
-            box = new Box3f(new Vector3f(-100f, -81f, -100f), 2f, 2f, 6f);
-            Instance cubeInstance = new EnvironmentItem(box,
-                    150f, 0, -45, -35.26438968f, texturedCube, 0, new PhysicsContext(),
-                    EnvironmentItem.Type.SLOW_DOWN);
-            GS.addAsset(cubeInstance);
-        }*/
         
         /*
         addToGamestate(ITEM, col, new Vector3f(0f, -115f, 540f), 1, 45, 45, 45, 0,
@@ -165,16 +155,17 @@ public class Simulator {
         addToGamestate(OTHER, sp, new Vector3f(0f, -60f, 500f), 4, 0, -90, 0, 0,
                 new TextureImg(5, 0.5f), null, null);
 
-        /*
-        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0,2,0), 5,0,180,0,90,
-                new TextureImg(5,0.5f),null,null);
+        
+        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0, 2, 0), 9,
+                0, 180, 0, 90, new TextureImg(5, 0.5f), null, null);
+        aiCar.setAI(true);
         new AIController((Car) aiCar);
-        */
+        
 
-        addToGamestate(PLAYER, car2, new Vector3f(0, 2, -30), 3,
+        addToGamestate(PLAYER, car2, new Vector3f(0, 2, -30), 2.5f,
                 0, 180, 0, 0, new TextureImg(5, 3f), null, null);
         
-        addToGamestate(PLAYER, car, new Vector3f(0, 2, 0), 5,
+        addToGamestate(PLAYER, car, new Vector3f(0, 2, 0), 9,
                 0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
 
         addLight(new Vector3f(30000f, 50000f, 1f),
@@ -244,8 +235,8 @@ public class Simulator {
     }
 
     public Instance addToGamestate(TYPE type, OBJCollection col,
-            Vector3f position, int size, int rotx, int roty, int rotz,
-            int integratedRotation, TextureImg texture, TextureImg normalMap,
+            Vector3f position, float size, float rotx, float roty, float rotz,
+            float integratedRotation, TextureImg texture, TextureImg normalMap,
             EnvironmentItem.Type envType){
         Instance cubeInstance = null;
         switch(type){
@@ -301,7 +292,7 @@ public class Simulator {
                         size, rotx, roty, rotz, texturedCube,
                         integratedRotation, new PhysicsContext());
                 GS.cars.add((Car) cubeInstance);
-                GS.addMaterialAsset(cubeInstance);
+                //GS.addMaterialAsset(cubeInstance);
                 break;
             }
             case PLAYER:{
@@ -314,7 +305,7 @@ public class Simulator {
                 box.translate(position);
                 //box.pos().
                 cubeInstance = new Car(box,
-                        size/1.75f, rotx, roty, rotz, texturedCube, 
+                        size, rotx, roty, rotz, texturedCube, 
                         integratedRotation, new PhysicsContext());
                 GS.addPlayer((Car) cubeInstance);
                 GS.cars.add((Car) cubeInstance);

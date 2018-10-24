@@ -1,6 +1,7 @@
 package src.Assets.instance;
 
 import com.jogamp.opengl.GL3;
+import java.io.File;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.GraphicsObject;
@@ -21,6 +22,8 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import src.AI.AStarDataPack;
+import src.AI.Processor;
 
 
 public abstract class Instance
@@ -49,6 +52,7 @@ public abstract class Instance
         
         final public float velocity;
         final public float collisionVelocity;
+        final public float colAngle;
         final public float verticalVelocity;
         final public boolean onTrack;
         final public boolean inAir;
@@ -62,7 +66,7 @@ public abstract class Instance
                 float rotx, float roty, float rotz,
                 float internRotx, float internRoty, float internRotz,
                 Vector3f internTrans, float velocity, float collisionVelocity,
-                float verticalVelocity, boolean onTrack, boolean inAir, 
+                float colAngle, float verticalVelocity, boolean onTrack, boolean inAir, 
                 int rIndex, boolean isResetting, ItemInterface curItem,
                 List<ItemInterface> activeItems) {
             this.box = box;
@@ -78,6 +82,7 @@ public abstract class Instance
             this.internTrans = internTrans;
             this.velocity = velocity;
             this.collisionVelocity = collisionVelocity;
+            this.colAngle = colAngle;
             this.verticalVelocity = verticalVelocity;
             this.onTrack = onTrack;
             this.inAir = inAir;
@@ -103,6 +108,7 @@ public abstract class Instance
     
     protected OBJTexture model;
     protected long prevTimeStamp;
+    protected boolean isAI;
     
     
     public Instance(PosHitBox3f box, float size,
@@ -120,7 +126,7 @@ public abstract class Instance
         box.scaleHitBox(sizex, sizey, sizez);
         setState(new State(box, sizex, sizey, sizez,
                 rotx, roty, rotz,
-                internRotx, internRoty, internRotz, new Vector3f(), 0, 0, 0, 
+                internRotx, internRoty, internRotz, new Vector3f(), 0, 0, 0, 0, 
                 true, false, 0, false, null, new CopyOnWriteArrayList<ItemInterface>()));
         
         this.model = model;
@@ -203,7 +209,7 @@ public abstract class Instance
         setState(new State(s.box, s.sizex, s.sizey, s.sizez,
                 (s.rotx + rot) % 360, s.roty, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
-                s.internTrans, s.velocity, s.collisionVelocity,
+                s.internTrans, s.velocity, s.collisionVelocity, s.colAngle,
                 s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting,
                 s.curItem, s.activeItems));
     }
@@ -218,7 +224,7 @@ public abstract class Instance
         setState(new State(s.box, s.sizex, s.sizey, s.sizez,
                 s.rotx, (s.roty + rot) % 360, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
-                s.internTrans, s.velocity, s.collisionVelocity,
+                s.internTrans, s.velocity, s.collisionVelocity, s.colAngle,
                 s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting,
                 s.curItem, s.activeItems));
     }
@@ -233,7 +239,7 @@ public abstract class Instance
         setState(new State(s.box, s.sizex, s.sizey, s.sizez,
                 s.rotx, s.roty, (s.rotz + rot) % 360,
                 s.internRotx, s.internRoty, s.internRotz,
-                s.internTrans, s.velocity, s.collisionVelocity,
+                s.internTrans, s.velocity, s.collisionVelocity, s.colAngle,
                 s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting,
                 s.curItem, s.activeItems));
     }
@@ -243,7 +249,7 @@ public abstract class Instance
         setState(new State(s.box, s.sizex, s.sizey, s.sizez,
                 (s.rotx + rotx) % 360, (s.roty + roty) % 360, (s.rotz + rotz) % 360,
                 s.internRotx, s.internRoty, s.internRotz,
-                s.internTrans, s.velocity, s.collisionVelocity,
+                s.internTrans, s.velocity, s.collisionVelocity, s.colAngle,
                 s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting,
                 s.curItem, s.activeItems));
     }
@@ -261,7 +267,7 @@ public abstract class Instance
         setState(new State(newBox, s.sizex, s.sizey, s.sizez,
                 s.rotx, s.roty, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
-                s.internTrans, s.velocity, s.collisionVelocity,
+                s.internTrans, s.velocity, s.collisionVelocity, s.colAngle,
                 s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting,
                 s.curItem, s.activeItems));
     }
@@ -396,6 +402,32 @@ public abstract class Instance
     
     public void setProgressManager(ProgressManager pm) {
         this.progress = pm;
+    }
+    
+    public boolean isAI () {
+        return isAI;
+    }
+    
+    final private static File A_STAR_DATA = new File(GS.DATA_DIR + "AStarData.csv");
+    final private static Processor<AStarDataPack> processor = (String data) -> {
+        String[] split = data.split(";");
+        return new AStarDataPack(
+                new Vector3f(
+                        Float.parseFloat(split[0]),
+                        Float.parseFloat(split[1]),
+                        Float.parseFloat(split[2])
+                ), Float.parseFloat(split[3]), Float.parseFloat(split[4])
+        );
+        
+    };
+    
+    public void setAI(boolean ai) {
+        if (ai != isAI) {
+            this.isAI = ai;
+            if (ai) {
+                Physics.registerReader(this, A_STAR_DATA, processor);
+            }
+        }
     }
     
     /**

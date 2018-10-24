@@ -2,9 +2,9 @@ package src.Physics;
 
 
 // Own imports
-
-import org.joml.Matrix3f;
-import org.joml.Vector3f;
+import src.AI.AStarDataPack;
+import src.AI.DequeRequestReader;
+import src.AI.Processor;
 import src.Assets.Items.ItemInterface;
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
@@ -18,12 +18,18 @@ import src.tools.update.CollisionManager;
 import src.tools.update.CollisionManager.Collision;
 import src.tools.update.CollisionManager.Entry;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 //Java imports
+import org.joml.Matrix3f;
+import org.joml.Vector3f;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.io.File;
+import java.io.IOException;
 
 
 public class Physics {
@@ -43,6 +49,7 @@ public class Physics {
         
         public float velocity;
         public float collisionVelocity;
+        public float colAngle;
         public float verticalVelocity;
         public boolean onTrack;
         public boolean inAir;
@@ -76,6 +83,7 @@ public class Physics {
             this.velocity = state.velocity;
             this.collisionVelocity = state.collisionVelocity;
             this.verticalVelocity = state.verticalVelocity;
+            this.colAngle = state.colAngle;
             this.onTrack = state.onTrack;
             this.inAir = state.inAir;
             this.rIndex = state.rIndex;
@@ -101,7 +109,7 @@ public class Physics {
                     (float) (Math.toDegrees(internRoty) % 360), 
                     (float) (Math.toDegrees(internRotz) % 360),
                     internTrans.mul(CONV_MAT_INV),
-                    velocity, collisionVelocity,
+                    velocity, collisionVelocity, colAngle,
                     verticalVelocity, onTrack, inAir, rIndex, isResetting,
                     curItem, new CopyOnWriteArrayList<ItemInterface>(activeItems));
         }
@@ -195,6 +203,20 @@ public class Physics {
     private static float trackSize = 0;
     private static float trackWidth = 0;
     private static boolean playBoing;
+    private static Map<Instance, DequeRequestReader<AStarDataPack>> readers
+            = new ConcurrentHashMap<>();
+    
+    
+    public static void registerReader(Instance inst, File file,
+            Processor<AStarDataPack> processor) {
+        try {
+            readers.put(inst, new DequeRequestReader<AStarDataPack>(
+                    file, 1000, processor));
+            
+        } catch (IOException e) {
+            Logger.write(e);
+        }
+    }
     
     
     /**
@@ -290,6 +312,9 @@ public class Physics {
         }
     }
     
+    // FOR AI TEST
+    static int testCount = 0;
+    
     /**
      * 
      * @param source
@@ -321,332 +346,365 @@ public class Physics {
         double deltaZ = dt * (s.verticalVelocity + 0.5 * pc.gravity * dt);
         
         if (!s.isResetting) {
-            // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
-            // Find road point closest to car
-            float shortestDist = Float.POSITIVE_INFINITY;
-            float dist;
-            int ind = 0; // Current road point index
-            // Check from checkpoint up until current point
-            for (int i = Math.max(
-                    (int) Math.floor(points.length * (progress.checkPoint / progress.cpAm)) - 5,
-                    (int) Math.floor(points.length * (progress.checkPoint / progress.cpAm)));
-                    i < Math.min(s.rIndex + 10, points.length); i++) {
-                if (Math.abs(s.box.pos().z - points[i].z) < 50) {
-                    dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
-                            + (float)Math.pow(s.box.pos().y - points[i].y, 2));
-                    if (dist < shortestDist) {
-                        shortestDist = dist;
-                        ind = i;
-                    }
-                }
-            }
-            
-            
-            if (s.rIndex > points.length - 10) { // Early on track: check end points
-                for (int i = 0; i < 10; i++) {
-                    if (Math.abs(s.box.pos().z - points[i].z) < 20) {
+            if (!source.isAI()) {
+                // <editor-fold defaultstate="collapsed" desc="TRACK DETECTION"> 
+                // Find road point closest to car
+                float shortestDist = Float.POSITIVE_INFINITY;
+                float dist;
+                int ind = 0; // Current road point index
+                // Check from checkpoint up until current point
+                for (int i = Math.max(
+                        (int) Math.floor(points.length * (progress.checkPoint / progress.cpAm)) - 5,
+                        (int) Math.floor(points.length * (progress.checkPoint / progress.cpAm)));
+                        i < Math.min(s.rIndex + 10, points.length); i++) {
+                    if (Math.abs(s.box.pos().z - points[i].z) < 50) {
                         dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
-                                + (float)Math.pow(s.box.pos().y - points[i].y, 2)
-                                /*+ (float)Math.pow(s.box.pos().z - points[i].z, 2)*/);
+                                + (float)Math.pow(s.box.pos().y - points[i].y, 2));
                         if (dist < shortestDist) {
                             shortestDist = dist;
                             ind = i;
                         }
                     }
                 }
-            } else if (s.rIndex < 10) { // Late on track: check start points
-                for (int i = points.length - 10; i < points.length; i++) {
-                    if (Math.abs(s.box.pos().z - points[i].z) < 20) {
-                        dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
-                                + (float)Math.pow(s.box.pos().y - points[i].y, 2)
-                                /*+ (float)Math.pow(s.box.pos().z - points[i].z, 2)*/);
-                        if (dist < shortestDist) {
-                            shortestDist = dist;
-                            ind = i;
+
+
+                if (s.rIndex > points.length - 10) { // Early on track: check end points
+                    for (int i = 0; i < 10; i++) {
+                        if (Math.abs(s.box.pos().z - points[i].z) < 20) {
+                            dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
+                                    + (float)Math.pow(s.box.pos().y - points[i].y, 2)
+                                    /*+ (float)Math.pow(s.box.pos().z - points[i].z, 2)*/);
+                            if (dist < shortestDist) {
+                                shortestDist = dist;
+                                ind = i;
+                            }
+                        }
+                    }
+                } else if (s.rIndex < 10) { // Late on track: check start points
+                    for (int i = points.length - 10; i < points.length; i++) {
+                        if (Math.abs(s.box.pos().z - points[i].z) < 20) {
+                            dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
+                                    + (float)Math.pow(s.box.pos().y - points[i].y, 2)
+                                    /*+ (float)Math.pow(s.box.pos().z - points[i].z, 2)*/);
+                            if (dist < shortestDist) {
+                                shortestDist = dist;
+                                ind = i;
+                            }
                         }
                     }
                 }
-            }
-            // Update the globally last reached road index
-            if (s.onTrack)
-                s.rIndex = ind;
-            // Find distance from the middle road curve
-            float t = ((points[ind].x - s.box.pos().x)*tangents[ind].x
-                    + (points[ind].y - s.box.pos().y)*tangents[ind].y
-                    + (points[ind].z - s.box.pos().z)*tangents[ind].z)/
-                    -(tangents[ind].x*tangents[ind].x + tangents[ind].y*tangents[ind].y 
-                    + tangents[ind].z*tangents[ind].z);
-            // direction and magnitude towards the track
-            Vector3f dDir = new Vector3f(points[ind].x - s.box.pos().x + tangents[ind].x*t,
-                    points[ind].y - s.box.pos().y + tangents[ind].y*t,
-                    points[ind].z - s.box.pos().z + tangents[ind].z*t);
-            dist = (float)Math.sqrt(dDir.x*dDir.x + dDir.y*dDir.y + dDir.z*dDir.z);
-            // If you are outside of the track
-            if (dist > trackWidth && s.onTrack) {
-                s.onTrack = false;
-                MusicManager.play("will_scream.wav", MusicManager.MUSIC_SFX);
-            }
-            //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
-            //        , (float)Math.sqrt(6)/3);
-            Vector3f roadPos = new Vector3f(points[ind]);
-            Vector3f rN = normals[ind];
-            // </editor-fold>
+                // Update the globally last reached road index
+                if (s.onTrack)
+                    s.rIndex = ind;
+                // Find distance from the middle road curve
+                float t = ((points[ind].x - s.box.pos().x)*tangents[ind].x
+                        + (points[ind].y - s.box.pos().y)*tangents[ind].y
+                        + (points[ind].z - s.box.pos().z)*tangents[ind].z)/
+                        -(tangents[ind].x*tangents[ind].x + tangents[ind].y*tangents[ind].y 
+                        + tangents[ind].z*tangents[ind].z);
+                // direction and magnitude towards the track
+                Vector3f dDir = new Vector3f(points[ind].x - s.box.pos().x + tangents[ind].x*t,
+                        points[ind].y - s.box.pos().y + tangents[ind].y*t,
+                        points[ind].z - s.box.pos().z + tangents[ind].z*t);
+                dist = (float)Math.sqrt(dDir.x*dDir.x + dDir.y*dDir.y + dDir.z*dDir.z);
+                // If you are outside of the track
+                if (dist > trackWidth && s.onTrack) {
+                    s.onTrack = false;
+                    MusicManager.play("will_scream.wav", MusicManager.MUSIC_SFX);
+                }
+                //Vector3f rN = new Vector3f(-(float)Math.sqrt(6)/6, -(float)Math.sqrt(6)/6
+                //        , (float)Math.sqrt(6)/3);
+                Vector3f roadPos = new Vector3f(points[ind]);
+                Vector3f rN = normals[ind];
+                // </editor-fold>
 
-            if (s.onTrack) {
-                // <editor-fold defaultstate="collapsed" desc="AIR TIME DETECTION"> 
-                gndZ = roadPos.z 
-                        - (s.box.pos().x - roadPos.x) * normals[ind].x / normals[ind].z
-                        - (s.box.pos().y - roadPos.y) * normals[ind].y / normals[ind].z;
-                // extra part after gnd is to compensate for small rounding errors
-                if (s.box.pos().z - gndZ < gndClamp && s.verticalVelocity <= 0.01) {
-                    s.inAir = false;
-                    s.box.pos().z = gndZ;
-                } else {
-                    inAir = true;
+                if (s.onTrack) {
+                    // <editor-fold defaultstate="collapsed" desc="AIR TIME DETECTION"> 
+                    gndZ = roadPos.z 
+                            - (s.box.pos().x - roadPos.x) * normals[ind].x / normals[ind].z
+                            - (s.box.pos().y - roadPos.y) * normals[ind].y / normals[ind].z;
+                    // extra part after gnd is to compensate for small rounding errors
+                    if (s.box.pos().z - gndZ < gndClamp && s.verticalVelocity <= 0.01) {
+                        s.inAir = false;
+                        s.box.pos().z = gndZ;
+                    } else {
+                        inAir = true;
 
-                    //System.out.println(s.velocity + ": " + (s.box.pos().z - gndZ));
+                        //System.out.println(s.velocity + ": " + (s.box.pos().z - gndZ));
+                    }
+                    // </editor-fold>
+
+                    // <editor-fold defaultstate="collapsed" desc="HORIZONTAL ROTATION"> 
+                    double y = normals[ind].y;
+                    double x = normals[ind].x;
+                    double z = normals[ind].z;
+                    //calculating the values needed
+                    double yz = Math.sqrt(y*y + z*z);
+                    double yz_ang = Math.atan2(y, z);
+                    double rotz = Math.atan2(x, yz);
+
+                    //write the needed rotation to the rotation only do this with the final value
+                    s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));
+                    s.rotx = (float) (-rotz * Math.cos(yz_ang - s.roty));
+                    // </editor-fold>
+
+                    // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
+                    progress.manageProgress(s.box.pos(), points.length, ind);
+                    if (progress.finished) {
+                        pStruct.accel = 0;
+                        pStruct.turn = 0;
+                    }
+                    // </editor-fold>
                 }
                 // </editor-fold>
+                else {
+                    s.internRotx -= 0.15 * dt * s.velocity/Math.abs(s.velocity);
+                }
 
-                // <editor-fold defaultstate="collapsed" desc="HORIZONTAL ROTATION"> 
-                double y = normals[ind].y;
-                double x = normals[ind].x;
-                double z = normals[ind].z;
-                //calculating the values needed
-                double yz = Math.sqrt(y*y + z*z);
-                double yz_ang = Math.atan2(y, z);
-                double rotz = Math.atan2(x, yz);
-
-                //write the needed rotation to the rotation only do this with the final value
-                s.rotz = (float) (rotz * Math.sin(yz_ang - s.roty));
-                s.rotx = (float) (-rotz * Math.cos(yz_ang - s.roty));
-                // </editor-fold>
-                
-                // <editor-fold defaultstate="collapsed" desc="PROGRESS MANAGEMENT"> 
-                progress.manageProgress(s.box.pos(), points.length, ind);
-                if (progress.finished) {
+                // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
+                // (ACCEL) Max speed regulation
+                boolean noFriction = false;
+                if ((pStruct.accel > 0 && s.velocity + linAccel*dt > pc.maxLinearVelocity) ||
+                        (pStruct.accel < 0 && s.velocity - linAccel*dt < -pc.maxLinearVelocity)) {
                     pStruct.accel = 0;
-                    pStruct.turn = 0;
+                    noFriction = true;
+                }
+                // (ACCEL) Block manual acceleration when collision just happened
+                if (s.collisionVelocity > pc.knockback / pc.accBlockDur) {
+                    if (s.velocity > 1) {
+                        s.velocity -= 0.5f;
+                    } else if (s.velocity < -1) {
+                        s.velocity += 0.5f;
+                    }
+
+                    //pStruct.accel = 0;
+                }
+
+                // (LINACCEL) Temporary slowdown after speedboost: not refined
+                if (s.velocity + linAccel*dt > pc.maxLinearVelocity * 1.1 ||
+                        s.velocity - linAccel*dt < -pc.maxLinearVelocity * 1.1)
+                    linAccel *= (Math.abs(s.velocity - pc.maxLinearVelocity*1.1) + 1)
+                            * pc.frictionConstant * pc.largeSlowDown;
+
+
+                // (LINACCEL)/(VEL) Friction: When acceleration is 0, abs(v) decreases
+                if (pStruct.accel == 0 && !noFriction) {
+                    if (s.velocity > linAccel * pc.frictionConstant * dt)
+                        linAccel = -pc.frictionConstant * linAccel;
+                    else if (s.velocity < -linAccel * pc.frictionConstant * dt)
+                        linAccel = pc.frictionConstant * linAccel;
+                    else { // Stop moving when v close to 0
+                        s.velocity = 0;
+                        linAccel = 0;
+                    }
+                } else { // When accelerate
+                    if (s.velocity > linAccel * pc.frictionConstant * dt && pStruct.accel < 0 
+                            || s.velocity < -linAccel * pc.frictionConstant * dt && pStruct.accel > 0) {
+                        linAccel *= pc.brakeAccel;
+                    }
+                    linAccel *= pStruct.accel;
                 }
                 // </editor-fold>
-            }
-            // </editor-fold>
-            else {
-                s.internRotx -= 0.15 * dt * s.velocity/Math.abs(s.velocity);
-            }
 
-            // <editor-fold defaultstate="collapsed" desc="LINEAR IMPROVEMENTS"> 
-            // (ACCEL) Max speed regulation
-            boolean noFriction = false;
-            if ((pStruct.accel > 0 && s.velocity + linAccel*dt > pc.maxLinearVelocity) ||
-                    (pStruct.accel < 0 && s.velocity - linAccel*dt < -pc.maxLinearVelocity)) {
-                pStruct.accel = 0;
-                noFriction = true;
-            }
-            // (ACCEL) Block manual acceleration when collision just happened
-            if (s.collisionVelocity > pc.knockback / pc.accBlockDur)
-                pStruct.accel = 0;
+                // <editor-fold defaultstate="collapsed" desc="ROTATIONAL IMPROVEMENTS"> 
+                // (TURN)/(ROTVELOCITY) Turn correction for small velocities
+                if (Math.abs(s.velocity) < 0.05) // not 0: causes teleport bug
+                    pStruct.turn = 0;
+                else if (Math.abs(s.velocity) < pc.turnCorrection)
+                    rotationalVelocity *= (Math.abs(s.velocity) / pc.turnCorrection);
 
-            // (LINACCEL) Temporary slowdown after speedboost: not refined
-            if (s.velocity + linAccel*dt > pc.maxLinearVelocity * 1.1 ||
-                    s.velocity - linAccel*dt < -pc.maxLinearVelocity * 1.1)
-                linAccel *= (Math.abs(s.velocity - pc.maxLinearVelocity*1.1) + 1)
-                        * pc.frictionConstant * pc.largeSlowDown;
+                // (TURN) Turn correction for negative velocities
+                if (s.velocity < 0)
+                    pStruct.turn = -pStruct.turn;
+                // </editor-fold>
 
-
-            // (LINACCEL)/(VEL) Friction: When acceleration is 0, abs(v) decreases
-            if (pStruct.accel == 0 && !noFriction) {
-                if (s.velocity > linAccel * pc.frictionConstant * dt)
-                    linAccel = -pc.frictionConstant * linAccel;
-                else if (s.velocity < -linAccel * pc.frictionConstant * dt)
-                    linAccel = pc.frictionConstant * linAccel;
-                else { // Stop moving when v close to 0
-                    s.velocity = 0;
-                    linAccel = 0;
+                // <editor-fold defaultstate="collapsed" desc="OTHER IMPROVEMENTS"> 
+                // (ROTVELOCITY)/(LINACCEL) Air movement
+                if (s.inAir) {
+                    rotationalVelocity *= pc.airControl;
+                    linAccel *= (1.45 * pc.airControl);
                 }
-            } else { // When accelerate
-                if (s.velocity > linAccel * pc.frictionConstant * dt && pStruct.accel < 0 
-                        || s.velocity < -linAccel * pc.frictionConstant * dt && pStruct.accel > 0) {
-                    linAccel *= pc.brakeAccel;
-                }
-                linAccel *= pStruct.accel;
-            }
-            // </editor-fold>
-
-            // <editor-fold defaultstate="collapsed" desc="ROTATIONAL IMPROVEMENTS"> 
-            // (TURN)/(ROTVELOCITY) Turn correction for small velocities
-            if (Math.abs(s.velocity) < 0.05) // not 0: causes teleport bug
-                pStruct.turn = 0;
-            else if (Math.abs(s.velocity) < pc.turnCorrection)
-                rotationalVelocity *= (Math.abs(s.velocity) / pc.turnCorrection);
-            
-            // (TURN) Turn correction for negative velocities
-            if (s.velocity < 0)
-                pStruct.turn = -pStruct.turn;
-            // </editor-fold>
-
-            // <editor-fold defaultstate="collapsed" desc="OTHER IMPROVEMENTS"> 
-            // (ROTVELOCITY)/(LINACCEL) Air movement
-            if (s.inAir) {
-                rotationalVelocity *= pc.airControl;
-                linAccel *= (1.45 * pc.airControl);
-            }
-            // </editor-fold>
+                // </editor-fold>
 
 
-            // <editor-fold defaultstate="collapsed" desc="HORIZONTAL MOVEMENT CALCULATIONS"> 
-            if (pStruct.turn == 0) { // Straight
-                distTravelled = dt * (s.velocity + 0.5f * linAccel * dt);
-                // Calculate end rotation and velocity
-                eV = s.velocity + linAccel * dt;
-                eRot = s.roty;
-                // Calculate the vFactor in the direction of XY movement
-                carDir = new Vector3f (
-                        (float) Math.cos(s.roty),
-                        (float) Math.sin(s.roty),
-                        0);
-                u = new Vector3f(carDir.y*rN.z - carDir.z*rN.y,
-                        carDir.z*rN.x - carDir.x*rN.z,
-                        carDir.x*rN.y - carDir.y*rN.x);
-                udist = (float)Math.sqrt(u.x*u.x + u.y*u.y + u.z*u.z);
-                uNorm = new Vector3f(u.x/udist, u.y/udist, u.z/udist);
-                vFactor = new Vector3f(rN.y*uNorm.z - rN.z*uNorm.y,
-                        rN.z*uNorm.x - rN.x*uNorm.z,
-                        rN.x*uNorm.y - rN.y*uNorm.x); // vFactor = roadTan
+                // <editor-fold defaultstate="collapsed" desc="HORIZONTAL MOVEMENT CALCULATIONS"> 
+                if (pStruct.turn == 0) { // Straight
+                    distTravelled = dt * (s.velocity + 0.5f * linAccel * dt);
+                    // Calculate end rotation and velocity
+                    eV = s.velocity + linAccel * dt;
+                    eRot = s.roty;
+                    // Calculate the vFactor in the direction of XY movement
+                    carDir = new Vector3f (
+                            (float) Math.cos(s.roty),
+                            (float) Math.sin(s.roty),
+                            0);
+                    u = new Vector3f(carDir.y*rN.z - carDir.z*rN.y,
+                            carDir.z*rN.x - carDir.x*rN.z,
+                            carDir.x*rN.y - carDir.y*rN.x);
+                    udist = (float)Math.sqrt(u.x*u.x + u.y*u.y + u.z*u.z);
+                    uNorm = new Vector3f(u.x/udist, u.y/udist, u.z/udist);
+                    vFactor = new Vector3f(rN.y*uNorm.z - rN.z*uNorm.y,
+                            rN.z*uNorm.x - rN.x*uNorm.z,
+                            rN.x*uNorm.y - rN.y*uNorm.x); // vFactor = roadTan
 
-                // Calculate the end position
-                ePos = new Vector3f (
-                        (float) (s.box.pos().x + vFactor.x * distTravelled),
-                        (float) (s.box.pos().y + vFactor.y * distTravelled),
-                        (float) (s.box.pos().z + vFactor.z * distTravelled));
+                    // Calculate the end position
+                    ePos = new Vector3f (
+                            (float) (s.box.pos().x + vFactor.x * distTravelled),
+                            (float) (s.box.pos().y + vFactor.y * distTravelled),
+                            (float) (s.box.pos().z + vFactor.z * distTravelled));
 
-            } else { // Turn
-                rotationalVelocity = pStruct.turn * rotationalVelocity;
-                // Calculate end rotation and velocity
-                eV = s.velocity + linAccel * dt;
-                eRot = s.roty + rotationalVelocity * dt;
-                // Calculate direction and magnitude of XY movement during this frame
-                float aRotVSquared = linAccel / (rotationalVelocity * rotationalVelocity);
-                float deltaX = (float) ((eV / rotationalVelocity) * Math.sin(eRot)
-                            + aRotVSquared * Math.cos(eRot)
-                            - (s.velocity / rotationalVelocity) * Math.sin(s.roty)
-                            - aRotVSquared * Math.cos(s.roty));
-                float deltaY = (float) (-(eV / rotationalVelocity) * Math.cos(eRot)
-                            + aRotVSquared * Math.sin(eRot)
-                            + (s.velocity / rotationalVelocity) * Math.cos(s.roty)
-                            - aRotVSquared * Math.sin(s.roty));
-                distTravelled = (float)Math.sqrt(deltaX*deltaX + deltaY*deltaY);
-                double distAngle = Math.atan2(deltaX, deltaY);
-                distAngle = (-(distAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
+                } else { // Turn
+                    rotationalVelocity = pStruct.turn * rotationalVelocity;
+                    // Calculate end rotation and velocity
+                    eV = s.velocity + linAccel * dt;
+                    eRot = s.roty + rotationalVelocity * dt;
+                    // Calculate direction and magnitude of XY movement during this frame
+                    float aRotVSquared = linAccel / (rotationalVelocity * rotationalVelocity);
+                    float deltaX = (float) ((eV / rotationalVelocity) * Math.sin(eRot)
+                                + aRotVSquared * Math.cos(eRot)
+                                - (s.velocity / rotationalVelocity) * Math.sin(s.roty)
+                                - aRotVSquared * Math.cos(s.roty));
+                    float deltaY = (float) (-(eV / rotationalVelocity) * Math.cos(eRot)
+                                + aRotVSquared * Math.sin(eRot)
+                                + (s.velocity / rotationalVelocity) * Math.cos(s.roty)
+                                - aRotVSquared * Math.sin(s.roty));
+                    distTravelled = (float)Math.sqrt(deltaX*deltaX + deltaY*deltaY);
+                    double distAngle = Math.atan2(deltaX, deltaY);
+                    distAngle = (-(distAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
 
-                // Calculate the vFactor in the direction of XY movement
-                carDir = new Vector3f (
-                        (float) Math.cos(distAngle),
-                        (float) Math.sin(distAngle),
-                        0);
-                u = new Vector3f(carDir.y*rN.z - carDir.z*rN.y,
-                        carDir.z*rN.x - carDir.x*rN.z,
-                        carDir.x*rN.y - carDir.y*rN.x);
-                udist = (float)Math.sqrt(u.x*u.x + u.y*u.y + u.z*u.z);
-                uNorm = new Vector3f(u.x/udist, u.y/udist, u.z/udist);
-                vFactor = new Vector3f(rN.y*uNorm.z - rN.z*uNorm.y,
-                        rN.z*uNorm.x - rN.x*uNorm.z,
-                        rN.x*uNorm.y - rN.y*uNorm.x); // vFactor = roadTan
-                // Calculate the end position
-                ePos = new Vector3f(
-                        (float)(s.box.pos().x + vFactor.x * distTravelled),
-                        (float)(s.box.pos().y + vFactor.y * distTravelled), 
-                        (float)(s.box.pos().z + vFactor.z * distTravelled));
-            }
-            // </editor-fold>
-
-
-            // <editor-fold defaultstate="collapsed" desc="VERTICAL MOVEMENT CALCULATIONS"> 
-            // Do not jump if already jumping
-            if (s.verticalVelocity == 0 && !s.inAir)
-                s.verticalVelocity += pStruct.verticalVelocity;
-            // Play boing if jumping
-            if(playBoing){
-                MusicManager.play("boing.wav", MusicManager.MUSIC_SFX);
-                playBoing = false;
-            }
-
-            // forced air detection when jumping
-            if (s.verticalVelocity > 0.3) {
-                s.inAir = true;
-            }
-            
-            // When in the air
-            if (s.inAir || !s.onTrack)  {
-                s.verticalVelocity += pc.gravity * dt;
-                ePos.z += deltaZ;
-                playBoing = false;
-            }
-            // When bouncing on the ground
-            else if (Math.abs(s.verticalVelocity) > 0.01 && s.onTrack) {
-                s.verticalVelocity = -s.verticalVelocity * pc.bounceFactor;
-                playBoing = true;
-            } 
-            // When kinda done bouncing
-            else {
-                s.verticalVelocity = 0;
-                playBoing = false;
-            }
-
-            // Limit upwards velocity
-            if (s.verticalVelocity > 20)
-                s.verticalVelocity = 10;
-            //Death barrier: reset
-            if (ePos.z < points[s.rIndex].z - 50)
-                s.isResetting = true;
-            // If in air this update, make decisions on that next update
-            if (inAir)
-                s.inAir = true;
-            // </editor-fold>
-
-            // <editor-fold defaultstate="collapsed" desc="COLLISION CALCULATIONS"> 
-            // Should be integrated into another class but still change pStruct
-            Vector3f colPos = new Vector3f (0.0001f, 40, 1);
-            double colRange = 2;
-            double carRange = 6;
-            // Collision detection
-            if (s.box.pos().x + carRange/2 > colPos.x - colRange/2 &&
-                    colPos.x + colRange/2 > s.box.pos().x - carRange/2 &&
-                    s.box.pos().y + carRange/2 > colPos.y - colRange/2 &&
-                    colPos.y + colRange/2 > s.box.pos().y - carRange/2 &&
-                    s.box.pos().z + carRange/2 > colPos.z - colRange/2 &&
-                    colPos.z + colRange/2 > s.box.pos().z - carRange/2) {
-
-                double colAngle = Math.atan2( s.box.pos().x - colPos.x, s.box.pos().y - colPos.y);
-                colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
-                // Can only receive knockback once the last knockback is sufficiently small
-                if (s.collisionVelocity < 1) {
-                    s.collisionVelocity = Math.abs(s.velocity) * pc.knockback;
+                    // Calculate the vFactor in the direction of XY movement
+                    carDir = new Vector3f (
+                            (float) Math.cos(distAngle),
+                            (float) Math.sin(distAngle),
+                            0);
+                    u = new Vector3f(carDir.y*rN.z - carDir.z*rN.y,
+                            carDir.z*rN.x - carDir.x*rN.z,
+                            carDir.x*rN.y - carDir.y*rN.x);
+                    udist = (float)Math.sqrt(u.x*u.x + u.y*u.y + u.z*u.z);
+                    uNorm = new Vector3f(u.x/udist, u.y/udist, u.z/udist);
+                    vFactor = new Vector3f(rN.y*uNorm.z - rN.z*uNorm.y,
+                            rN.z*uNorm.x - rN.x*uNorm.z,
+                            rN.x*uNorm.y - rN.y*uNorm.x); // vFactor = roadTan
+                    // Calculate the end position
                     ePos = new Vector3f(
-                        (float)(ePos.x + s.collisionVelocity * Math.cos(colAngle)), 
-                        (float)(ePos.y + s.collisionVelocity * Math.sin(colAngle)),
-                        ePos.z);
-                    s.verticalVelocity = 0.5f + Math.abs(s.velocity)/8;
+                            (float)(s.box.pos().x + vFactor.x * distTravelled),
+                            (float)(s.box.pos().y + vFactor.y * distTravelled), 
+                            (float)(s.box.pos().z + vFactor.z * distTravelled));
+                }
+                // </editor-fold>
+
+
+                // <editor-fold defaultstate="collapsed" desc="VERTICAL MOVEMENT CALCULATIONS"> 
+                // Do not jump if already jumping
+                if (s.verticalVelocity == 0 && !s.inAir)
+                    s.verticalVelocity += pStruct.verticalVelocity;
+                // Play boing if jumping
+                if(playBoing){
+                    MusicManager.play("boing.wav", MusicManager.MUSIC_SFX);
+                    playBoing = false;
+                }
+
+                // forced air detection when jumping
+                if (s.verticalVelocity > 0.3) {
+                    s.inAir = true;
+                }
+
+                // When in the air
+                if (s.inAir || !s.onTrack)  {
+                    s.verticalVelocity += pc.gravity * dt;
+                    ePos.z += deltaZ;
+                    playBoing = false;
+                }
+                // When bouncing on the ground
+                else if (Math.abs(s.verticalVelocity) > 0.01 && s.onTrack) {
+                    s.verticalVelocity = -s.verticalVelocity * pc.bounceFactor;
+                    playBoing = true;
                 } 
+                // When kinda done bouncing
+                else {
+                    s.verticalVelocity = 0;
+                    playBoing = false;
+                }
 
-                // Moments after collision
-            } else if (s.collisionVelocity > pc.knockback/1_000_000_000) {
-                // Slowly diminish the knockback over time
-                s.collisionVelocity *= pc.knockbackDur;
-                // Angle can change during bump: maybe looks better?
-                double colAngle = Math.atan2(s.box.pos().x - colPos.x, s.box.pos().y - colPos.y);
-                colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
-                ePos = new Vector3f(
-                       (float) (ePos.x + s.collisionVelocity * Math.cos(colAngle)), 
-                       (float) (ePos.y + s.collisionVelocity * Math.sin(colAngle)),
-                       ePos.z);
+                // Limit upwards velocity
+                if (s.verticalVelocity > 20)
+                    s.verticalVelocity = 10;
+                //Death barrier: reset
+                if (ePos.z < points[s.rIndex].z - 50)
+                    s.isResetting = true;
+                // If in air this update, make decisions on that next update
+                if (inAir)
+                    s.inAir = true;
+                // </editor-fold>
 
+                // <editor-fold defaultstate="collapsed" desc="COLLISION CALCULATIONS"> 
+                // Should be integrated into another class but still change pStruct
+                Vector3f colPos = new Vector3f (0.0001f, 40, 1);
+                double colRange = 2;
+                double carRange = 6;
+                // Collision detection
+                /*if (s.box.pos().x + carRange/2 > colPos.x - colRange/2 &&
+                        colPos.x + colRange/2 > s.box.pos().x - carRange/2 &&
+                        s.box.pos().y + carRange/2 > colPos.y - colRange/2 &&
+                        colPos.y + colRange/2 > s.box.pos().y - carRange/2 &&
+                        s.box.pos().z + carRange/2 > colPos.z - colRange/2 &&
+                        colPos.z + colRange/2 > s.box.pos().z - carRange/2) {
+
+                    double colAngle = Math.atan2( s.box.pos().x - colPos.x, s.box.pos().y - colPos.y);
+                    colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
+                    // Can only receive knockback once the last knockback is sufficiently small
+                    if (s.collisionVelocity < 1) {
+                        s.collisionVelocity = Math.abs(s.velocity) * pc.knockback;
+                        ePos = new Vector3f(
+                            (float)(ePos.x + s.collisionVelocity * Math.cos(colAngle)), 
+                            (float)(ePos.y + s.collisionVelocity * Math.sin(colAngle)),
+                            ePos.z);
+                        s.verticalVelocity = 0.5f + Math.abs(s.velocity)/8;
+                    } 
+
+                    // Moments after collision
+                } else */if (s.collisionVelocity > pc.knockback/1_000_000_000) {
+                    // Slowly diminish the knockback over time
+                    s.collisionVelocity *= pc.knockbackDur;
+                    // Angle can change during bump: maybe looks better?
+                    ePos = new Vector3f(
+                           (float) (ePos.x + s.collisionVelocity * Math.cos(s.colAngle)), 
+                           (float) (ePos.y + s.collisionVelocity * Math.sin(s.colAngle)),
+                           ePos.z);
+
+                } else {
+                    // No collision happening.
+                    // Set collision velocity to 0 when it was already really small.
+                    s.collisionVelocity = 0;
+                }
+                // </editor-fold>
             } else {
-                // No collision happening.
-                // Set collision velocity to 0 when it was already really small.
-                s.collisionVelocity = 0;
+                // <editor-fold defaultstate="collapsed" desc="TEST AI">
+                DequeRequestReader<AStarDataPack> reader = readers.get(source);
+                AStarDataPack data = reader.getNextData();
+                ePos = data.pos;
+
+                // Height calculation
+                float shortestDist = Float.POSITIVE_INFINITY;
+                float dist;
+                int ind = 0; // Current road point index
+                // Check from checkpoint up until current point
+                for (int i = 0; i < points.length; i++) {
+                    if (Math.abs(s.box.pos().z - points[i].z) < 50) {
+                        dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
+                                + (float)Math.pow(s.box.pos().y - points[i].y, 2));
+                        if (dist < shortestDist) {
+                            shortestDist = dist;
+                            ind = i;
+                        }
+                    }
+                }
+                ePos.z = points[ind].z;
+                
+                eV = 0;
+                eRot = (float)Math.PI;
+                // </editor-fold>
             }
-            // </editor-fold>
         }
         // <editor-fold defaultstate="collapsed" desc="RESET MOTION">
         // When the car has to reset to the last checkpoint
@@ -715,7 +773,6 @@ public class Physics {
             }
             
 //            s.internTrans = new Vector3f(); 
-            System.out.println("rotz = " + s.rotz);
         }
         // </editor-fold>
 
@@ -739,18 +796,33 @@ public class Physics {
             System.out.println(col.getOther() + " " + e1.inst);
         }
         
-        e1.ms.box.pos();//current position of car 1
-        e2.ms.box.pos();//current position of car 2
+        // <editor-fold defaultstate="collapsed" desc="COLLISION CALCULATIONS"> 
+        double colAngle = Math.atan2( e1.ms.box.pos().x - e2.ms.box.pos().x, 
+                e1.ms.box.pos().y - e2.ms.box.pos().y);
+        colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
         
-        float v = e1.ms.velocity;
-        e1.ms.velocity = e2.ms.velocity;
-        e2.ms.velocity = v;
-        
-        float roty = e1.ms.roty;
-        e1.ms.roty = e2.ms.roty;
-        e2.ms.roty = roty;
-        // TODO: do stuff with the entries.
-        //System.out.println("Collision occured");
+        // Can only receive knockback once the last knockback is sufficiently small
+        if (e1.ms.collisionVelocity < 1) {
+            float difAngle1 = (float)Math.abs(e1.ms.internRoty - colAngle);
+            if (difAngle1 > Math.PI/2)
+                difAngle1 -= Math.PI/2;
+            float difAngle2 = (float)Math.abs(e2.ms.internRoty - colAngle);
+            if (difAngle2 > Math.PI/2)
+                difAngle2 -= Math.PI/2;
+            
+            e1.ms.collisionVelocity = Math.abs(e1.ms.velocity) * e1.mpc.knockback * 0.5f
+                    *(1f + (float)Math.cos(difAngle1)*0.5f);
+            e1.ms.box.pos().x += e1.ms.collisionVelocity * Math.cos(colAngle);
+            e1.ms.box.pos().y += e1.ms.collisionVelocity * Math.sin(colAngle);
+            e1.ms.verticalVelocity = 1f + Math.abs(e1.ms.velocity)/8;
+            
+            e2.ms.collisionVelocity = Math.abs(e1.ms.velocity) * e1.mpc.knockback * 0.5f
+                    *(1 + (float)Math.cos(difAngle2)*0.5f);
+            e2.ms.box.pos().x += e1.ms.collisionVelocity * Math.cos(colAngle+Math.PI);
+            e2.ms.box.pos().y += e1.ms.collisionVelocity * Math.sin(colAngle+Math.PI);
+            e2.ms.verticalVelocity = 1f + Math.abs(e1.ms.velocity)/8;
+        }
+        e1.ms.colAngle = (float)colAngle;
     }
     
     /**

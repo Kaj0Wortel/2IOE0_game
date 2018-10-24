@@ -24,14 +24,12 @@ public class AIController
      */
     public AIController(Car instance) {
         super(instance);
-        
-        // Your initialization.
     }
     
     
     @Override
     public PStructAction controlUpdate(long dt) {
-        return null;
+        return new PStructAction(0, 0, 0, 0);
     }
     
     
