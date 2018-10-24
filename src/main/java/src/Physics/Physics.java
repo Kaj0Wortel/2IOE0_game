@@ -19,6 +19,7 @@ import src.music.MusicManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import src.Items.ItemInterface;
 
 //Java imports
 
@@ -47,6 +48,9 @@ public class Physics {
         public boolean isResetting;
         public boolean playBoing;
         
+        public ItemInterface curItem;
+        public List<ItemInterface> activeItems;
+        
         // Conversion matrix from model -> physics.
         final public static Matrix3f CONV_MAT = new Matrix3f(
                 0, -1, 0, 0, 0, 1, -1, 0, 0);
@@ -67,13 +71,15 @@ public class Physics {
             this.internRoty = (float) Math.toRadians(state.internRoty);
             this.internRotz = (float) Math.toRadians(state.internRotz);
             this.internTrans = state.internTrans.mul(CONV_MAT, new Vector3f());
-            velocity = state.velocity;
-            collisionVelocity = state.collisionVelocity;
-            verticalVelocity = state.verticalVelocity;
-            onTrack = state.onTrack;
-            inAir = state.inAir;
-            rIndex = state.rIndex;
-            isResetting = state.isResetting;
+            this.velocity = state.velocity;
+            this.collisionVelocity = state.collisionVelocity;
+            this.verticalVelocity = state.verticalVelocity;
+            this.onTrack = state.onTrack;
+            this.inAir = state.inAir;
+            this.rIndex = state.rIndex;
+            this.isResetting = state.isResetting;
+            this.curItem = state.curItem;
+            this.activeItems = new ArrayList<ItemInterface>(state.activeItems);
         }
         
         /**
@@ -94,7 +100,8 @@ public class Physics {
                     (float) (Math.toDegrees(internRotz) % 360),
                     internTrans.mul(CONV_MAT_INV),
                     velocity, collisionVelocity,
-                    verticalVelocity, onTrack, inAir, rIndex, isResetting);
+                    verticalVelocity, onTrack, inAir, rIndex, isResetting,
+                    curItem, new ArrayList<ItemInterface>(activeItems));
         }
         
         

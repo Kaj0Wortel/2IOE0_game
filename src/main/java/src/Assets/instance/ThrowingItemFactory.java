@@ -2,9 +2,11 @@
 package src.Assets.instance;
 
 import com.jogamp.opengl.GL3;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
 import org.joml.Vector3f;
+import src.Items.ItemInterface;
 import src.Assets.OBJCollection;
 import src.Assets.OBJTexture;
 import src.Assets.TextureImg;
@@ -78,7 +80,7 @@ public class ThrowingItemFactory {
                 ss.rotx, ss.roty, ss.rotz,
                 ss.internRotx, ss.internRoty, ss.internRotz,
                 ss.internTrans, ss.velocity, 0, ss.verticalVelocity,
-                true, false, 0, false)
+                true, false, 0, false, null, new ArrayList<ItemInterface>())
         );
         item.setProgressManager(source.getProgressManager().clone());
         
