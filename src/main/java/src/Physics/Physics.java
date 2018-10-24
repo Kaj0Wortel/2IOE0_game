@@ -285,7 +285,7 @@ public class Physics {
     public static void calcPhysics(Instance source, PStructAction pStruct,
             PhysicsContext pc, State state, Set<Instance> collisions, ProgressManager progress) {
         // <editor-fold defaultstate="collapsed" desc="ROUND START COUNTDOWN">
-        if(beepCounter < 4){
+        if (beepCounter < 4 || GS.time < 0) {
             //System.out.println("Time is"+GS.time);
             pStruct.turn = 0.0f;
             pStruct.throwItem = false;
