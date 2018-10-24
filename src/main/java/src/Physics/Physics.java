@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.io.File;
 import java.io.IOException;
+import javax.swing.SwingUtilities;
 
 
 public class Physics {
@@ -204,6 +205,8 @@ public class Physics {
     private static float trackSize = 0;
     private static float trackWidth = 0;
     private static boolean playBoing;
+    private static int beepCounter = 0;
+    private static long lastBeepTime = 0;
     private static Map<Instance, DequeRequestReader<AStarDataPack>> readers
             = new ConcurrentHashMap<>();
     
@@ -216,25 +219,18 @@ public class Physics {
             readers.put(inst, reader);
             
             AStarDataPack data = reader.getNextData();
-            State s = inst.getState();
-            Vector3f pos = s.box.pos();
-            pos.x = data.pos.x;
-            pos.y = data.pos.y;
-            pos.z = data.pos.z;
-            inst.setState(new State(s.box, s.sizex, s.sizey, s.sizez,
-                s.rotx, s.roty, s.rotz,
-                s.internRotx, s.internRoty, s.internRotz,
-                s.internTrans, s.velocity, s.collisionVelocity, s.colAngle,
-                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting,
-                s.curItem, s.activeItems));
+            SwingUtilities.invokeLater(() -> {
+                State s = inst.getState();
+                Vector3f pos = s.box.pos();
+                pos.x = data.pos.x;
+                pos.y = data.pos.y;
+                pos.z = data.pos.z;
+            });
             
         } catch (IOException e) {
             Logger.write(e);
         }
     }
-
-    private static int beepCounter = 0;
-    private static long lastBeepTime = 0;
     
     
     /**

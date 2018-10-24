@@ -28,10 +28,6 @@ public class Main {
         if (SKIP_INTRO) {
             GS.startRendering();
         }
-        
-        // TMP
-        Updateable up = new TmpUpdateable(1);
-        Updater.addTask(up);
     }
     
     // BEGIN TMP

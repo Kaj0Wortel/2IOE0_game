@@ -92,7 +92,7 @@ public class DequeRequestReader<V>
                         // Put the data in the buffer.
                         lock.lock();
                         try {
-                            buffer.push(value);
+                            buffer.addLast(value);
                             
                             if (consumerIsWaiting) {
                                 bufferEmpty.signal();
@@ -153,7 +153,7 @@ public class DequeRequestReader<V>
                 bufferFull.signal();
             }
             
-            return buffer.poll();
+            return buffer.pollFirst();
             
         } finally {
             lock.unlock();
