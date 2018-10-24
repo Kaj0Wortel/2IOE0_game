@@ -292,7 +292,7 @@ public class Simulator {
                         size, rotx, roty, rotz, texturedCube,
                         integratedRotation, new PhysicsContext());
                 GS.cars.add((Car) cubeInstance);
-                //GS.addMaterialAsset(cubeInstance);
+                GS.addMaterialAsset(cubeInstance);
                 break;
             }
             case PLAYER:{
