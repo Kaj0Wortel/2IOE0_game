@@ -40,6 +40,7 @@ public class Physics {
         
         public float velocity;
         public float collisionVelocity;
+        public float colAngle;
         public float verticalVelocity;
         public boolean onTrack;
         public boolean inAir;
@@ -69,6 +70,7 @@ public class Physics {
             this.internTrans = state.internTrans.mul(CONV_MAT, new Vector3f());
             velocity = state.velocity;
             collisionVelocity = state.collisionVelocity;
+            colAngle = state.colAngle;
             verticalVelocity = state.verticalVelocity;
             onTrack = state.onTrack;
             inAir = state.inAir;
@@ -93,7 +95,7 @@ public class Physics {
                     (float) (Math.toDegrees(internRoty) % 360), 
                     (float) (Math.toDegrees(internRotz) % 360),
                     internTrans.mul(CONV_MAT_INV),
-                    velocity, collisionVelocity,
+                    velocity, collisionVelocity, colAngle,
                     verticalVelocity, onTrack, inAir, rIndex, isResetting);
         }
         
