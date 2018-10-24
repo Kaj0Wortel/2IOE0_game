@@ -24,7 +24,7 @@ public class MaterialInstance
         implements Updateable {
     
     public static enum Type {
-        SPACE_ROCK, PLANET;
+        SPACE_ROCK, PLANET, BANNER;
     }
     
     final private Type type;

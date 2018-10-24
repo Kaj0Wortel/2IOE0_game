@@ -34,8 +34,8 @@ public class ProgressManager
                     finished = true;
             }
         }
-        else if (finished)
-            System.out.println("FINISHED");
+        //else if (finished)
+            //System.out.println("FINISHED");
             //MusicManager.play("win.wav", MusicManager.MUSIC_SFX)
     }
     

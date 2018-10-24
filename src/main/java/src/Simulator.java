@@ -232,8 +232,8 @@ public class Simulator {
             addSkybox(player);
         }
         */
-        //addBanner(banner, new Vector3f(0, 0, 40), 4, 0, 90, 0, 0,
-         //       new TextureImg(gl, "rainbow_road.png"), null);
+        addBanner(banner, new Vector3f(0, 0, 0), 4, 0, 90, 0, 0,
+                new TextureImg(5, 3f),MaterialInstance.Type.BANNER);
         
         System.out.println("Assets initialized");
 
@@ -381,7 +381,7 @@ public class Simulator {
         Instance cubeInstance = new MaterialInstance(box,
                 size, 0, 0, 0, texturedCube,
                 rotx, roty, rotz, new PhysicsContext(), type);
-        GS.addTerrain(cubeInstance);
+        GS.addMaterialAsset(cubeInstance);
     }
     
     
