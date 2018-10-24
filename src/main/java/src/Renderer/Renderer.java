@@ -109,7 +109,9 @@ public class Renderer
                         partWidth, GS.canvas.getHeight());
 
                 ShadowRenderer sr = shadowRenderers.get(player);
+                gl.glDisable(GL3.GL_SCISSOR_TEST);
                 sr.render(gl, player);
+                gl.glEnable(GL3.GL_SCISSOR_TEST);
                 player.setShadowMap(sr.getDepthTexture());
                 GS.getTrack().setShadowMap(sr.getDepthTexture());
 
