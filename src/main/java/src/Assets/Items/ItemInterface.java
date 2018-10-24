@@ -1,4 +1,4 @@
-package src.Items;
+package src.Assets.Items;
 
 import src.Assets.instance.Instance;
 import src.Physics.PStructAction;

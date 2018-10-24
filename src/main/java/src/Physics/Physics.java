@@ -19,7 +19,7 @@ import src.music.MusicManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import src.Items.ItemInterface;
+import src.Assets.Items.ItemInterface;
 
 //Java imports
 

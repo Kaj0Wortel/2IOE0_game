@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
 import org.joml.Vector3f;
-import src.Items.ItemInterface;
+import src.Assets.Items.ItemInterface;
 import src.Assets.OBJCollection;
 import src.Assets.OBJTexture;
 import src.Assets.TextureImg;

@@ -1,12 +1,10 @@
 package src.Assets.instance;
 
 import com.jogamp.opengl.GL3;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Observable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import src.Assets.GraphicsObject;
+import src.Assets.Items.ItemInterface;
 import src.Assets.OBJTexture;
 import src.GS;
 import src.Locker;
@@ -19,8 +17,10 @@ import src.Shaders.ShadowShader;
 import src.tools.PosHitBox3f;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
 import java.util.Set;
-import src.Items.ItemInterface;
 
 
 public abstract class Instance
