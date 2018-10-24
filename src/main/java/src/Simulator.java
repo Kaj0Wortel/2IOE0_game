@@ -155,16 +155,16 @@ public class Simulator {
         addToGamestate(OTHER, sp, new Vector3f(0f, -60f, 500f), 4, 0, -90, 0, 0,
                 new TextureImg(5, 0.5f), null, null);
 
-        /*
-        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0,2,0), 5,0,180,0,90,
+        
+        /*Instance aiCar = addToGamestate(CAR, car, new Vector3f(0,2,0), 5,0,180,0,90,
                 new TextureImg(5,0.5f),null,null);
-        new AIController((Car) aiCar);
-        */
+        new AIController((Car) aiCar);*/
+        
 
         addToGamestate(PLAYER, car2, new Vector3f(0, 2, -30), 3,
                 0, 180, 0, 0, new TextureImg(5, 3f), null, null);
         
-        addToGamestate(PLAYER, car, new Vector3f(0, 2, 0), 5,
+        addToGamestate(PLAYER, car, new Vector3f(0, 2, 0), 9,
                 0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
 
         addLight(new Vector3f(30000f, 50000f, 1f),

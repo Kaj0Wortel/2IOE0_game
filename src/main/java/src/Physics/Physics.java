@@ -452,8 +452,15 @@ public class Physics {
                 noFriction = true;
             }
             // (ACCEL) Block manual acceleration when collision just happened
-            if (s.collisionVelocity > pc.knockback / pc.accBlockDur)
-                pStruct.accel = 0;
+            if (s.collisionVelocity > pc.knockback / pc.accBlockDur) {
+                if (s.velocity > 1) {
+                    s.velocity--;
+                } else if (s.velocity < -1) {
+                    s.velocity++;
+                }
+                
+                //pStruct.accel = 0;
+            }
 
             // (LINACCEL) Temporary slowdown after speedboost: not refined
             if (s.velocity + linAccel*dt > pc.maxLinearVelocity * 1.1 ||
@@ -618,7 +625,7 @@ public class Physics {
             double colRange = 2;
             double carRange = 6;
             // Collision detection
-            if (s.box.pos().x + carRange/2 > colPos.x - colRange/2 &&
+            /*if (s.box.pos().x + carRange/2 > colPos.x - colRange/2 &&
                     colPos.x + colRange/2 > s.box.pos().x - carRange/2 &&
                     s.box.pos().y + carRange/2 > colPos.y - colRange/2 &&
                     colPos.y + colRange/2 > s.box.pos().y - carRange/2 &&
@@ -638,15 +645,13 @@ public class Physics {
                 } 
 
                 // Moments after collision
-            } else if (s.collisionVelocity > pc.knockback/1_000_000_000) {
+            } else */if (s.collisionVelocity > pc.knockback/1_000_000_000) {
                 // Slowly diminish the knockback over time
                 s.collisionVelocity *= pc.knockbackDur;
                 // Angle can change during bump: maybe looks better?
-                double colAngle = Math.atan2(s.box.pos().x - colPos.x, s.box.pos().y - colPos.y);
-                colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
                 ePos = new Vector3f(
-                       (float) (ePos.x + s.collisionVelocity * Math.cos(colAngle)), 
-                       (float) (ePos.y + s.collisionVelocity * Math.sin(colAngle)),
+                       (float) (ePos.x + s.collisionVelocity * Math.cos(s.colAngle)), 
+                       (float) (ePos.y + s.collisionVelocity * Math.sin(s.colAngle)),
                        ePos.z);
 
             } else {
@@ -747,18 +752,19 @@ public class Physics {
             System.out.println(col.getOther() + " " + e1.inst);
         }
         
-        e1.ms.box.pos();//current position of car 1
-        e2.ms.box.pos();//current position of car 2
+        // <editor-fold defaultstate="collapsed" desc="COLLISION CALCULATIONS"> 
+        double colAngle = Math.atan2( e1.ms.box.pos().x - e2.ms.box.pos().x, 
+                e1.ms.box.pos().y - e2.ms.box.pos().y);
+        colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
         
-        float v = e1.ms.velocity;
-        e1.ms.velocity = e2.ms.velocity;
-        e2.ms.velocity = v;
-        
-        float roty = e1.ms.roty;
-        e1.ms.roty = e2.ms.roty;
-        e2.ms.roty = roty;
-        // TODO: do stuff with the entries.
-        //System.out.println("Collision occured");
+        // Can only receive knockback once the last knockback is sufficiently small
+        if (e1.ms.collisionVelocity < 1) {
+            e1.ms.collisionVelocity = Math.abs(e1.ms.velocity) * e1.mpc.knockback;
+                e1.ms.box.pos().x += e1.ms.collisionVelocity * Math.cos(colAngle);
+                e1.ms.box.pos().y += e1.ms.collisionVelocity * Math.sin(colAngle);
+                e1.ms.verticalVelocity = 1f + Math.abs(e1.ms.velocity)/4;
+        }
+        e1.ms.colAngle = (float)colAngle;
     }
     
     /**
