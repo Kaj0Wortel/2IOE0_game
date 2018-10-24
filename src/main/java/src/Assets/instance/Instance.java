@@ -1,6 +1,8 @@
 package src.Assets.instance;
 
 import com.jogamp.opengl.GL3;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -18,6 +20,7 @@ import src.tools.PosHitBox3f;
 
 import javax.swing.*;
 import java.util.Set;
+import src.Items.ItemInterface;
 
 
 public abstract class Instance
@@ -52,13 +55,16 @@ public abstract class Instance
         final public int rIndex;
         final public boolean isResetting;
         
+        final public ItemInterface curItem;
+        final public List<ItemInterface> activeItems;
         
         public State(PosHitBox3f box, float sizex, float sizey, float sizez,
                 float rotx, float roty, float rotz,
                 float internRotx, float internRoty, float internRotz,
                 Vector3f internTrans, float velocity, float collisionVelocity,
                 float verticalVelocity, boolean onTrack, boolean inAir, 
-                int rIndex, boolean isResetting) {
+                int rIndex, boolean isResetting, ItemInterface curItem,
+                List<ItemInterface> activeItems) {
             this.box = box;
             this.sizex = sizex;
             this.sizey = sizey;
@@ -77,6 +83,8 @@ public abstract class Instance
             this.inAir = inAir;
             this.rIndex = rIndex;
             this.isResetting = isResetting;
+            this.curItem = curItem;
+            this.activeItems = activeItems;
         }
         
         @Override
@@ -113,7 +121,7 @@ public abstract class Instance
         setState(new State(box, sizex, sizey, sizez,
                 rotx, roty, rotz,
                 internRotx, internRoty, internRotz, new Vector3f(), 0, 0, 0, 
-                true, false, 0, false));
+                true, false, 0, false, null, new ArrayList<ItemInterface>()));
         
         this.model = model;
         this.physicsContext = physicContext;
@@ -196,7 +204,8 @@ public abstract class Instance
                 (s.rotx + rot) % 360, s.roty, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.internTrans, s.velocity, s.collisionVelocity,
-                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting,
+                s.curItem, s.activeItems));
     }
     
     @Deprecated
@@ -210,7 +219,8 @@ public abstract class Instance
                 s.rotx, (s.roty + rot) % 360, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.internTrans, s.velocity, s.collisionVelocity,
-                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting,
+                s.curItem, s.activeItems));
     }
 
     @Deprecated
@@ -224,7 +234,8 @@ public abstract class Instance
                 s.rotx, s.roty, (s.rotz + rot) % 360,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.internTrans, s.velocity, s.collisionVelocity,
-                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting,
+                s.curItem, s.activeItems));
     }
     
     public void rotate(float rotx, float roty, float rotz) {
@@ -233,7 +244,8 @@ public abstract class Instance
                 (s.rotx + rotx) % 360, (s.roty + roty) % 360, (s.rotz + rotz) % 360,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.internTrans, s.velocity, s.collisionVelocity,
-                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting,
+                s.curItem, s.activeItems));
     }
 
     @Deprecated
@@ -250,7 +262,8 @@ public abstract class Instance
                 s.rotx, s.roty, s.rotz,
                 s.internRotx, s.internRoty, s.internRotz,
                 s.internTrans, s.velocity, s.collisionVelocity,
-                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting));
+                s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting,
+                s.curItem, s.activeItems));
     }
 
     /**
