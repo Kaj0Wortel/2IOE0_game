@@ -79,7 +79,7 @@ public class Physics {
             this.rIndex = state.rIndex;
             this.isResetting = state.isResetting;
             this.curItem = state.curItem;
-            this.activeItems = state.activeItems;
+            this.activeItems = new ArrayList<ItemInterface>(state.activeItems);
         }
         
         /**
