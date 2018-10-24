@@ -3,13 +3,16 @@ package src.Assets.instance;
 
 
 // Own imports
+
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import src.Assets.GraphicsObject;
+import src.Assets.Items.ItemInterface;
 import src.Assets.Items.UseableItem;
 import src.Assets.OBJTexture;
 import src.GS;
 import src.Physics.PStructAction;
+import src.Physics.Physics;
 import src.Physics.PhysicsContext;
 import src.Shaders.CarShader;
 import src.Shaders.ShadowShader;
@@ -27,7 +30,6 @@ import java.util.Comparator;
 public class Car
         extends GridItemInstance {
 
-    private UseableItem inventoryItem = null; // = null
     private CarShader carShader;
     private int shadowMap;
     
@@ -110,11 +112,12 @@ public class Car
         }
     }
 
-    public void giveItem() {
-        if (inventoryItem != null) return;
+    public void giveItem(Physics.ModState s) {
+        if (s.curItem != null) return;
 
-        inventoryItem = new UseableItem();
-        Logger.write("GOT ITEM: " + inventoryItem.toString());
+        ItemInterface pickedUp = new UseableItem();
+        s.curItem = pickedUp;
+        Logger.write("GOT ITEM: " + pickedUp.toString());
     }
 
     @Override
@@ -123,11 +126,20 @@ public class Car
             GS.first = this;
         }
 
-        if (action.throwItem) {
+        if (action.throwItem && getState().curItem != null) {
             System.out.println("throw!");
             action.throwItem = true;
-            inventoryItem = null;
+            getState().activeItems.add(getState().curItem);
+
+            State s = getState();
+            setState(new State(s.box, s.sizex, s.sizey, s.sizez,
+                    s.rotx, s.roty, s.rotz,
+                    s.internRotx, s.internRoty, s.internRotz,
+                    s.internTrans, s.velocity, s.collisionVelocity,
+                    s.verticalVelocity, s.onTrack, s.inAir, s.rIndex, s.isResetting,
+                    null, s.activeItems));
         }
+
 
         super.movement(action);
     }
@@ -135,8 +147,9 @@ public class Car
     /**
      * @return the item this car has currently in it's inventory.
      */
-    public UseableItem getItem() {
-        return inventoryItem;
+    public int getItem() {
+        if(getState().curItem == null) return 0;
+        return getState().curItem.getType() + 1;
     }
     
     /**

@@ -2,24 +2,26 @@ package src.Physics;
 
 
 // Own imports
+
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
+import src.Assets.Items.ItemInterface;
 import src.Assets.instance.Instance;
 import src.Assets.instance.Instance.State;
 import src.Assets.instance.Item;
 import src.Progress.ProgressManager;
+import src.music.MusicManager;
 import src.racetrack.Track;
 import src.tools.PosHitBox3f;
 import src.tools.log.Logger;
 import src.tools.update.CollisionManager;
 import src.tools.update.CollisionManager.Collision;
 import src.tools.update.CollisionManager.Entry;
-import src.music.MusicManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import src.Assets.Items.ItemInterface;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 //Java imports
 
@@ -79,7 +81,7 @@ public class Physics {
             this.rIndex = state.rIndex;
             this.isResetting = state.isResetting;
             this.curItem = state.curItem;
-            this.activeItems = new ArrayList<ItemInterface>(state.activeItems);
+            this.activeItems = new CopyOnWriteArrayList<ItemInterface>(state.activeItems);
         }
         
         /**
@@ -101,7 +103,7 @@ public class Physics {
                     internTrans.mul(CONV_MAT_INV),
                     velocity, collisionVelocity,
                     verticalVelocity, onTrack, inAir, rIndex, isResetting,
-                    curItem, new ArrayList<ItemInterface>(activeItems));
+                    curItem, new CopyOnWriteArrayList<ItemInterface>(activeItems));
         }
         
         
@@ -251,9 +253,13 @@ public class Physics {
         // If the instance intersects with a car or an item, use collision
         // dependant collision handeling.
         // Ignore the current actions.
+        ModPhysicsContext modPC = new ModPhysicsContext(pc);
+        for(ItemInterface item : s.activeItems){
+            item.perform(source, pStruct, modPC, s);
+        }
+
         if (collisions != null && !collisions.isEmpty()) {
             boolean calcPhysics = true;
-            ModPhysicsContext modPC = new ModPhysicsContext(pc);
             
             for (Instance instance : collisions) {
                 boolean isDynamic = !source.isStatic() && !instance.isStatic();
@@ -279,7 +285,7 @@ public class Physics {
             }
             
         } else {
-            calcPhysics(source, pStruct, pc, s, progress);
+            calcPhysics(source, pStruct, modPC.createContext(), s, progress);
             source.setState(s.createState());
         }
     }
@@ -293,7 +299,7 @@ public class Physics {
      */
     public static void calcPhysics(Instance source, PStructAction pStruct,
             PhysicsContext pc, ModState s, ProgressManager progress) {
-        
+
         // Variables used in physics calculations.
         float dt = pStruct.dt / 160f;
         float linAccel = pc.linAccel;

@@ -17,10 +17,10 @@ import src.Shaders.ShadowShader;
 import src.tools.PosHitBox3f;
 
 import javax.swing.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 public abstract class Instance
@@ -121,7 +121,7 @@ public abstract class Instance
         setState(new State(box, sizex, sizey, sizez,
                 rotx, roty, rotz,
                 internRotx, internRoty, internRotz, new Vector3f(), 0, 0, 0, 
-                true, false, 0, false, null, new ArrayList<ItemInterface>()));
+                true, false, 0, false, null, new CopyOnWriteArrayList<ItemInterface>()));
         
         this.model = model;
         this.physicsContext = physicContext;

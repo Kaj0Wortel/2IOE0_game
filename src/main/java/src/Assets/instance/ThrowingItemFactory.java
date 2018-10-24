@@ -2,9 +2,6 @@
 package src.Assets.instance;
 
 import com.jogamp.opengl.GL3;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.Map;
 import org.joml.Vector3f;
 import src.Assets.Items.ItemInterface;
 import src.Assets.OBJCollection;
@@ -17,6 +14,10 @@ import src.OBJ.LoadOBJ;
 import src.Physics.PhysicsContext;
 import src.tools.PosHitBox3f;
 import src.tools.log.Logger;
+
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 // Own imports
@@ -80,7 +81,7 @@ public class ThrowingItemFactory {
                 ss.rotx, ss.roty, ss.rotz,
                 ss.internRotx, ss.internRoty, ss.internRotz,
                 ss.internTrans, ss.velocity, 0, ss.verticalVelocity,
-                true, false, 0, false, null, new ArrayList<ItemInterface>())
+                true, false, 0, false, null, new CopyOnWriteArrayList<ItemInterface>())
         );
         item.setProgressManager(source.getProgressManager().clone());
         

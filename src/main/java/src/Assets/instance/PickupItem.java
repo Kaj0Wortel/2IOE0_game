@@ -58,7 +58,7 @@ public class PickupItem
         isHit = true;
         hitTimeRemaining = INACTIVE_TIME;
         
-        car.giveItem();
+        car.giveItem(s);
     }
     
     @Override

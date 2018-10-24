@@ -5,7 +5,6 @@ import com.jogamp.opengl.GL3;
 import org.joml.Vector2f;
 import src.Assets.TextureImg;
 import src.Assets.instance.Car;
-import src.Assets.instance.ThrowingItemFactory.ItemType;
 import src.GS;
 import src.Progress.ProgressManager;
 import src.Shaders.ShaderProgram;
@@ -49,8 +48,7 @@ public class StaticGUI
         shader.loadModelMatrix(gl, getTransformationMatrix());
         ProgressManager pm = car.getProgressManager();
         shader.loadLapData(gl, Math.min(pm.lap, pm.lapTotal), pm.lapTotal);
-        ItemType item = car.getItem();
-        shader.loadItemNum(gl, (item == null ? 0 : item.ordinal() + 1));
+        shader.loadItemNum(gl, car.getItem());
         shader.loadPositionNum(gl, car.getRacePosition());
         shader.loadFinished(gl, car.isFinished());
         if(car.isFinished()) shader.loadFirst(gl, car.isFirst());
