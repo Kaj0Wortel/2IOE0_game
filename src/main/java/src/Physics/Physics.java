@@ -2,6 +2,7 @@ package src.Physics;
 
 
 // Own imports
+import java.io.File;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 import src.Assets.instance.Instance;
@@ -193,8 +194,8 @@ public class Physics {
             = new ConcurrentHashMap<>();
     
     
-    public static void registerReader(Instance inst, Processor<Vector3f> processor) {
-        readers.put(inst, 1000, processor);
+    public static void registerReader(Instance inst, File file, Processor<Vector3f> processor) {
+        readers.put(inst, new DequeRequestReader<Vector3f>(file, 1000, processor));
     }
     
     /**
