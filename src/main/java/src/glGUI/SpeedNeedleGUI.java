@@ -25,7 +25,7 @@ public class SpeedNeedleGUI
     
     public SpeedNeedleGUI(GL3 gl, Vector2f position, Vector2f size) {
         super(gl, position, size,
-                new TextureImg(gl,"speed_needle.png")
+                new TextureImg(gl,"needle.png")
         );
         
         shader = new SpeedNeedleGUIShader(gl);

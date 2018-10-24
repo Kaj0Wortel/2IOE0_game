@@ -36,7 +36,7 @@ void main() {
     gl_Position = transformationMatrix * vec4(position, 0.0, 1.0);
     
     texSpeedMeter = calcTexCoordsKeepRatioAnchor(
-            vec2(0.725f, 0.075f),
+            vec2(0.8f, 0.0f),
             vec2(0.4f, 0.4f),
             vec2(0.0f, 0.5f));
     
