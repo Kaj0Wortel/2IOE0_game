@@ -194,7 +194,7 @@ public class Physics {
     
     
     public static void registerReader(Instance inst, Processor<Vector3f> processor) {
-        readers.put(inst, processor);
+        readers.put(inst, 1000, processor);
     }
     
     /**
