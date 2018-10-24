@@ -12,7 +12,6 @@ import org.joml.Vector3f;
 import src.Assets.*;
 import src.Assets.instance.*;
 import src.Assets.skybox.Skybox;
-import src.Controllers.PlayerController;
 import src.OBJ.LoadOBJ;
 import src.Physics.PhysicsContext;
 import src.racetrack.BezierTrack;
@@ -31,6 +30,7 @@ import static src.tools.io.BufferedReaderPlus.TYPE_CSV;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import src.Controllers.AIController;
 
 
 public class Simulator {
@@ -156,9 +156,10 @@ public class Simulator {
                 new TextureImg(5, 0.5f), null, null);
 
         
-        /*Instance aiCar = addToGamestate(CAR, car, new Vector3f(0,2,0), 5,0,180,0,90,
+        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0,2,0), 5,0,180,0,90,
                 new TextureImg(5,0.5f),null,null);
-        new AIController((Car) aiCar);*/
+        aiCar.setAI(true);
+        new AIController((Car) aiCar);
         
 
         addToGamestate(PLAYER, car2, new Vector3f(0, 2, -30), 3,
