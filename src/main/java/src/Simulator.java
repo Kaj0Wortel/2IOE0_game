@@ -98,11 +98,11 @@ public class Simulator {
         }
 
 
-        addToGamestate(ENVIRONMENT_TYPE, col, new Vector3f(-40f, 1f, 0.001f), 1, 0, 0, 0, 0,
-                new TextureImg(5, 0.5f), null, EnvironmentItem.Type.STATIC_OBSTACLE);
+        //addToGamestate(ENVIRONMENT_TYPE, col, new Vector3f(-40f, 1f, 0.001f), 1, 0, 0, 0, 0,
+        //        new TextureImg(5, 0.5f), null, EnvironmentItem.Type.STATIC_OBSTACLE);
 
-        addToGamestate(ENVIRONMENT_TYPE, col, new Vector3f(0f, 1f, -40f), 1, 0, 0, 0, 0,
-                new TextureImg(5, 0.5f), null, EnvironmentItem.Type.SPEED_BOOST);
+        //addToGamestate(ENVIRONMENT_TYPE, col, new Vector3f(0f, 1f, -40f), 1, 0, 0, 0, 0,
+        //        new TextureImg(5, 0.5f), null, EnvironmentItem.Type.SPEED_BOOST);
 
 
 
@@ -165,8 +165,8 @@ public class Simulator {
         addToGamestate(PLAYER, car2, new Vector3f(-7, 2, -20), 2f,
                 0, 180, 0, 0, new TextureImg(5, 3f), null, null);
         
-        addToGamestate(PLAYER, car, new Vector3f(7, 2, -20), 6f,
-                0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
+        /*addToGamestate(PLAYER, car, new Vector3f(0, 2, 0), 6f,
+                0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);*/
 
         addLight(new Vector3f(30000f, 50000f, 1f),
                 new Vector3f(1f, 1f, 1f));
