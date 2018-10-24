@@ -156,16 +156,16 @@ public class Simulator {
                 new TextureImg(5, 0.5f), null, null);
 
         
-        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0, 2, 0), 9,
+        Instance aiCar = addToGamestate(CAR, car, new Vector3f(0, 2, 0), 6f,
                 0, 180, 0, 90, new TextureImg(5, 0.5f), null, null);
         aiCar.setAI(true);
         new AIController((Car) aiCar);
         
 
-        addToGamestate(PLAYER, car2, new Vector3f(0, 2, -30), 2.5f,
+        addToGamestate(PLAYER, car2, new Vector3f(0, 2, -30), 2f,
                 0, 180, 0, 0, new TextureImg(5, 3f), null, null);
         
-        addToGamestate(PLAYER, car, new Vector3f(0, 2, 0), 9,
+        addToGamestate(PLAYER, car, new Vector3f(0, 2, 0), 6f,
                 0, 180, 0, 0, new TextureImg(5, 0.5f), null, null);
 
         addLight(new Vector3f(30000f, 50000f, 1f),
