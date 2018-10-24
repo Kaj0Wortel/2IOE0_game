@@ -591,6 +591,7 @@ public class AStarPointersGlueFinal {
             } catch (IOException e) {
                 Logger.write(e);
             }
+            System.out.println("DONE--------------");
             // </editor-fold>
             
         } else {
