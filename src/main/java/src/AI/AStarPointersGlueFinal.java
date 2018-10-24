@@ -583,6 +583,14 @@ public class AStarPointersGlueFinal {
             System.out.println("--------------------------------------");
             File file = new File(GS.DATA_DIR + "AStarData.csv");
             try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+                /*for (int p = pathList.size()-1000; p < pathList.size(); p++) {
+                    bw.write(pathList.get(p).pos.x + ";" + pathList.get(p).pos.y 
+                            + ";0f" + ";" + pathList.get(p).rot + ";" + pathList.get(p).v + GS.LS);
+                }
+                for (int p = 0; p < pathList.size()-1000; p++) {
+                    bw.write(pathList.get(p).pos.x + ";" + pathList.get(p).pos.y 
+                            + ";0f" + ";" + pathList.get(p).rot + ";" + pathList.get(p).v + GS.LS);
+                }*/
                 for (NodeGlueFinal p : pathList) {
                     //System.out.println("AIList.add(new Vector3f("
                     //        + (p.pos.x) + "f," + (p.pos.y) + "f,0f));");

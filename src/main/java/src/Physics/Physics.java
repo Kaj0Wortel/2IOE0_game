@@ -750,13 +750,13 @@ public class Physics {
                 }
                 ePos.z = points[ind].z;
                 
-                eV = 0;
-                eRot = (float)Math.PI;
+                eV = 0.1f;
+                eRot = data.rot - (float)Math.PI/2;
                 // </editor-fold>
             } else {
                 ePos = new Vector3f(0,0,0);
-                eV = 0;
-                eRot = -180;
+                eV = 100f;
+                eRot = (float)Math.PI/2;
             }
         }
         // <editor-fold defaultstate="collapsed" desc="RESET MOTION">
@@ -849,33 +849,35 @@ public class Physics {
             return;
         }
         
-        // <editor-fold defaultstate="collapsed" desc="COLLISION CALCULATIONS"> 
-        double colAngle = Math.atan2( e1.ms.box.pos().x - e2.ms.box.pos().x, 
-                e1.ms.box.pos().y - e2.ms.box.pos().y);
-        colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
-        
-        // Can only receive knockback once the last knockback is sufficiently small
-        if (e1.ms.collisionVelocity < 1) {
-            float difAngle1 = (float)Math.abs(e1.ms.internRoty - colAngle);
-            if (difAngle1 > Math.PI/2)
-                difAngle1 -= Math.PI/2;
-            float difAngle2 = (float)Math.abs(e2.ms.internRoty - colAngle);
-            if (difAngle2 > Math.PI/2)
-                difAngle2 -= Math.PI/2;
-            
-            e1.ms.collisionVelocity = Math.abs(e1.ms.velocity) * e1.mpc.knockback * 0.5f
-                    *(1f + (float)Math.cos(difAngle1)*0.5f);
-            e1.ms.box.pos().x += e1.ms.collisionVelocity * Math.cos(colAngle);
-            e1.ms.box.pos().y += e1.ms.collisionVelocity * Math.sin(colAngle);
-            e1.ms.verticalVelocity = 1f + Math.abs(e1.ms.velocity)/8;
-            
-            e2.ms.collisionVelocity = Math.abs(e1.ms.velocity) * e1.mpc.knockback * 0.5f
-                    *(1 + (float)Math.cos(difAngle2)*0.5f);
-            e2.ms.box.pos().x += e1.ms.collisionVelocity * Math.cos(colAngle+Math.PI);
-            e2.ms.box.pos().y += e1.ms.collisionVelocity * Math.sin(colAngle+Math.PI);
-            e2.ms.verticalVelocity = 1f + Math.abs(e1.ms.velocity)/8;
+        if ((int)e2.ms.velocity != 100) {
+            // <editor-fold defaultstate="collapsed" desc="COLLISION CALCULATIONS"> 
+            double colAngle = Math.atan2( e1.ms.box.pos().x - e2.ms.box.pos().x, 
+                    e1.ms.box.pos().y - e2.ms.box.pos().y);
+            colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
+
+            // Can only receive knockback once the last knockback is sufficiently small
+            if (e1.ms.collisionVelocity < 1) {
+                float difAngle1 = (float)Math.abs(e1.ms.internRoty - colAngle);
+                if (difAngle1 > Math.PI/2)
+                    difAngle1 -= Math.PI/2;
+                float difAngle2 = (float)Math.abs(e2.ms.internRoty - colAngle);
+                if (difAngle2 > Math.PI/2)
+                    difAngle2 -= Math.PI/2;
+
+                e1.ms.collisionVelocity = Math.abs(e1.ms.velocity) * e1.mpc.knockback * 0.5f
+                        *(1f + (float)Math.cos(difAngle1)*0.5f);
+                e1.ms.box.pos().x += e1.ms.collisionVelocity * Math.cos(colAngle);
+                e1.ms.box.pos().y += e1.ms.collisionVelocity * Math.sin(colAngle);
+                e1.ms.verticalVelocity = 1f + Math.abs(e1.ms.velocity)/8;
+
+                e2.ms.collisionVelocity = Math.abs(e1.ms.velocity) * e1.mpc.knockback * 0.5f
+                        *(1 + (float)Math.cos(difAngle2)*0.5f);
+                e2.ms.box.pos().x += e1.ms.collisionVelocity * Math.cos(colAngle+Math.PI);
+                e2.ms.box.pos().y += e1.ms.collisionVelocity * Math.sin(colAngle+Math.PI);
+                e2.ms.verticalVelocity = 1f + Math.abs(e1.ms.velocity)/8;
+            }
+            e1.ms.colAngle = (float)colAngle;
         }
-        e1.ms.colAngle = (float)colAngle;
     }
     
     /**
