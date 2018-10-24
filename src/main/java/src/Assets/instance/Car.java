@@ -6,8 +6,8 @@ package src.Assets.instance;
 import com.jogamp.opengl.GL3;
 import org.joml.Matrix4f;
 import src.Assets.GraphicsObject;
+import src.Assets.Items.UseableItem;
 import src.Assets.OBJTexture;
-import src.Assets.instance.ThrowingItemFactory.ItemType;
 import src.GS;
 import src.Physics.PStructAction;
 import src.Physics.PhysicsContext;
@@ -27,7 +27,7 @@ import java.util.Comparator;
 public class Car
         extends GridItemInstance {
 
-    private ItemType inventoryItem = ItemType.RED_SHELL; // = null
+    private UseableItem inventoryItem = null; // = null
     private CarShader carShader;
     private int shadowMap;
     
@@ -113,9 +113,8 @@ public class Car
     public void giveItem() {
         if (inventoryItem != null) return;
 
-        ItemType[] types = ItemType.values();
-        inventoryItem = types[GS.R.nextInt(types.length)];
-        Logger.write("GOT ITEM: " + inventoryItem);
+        inventoryItem = new UseableItem();
+        Logger.write("GOT ITEM: " + inventoryItem.toString());
     }
 
     @Override
@@ -126,7 +125,7 @@ public class Car
 
         if (action.throwItem) {
             System.out.println("throw!");
-            ThrowingItemFactory.createItem(inventoryItem, this);
+            action.throwItem = true;
             inventoryItem = null;
         }
 
@@ -136,7 +135,7 @@ public class Car
     /**
      * @return the item this car has currently in it's inventory.
      */
-    public ItemType getItem() {
+    public UseableItem getItem() {
         return inventoryItem;
     }
     
