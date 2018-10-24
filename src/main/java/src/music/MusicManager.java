@@ -48,11 +48,11 @@ public class MusicManager {
     final private static Condition fadeThreadCondition = lock.newCondition();
     
     // The current background and sfx volume.
-    private static float bgVolume = 1.0f;
+    private static float bgVolume = 0.5f;
     private static float sfxVolume = 1.0f;
     
     // The background and sfx volume targets.
-    private static float bgVolumeTarget = 1.0f;
+    private static float bgVolumeTarget = 0.5f;
     private static float sfxVolumeTarget = 1.0f;
     
     // The volume change rate.

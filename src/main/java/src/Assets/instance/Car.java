@@ -159,7 +159,7 @@ public class Car
     }
     
     public float getSpeedAngle() {
-        return Math.min((float) Math.PI / 2, Math.abs(getState().velocity / 15));
+        return Math.min((float) Math.PI - 0.4f , Math.abs(getState().velocity / 9)) - 0.4f;
     }
 
     public void setCarShaderVariables(CarShader shader) {
