@@ -127,7 +127,7 @@ public class DequeRequestReader<V>
         reader = new BufferedReader(new FileReader(file));
     }
     
-    public V getNextData() throws IOException { // tmp
+    public V getNextData() { // tmp
         if (closed) throw new IllegalStateException("Reader is closed!");
         
         lock.lock();

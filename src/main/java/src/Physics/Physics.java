@@ -666,36 +666,29 @@ public class Physics {
                 // </editor-fold>
             } else {
                 // <editor-fold defaultstate="collapsed" desc="TEST AI">
-                ArrayList<Vector3f> AITest = new ArrayList<>();
-                ArrayList<Vector3f> testtest = AITest;//();
-                if (testCount < testtest.size()) {
-                    System.out.println(testCount + ": " + testtest.get(testCount));
-                    testCount++;
-                    ePos = testtest.get(testCount);
+                DequeRequestReader<Vector3f> reader = readers.get(source);
+                ePos = reader.getNextData();
 
-                    // Height calculation
-                    float shortestDist = Float.POSITIVE_INFINITY;
-                    float dist;
-                    int ind = 0; // Current road point index
-                    // Check from checkpoint up until current point
-                    for (int i = 0; i < points.length; i++) {
-                        if (Math.abs(s.box.pos().z - points[i].z) < 50) {
-                            dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
-                                    + (float)Math.pow(s.box.pos().y - points[i].y, 2));
-                            if (dist < shortestDist) {
-                                shortestDist = dist;
-                                ind = i;
-                            }
+                // Height calculation
+                float shortestDist = Float.POSITIVE_INFINITY;
+                float dist;
+                int ind = 0; // Current road point index
+                // Check from checkpoint up until current point
+                for (int i = 0; i < points.length; i++) {
+                    if (Math.abs(s.box.pos().z - points[i].z) < 50) {
+                        dist = (float)Math.sqrt(Math.pow(s.box.pos().x - points[i].x, 2) 
+                                + (float)Math.pow(s.box.pos().y - points[i].y, 2));
+                        if (dist < shortestDist) {
+                            shortestDist = dist;
+                            ind = i;
                         }
                     }
-                    ePos.z = points[ind].z;
-            } else {
-                ePos = new Vector3f(0,0,0);
-            }
-        
-        eV = 0;
-        eRot = (float)Math.PI;
-        // </editor-fold>
+                }
+                ePos.z = points[ind].z;
+                
+                eV = 0;
+                eRot = (float)Math.PI;
+                // </editor-fold>
             }
         }
         // <editor-fold defaultstate="collapsed" desc="RESET MOTION">
