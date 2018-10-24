@@ -26,7 +26,7 @@ import src.tools.log.Logger;
  * 
  * @author Kaj Wortel (0991586)
  */
-public class DequeRequestReader
+public class DequeRequestReader<V>
         implements Closeable {
     
     final private File file;
@@ -34,7 +34,8 @@ public class DequeRequestReader
     protected BufferedReader reader;
     final private Thread readThread;
     
-    final private Deque<String> buffer = new LinkedList<>();
+    
+    final private Deque<V> buffer = new LinkedList<>();
     final private Lock lock = new ReentrantLock();
     final private Condition bufferFull = lock.newCondition();
     final private Condition bufferEmpty = lock.newCondition();
@@ -44,9 +45,9 @@ public class DequeRequestReader
     
     
     @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
-    public DequeRequestReader(File file, int queueSize)
+    public DequeRequestReader(File file, int queueSize, Processor<V> processor)
             throws IOException {
-        if (!file.exists()) throw new FileNotFoundException(
+        if (!file.exists()) throw new FileNotFoundException (
                 "The requested file \"" + file + "\" does not exist or is protected.");
         this.file = file;
         this.queueSize = queueSize;
@@ -86,11 +87,12 @@ public class DequeRequestReader
                                 break;
                             }
                         }
+                        V value = processor.process(data);
                         
                         // Put the data in the buffer.
                         lock.lock();
                         try {
-                            buffer.push(data);
+                            buffer.push(value);
                             
                             if (consumerIsWaiting) {
                                 bufferEmpty.signal();
@@ -125,7 +127,7 @@ public class DequeRequestReader
         reader = new BufferedReader(new FileReader(file));
     }
     
-    public String readLine() throws IOException { // tmp
+    public V getNextData() throws IOException { // tmp
         if (closed) throw new IllegalStateException("Reader is closed!");
         
         lock.lock();
