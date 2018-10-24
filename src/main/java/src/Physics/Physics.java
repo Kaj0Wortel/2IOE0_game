@@ -748,14 +748,14 @@ public class Physics {
                         }
                     }
                 }
-                ePos.z = points[ind].z;
+                ePos.z = points[ind].z + 0.5f;
                 
-                eV = 0.1f;
+                eV = data.v;
                 eRot = data.rot - (float)Math.PI/2;
                 // </editor-fold>
             } else {
-                ePos = new Vector3f(0,0,0);
-                eV = 100f;
+                ePos = new Vector3f(0,10,0);
+                eV = 0;
                 eRot = (float)Math.PI/2;
             }
         }
@@ -849,7 +849,7 @@ public class Physics {
             return;
         }
         
-        if ((int)e2.ms.velocity != 100) {
+        if (!e2.inst.isAI()) {
             // <editor-fold defaultstate="collapsed" desc="COLLISION CALCULATIONS"> 
             double colAngle = Math.atan2( e1.ms.box.pos().x - e2.ms.box.pos().x, 
                     e1.ms.box.pos().y - e2.ms.box.pos().y);
