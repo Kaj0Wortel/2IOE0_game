@@ -97,6 +97,7 @@ public abstract class Instance
     
     protected OBJTexture model;
     protected long prevTimeStamp;
+    protected boolean isAI;
     
     
     public Instance(PosHitBox3f box, float size,
@@ -385,6 +386,9 @@ public abstract class Instance
     
     public void setProgressManager(ProgressManager pm) {
         this.progress = pm;
+    }
+    public boolean isAI () {
+        return isAI;
     }
     
     /**
