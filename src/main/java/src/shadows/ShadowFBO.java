@@ -70,7 +70,7 @@ public class ShadowFBO {
                 : GS.canvas.getHeight() / 2);
         
         gl.glViewport((screenID % 2) * partWidth,
-                (screenID / 2) * partHeight,
+                (1 - screenID / 2) * partHeight,
                 partWidth, partHeight);
     }
     
