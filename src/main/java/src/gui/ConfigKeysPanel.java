@@ -162,7 +162,10 @@ public class ConfigKeysPanel
                 null, 
                 options, 
                 options[0]);
-        if (option == null) return;
+        if (option == null) {
+            Logger.write("Null option selected!");
+            return;
+        }
         
         Integer[] players = new Integer[GS.MAX_PLAYERS];
         for (int i = 0; i < GS.MAX_PLAYERS; i++) {
@@ -176,8 +179,10 @@ public class ConfigKeysPanel
                 null, 
                 players, 
                 players[0]);
-        if (id == null) return;
-        
+        if (id == null) {
+            Logger.write("Null option selected!");
+            return;
+        }
         KeyAction keyAction = KeyAction.createKeyAction(id, option);
         lister.addItem(new ConfigKeyMenuItem(keyAction, null, this));
         SwingUtilities.invokeLater(() -> {

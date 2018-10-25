@@ -369,6 +369,7 @@ public abstract class MenuBar
          */
         public SelectContents() {
             this(false);
+            setFocusable(false);
         }
         
         /**

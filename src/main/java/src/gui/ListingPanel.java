@@ -169,6 +169,7 @@ public abstract class ListingPanel<Item extends MenuItem,
         add(typeOnlyBox);
         typeOnlyBox.setHorizontalAlignment(SwingConstants.CENTER);
         typeOnlyBox.setOpaque(false);
+        typeOnlyBox.setFocusable(false);
         
         nextPage = new RacingButton(">");
         nextPage.setSize(SMALL_BUTTON_WIDTH, SMALL_BUTTON_HEIGHT);

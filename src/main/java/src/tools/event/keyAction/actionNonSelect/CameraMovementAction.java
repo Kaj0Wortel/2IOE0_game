@@ -1,5 +1,5 @@
 
-package src.tools.event.keyAction.action;
+package src.tools.event.keyAction.actionNonSelect;
 
 
 // Own imports
@@ -11,6 +11,6 @@ package src.tools.event.keyAction.action;
 /**
  * 
  */
-public enum CarMovementAction {
+public enum CameraMovementAction {
     FORWARD, BACKWARD, LEFT, RIGHT, OTHER;
 }

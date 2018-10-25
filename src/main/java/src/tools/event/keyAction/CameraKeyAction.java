@@ -2,7 +2,7 @@
 package src.tools.event.keyAction;
 
 
-import src.tools.event.keyAction.action.CameraMovementAction;
+import src.tools.event.keyAction.actionNonSelect.CameraMovementAction;
 import src.tools.MultiTool;
 
 

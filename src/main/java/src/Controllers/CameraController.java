@@ -10,7 +10,7 @@ import src.Physics.PStructAction;
 import src.Renderer.Camera;
 import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.CameraKeyAction;
-import src.tools.event.keyAction.action.CameraMovementAction;
+import src.tools.event.keyAction.actionNonSelect.CameraMovementAction;
 
 
 public class CameraController

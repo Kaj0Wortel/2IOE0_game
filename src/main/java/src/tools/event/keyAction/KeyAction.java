@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import src.GS;
-import src.tools.event.keyAction.action.CameraMovementAction;
-import src.tools.event.keyAction.action.CarMovementAction;
+import src.tools.event.keyAction.actionNonSelect.CameraMovementAction;
+import src.tools.event.keyAction.actionNonSelect.CarMovementAction;
 import src.tools.event.keyAction.action.PlayerMovementAction;
 import src.tools.log.Logger;
 
@@ -67,10 +67,10 @@ public abstract class KeyAction<V extends Enum<V>> {
         if (e instanceof CameraMovementAction) {
             return new CameraKeyAction(id, (CameraMovementAction) e);
             
-        } else if (e instanceof CameraMovementAction) {
+        } else if (e instanceof CarMovementAction) {
             return new CarKeyAction(id, (CarMovementAction) e);
             
-        } else if (e instanceof CameraMovementAction) {
+        } else if (e instanceof PlayerMovementAction) {
             return new PlayerKeyAction(id, (PlayerMovementAction) e);
             
         } else {
