@@ -576,15 +576,17 @@ public class Physics {
                 // DRIFTING BABY
                 if (pStruct.verticalVelocity == 0.0001f && pStruct.turn != 0) {
                     pStruct.turn *= 1.4f;
+                    if (s.internRoty == 0) {
+                        s.verticalVelocity = 5;
+                    }
                     if (Math.abs(s.internRoty) < Math.PI/12) {
-                        s.internRoty  += (float)(Math.PI/12*(pStruct.turn/Math.abs(pStruct.turn)))/20;
+                        s.internRoty  += (float)(Math.PI/12*(pStruct.turn/Math.abs(pStruct.turn)))/10;
                     }
                     //s.internRoty  = (float)(Math.PI/12*(pStruct.turn/Math.abs(pStruct.turn)));
                 } else if (s.internRoty > 0.01) {
-                    s.internRoty  -= (float)(Math.PI/12)/20;
-                    //s.internRoty  = 0;
+                    s.internRoty  -= (float)(Math.PI/12)/10;
                 } else if (s.internRoty < -0.01) {
-                    s.internRoty  += (float)(Math.PI/12)/20;
+                    s.internRoty  += (float)(Math.PI/12)/10;
                 } else {
                     s.internRoty = 0;
                 }
