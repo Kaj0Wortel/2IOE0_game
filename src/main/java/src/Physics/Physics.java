@@ -702,30 +702,31 @@ public class Physics {
                 // </editor-fold>
 
                 // <editor-fold defaultstate="collapsed" desc="COLLISION CALCULATIONS"> 
-                // Should be integrated into another class but still change pStruct
-                Vector3f colPos = new Vector3f (0.0001f, 40, 1);
+                /*// Should be integrated into another class but still change pStruct
+                Vector3f colPos = new Vector3f (-5, 0, 4);
                 double colRange = 2;
                 double carRange = 6;
                 // Collision detection
-                /*if (s.box.pos().x + carRange/2 > colPos.x - colRange/2 &&
+                if (s.box.pos().x + carRange/2 > colPos.x - colRange/2 &&
                         colPos.x + colRange/2 > s.box.pos().x - carRange/2 &&
                         s.box.pos().y + carRange/2 > colPos.y - colRange/2 &&
                         colPos.y + colRange/2 > s.box.pos().y - carRange/2 &&
                         s.box.pos().z + carRange/2 > colPos.z - colRange/2 &&
                         colPos.z + colRange/2 > s.box.pos().z - carRange/2) {
 
-                    double colAngle = Math.atan2( s.box.pos().x - colPos.x, s.box.pos().y - colPos.y);
+                    double colAngle = Math.atan2( s.box.pos().x - colPos.x, 
+                            s.box.pos().y - colPos.y);
                     colAngle = (-(colAngle - Math.PI/2) + Math.PI*2) % (Math.PI*2);
                     // Can only receive knockback once the last knockback is sufficiently small
                     if (s.collisionVelocity < 1) {
-                        s.collisionVelocity = Math.abs(s.velocity) * pc.knockback;
+                        s.collisionVelocity = Math.abs(s.velocity) * pc.knockback * 2;
                         ePos = new Vector3f(
-                            (float)(ePos.x + s.collisionVelocity * Math.cos(colAngle)), 
-                            (float)(ePos.y + s.collisionVelocity * Math.sin(colAngle)),
+                            (float)(ePos.x + s.collisionVelocity * Math.abs(Math.cos(colAngle))), 
+                            (float)(ePos.y + s.collisionVelocity * Math.abs(Math.sin(colAngle))),
                             ePos.z);
-                        s.verticalVelocity = 0.5f + Math.abs(s.velocity)/8;
+                        s.verticalVelocity = 1f + Math.abs(s.velocity)/4;
                     } 
-
+                    s.colAngle = (float)colAngle;
                     // Moments after collision
                 } else */if (s.collisionVelocity > pc.knockback/1_000_000_000) {
                     // Slowly diminish the knockback over time
