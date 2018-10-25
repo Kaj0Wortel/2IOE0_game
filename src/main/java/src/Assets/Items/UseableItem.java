@@ -26,6 +26,10 @@ public class UseableItem implements ItemInterface {
 
     private ITEM type;
     private float timer = 0;
+    private static boolean slow = false;
+    private static boolean fast = false;
+    private static boolean confuse = false;
+
 
     public UseableItem(){
         int i = GS.rani(0,2);
@@ -33,15 +37,19 @@ public class UseableItem implements ItemInterface {
         switch (i){
             case 0:
                 type = SLOWDOWN;
+                slow = true;
                 break;
             case 1:
                 type = SPEEDUP;
+                fast = true;
                 break;
             case 2:
                 type = INVERTKEYS;
+                confuse = true;
                 break;
             default:
                 type = SLOWDOWN;
+                slow = true;
                 break;
         }
     }
@@ -51,16 +59,26 @@ public class UseableItem implements ItemInterface {
             case SPEEDUP:{
                 pc.linAccel += 2f;// not refined
                 pc.maxLinearVelocity = 100;
-                //MusicManager.play("go_fast.wav", MusicManager.MUSIC_SFX);
+                if (fast) {
+                    fast = false;
+                    MusicManager.play("go_fast.wav", MusicManager.MUSIC_SFX);
+                }
                 break;
             }
             case SLOWDOWN:{
                 s.velocity -= 0.15f;
-                //MusicManager.play("too_slow.wav", MusicManager.MUSIC_SFX);
+                if (slow) {
+                    slow = false;
+                    MusicManager.play("too_slow.wav", MusicManager.MUSIC_SFX);
+                }
                 break;
             }
             case INVERTKEYS:{
                 pStruct.turn *= -1;
+                if (confuse) {
+                    confuse = false;
+                    MusicManager.play("trol.wav", MusicManager.MUSIC_SFX);
+                }
                 break;
             }
         }

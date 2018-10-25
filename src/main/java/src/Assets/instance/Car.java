@@ -16,6 +16,7 @@ import src.Physics.Physics;
 import src.Physics.PhysicsContext;
 import src.Shaders.CarShader;
 import src.Shaders.ShadowShader;
+import src.music.MusicManager;
 import src.tools.PosHitBox3f;
 import src.tools.log.Logger;
 
@@ -119,6 +120,7 @@ public class Car
         ItemInterface pickedUp = new UseableItem();
         s.curItem = pickedUp;
         Logger.write("GOT ITEM: " + pickedUp.toString());
+        MusicManager.play("pickup.wav", MusicManager.MUSIC_SFX);
     }
 
     @Override
