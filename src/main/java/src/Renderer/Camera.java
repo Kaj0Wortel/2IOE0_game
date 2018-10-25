@@ -366,8 +366,9 @@ public class Camera
         } else {
             CameraMode[] values = CameraMode.values();
             cameraMode = values[(cameraMode.ordinal() + 1) % values.length];
-            
         }
+        
+        if (cameraMode == CameraMode.HIGH_UP) cycleNextCameraMode();
     }
 
     public void changeFOV(float fovOffset){

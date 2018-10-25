@@ -98,6 +98,7 @@ public class Car
 
     @Override
     public void draw(GL3 gl, ShadowShader shader) {
+        //System.out.println(getState().box.pos());
         for (GraphicsObject obj : model.getAsset()) {
             shader.loadModelMatrix(gl, getTransformationMatrix());
 
