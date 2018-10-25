@@ -726,6 +726,7 @@ public class Physics {
             } else if (raceStarted) {
                 if (GS.time < 0) return;
                 // <editor-fold defaultstate="collapsed" desc="TEST AI">
+                // Instead of <default config> (top left of IDE): run Astar to change this data
                 DequeRequestReader<AStarDataPack> reader = readers.get(source);
                 AStarDataPack data = reader.getNextData();
                 ePos = data.pos;
@@ -757,7 +758,6 @@ public class Physics {
                         pStruct.turn = 0;
                     }
                     // </editor-fold>
-                
                 
                 eV = data.v;
                 eRot = data.rot - (float)Math.PI/2;
@@ -881,7 +881,6 @@ public class Physics {
             // Can only receive knockback once the last knockback is sufficiently small
             if (e1.ms.collisionVelocity < 1) {             
                 float difAngle1 = (float)Math.abs(e1.ms.roty%Math.PI - colAngle%Math.PI);
-                System.out.println("Dif: " + difAngle1);
                 float difAngle2 = (float)Math.abs(e2.ms.roty%Math.PI - colAngle%Math.PI);
 
                 e1.ms.collisionVelocity += Math.abs(e1.ms.velocity) * e1.mpc.knockback * 0.5f
@@ -896,9 +895,23 @@ public class Physics {
                 e2.ms.box.pos().y += e2.ms.collisionVelocity * Math.sin(colAngle+Math.PI);
                 e2.ms.verticalVelocity = 1f + Math.abs(e1.ms.velocity)/8;
             }
+            if (e1.ms.velocity == 0 && e2.ms.velocity == 0) {           
+                float difAngle1 = (float)Math.abs(e1.ms.roty%Math.PI - colAngle%Math.PI);
+                float difAngle2 = (float)Math.abs(e2.ms.roty%Math.PI - colAngle%Math.PI);
+
+                e1.ms.collisionVelocity += Math.abs(5) * e1.mpc.knockback * 0.5f
+                        *(1f + (float)Math.abs(Math.cos(difAngle1)*0.5f));
+                e1.ms.box.pos().x += e1.ms.collisionVelocity * Math.cos(colAngle);
+                e1.ms.box.pos().y += e1.ms.collisionVelocity * Math.sin(colAngle);
+                e1.ms.verticalVelocity = 1f + Math.abs(5)/8;
+
+                e2.ms.collisionVelocity += Math.abs(5) * e1.mpc.knockback * 0.5f
+                        *(1 + (float)Math.abs(Math.cos(difAngle2)*0.5f));
+                e2.ms.box.pos().x += e2.ms.collisionVelocity * Math.cos(colAngle+Math.PI);
+                e2.ms.box.pos().y += e2.ms.collisionVelocity * Math.sin(colAngle+Math.PI);
+                e2.ms.verticalVelocity = 1f + Math.abs(5)/8;
+            }
             e1.ms.colAngle = (float)colAngle;
-        } else if (e1.ms.velocity == 0 && e2.ms.velocity == 0) {
-            System.out.println("AAAAH");
         }
     }
     
