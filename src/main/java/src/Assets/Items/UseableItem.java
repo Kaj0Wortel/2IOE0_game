@@ -4,6 +4,7 @@ import src.Assets.instance.Instance;
 import src.GS;
 import src.Physics.PStructAction;
 import src.Physics.Physics;
+import src.music.MusicManager;
 import src.tools.log.Logger;
 
 import java.util.EnumMap;
@@ -50,10 +51,12 @@ public class UseableItem implements ItemInterface {
             case SPEEDUP:{
                 pc.linAccel += 2f;// not refined
                 pc.maxLinearVelocity = 100;
+                //MusicManager.play("go_fast.wav", MusicManager.MUSIC_SFX);
                 break;
             }
             case SLOWDOWN:{
                 s.velocity -= 0.15f;
+                //MusicManager.play("too_slow.wav", MusicManager.MUSIC_SFX);
                 break;
             }
             case INVERTKEYS:{
