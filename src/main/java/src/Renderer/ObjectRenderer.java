@@ -1,7 +1,6 @@
 package src.Renderer;
 
 import com.jogamp.opengl.GL3;
-import org.joml.Matrix4f;
 import src.Assets.instance.Car;
 import src.Assets.instance.Instance;
 import src.GS;
@@ -23,7 +22,7 @@ public class ObjectRenderer {
         defaultShader.loadLight(gl,GS.getLights().get(0));
         defaultShader.loadCameraPos(gl, GS.getCam(player).getPosition());
 
-        for(Instance asset : GS.getAssets()){
+        for(Instance asset : GS.getAssets()) {
             asset.draw(gl, defaultShader);
         }
 

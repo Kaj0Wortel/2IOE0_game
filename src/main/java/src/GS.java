@@ -50,6 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.LogManager;
 
+import src.Assets.instance.WoodBox;
 import static src.tools.event.ControllerKey.DEFAULT_GET_COMP_MODE;
 import static src.tools.io.BufferedReaderPlus.HASHTAG_COMMENT;
 import static src.tools.io.BufferedReaderPlus.TYPE_CONFIG;
@@ -129,6 +130,7 @@ public class GS {
     final private static List<Item> items = new CopyOnWriteArrayList<>();
     final private static List<GUI> guis = new CopyOnWriteArrayList<>();
     final private static List<Car> players = new CopyOnWriteArrayList<>();
+    final private static List<WoodBox> boxes = new CopyOnWriteArrayList<>();
     final public static List<Car> cars = new CopyOnWriteArrayList<>();
     final private static Map<Car, Camera> cameras = new ConcurrentHashMap<>();
     final private static Map<Car, PlayerController> playerControllers = new ConcurrentHashMap<>();
@@ -718,6 +720,14 @@ public class GS {
                 looser = true;
             }
         }
+    }
+    
+    public static void addBox(WoodBox box) {
+        boxes.add(box);
+    }
+    
+    public static List<WoodBox> getBoxes() {
+        return boxes;
     }
     
 }

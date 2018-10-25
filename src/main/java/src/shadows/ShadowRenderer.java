@@ -8,6 +8,7 @@ import org.joml.Vector3f;
 import src.Assets.instance.Car;
 import src.Assets.instance.Instance;
 import src.Assets.instance.Item;
+import src.Assets.instance.WoodBox;
 import src.GS;
 
 public class ShadowRenderer {
@@ -56,6 +57,10 @@ public class ShadowRenderer {
         
         for (Car p : GS.cars) {
             p.draw(gl, shadowShader);
+        }
+        
+        for (WoodBox box : GS.getBoxes()) {
+            box.draw(gl, shadowShader);
         }
 
         GS.getTrack().draw(gl, shadowShader);

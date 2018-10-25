@@ -40,6 +40,7 @@ public class Renderer
     private TerrainRenderer terrainRenderer;
     private MaterialRenderer materialRenderer;
     private ItemRenderer itemRenderer;
+    private WoodBoxRenderer woodBoxRenderer;
     private Map<Car, ShadowRenderer> shadowRenderers = new ConcurrentHashMap<>();
     private Map<Car, GUIRenderer> guiRenderers = new ConcurrentHashMap<>();
 
@@ -67,6 +68,7 @@ public class Renderer
             materialRenderer = new MaterialRenderer(gl);
             terrainRenderer = new TerrainRenderer(gl);
             itemRenderer = new ItemRenderer(gl);
+            woodBoxRenderer = new WoodBoxRenderer(gl);
             RacetrackShader racetrackShader = new RacetrackShader(gl);
                 GS.getTrack().setShader(racetrackShader);
             for (Car player : GS.getPlayers()) {
@@ -138,6 +140,7 @@ public class Renderer
                 materialRenderer.render(gl, player);
                 terrainRenderer.render(gl, player);
                 itemRenderer.render(gl, player);
+                woodBoxRenderer.render(gl, player);
                 
                 Matrix4f shadowMatrix = sr.getShadowMatrix();
                 

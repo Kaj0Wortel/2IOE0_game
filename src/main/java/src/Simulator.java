@@ -36,7 +36,7 @@ import src.Controllers.AIController;
 public class Simulator {
 
     public static enum TYPE {
-        CAR, ITEM, TRACK, ENVIRONMENT_TYPE, PLAYER, OTHER;
+        CAR, ITEM, TRACK, ENVIRONMENT_TYPE, PLAYER, OTHER, BOX;
     }
 
     private GL3 gl;
@@ -81,6 +81,11 @@ public class Simulator {
         rocks.put(1, rock.get(1));
         rocks.put(2, rock.get(2));
         rocks.put(3, rock.get(3));
+        
+        for (OBJObject obj : col) {
+            addToGamestate(BOX, col, new Vector3f(0, 4, 5), 4, 0, 0, 0, 0,
+                    new TextureImg(gl, "wood_box.png", 5, 0.5f), null, null);
+        }
 
         
         // (0,0,0) REFERENCE
@@ -247,7 +252,7 @@ public class Simulator {
     public Instance addToGamestate(TYPE type, OBJCollection col,
             Vector3f position, float size, float rotx, float roty, float rotz,
             float integratedRotation, TextureImg texture, TextureImg normalMap,
-            EnvironmentItem.Type envType){
+            EnvironmentItem.Type envType) {
         Instance cubeInstance = null;
         switch(type){
             case ITEM:{
@@ -336,6 +341,22 @@ public class Simulator {
                     GS.addAsset(cubeInstance);
                 }
                 break;
+            }
+            case BOX:{
+                for (OBJObject obj : col) {
+                    OBJTexture texturedCube = new OBJTexture(col,
+                            texture);
+                    //box = new Box3f(new Vector3f(0f, -60f, 500f));
+                    PosHitBox3f box = obj.createBoundingBox();
+                    //box.setPosKeepHitBox();
+                    box.translate(position);
+                    cubeInstance = new WoodBox(box,
+                            size, rotx, roty, rotz, texturedCube,
+                            integratedRotation, new PhysicsContext());
+                    GS.addBox((WoodBox) cubeInstance);
+                }
+                break;
+                
             }
         }
         

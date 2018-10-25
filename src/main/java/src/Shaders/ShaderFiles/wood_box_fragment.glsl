@@ -11,7 +11,7 @@ uniform vec3 lightColor;
 uniform float shininess;
 uniform float reflectivity;
 
-uniform sampler2D itemTexture;
+uniform sampler2D boxTexture;
 
 void main() {
     vec3 unitNormal = normalize(normalVector);
@@ -28,5 +28,6 @@ void main() {
     dotSpec = pow(dotSpec, shininess);
     vec3 specular = dotSpec * reflectivity * lightColor;
 
-    color = vec4(change,1.0) * texture(itemTexture, texPass) + vec4(specular,1.0);
+    color = vec4(change,1.0) * texture(boxTexture, texPass) + vec4(specular,1.0);
 }
+
