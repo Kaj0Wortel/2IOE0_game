@@ -4,7 +4,6 @@ import java.util.List;
 import src.Assets.instance.Car;
 import src.GS;
 import src.Physics.PStructAction;
-import src.music.MusicManager;
 import src.tools.event.ControllerKey;
 import src.tools.event.keyAction.PlayerKeyAction;
 import src.tools.event.keyAction.action.PlayerMovementAction;
@@ -54,6 +53,7 @@ public class PlayerController
                     acc -= Math.abs(pressed.get(0).getValue());
                 }
                 if (action.getAction() == PlayerMovementAction.JUMP) {
+                    System.out.println("JUMP");
                     vertV = 8;
                 }
                 if (action.getAction() == PlayerMovementAction.THROW_ITEM) {
@@ -62,7 +62,9 @@ public class PlayerController
                 if (action.getAction() == PlayerMovementAction.CHANGE_CAM) {
                     if (!prevCamChanged) GS.getCam(instance).cycleNextCameraMode();
                     camChanged = true;
-
+                }
+                if (action.getAction() == PlayerMovementAction.DRIFT) {
+                    // Your stuff here Daan
                 }
             }
         }
