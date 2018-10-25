@@ -572,6 +572,22 @@ public class Physics {
                     rotationalVelocity *= pc.airControl;
                     linAccel *= (1.45 * pc.airControl);
                 }
+                
+                // DRIFTING BABY
+                if (pStruct.verticalVelocity == 0.0001f && pStruct.turn != 0) {
+                    pStruct.turn *= 1.5f;
+                    if (Math.abs(s.internRoty) < Math.PI/12) {
+                        s.internRoty  += (float)(Math.PI/12*(pStruct.turn/Math.abs(pStruct.turn)))/20;
+                    }
+                    //s.internRoty  = (float)(Math.PI/12*(pStruct.turn/Math.abs(pStruct.turn)));
+                } else if (s.internRoty > 0.01) {
+                    s.internRoty  -= (float)(Math.PI/12)/20;
+                    //s.internRoty  = 0;
+                } else if (s.internRoty < -0.01) {
+                    s.internRoty  += (float)(Math.PI/12)/20;
+                } else {
+                    s.internRoty = 0;
+                }
                 // </editor-fold>
 
 
@@ -899,7 +915,7 @@ public class Physics {
                 e2.ms.box.pos().y += e2.ms.collisionVelocity * Math.sin(colAngle+Math.PI);
                 e2.ms.verticalVelocity = 1f + Math.abs(e1.ms.velocity)/8;
             }
-            if (e1.ms.velocity == 0 && e2.ms.velocity == 0) {           
+            if (e1.ms.velocity == 0 && e2.ms.velocity == 0 && e1.ms.rIndex != 0 && e2.ms.rIndex != 0) {           
                 float difAngle1 = (float)Math.abs(e1.ms.roty%Math.PI - colAngle%Math.PI);
                 float difAngle2 = (float)Math.abs(e2.ms.roty%Math.PI - colAngle%Math.PI);
 

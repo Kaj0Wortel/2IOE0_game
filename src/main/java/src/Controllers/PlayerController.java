@@ -64,6 +64,7 @@ public class PlayerController
                 }
                 if (action.getAction() == PlayerMovementAction.DRIFT) {
                     // Your stuff here Daan
+                    vertV = 0.0001f;
                 }
             }
         }
