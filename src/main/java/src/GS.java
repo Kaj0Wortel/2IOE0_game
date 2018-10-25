@@ -201,6 +201,7 @@ public class GS {
      * -------------------------------------------------------------------------
      */
     public static void init() {
+        /*
         // Initialize the logger(s).
         // Setup file logger to prevent missing events.
         Logger fileLogger = null;
@@ -211,13 +212,13 @@ public class GS {
             System.err.println(e);
         }
         Logger.setDefaultLogger(fileLogger);
-        
+        */
         // Initialize the fonts.
         FontLoader.init();
         // Set the default font.
         FontLoader.setDefaultFont(FontLoader.getLocalFont("source-sans-pro"
                 + GS.FS + "SourceSansPro-Black.ttf").deriveFont(16F));
-        
+        /*
         // Setup key map for the screen logger.
         Map<Key, Runnable> debugMap = new HashMap<>();
         debugMap.put(Key.ESC, () -> System.exit(0));
@@ -236,7 +237,7 @@ public class GS {
         Logger.write("Starting application...", Logger.Type.INFO);
         Logger.setShutDownMessage("Shutting down application...",
                 Logger.Type.INFO);
-        
+        */
         if (DISABLE_JAVA_LOGGING) {
             LogManager.getLogManager().reset();
             Logger.write("Logging via \"java.util.logging.Logger\" has "
