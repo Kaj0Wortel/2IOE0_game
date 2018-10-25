@@ -53,7 +53,6 @@ public class PlayerController
                     acc -= Math.abs(pressed.get(0).getValue());
                 }
                 if (action.getAction() == PlayerMovementAction.JUMP) {
-                    System.out.println("JUMP");
                     vertV = 8;
                 }
                 if (action.getAction() == PlayerMovementAction.THROW_ITEM) {
