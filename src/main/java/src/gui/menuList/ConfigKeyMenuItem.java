@@ -74,7 +74,7 @@ public class ConfigKeyMenuItem
         public ActionName(KeyAction action) {
             super(action == null
                     ? ""
-                    : action.getAction().toString().toLowerCase().replaceAll("_", " "));
+                    : action.getAction().toString());
             this.action = action;
         }
         
