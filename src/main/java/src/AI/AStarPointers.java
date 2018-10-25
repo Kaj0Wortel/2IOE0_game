@@ -87,7 +87,7 @@ public class AStarPointers {
     */ // </editor-fold>
     public static void runAlgorithm () {
         // Project imports
-        VisualAStar visual = new VisualAStar();
+        VisualAStar visual = new VisualAStar(new Rectangle(0,-10,10,10));
        // Physics physics = new Physics();
         
         // <editor-fold defaultstate="collapsed" desc="VARIABLES">
@@ -322,7 +322,7 @@ public class AStarPointers {
                                         + ", Rot: "+sRot);
                             }
                             // Debug visuals
-                            if (iter < 50000 && false) {
+                            if (iter < 50000 /*&& false*/) {
                                 visual.setForeground(Color.LIGHT_GRAY);
                                 visual.addPoint(new Point2D.Double(sPos.x, -sPos.y));
                                 visual.setForeground(Color.WHITE);

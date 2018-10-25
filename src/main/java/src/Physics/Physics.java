@@ -232,54 +232,7 @@ public class Physics {
         }
     }
     
-    
-    /**
-     * Computes the position, velocity and rotation after a key input
-     * using the position, velocity and rotation values before the input.
-     * 
-     * WORKING:
-     * rotating + accelerating
-     * updating its pStruct even when no key pressed
-     * slowing down when no key is pressed
-     * simple collision (rectangle colliders)
-     * rotation correction for small velocities and negative velocities
-     * 2 simple items/situations implemented
-     * Large slowdown when speed higher than vMax 
-     * 
-     * 
-     * TODO:
-     * Improved collision: differentiate between static/dynamic collision 
-     *      - AI car necessary to test dynamic
-     *      - long wall necessary to test static point-array-based static
-     *      - Rotation necessary
-     * Implement falling when not on ground
-     *      - tumbling over
-     *      - point2d.doubles need to become vector2f?
-     * 
-     * TODO?:
-     * completely stop movement when velocity close to 0
-     *      - Already really close, when forcing: physics go haywire
-     *      - Not really necessary
-     * Implement realistic collision
-     *      - depends on how many hours we want to invest in this (claw?)
-     * Refine rotation physics (-rotVmax<->rotVmax) instead of (-rotVmax/0/rotVmax)
-     *      - controller would then be necessary instead of just an option
-     *      - Controller script also needs to support for range detection
-     * Refine rotation physics (increase rot velocity the longer you hold A/D)
-     *      - Less ideal than previous idea
-     *      - If implemented: should be subtle
-     *      - 4-term rotation calculations -> 12-figure rotation calculations
-     *      
-     * 
-     * turn: A/D => (1/-1)
-     * acc: W/S => (1/-1)
-     * a: max acc
-     * rotV: max rot velocity (-max/0/max)
-     * vMax: max lin velocity, (-max<->max)
-     * tInt: time interval (key detection interval)
-     * startStruct: begin position
-     * velocity and rotation
-     */
+   
     static boolean raceStarted = false;
     
     public static void calcPhysics(Instance source, PStructAction pStruct,
@@ -918,7 +871,8 @@ public class Physics {
                 e2.ms.box.pos().y += e2.ms.collisionVelocity * Math.sin(colAngle+Math.PI);
                 e2.ms.verticalVelocity = 1f + Math.abs(e1.ms.velocity)/8;
             }
-            if (e1.ms.velocity == 0 && e2.ms.velocity == 0 && e1.ms.rIndex != 0 && e2.ms.rIndex != 0) {           
+            if (e1.ms.velocity == 0 && e2.ms.velocity == 0 && e1.ms.rIndex != 0 && e2.ms.rIndex != 0
+                    && !e1.ms.isResetting && !e2.ms.isResetting) {           
                 float difAngle1 = (float)Math.abs(e1.ms.roty%Math.PI - colAngle%Math.PI);
                 float difAngle2 = (float)Math.abs(e2.ms.roty%Math.PI - colAngle%Math.PI);
 
