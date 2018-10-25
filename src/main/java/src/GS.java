@@ -711,12 +711,13 @@ public class GS {
     private static boolean winner = false;
     private static boolean looser = false;
     public static void finishSFX(){
-        for(Car carI:players){
-            if(carI.isFinished() && carI.isFirst() && !winner){
-                MusicManager.play("win.wav", MusicManager.MUSIC_SFX);
+        for(Car carI : cars) {
+            if(carI.isFinished() && carI.isFirst() && !winner) {
+                if (!carI.isAI()) MusicManager.play("win2.wav", MusicManager.MUSIC_SFX);
                 winner = true;
-            } else if (carI.isFinished() && !carI.isFirst() && !looser && winner){
-                MusicManager.play("lose.wav", MusicManager.MUSIC_SFX);
+                
+            } else if (carI.isFinished() && !carI.isFirst() && !looser && winner) {
+                if (!carI.isAI()) MusicManager.play("lose.wav", MusicManager.MUSIC_SFX);
                 looser = true;
             }
         }
