@@ -85,10 +85,10 @@ public class Simulator {
         for (OBJObject obj : col) {
             //addToGamestate(BOX, col, new Vector3f(0, 4, 5), 4, 0, 0, 0, 0,
             //        new TextureImg(gl, "wood_box.png", 5, 0.5f), null, null); 2,379E+2 -6,673E+1  9,447E+2)
-            addToGamestate(BOX, col, new Vector3f(123.8f, -16.29f, 532.2f), 5, 0, 0, 0, 0,
-                    new TextureImg(gl, "wood_box.png", 5, 0.5f), null, null);
-            addToGamestate(BOX, col, new Vector3f(237.9f, -65.73f, 944.7f), 5, 0, 0, 0, 0,
-                    new TextureImg(gl, "wood_box.png", 5, 0.5f), null, null);
+            //addToGamestate(BOX, col, new Vector3f(123.8f, -16.29f, 532.2f), 5, 0, 0, 0, 0,
+            //        new TextureImg(gl, "wood_box.png", 5, 0.5f), null, null);
+            //addToGamestate(BOX, col, new Vector3f(237.9f, -65.73f, 944.7f), 5, 0, 0, 0, 0,
+            //        new TextureImg(gl, "wood_box.png", 5, 0.5f), null, null);
         }
 
         
