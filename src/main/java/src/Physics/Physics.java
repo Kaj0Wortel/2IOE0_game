@@ -575,7 +575,7 @@ public class Physics {
                 
                 // DRIFTING BABY
                 if (pStruct.verticalVelocity == 0.0001f && pStruct.turn != 0) {
-                    pStruct.turn *= 1.5f;
+                    pStruct.turn *= 1.4f;
                     if (Math.abs(s.internRoty) < Math.PI/12) {
                         s.internRoty  += (float)(Math.PI/12*(pStruct.turn/Math.abs(pStruct.turn)))/20;
                     }
