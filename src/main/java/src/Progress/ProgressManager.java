@@ -18,7 +18,7 @@ public class ProgressManager
     public int lap = 1;
     public boolean finished = false;
     public int cpAm = 16; // modifiable
-    public int lapTotal = 1; // modifiable
+    public int lapTotal = 2; // modifiable
     
     
     public void manageProgress(Vector3f pos, int pointAmount, int curPoint) {
