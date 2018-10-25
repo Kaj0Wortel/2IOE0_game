@@ -900,6 +900,8 @@ public class Physics {
                 e2.ms.verticalVelocity = 1f + Math.abs(e1.ms.velocity)/8;
             }
             e1.ms.colAngle = (float)colAngle;
+        } else if (e1.ms.velocity == 0 && e2.ms.velocity == 0) {
+            System.out.println("AAAAH");
         }
     }
     
