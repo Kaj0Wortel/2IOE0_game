@@ -11,7 +11,7 @@
  * without my permission.                                                    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-package toolsX.log;
+package src.toolsX.log;
 
 
 // Java imports

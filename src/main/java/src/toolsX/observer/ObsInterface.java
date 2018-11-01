@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
-package toolsX.observer;
+package src.toolsX.observer;
 
 
 /**

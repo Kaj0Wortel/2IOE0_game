@@ -11,13 +11,13 @@
  * without my permission.                                                    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-package toolsX.swing;
+package src.toolsX.swing;
 
 
 // Own imports
 
 import src.tools.io.ImageManager;
-import tools.observer.HashObservableInterface;
+import src.toolsX.observer.HashObservableInterface;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -193,8 +193,8 @@ public class Button
      */
     private void updateBorderState() {
         Border b = getBorder();
-        if (b != null && b instanceof tools.swing.IOBorder) {
-            tools.swing.IOBorder ioB = (tools.swing.IOBorder) b;
+        if (b != null && b instanceof IOBorder) {
+            IOBorder ioB = (IOBorder) b;
             ioB.setState(state.getVal());
         }
     }
@@ -292,7 +292,7 @@ public class Button
         frame.setSize(700, 700);
         frame.getContentPane().setBackground(Color.RED);
         
-        Button button = new Button("test", "BUTTON_BACK", new tools.swing.IOBorder(
+        Button button = new Button("test", "BUTTON_BACK", new IOBorder(
                 "MENU_CORNERS", "MENU_SIDES", new Insets(5, 5, 5, 5)
         ));
         button.setLocation(50, 50);

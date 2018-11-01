@@ -11,7 +11,7 @@
  * without my permission.                                                    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-package toolsX.swing;
+package src.toolsX.swing;
 
 
 // Java imports

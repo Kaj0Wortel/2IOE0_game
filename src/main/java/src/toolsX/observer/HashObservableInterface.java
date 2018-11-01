@@ -11,7 +11,7 @@
  * without my permission.                                                    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-package toolsX.observer;
+package src.toolsX.observer;
 
 
 // Java imports
