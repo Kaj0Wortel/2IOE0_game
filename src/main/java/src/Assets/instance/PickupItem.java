@@ -13,6 +13,7 @@ import src.Physics.Physics.ModPhysicsContext;
 import src.Physics.Physics.ModState;
 import src.Physics.PhysicsContext;
 import src.Shaders.ShaderProgram;
+import src.Shaders.ShadowShader;
 import src.tools.PosHitBox3f;
 
 
@@ -68,6 +69,11 @@ public class PickupItem
     
     @Override
     public void draw(GL3 gl, ShaderProgram shader) {
+        if (!isHit) super.draw(gl, shader);
+    }
+    
+    @Override
+    public void draw(GL3 gl, ShadowShader shader) {
         if (!isHit) super.draw(gl, shader);
     }
     
