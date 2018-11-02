@@ -32,9 +32,9 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
 import src.tools.event.Key;
-import tools.ModCursors;
-import tools.swing.Button;
-import tools.swing.IOBorder;
+import src.tools.ModCursors;
+import src.tools.swing.Button;
+import src.tools.swing.IOBorder;
 
 // Java imports
 

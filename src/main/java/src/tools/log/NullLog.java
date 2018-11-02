@@ -11,12 +11,11 @@
  * without my permission.                                                    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-package src.toolsX.log;
+package src.tools.log;
 
 
 // Java imports
 
-import src.tools.log.Logger;
 
 import java.util.Date;
 
