@@ -7,7 +7,8 @@ import src.Assets.instance.Instance;
 import src.GS;
 import src.Shaders.ItemShader;
 
-public class ItemRenderer {
+public class ItemRenderer
+        implements RendererInterface {
 
     private ItemShader defaultShader;
 
@@ -15,6 +16,7 @@ public class ItemRenderer {
         defaultShader = new ItemShader(gl);
     }
 
+    @Override
     public void render(GL3 gl, Car player) {
         defaultShader.start(gl);
 

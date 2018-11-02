@@ -6,7 +6,8 @@ import src.Assets.instance.Instance;
 import src.GS;
 import src.Shaders.MaterialShader;
 
-public class MaterialRenderer {
+public class MaterialRenderer
+        implements RendererInterface {
 
     private MaterialShader defaultShader;
 
@@ -14,6 +15,7 @@ public class MaterialRenderer {
         defaultShader = new MaterialShader(gl);
     }
 
+    @Override
     public void render(GL3 gl, Car player) {
         defaultShader.start(gl);
 

@@ -1,13 +1,13 @@
 package src.Renderer;
 
 import com.jogamp.opengl.GL3;
-import org.joml.Matrix4f;
 import src.Assets.instance.Car;
 import src.Assets.instance.Instance;
 import src.GS;
 import src.Shaders.TerrainShader;
 
-public class TerrainRenderer {
+public class TerrainRenderer
+        implements RendererInterface{
 
     private TerrainShader terrainShader;
 
@@ -15,6 +15,7 @@ public class TerrainRenderer {
         this.terrainShader = new TerrainShader(gl);
     }
 
+    @Override
     public void render(GL3 gl, Car player) {
         terrainShader.start(gl);
 

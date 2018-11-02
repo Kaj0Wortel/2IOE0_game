@@ -10,7 +10,8 @@ import java.util.List;
 import src.Assets.instance.Car;
 import src.Shaders.ShaderProgram;
 
-public class GUIRenderer {
+public class GUIRenderer
+        implements RendererInterface {
     private IntBuffer vao;
     private int nrV;
 
@@ -25,6 +26,7 @@ public class GUIRenderer {
         nrV = vertices.length / 2;
     }
 
+    @Override
     public void render(GL3 gl, Car player) {
         List<GUI> guis = GS.getGUIs();
         if (guis.isEmpty()) return;
