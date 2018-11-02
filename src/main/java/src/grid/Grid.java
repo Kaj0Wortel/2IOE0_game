@@ -259,6 +259,33 @@ public class Grid {
     }
     
     /**
+     * Gets the items in the range of the given item.
+     * 
+     * @param item the item to get all items around from.
+     * @param xCells the range in cells in the x-direction.
+     * @param yCells the range in cells in the y-direction.
+     * @param zCells the range in cells in the y-direction.
+     * @return a 4D array containing all items in the cells around {@code item},
+     *     within the specified cell ranges.
+     * 
+     * Note that setting for example {@code xCells} to 2 gives an array
+     * of length {@code 2(left) + 1(center) + 2(right = 5}.
+     * Also note that the array includes the given item.
+     */
+    public GridItem[][][][] getItemsAround(GridItem item,
+            int xCells, int yCells, int zCells) {
+        Vector3f pos = item.getCurPosition();
+        return getItemsInCellRange(
+                (int) ((pos.x + startX) / dx) - xCells,
+                (int) ((pos.x + startX) / dx) + xCells,
+                (int) ((pos.y + startY) / dy) - yCells,
+                (int) ((pos.y + startY) / dy) + yCells,
+                (int) ((pos.z + startZ) / dz) - zCells,
+                (int) ((pos.z + startZ) / dz) + zCells
+        );
+    }
+    
+    /**
      * @param x1 a cell x-coord.
      * @param x2 a cell x-coord.
      * @param y1 a cell y-coord.

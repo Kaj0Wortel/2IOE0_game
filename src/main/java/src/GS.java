@@ -118,6 +118,8 @@ public class GS {
     final public static String OBJ_DIR = RESOURCE_DIR + "obj" + FS;
     final public static String TEX_DIR = RESOURCE_DIR + "textures" + FS;
     
+    final public static String DELIM = ";";
+    
     /** Image constants. */
     final public static String FRAME_ICON = "FRAME_ICON";
     final public static String ASTROID_POSITIONS = DATA_DIR + "astroidPositions.csv";

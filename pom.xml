@@ -93,7 +93,12 @@
             <artifactId>pngdecoder</artifactId>
             <version>1.0</version>
         </dependency>
-
+		<!-- https://mvnrepository.com/artifact/org.javatuples/javatuples -->
+        <dependency>
+            <groupId>org.javatuples</groupId>
+            <artifactId>javatuples</artifactId>
+            <version>1.2</version>
+        </dependency>
     </dependencies>
     
     <repositories>

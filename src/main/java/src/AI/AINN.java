@@ -67,7 +67,7 @@ public class AINN {
     Instance.State simulState;
     Instance.State drivingState;
     private PStructAction curAction;
-    static List<PStructAction> actions;
+    final static List<PStructAction> actions;
     // private long dt = 0;
 
     private Thread updateThread = null;
@@ -290,6 +290,7 @@ public class AINN {
     private void readAndCreateIter(int skipLines) {
         if (skipLines < 0) throw new RuntimeException("Cannot create CSV reader skipping negative lines!");
 
+        @SuppressWarnings("deprecation")
         RecordReader aStarReader = new CSVRecordReader(skipLines, GS.DELIM);
 
         try (InputStream is = new ByteArrayInputStream(CSV.getBytes(Charset.defaultCharset()))) {
@@ -456,7 +457,7 @@ public class AINN {
 
     private Pair<float[], PStructAction[]> computeTargetValues(int batchSize) {
         float[] targets = new float[batchSize];
-        PStructAction[] actions = new PStructAction[batchSize];
+        PStructAction[] carActions = new PStructAction[batchSize];
 
         List<Quintet<INDArray, PStructAction, Double, INDArray, Boolean>> miniBatch = getMiniBatch(batchSize);
 
@@ -467,18 +468,18 @@ public class AINN {
             if (me.getValue4()) {
                 // Set target value to current reward
                 targets[i] = me.getValue2().floatValue();
-                actions[i] = me.getValue1();
+                carActions[i] = me.getValue1();
             } else {
                 float gamma = 0.4f;
                 float netArgMax = network.output(me.getValue3()).maxNumber().floatValue();
 
                 targets[i] = me.getValue2().floatValue() + gamma * netArgMax;
-                actions[i] = me.getValue1();
+                carActions[i] = me.getValue1();
                 Logger.write(new Object[]{"netArgMax: " + netArgMax, "setting target value " + i + "to " + (me.getValue2().floatValue() + gamma * netArgMax)});
             }
         }
 
-        return new Pair<>(targets, actions);
+        return new Pair<>(targets, carActions);
     }
 
     /**
@@ -543,7 +544,7 @@ public class AINN {
 
         // Compute if newState is final
         ProgressManager PM = simulInst.getProgressManager();
-        boolean isFinal = PM.lapTotal < PM.getLap();
+        boolean isFinal = PM.lapTotal < PM.lap;
 
         // Store replay in memory
         replayMemory.add(new Quintet<>(currIterData, action, ((double) reward), newState, isFinal));
