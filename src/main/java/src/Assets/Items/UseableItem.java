@@ -1,22 +1,30 @@
+
 package src.Assets.Items;
 
-import src.Assets.instance.Instance;
-import src.GS;
-import src.Physics.PStructAction;
-import src.Physics.Physics;
-import src.music.MusicManager;
-import src.tools.log.Logger;
-
+// Java imports
 import java.util.EnumMap;
 
+// Own imports
 import static src.Assets.Items.UseableItem.ITEM.INVERTKEYS;
 import static src.Assets.Items.UseableItem.ITEM.SLOWDOWN;
 import static src.Assets.Items.UseableItem.ITEM.SPEEDUP;
+import src.Assets.instance.Instance;
+import src.GS;
+import src.Physics.PStructAction;
+import src.Physics.Physics.ModPhysicsContext;
+import src.Physics.Physics.ModState;
+import src.music.MusicManager;
+import src.tools.log.Logger;
 
-public class UseableItem implements ItemInterface {
 
-    public enum ITEM {SPEEDUP, SLOWDOWN, INVERTKEYS}
-    final private static EnumMap<ITEM, Float> animationTimes = new EnumMap<ITEM, Float>(ITEM.class);
+public class UseableItem
+        implements ItemInterface {
+
+    public enum ITEM {
+        SPEEDUP, SLOWDOWN, INVERTKEYS;
+    }
+    final private static EnumMap<ITEM, Float> animationTimes
+            = new EnumMap<>(ITEM.class);
 
     static {
         animationTimes.put(SLOWDOWN, 10f);
@@ -31,7 +39,7 @@ public class UseableItem implements ItemInterface {
     private static boolean confuse = false;
 
 
-    public UseableItem(){
+    public UseableItem() {
         int i = GS.rani(0,2);
         System.out.println(i);
         switch (i){
@@ -54,7 +62,9 @@ public class UseableItem implements ItemInterface {
         }
     }
 
-    public void activate(Instance instance, PStructAction pStruct, Physics.ModPhysicsContext pc, Physics.ModState s) {
+    @Override
+    public void activate(Instance instance, PStructAction pStruct,
+            ModPhysicsContext pc, ModState s) {
         switch(type){
             case SPEEDUP:{
                 pc.linAccel += 2f;// not refined
@@ -85,14 +95,15 @@ public class UseableItem implements ItemInterface {
     }
 
     @Override
-    public void perform(Instance instance, PStructAction pStruct, Physics.ModPhysicsContext pc, Physics.ModState s){
+    public void perform(Instance instance, PStructAction pStruct,
+            ModPhysicsContext pc, ModState s) {
         float dt = pStruct.dt / 160f;
         timer += dt;
 
-        if(timer > animationTimes.get(type)){
+        if (timer > animationTimes.get(type)) {
             s.activeItems.remove(this);
             Logger.write(s.activeItems);
-        }else{
+        } else {
             activate(instance,pStruct,pc,s);
             Logger.write(s.activeItems);
         }
@@ -104,12 +115,12 @@ public class UseableItem implements ItemInterface {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return type.toString();
     }
 
     @Override
-    public int getType(){
+    public int getType() {
         return type.ordinal();
     }
 
